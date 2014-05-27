@@ -39,9 +39,9 @@ HEADERS += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32
-else:unix: LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
+else:unix: LIBS += -lboost_system
 
-INCLUDEPATH += $$PWD/../boost_1_54_0
-DEPENDPATH += $$PWD/../boost_1_54_0
+win32:INCLUDEPATH += $$PWD/../boost_1_54_0
+win32:DEPENDPATH += $$PWD/../boost_1_54_0
 
 OTHER_FILES +=
