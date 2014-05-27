@@ -13,8 +13,8 @@ device from a PC or any other electronic device.
 
 DeCoF is based on a, well, let's name it *data centric* approach. Data centric
 in this context means that interaction between the device and the remote
-control instance is based on messages sent back and forth. Instead interaction
-is purely done by modification of named parameter values.
+control instance is purely based on modification of named parameter values
+rather than sending a bunch of messages back and forth.
 
 Concepts
 --------
@@ -34,7 +34,7 @@ not finally defined by DeCoF but some useful implementations are provided.
 
 As said, *parameters* are named values of a given, fixed type. *Commands* are
 special parameters without a value. They can be used so signal some event.
-Since parameters must have a parent, there are also *nodes* around, that can
+Since parameters must have a parent there are also *nodes* around that can
 hold child parameters.
 
 Parameters can hold values of the following builtin types:
@@ -45,7 +45,7 @@ Parameters can hold values of the following builtin types:
 * string
 * and a sequence type for each of the above listed primitive types.
 
-A node is a special parameter of type sequence<string> that holds the names of
+A node is a special parameter of type sequence of strings that holds the names of
 its child parameters.
 
 ### Object dictionary
