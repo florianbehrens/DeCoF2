@@ -210,7 +210,7 @@ void scheme_protocol::write_next(std::string str)
     );
 }
 
-void scheme_protocol::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void scheme_protocol::write_handler(const boost::system::error_code &error, std::size_t)
 {
     if (error)
         throw std::runtime_error(error.message());
