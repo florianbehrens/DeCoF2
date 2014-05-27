@@ -76,8 +76,8 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
     std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
     inbuf_.consume(bytes_transferred);
 
-    // Trim and tokenize the request string
-    boost::algorithm::trim(str);
+    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
     std::vector<std::string> tokens;
     boost::algorithm::split(tokens, str, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
@@ -89,10 +89,14 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
         // Lower-case first substring
         std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
 
-        if (tokens[0] == "subscribe") {
+        // Remove optional "'" from parameter name
+        if (tokens[1][0] == '\'')
+            tokens[1].erase(0, 1);
+
+        if (tokens[0] == "subscribe" || tokens[0] == "add") {
             //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
             observe(tokens[1], std::bind(&scheme_monitor_protocol::notify, this, std::placeholders::_1, std::placeholders::_2));
-        } else if (tokens[0] == "unsubscribe") {
+        } else if (tokens[0] == "unsubscribe" || tokens[0] == "del") {
             unobserve(tokens[1]);
         } else
             ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;

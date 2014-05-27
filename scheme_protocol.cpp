@@ -148,8 +148,8 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
     std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
     inbuf_.consume(bytes_transferred);
 
-    // Trim and tokenize the request string
-    boost::algorithm::trim(str);
+    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
     std::vector<std::string> tokens;
     boost::tokenizer<ws_separated_quotable_list> tokenizer(str);
 
@@ -166,12 +166,16 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
         std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
         std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
 
-        if (tokens[0] == "get") {
+        // Remove optional "'" from parameter name
+        if (tokens[1][0] == '\'')
+            tokens[1].erase(0, 1);
+
+        if (tokens[0] == "get" || tokens[0] == "param-ref") {
             if (tree_element *te = server_.objectDictionary().find_child(tokens[1]))
                 ss << string_encoder::encode(te->any_value()) << std::endl;
             else
                 throw invalid_parameter_error();
-        } else if (tokens[0] == "set") {
+        } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
             if (tokens.size() == 3) {
                 set_parameter(tokens[1], tokens[2]);
                 ss << SCHEME_NO_ERROR << std::endl;
