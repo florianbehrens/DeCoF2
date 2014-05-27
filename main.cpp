@@ -54,8 +54,11 @@ struct time_parameter : public external_readonly_parameter<std::string>
 
 private:
     std::string get_external_value() override {
-        std::time_t t = std::time(nullptr);
-        return std::asctime(std::localtime(&t));
+        const size_t max_length = 40;
+        char str[max_length];
+        std::time_t now = std::time(nullptr);
+        std::strftime(str, sizeof(str), "%c", std::localtime(&now));
+        return std::string(str);
     }
 };
 
