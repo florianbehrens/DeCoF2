@@ -171,7 +171,7 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
             tokens[1].erase(0, 1);
 
         if (tokens[0] == "get" || tokens[0] == "param-ref") {
-            if (tree_element *te = server_.objectDictionary().find_child(tokens[1]))
+            if (tree_element *te = server_.objectDictionary().find_object(tokens[1]))
                 ss << string_encoder::encode(te->any_value()) << std::endl;
             else
                 throw invalid_parameter_error();

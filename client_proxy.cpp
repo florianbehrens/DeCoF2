@@ -29,7 +29,7 @@ ClientProxy::~ClientProxy()
 
 void ClientProxy::observe(std::string uri, tree_element::signal_type::slot_type slot)
 {
-    if (tree_element *te = server_.objectDictionary().find_child(uri)) {
+    if (tree_element *te = server_.objectDictionary().find_object(uri)) {
         if (observables_.count(uri) == 0) {
             tree_element::connection connection = te->observe(slot);
             observables_.emplace(uri, connection);

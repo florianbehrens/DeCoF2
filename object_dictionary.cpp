@@ -16,6 +16,21 @@
 
 #include "object_dictionary.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 ObjectDictionary::ObjectDictionary()
  : node("root", nullptr)
 {}
+
+tree_element *ObjectDictionary::find_object(std::string uri)
+{
+    if (uri == name())
+        return this;
+
+    if (boost::algorithm::starts_with(uri, name() + ":")) {
+        std::string sub_uri = uri.substr(uri.find(':') + 1);
+        return find_child(sub_uri);
+    }
+
+    return nullptr;
+}

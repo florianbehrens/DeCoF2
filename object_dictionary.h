@@ -25,7 +25,10 @@ class Server;
 /// @brief Object dictionary for parameter tree objects.
 class ObjectDictionary : public node
 {
+public:
     friend class Server;
+
+    tree_element* find_object(std::string uri);
 
 private:
     ObjectDictionary();

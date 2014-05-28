@@ -42,7 +42,7 @@ public:
 protected:
     template<typename T>
     void set_parameter(std::string uri, T value) {
-        if (tree_element *te = server_.objectDictionary().find_child(uri)) {
+        if (tree_element *te = server_.objectDictionary().find_object(uri)) {
             // Check parameter type
             basic_parameter<T> *bp = dynamic_cast<basic_parameter<T>*>(te);
 
