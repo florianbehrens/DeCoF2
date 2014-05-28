@@ -106,6 +106,9 @@ scheme_protocol::scheme_protocol(Server &server, const tcp::endpoint &endpoint)
 
 void scheme_protocol::preload()
 {
+    if (socket_.is_open())
+        socket_.close();
+
     // Make 1st asynchronous call
     acceptor_.async_accept(
         socket_,
@@ -118,10 +121,8 @@ void scheme_protocol::accept_handler(const boost::system::error_code &error)
     if (!error) {
         // Prepare for data reception
         read_next();
-    }
-
-    // Prepare for more connections
-    preload();
+    } else
+        throw std::runtime_error(error.message());
 }
 
 void scheme_protocol::read_next()
@@ -132,74 +133,77 @@ void scheme_protocol::read_next()
         inbuf_,
         '\n',
         std::bind(&scheme_protocol::read_handler, this, std::placeholders::_1, std::placeholders::_2)
-    );
+                );
 }
 
 void scheme_protocol::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
-    if (error)
-        throw std::runtime_error(error.message());
+    if (!error) {
+        // First copy bytes_transferred bytes from the streambuf to a
+        // std::string. This is one of the uglyest things in boost::asio and only
+        // properly documented in stackoverflow:
+        // http://stackoverflow.com/questions/877652/copy-a-streambufs-contents-to-a-string.
+        boost::asio::streambuf::const_buffers_type buffer = inbuf_.data();
+        std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
+        inbuf_.consume(bytes_transferred);
 
-    // First copy bytes_transferred bytes from the streambuf to a
-    // std::string. This is one of the uglyest things in boost::asio and only
-    // properly documented in stackoverflow:
-    // http://stackoverflow.com/questions/877652/copy-a-streambufs-contents-to-a-string.
-    boost::asio::streambuf::const_buffers_type buffer = inbuf_.data();
-    std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
-    inbuf_.consume(bytes_transferred);
+        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+        boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
+        std::vector<std::string> tokens;
+        boost::tokenizer<ws_separated_quotable_list> tokenizer(str);
 
-    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
-    std::vector<std::string> tokens;
-    boost::tokenizer<ws_separated_quotable_list> tokenizer(str);
+        for (boost::tokenizer<ws_separated_quotable_list>::iterator beg = tokenizer.begin(); beg != tokenizer.end(); ++beg) {
+            tokens.push_back(*beg);
+        }
 
-    for (boost::tokenizer<ws_separated_quotable_list>::iterator beg = tokenizer.begin(); beg != tokenizer.end(); ++beg) {
-        tokens.push_back(*beg);
-    }
-
-    std::stringstream ss;
-    try {
-        if (tokens.size() <= 1)
-            throw parse_error();
-
-        // Lower-case first two substrings
-        std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
-        std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
-
-        // Remove optional "'" from parameter name
-        if (tokens[1][0] == '\'')
-            tokens[1].erase(0, 1);
-
-        if (tokens[0] == "get" || tokens[0] == "param-ref") {
-            if (tree_element *te = server_.objectDictionary().find_object(tokens[1]))
-                ss << string_encoder::encode(te->any_value()) << std::endl;
-            else
-                throw invalid_parameter_error();
-        } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
-            if (tokens.size() == 3) {
-                set_parameter(tokens[1], tokens[2]);
-                ss << SCHEME_NO_ERROR << std::endl;
-            }
-            else
+        std::stringstream ss;
+        try {
+            if (tokens.size() <= 1)
                 throw parse_error();
-        } else
-            ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
-    } catch (access_denied_error) {
-        ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
-    } catch (invalid_parameter_error) {
-        ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
-    } catch (wrong_type_error) {
-        ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
-    } catch (parse_error) {
-        ss << SCHEME_PARSE_ERROR << std::endl;
-    } catch (invalid_value_error) {
-        ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
-    } catch (...) {
-        ss << SCHEME_UNKNOWN_ERROR << std::endl;
-    }
 
-    write_next(ss.str());
-    read_next();
+            // Lower-case first two substrings
+            std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+            std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
+
+            // Remove optional "'" from parameter name
+            if (tokens[1][0] == '\'')
+                tokens[1].erase(0, 1);
+
+            if (tokens[0] == "get" || tokens[0] == "param-ref") {
+                if (tree_element *te = server_.objectDictionary().find_object(tokens[1]))
+                    ss << string_encoder::encode(te->any_value()) << std::endl;
+                else
+                    throw invalid_parameter_error();
+            } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
+                if (tokens.size() == 3) {
+                    set_parameter(tokens[1], tokens[2]);
+                    ss << SCHEME_NO_ERROR << std::endl;
+                }
+                else
+                    throw parse_error();
+            } else
+                ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
+        } catch (access_denied_error) {
+            ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
+        } catch (invalid_parameter_error) {
+            ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
+        } catch (wrong_type_error) {
+            ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
+        } catch (parse_error) {
+            ss << SCHEME_PARSE_ERROR << std::endl;
+        } catch (invalid_value_error) {
+            ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
+        } catch (...) {
+            ss << SCHEME_UNKNOWN_ERROR << std::endl;
+        }
+
+        write_next(ss.str());
+        read_next();
+    } else if (error.value() == asio::error::eof) {
+        // Connection was closed by peer
+        preload();
+    } else
+        throw std::runtime_error(error.message());
 }
 
 void scheme_protocol::write_next(std::string str)
@@ -216,6 +220,9 @@ void scheme_protocol::write_next(std::string str)
 
 void scheme_protocol::write_handler(const boost::system::error_code &error, std::size_t)
 {
-    if (error)
+    if (error.value() == asio::error::eof) {
+        // Connection was closed by peer
+        preload();
+    } else if (error)
         throw std::runtime_error(error.message());
 }

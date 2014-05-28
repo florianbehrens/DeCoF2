@@ -36,6 +36,9 @@ scheme_monitor_protocol::scheme_monitor_protocol(Server &server, const tcp::endp
 
 void scheme_monitor_protocol::preload()
 {
+    if (socket_.is_open())
+        socket_.close();
+
     // Make 1st asynchronous call
     acceptor_.async_accept(
         socket_,
@@ -43,13 +46,13 @@ void scheme_monitor_protocol::preload()
     );
 }
 
-void scheme_monitor_protocol::accept_handler(boost::system::error_code ec)
+void scheme_monitor_protocol::accept_handler(boost::system::error_code error)
 {
-    if (!ec)
+    if (!error) {
+        // Prepare for data reception
         read_next();
-    else {
-        preload();
-    }
+    } else
+        throw std::runtime_error(error.message());
 }
 
 void scheme_monitor_protocol::read_next()
@@ -65,57 +68,60 @@ void scheme_monitor_protocol::read_next()
 
 void scheme_monitor_protocol::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
-    if (error)
+    if (!error) {
+        // First copy bytes_transferred bytes from the streambuf to a
+        // std::string. This is one of the uglyest things in boost::asio and only
+        // properly documented in stackoverflow:
+        // http://stackoverflow.com/questions/877652/copy-a-streambufs-contents-to-a-string.
+        boost::asio::streambuf::const_buffers_type buffer = inbuf_.data();
+        std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
+        inbuf_.consume(bytes_transferred);
+
+        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+        boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
+        std::vector<std::string> tokens;
+        boost::algorithm::split(tokens, str, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
+
+        std::stringstream ss;
+        try {
+            if (tokens.size() <= 1)
+                throw parse_error();
+
+            // Lower-case first substring
+            std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+
+            // Remove optional "'" from parameter name
+            if (tokens[1][0] == '\'')
+                tokens[1].erase(0, 1);
+
+            if (tokens[0] == "subscribe" || tokens[0] == "add") {
+                //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
+                observe(tokens[1], std::bind(&scheme_monitor_protocol::notify, this, std::placeholders::_1, std::placeholders::_2));
+            } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
+                unobserve(tokens[1]);
+            } else
+                ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
+        } catch (access_denied_error) {
+            ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
+        } catch (invalid_parameter_error) {
+            ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
+        } catch (wrong_type_error) {
+            ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
+        } catch (parse_error) {
+            ss << SCHEME_PARSE_ERROR << std::endl;
+        } catch (invalid_value_error) {
+            ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
+        } catch (...) {
+            ss << SCHEME_UNKNOWN_ERROR << std::endl;
+        }
+
+        write_next(ss.str());
+        read_next();
+    } else if (error.value() == asio::error::eof) {
+        // Connection was closed by peer
+        preload();
+    } else
         throw std::runtime_error(error.message());
-
-    // First copy bytes_transferred bytes from the streambuf to a
-    // std::string. This is one of the uglyest things in boost::asio and only
-    // properly documented in stackoverflow:
-    // http://stackoverflow.com/questions/877652/copy-a-streambufs-contents-to-a-string.
-    boost::asio::streambuf::const_buffers_type buffer = inbuf_.data();
-    std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
-    inbuf_.consume(bytes_transferred);
-
-    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
-    std::vector<std::string> tokens;
-    boost::algorithm::split(tokens, str, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
-
-    std::stringstream ss;
-    try {
-        if (tokens.size() <= 1)
-            throw parse_error();
-
-        // Lower-case first substring
-        std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
-
-        // Remove optional "'" from parameter name
-        if (tokens[1][0] == '\'')
-            tokens[1].erase(0, 1);
-
-        if (tokens[0] == "subscribe" || tokens[0] == "add") {
-            //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
-            observe(tokens[1], std::bind(&scheme_monitor_protocol::notify, this, std::placeholders::_1, std::placeholders::_2));
-        } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
-            unobserve(tokens[1]);
-        } else
-            ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
-    } catch (access_denied_error) {
-        ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
-    } catch (invalid_parameter_error) {
-        ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
-    } catch (wrong_type_error) {
-        ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
-    } catch (parse_error) {
-        ss << SCHEME_PARSE_ERROR << std::endl;
-    } catch (invalid_value_error) {
-        ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
-    } catch (...) {
-        ss << SCHEME_UNKNOWN_ERROR << std::endl;
-    }
-
-    write_next(ss.str());
-    read_next();
 }
 
 void scheme_monitor_protocol::write_next(std::string str)
@@ -132,7 +138,10 @@ void scheme_monitor_protocol::write_next(std::string str)
 
 void scheme_monitor_protocol::write_handler(const boost::system::error_code &error, std::size_t)
 {
-    if (error)
+    if (error.value() == asio::error::eof) {
+        // Connection was closed by peer
+        preload();
+    } else if (error)
         throw std::runtime_error(error.message());
 }
 

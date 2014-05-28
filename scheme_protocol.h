@@ -37,11 +37,9 @@ private:
     void accept_handler(const boost::system::error_code &error);
 
     void read_next();
-
     void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     void write_next(std::string str);
-
     void write_handler(const boost::system::error_code& error, std::size_t);
 
     boost::asio::io_service &io_service_;

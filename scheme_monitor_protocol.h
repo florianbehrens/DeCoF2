@@ -32,14 +32,12 @@ public:
     virtual void preload() override;
 
 private:
-    void accept_handler(boost::system::error_code ec);
+    void accept_handler(boost::system::error_code error);
 
     void read_next();
-
     void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     void write_next(std::string str);
-
     void write_handler(const boost::system::error_code&, std::size_t);
 
     void notify(const std::string &uri, const boost::any &any_value) noexcept;
