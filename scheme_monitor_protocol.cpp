@@ -96,7 +96,7 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
         if (tokens[0] == "subscribe" || tokens[0] == "add") {
             //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
             observe(tokens[1], std::bind(&scheme_monitor_protocol::notify, this, std::placeholders::_1, std::placeholders::_2));
-        } else if (tokens[0] == "unsubscribe" || tokens[0] == "del") {
+        } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
             unobserve(tokens[1]);
         } else
             ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
@@ -138,5 +138,11 @@ void scheme_monitor_protocol::write_handler(const boost::system::error_code &err
 
 void scheme_monitor_protocol::notify(const std::string &uri, const boost::any &any_value) noexcept
 {
-    write_next(uri + ": " + string_encoder::encode(any_value) + "\n");
+    // Get current time in textual representation
+    const size_t max_length = 25;
+    char time_str[max_length];
+    std::time_t now = std::time(nullptr);
+    std::strftime(time_str, sizeof(time_str), "%FT%TZ", std::localtime(&now));
+
+    write_next(std::string("(") + time_str + " '" + uri + " " + string_encoder::encode(any_value) + ")\n");
 }
