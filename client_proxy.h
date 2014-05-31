@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#include "errors.h"
+#include "exceptions.h"
 #include "object_dictionary.h"
 #include "readwrite_parameter.h"
 #include "server.h"

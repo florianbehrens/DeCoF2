@@ -7,7 +7,7 @@
 #include <boost/asio/steady_timer.hpp>
 #include <boost/bind.hpp>
 
-#include "errors.h"
+#include "exceptions.h"
 #include "external_readonly_parameter.h"
 #include "external_readwrite_parameter.h"
 #include "object_dictionary.h"

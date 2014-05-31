@@ -23,7 +23,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/tokenizer.hpp>
 
-#include "errors.h"
+#include "exceptions.h"
 #include "object_dictionary.h"
 #include "basic_parameter.h"
 #include "scheme_common.h"

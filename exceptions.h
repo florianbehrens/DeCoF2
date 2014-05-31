@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-#include "errors.h"
+#ifndef EXCEPTIONS_H
+#define EXCEPTIONS_H
 
-access_denied_error::access_denied_error()
- : std::runtime_error("Access denied error")
-{}
+#include <stdexcept>
 
-invalid_parameter_error::invalid_parameter_error()
- : std::runtime_error("Invalid parameter error")
-{}
+struct access_denied_error : public std::runtime_error
+{
+    access_denied_error();
+};
 
-wrong_type_error::wrong_type_error()
- : std::runtime_error("Wrong type error")
-{}
+struct invalid_parameter_error : public std::runtime_error
+{
+    invalid_parameter_error();
+};
 
-invalid_value_error::invalid_value_error()
- : std::runtime_error("Invalid value error")
-{}
+struct wrong_type_error : public std::runtime_error
+{
+    wrong_type_error();
+};
+
+struct invalid_value_error : public std::runtime_error
+{
+    invalid_value_error();
+};
+
+#endif // EXCEPTIONS_H

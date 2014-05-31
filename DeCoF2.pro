@@ -8,19 +8,18 @@ SOURCES += main.cpp \
     tree_element.cpp \
     object_dictionary.cpp \
     scheme_protocol.cpp \
-    errors.cpp \
     scheme_monitor_protocol.cpp \
     string_encoder.cpp \
     client_proxy.cpp \
     poll_timer.cpp \
-    server.cpp
+    server.cpp \
+    exceptions.cpp
 
 HEADERS += \
     node.h \
     tree_element.h \
     object_dictionary.h \
     scheme_protocol.h \
-    errors.h \
     scheme_errors.h \
     external_readonly_parameter.h \
     external_readwrite_parameter.h \
@@ -35,7 +34,8 @@ HEADERS += \
     string_encoder.h \
     client_proxy.h \
     poll_timer.h \
-    server.h
+    server.h \
+    exceptions.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32

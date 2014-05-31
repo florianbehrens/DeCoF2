@@ -20,7 +20,7 @@
 #include <boost/algorithm/string/join.hpp>
 
 #include "container_types.h"
-#include "errors.h"
+#include "exceptions.h"
 
 std::string string_encoder::encode(const boost::any &any_value)
 {
