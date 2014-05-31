@@ -19,6 +19,9 @@
 
 #include "basic_parameter.h"
 
+namespace decof
+{
+
 template<typename T>
 class observable_parameter : public basic_parameter<T>
 {
@@ -40,5 +43,7 @@ protected:
 private:
     tree_element::signal_type signal_;
 };
+
+} // namespace decof
 
 #endif // OBSERVABLE_PARAMETER_H

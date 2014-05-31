@@ -21,6 +21,9 @@
 
 #include "basic_parameter.h"
 
+namespace decof
+{
+
 class observer;
 
 /**
@@ -52,5 +55,7 @@ public:
 private:
     virtual value_type get_external_value() = 0;
 };
+
+} // namespace decof
 
 #endif // EXTERNAL_READONLY_PARAMETER_H

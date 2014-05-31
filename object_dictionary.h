@@ -19,6 +19,9 @@
 
 #include "node.h"
 
+namespace decof
+{
+
 // Forward declaration
 class Server;
 
@@ -33,5 +36,7 @@ public:
 private:
     ObjectDictionary();
 };
+
+} // namespace decof
 
 #endif // OBJECT_DICTIONARY_H

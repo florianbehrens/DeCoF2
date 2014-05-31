@@ -16,6 +16,9 @@
 
 #include "client_proxy.h"
 
+namespace decof
+{
+
 ClientProxy::ClientProxy(Server &server)
   : server_(server)
 {}
@@ -46,3 +49,5 @@ void ClientProxy::unobserve(std::string uri)
     } catch (std::out_of_range&) {
     }
 }
+
+} // namespace decof

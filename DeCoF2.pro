@@ -20,7 +20,6 @@ HEADERS += \
     tree_element.h \
     object_dictionary.h \
     scheme_protocol.h \
-    scheme_errors.h \
     external_readonly_parameter.h \
     external_readwrite_parameter.h \
     managed_readonly_parameter.h \
@@ -35,7 +34,8 @@ HEADERS += \
     client_proxy.h \
     poll_timer.h \
     server.h \
-    exceptions.h
+    exceptions.h \
+    errors.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32

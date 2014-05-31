@@ -23,11 +23,11 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/tokenizer.hpp>
 
+#include "errors.h"
 #include "exceptions.h"
 #include "object_dictionary.h"
 #include "basic_parameter.h"
 #include "scheme_common.h"
-#include "scheme_errors.h"
 #include "string_encoder.h"
 #include "tree_element.h"
 
@@ -96,6 +96,9 @@ private:
 };
 
 } // anonymous namespace
+
+namespace decof
+{
 
 scheme_protocol::scheme_protocol(Server &server, const tcp::endpoint &endpoint)
   : ClientProxy(server),
@@ -177,24 +180,24 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
             } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
                 if (tokens.size() == 3) {
                     set_parameter(tokens[1], tokens[2]);
-                    ss << SCHEME_NO_ERROR << std::endl;
+                    ss << SUCCESS << std::endl;
                 }
                 else
                     throw parse_error();
             } else
-                ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
+                ss << UNKNOWN_OPERATION_ERROR << std::endl;
         } catch (access_denied_error) {
-            ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
+            ss << ACCESS_DENIED_ERROR << std::endl;
         } catch (invalid_parameter_error) {
-            ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
+            ss << INVALID_PARAMETER_ERROR << std::endl;
         } catch (wrong_type_error) {
-            ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
+            ss << WRONG_TYPE_ERROR << std::endl;
         } catch (parse_error) {
-            ss << SCHEME_PARSE_ERROR << std::endl;
+            ss << PARSE_ERROR << std::endl;
         } catch (invalid_value_error) {
-            ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
+            ss << INVALID_VALUE_ERROR << std::endl;
         } catch (...) {
-            ss << SCHEME_UNKNOWN_ERROR << std::endl;
+            ss << UNKNOWN_ERROR << std::endl;
         }
 
         write_next(ss.str());
@@ -226,3 +229,5 @@ void scheme_protocol::write_handler(const boost::system::error_code &error, std:
     } else if (error)
         throw std::runtime_error(error.message());
 }
+
+} // namespace decof

@@ -22,6 +22,9 @@
 #include "observable_parameter.h"
 #include "readwrite_parameter.h"
 
+namespace decof
+{
+
 /**
  * An external_readwrite_parameter may only be modified by the client side and is
  * managed by the server implementation, i.e. externally from the framework's
@@ -52,5 +55,7 @@ private:
     virtual bool set_external_value(const value_type &value) = 0;
     virtual value_type get_external_value() = 0;
 };
+
+} // namespace decof
 
 #endif // EXTERNAL_READWRITE_PARAMETER_H

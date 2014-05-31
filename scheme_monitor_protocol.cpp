@@ -21,11 +21,14 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
+#include "errors.h"
 #include "scheme_common.h"
-#include "scheme_errors.h"
 #include "string_encoder.h"
 
 namespace asio = boost::asio;
+
+namespace decof
+{
 
 scheme_monitor_protocol::scheme_monitor_protocol(Server &server, const tcp::endpoint &endpoint) :
     ClientProxy(server),
@@ -100,19 +103,19 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
             } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
                 unobserve(tokens[1]);
             } else
-                ss << SCHEME_UNKNOWN_OPERATION_ERROR << std::endl;
+                ss << UNKNOWN_OPERATION_ERROR << std::endl;
         } catch (access_denied_error) {
-            ss << SCHEME_ACCESS_DENIED_ERROR << std::endl;
+            ss << ACCESS_DENIED_ERROR << std::endl;
         } catch (invalid_parameter_error) {
-            ss << SCHEME_INVALID_PARAMETER_ERROR << std::endl;
+            ss << INVALID_PARAMETER_ERROR << std::endl;
         } catch (wrong_type_error) {
-            ss << SCHEME_WRONG_TYPE_ERROR << std::endl;
+            ss << WRONG_TYPE_ERROR << std::endl;
         } catch (parse_error) {
-            ss << SCHEME_PARSE_ERROR << std::endl;
+            ss << PARSE_ERROR << std::endl;
         } catch (invalid_value_error) {
-            ss << SCHEME_INVALID_VALUE_ERROR << std::endl;
+            ss << INVALID_VALUE_ERROR << std::endl;
         } catch (...) {
-            ss << SCHEME_UNKNOWN_ERROR << std::endl;
+            ss << UNKNOWN_ERROR << std::endl;
         }
 
         write_next(ss.str());
@@ -155,3 +158,5 @@ void scheme_monitor_protocol::notify(const std::string &uri, const boost::any &a
 
     write_next(std::string("(") + time_str + " '" + uri + " " + string_encoder::encode(any_value) + ")\n");
 }
+
+} // namespace decof

@@ -26,6 +26,9 @@ namespace boost {
 class any;
 }
 
+namespace decof
+{
+
 class observer;
 class node;
 
@@ -63,5 +66,7 @@ private:
     std::string name_;
     node *parent_;
 };
+
+} // namespace decof
 
 #endif // TREE_ELEMENT_H

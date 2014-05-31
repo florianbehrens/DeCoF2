@@ -18,6 +18,8 @@
 #include "server.h"
 #include "tree_element.h"
 
+using namespace decof;
+
 Server decofServer;
 
 struct my_managed_readwrite_parameter : public managed_readwrite_parameter<std::string>

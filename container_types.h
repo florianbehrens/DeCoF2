@@ -20,6 +20,11 @@
 #include <string>
 #include <vector>
 
+namespace decof
+{
+
 typedef std::vector<std::string> stringlist;
+
+} // namespace decof
 
 #endif // CONTAINER_TYPES_H

@@ -22,6 +22,9 @@
 #include "container_types.h"
 #include "exceptions.h"
 
+namespace decof
+{
+
 std::string string_encoder::encode(const boost::any &any_value)
 {
     if (any_value.type() == typeid(std::string))
@@ -31,3 +34,5 @@ std::string string_encoder::encode(const boost::any &any_value)
     else
         throw wrong_type_error();
 }
+
+} // namespace decof

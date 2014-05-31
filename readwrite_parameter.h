@@ -17,6 +17,9 @@
 #ifndef READWRITE_PARAMETER_H
 #define READWRITE_PARAMETER_H
 
+namespace decof
+{
+
 template<typename T>
 class readwrite_parameter
 {
@@ -28,5 +31,7 @@ public:
 private:
    virtual void set_private_value(const value_type &value) = 0;
 };
+
+} // namespace decof
 
 #endif // READWRITE_PARAMETER_H

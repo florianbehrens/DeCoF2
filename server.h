@@ -22,6 +22,9 @@
 #include "object_dictionary.h"
 #include "poll_timer.h"
 
+namespace decof
+{
+
 class Server
 {
 public:
@@ -34,5 +37,7 @@ private:
     PollTimer pollTimer_;
     boost::asio::io_service ioService_;
 };
+
+} // namespace decof
 
 #endif // SERVER_H

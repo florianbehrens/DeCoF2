@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef SCHEME_ERRORS_H
-#define SCHEME_ERRORS_H
+#ifndef ERRORS_H
+#define ERRORS_H
 
-enum scheme_errors {
-    SCHEME_NO_ERROR = 0,
-    SCHEME_UNKNOWN_ERROR,
-    SCHEME_ACCESS_DENIED_ERROR,
-    SCHEME_INVALID_PARAMETER_ERROR,
-    SCHEME_WRONG_TYPE_ERROR,
-    SCHEME_PARSE_ERROR,
-    SCHEME_INVALID_VALUE_ERROR,
-    SCHEME_UNKNOWN_OPERATION_ERROR
+namespace decof
+{
+
+enum errors {
+    SUCCESS = 0,
+    UNKNOWN_ERROR,
+    ACCESS_DENIED_ERROR,
+    INVALID_PARAMETER_ERROR,
+    WRONG_TYPE_ERROR,
+    PARSE_ERROR,
+    INVALID_VALUE_ERROR,
+    UNKNOWN_OPERATION_ERROR
 };
 
-#endif // SCHEME_ERRORS_H
+} // namespace decof
+
+#endif // ERRORS_H

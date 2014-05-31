@@ -25,6 +25,9 @@
 #include "container_types.h"
 #include "observable_parameter.h"
 
+namespace decof
+{
+
 class node : public observable_parameter<stringlist>
 {
 public:
@@ -51,5 +54,7 @@ private:
     // are deleted.
     children_t children_;
 };
+
+} // namespace decof
 
 #endif // NODE_H

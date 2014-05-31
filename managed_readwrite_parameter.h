@@ -23,6 +23,9 @@
 #include "observable_parameter.h"
 #include "readwrite_parameter.h"
 
+namespace decof
+{
+
 // Forward declaration
 template<typename T>
 class managed_readonly_parameter;
@@ -69,5 +72,7 @@ private:
 
     value_type value_;
 };
+
+} // namespace decof
 
 #endif // MANAGED_READWRITE_PARAMETER_H

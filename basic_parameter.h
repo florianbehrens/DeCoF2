@@ -25,6 +25,9 @@
 #include "container_types.h"
 #include "tree_element.h"
 
+namespace decof
+{
+
 template<typename T>
 class basic_parameter : public tree_element
 {
@@ -45,5 +48,7 @@ protected:
     // We inherit base class constructors
     using tree_element::tree_element;
 };
+
+} // namespace decof
 
 #endif // BASIC_PARAMETER_H

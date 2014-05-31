@@ -19,10 +19,15 @@
 
 #include <stdexcept>
 
+namespace decof
+{
+
 struct parse_error : public std::runtime_error
 {
     parse_error()
      : std::runtime_error("Parse error") {}
 };
+
+} // namespace decof
 
 #endif // SCHEME_COMMON_H

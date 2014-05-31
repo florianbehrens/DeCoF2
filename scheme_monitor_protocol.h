@@ -24,6 +24,9 @@
 
 using boost::asio::ip::tcp;
 
+namespace decof
+{
+
 class scheme_monitor_protocol : public ClientProxy
 {
 public:
@@ -48,5 +51,7 @@ private:
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
 };
+
+} // namespace decof
 
 #endif // SCHEME_MONITOR_PROTOCOL_H

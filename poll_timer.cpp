@@ -16,6 +16,11 @@
 
 #include "poll_timer.h"
 
+namespace decof
+{
+
 PollTimer::PollTimer()
 {
 }
+
+} // namespace decof

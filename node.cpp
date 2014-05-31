@@ -20,6 +20,9 @@
 #include <algorithm>
 #include <iostream>
 
+namespace decof
+{
+
 node::node(std::string name, node *parent)
  : observable_parameter<stringlist>(name, parent)
 {}
@@ -99,3 +102,5 @@ stringlist node::children()
         retval.push_back(c->name());
     return retval;
 }
+
+} // namespace decof

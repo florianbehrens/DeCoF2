@@ -16,6 +16,9 @@
 
 #include "exceptions.h"
 
+namespace decof
+{
+
 access_denied_error::access_denied_error()
  : std::runtime_error("Access denied error")
 {}
@@ -31,3 +34,5 @@ wrong_type_error::wrong_type_error()
 invalid_value_error::invalid_value_error()
  : std::runtime_error("Invalid value error")
 {}
+
+} // namespace decof

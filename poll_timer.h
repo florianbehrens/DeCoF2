@@ -17,6 +17,9 @@
 #ifndef POLL_TIMER_H
 #define POLL_TIMER_H
 
+namespace decof
+{
+
 class PollTimer
 {
     friend class Server;
@@ -27,5 +30,7 @@ private:
 public:
 
 };
+
+} // namespace decof
 
 #endif // POLL_TIMER_H

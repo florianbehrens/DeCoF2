@@ -18,6 +18,9 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+namespace decof
+{
+
 ObjectDictionary::ObjectDictionary()
  : node("root", nullptr)
 {}
@@ -34,3 +37,5 @@ tree_element *ObjectDictionary::find_object(std::string uri)
 
     return nullptr;
 }
+
+} // namespace decof

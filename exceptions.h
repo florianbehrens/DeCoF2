@@ -19,6 +19,9 @@
 
 #include <stdexcept>
 
+namespace decof
+{
+
 struct access_denied_error : public std::runtime_error
 {
     access_denied_error();
@@ -38,5 +41,7 @@ struct invalid_value_error : public std::runtime_error
 {
     invalid_value_error();
 };
+
+} // namespace decof
 
 #endif // EXCEPTIONS_H

@@ -22,6 +22,9 @@
 
 #include "managed_readwrite_parameter.h"
 
+namespace decof
+{
+
 /**
  * A managed_readonly_parameter may only by modified by the server side.
  *
@@ -44,5 +47,7 @@ public:
         }
     }
 };
+
+} // namespace decof
 
 #endif // MANAGED_READONLY_PARAMETER_H

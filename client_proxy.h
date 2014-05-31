@@ -25,6 +25,9 @@
 #include "readwrite_parameter.h"
 #include "server.h"
 
+namespace decof
+{
+
 class tree_element;
 
 class ClientProxy
@@ -70,5 +73,7 @@ protected:
 private:
     std::map<std::string, boost::signals2::connection> observables_;
 };
+
+} // namespace decof
 
 #endif // CLIENT_PROXY_H

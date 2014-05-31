@@ -24,10 +24,15 @@ namespace boost {
 class any;
 }
 
+namespace decof
+{
+
 struct string_encoder
 {
 public:
     static std::string encode(const boost::any &any_value);
 };
+
+} // namespace decof
 
 #endif // STRING_ENCODER_H

@@ -17,6 +17,9 @@
 #include "tree_element.h"
 #include "node.h"
 
+namespace decof
+{
+
 tree_element::tree_element(std::string name, node *parent)
  : name_(name), parent_(parent)
 {
@@ -59,3 +62,5 @@ void tree_element::set_parent(node *parent)
         parent->remove_child(this);
     parent_ = parent;
 }
+
+} // namespace decof

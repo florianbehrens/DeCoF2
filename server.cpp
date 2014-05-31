@@ -16,6 +16,9 @@
 
 #include "server.h"
 
+namespace decof
+{
+
 ObjectDictionary &Server::objectDictionary()
 {
     return objectDictionary_;
@@ -30,3 +33,5 @@ boost::asio::io_service &Server::ioService()
 {
     return ioService_;
 }
+
+} // namespace decof
