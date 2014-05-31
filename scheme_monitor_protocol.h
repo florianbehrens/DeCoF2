@@ -27,10 +27,10 @@ using boost::asio::ip::tcp;
 namespace decof
 {
 
-class scheme_monitor_protocol : public ClientProxy
+class scheme_monitor_protocol : public client_proxy
 {
 public:
-    explicit scheme_monitor_protocol(Server& server, const tcp::endpoint &endpoint);
+    explicit scheme_monitor_protocol(server& server, const tcp::endpoint &endpoint);
 
     virtual void preload() override;
 

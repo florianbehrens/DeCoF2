@@ -102,8 +102,8 @@ private:
 namespace decof
 {
 
-scheme_protocol::scheme_protocol(Server &server, const tcp::endpoint &endpoint)
-  : ClientProxy(server),
+scheme_protocol::scheme_protocol(server &server, const tcp::endpoint &endpoint)
+  : client_proxy(server),
     io_service_(server.ioService()),
     acceptor_(server.ioService(), endpoint),
     socket_(server.ioService())

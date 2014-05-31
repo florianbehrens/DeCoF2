@@ -23,18 +23,18 @@ namespace decof
 {
 
 // Forward declaration
-class Server;
+class server;
 
 /// @brief Object dictionary for parameter tree objects.
-class ObjectDictionary : public node
+class object_dictionary : public node
 {
 public:
-    friend class Server;
+    friend class server;
 
     tree_element* find_object(std::string uri);
 
 private:
-    ObjectDictionary();
+    object_dictionary();
 };
 
 } // namespace decof

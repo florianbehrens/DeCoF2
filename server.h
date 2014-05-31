@@ -25,16 +25,16 @@
 namespace decof
 {
 
-class Server
+class server
 {
 public:
-    ObjectDictionary& objectDictionary();
-    PollTimer& pollTimer();
+    object_dictionary& objectDictionary();
+    poll_timer& pollTimer();
     boost::asio::io_service& ioService();
 
 private:
-    ObjectDictionary objectDictionary_;
-    PollTimer pollTimer_;
+    object_dictionary objectDictionary_;
+    poll_timer pollTimer_;
     boost::asio::io_service ioService_;
 };
 

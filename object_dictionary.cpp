@@ -21,11 +21,11 @@
 namespace decof
 {
 
-ObjectDictionary::ObjectDictionary()
+object_dictionary::object_dictionary()
  : node("root", nullptr)
 {}
 
-tree_element *ObjectDictionary::find_object(std::string uri)
+tree_element *object_dictionary::find_object(std::string uri)
 {
     if (uri == name())
         return this;

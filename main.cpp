@@ -20,7 +20,7 @@
 
 using namespace decof;
 
-Server decofServer;
+server decofServer;
 
 struct my_managed_readwrite_parameter : public managed_readwrite_parameter<std::string>
 {
@@ -99,7 +99,7 @@ int main()
     //  | |-- time: string (r)
     //  | |-- leaf2: stringlist (rw)
     //  | |-- ip-address: string (rw)
-    ObjectDictionary& od = decofServer.objectDictionary();
+    object_dictionary& od = decofServer.objectDictionary();
     new my_managed_readwrite_parameter("enabled", &od, "false");
     node* subnode = new node("subnode", &od);
     new time_parameter("time", subnode);

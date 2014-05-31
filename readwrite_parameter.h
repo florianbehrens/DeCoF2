@@ -23,7 +23,7 @@ namespace decof
 template<typename T>
 class readwrite_parameter
 {
-    friend class ClientProxy;
+    friend class client_proxy;
 
 public:
     typedef T value_type;

@@ -20,12 +20,12 @@
 namespace decof
 {
 
-class PollTimer
+class poll_timer
 {
-    friend class Server;
+    friend class server;
 
 private:
-    PollTimer();
+    poll_timer();
 
 public:
 

@@ -19,7 +19,7 @@
 namespace decof
 {
 
-PollTimer::PollTimer()
+poll_timer::poll_timer()
 {
 }
 

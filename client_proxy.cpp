@@ -19,18 +19,18 @@
 namespace decof
 {
 
-ClientProxy::ClientProxy(Server &server)
+client_proxy::client_proxy(server &server)
   : server_(server)
 {}
 
-ClientProxy::~ClientProxy()
+client_proxy::~client_proxy()
 {
     // Disconnect all existing connections before destruction
     for (auto elem : observables_)
         elem.second.disconnect();
 }
 
-void ClientProxy::observe(std::string uri, tree_element::signal_type::slot_type slot)
+void client_proxy::observe(std::string uri, tree_element::signal_type::slot_type slot)
 {
     if (tree_element *te = server_.objectDictionary().find_object(uri)) {
         if (observables_.count(uri) == 0) {
@@ -41,7 +41,7 @@ void ClientProxy::observe(std::string uri, tree_element::signal_type::slot_type 
         throw invalid_parameter_error();
 }
 
-void ClientProxy::unobserve(std::string uri)
+void client_proxy::unobserve(std::string uri)
 {
     try {
         observables_.at(uri).disconnect();

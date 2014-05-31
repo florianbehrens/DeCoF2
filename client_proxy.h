@@ -30,14 +30,14 @@ namespace decof
 
 class tree_element;
 
-class ClientProxy
+class client_proxy
 {
 protected:
-    explicit ClientProxy(Server& server);
+    explicit client_proxy(server& server);
 
     /// @brief Virtual destructor.
     /// Makes sure that active connections are properly disconnected.
-    virtual ~ClientProxy();
+    virtual ~client_proxy();
 
 public:
     virtual void preload() = 0;
@@ -68,7 +68,7 @@ public:
     void unobserve(std::string uri);
 
 protected:
-    Server& server_;
+    server& server_;
 
 private:
     std::map<std::string, boost::signals2::connection> observables_;

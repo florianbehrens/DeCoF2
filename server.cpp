@@ -19,17 +19,17 @@
 namespace decof
 {
 
-ObjectDictionary &Server::objectDictionary()
+object_dictionary &server::objectDictionary()
 {
     return objectDictionary_;
 }
 
-PollTimer &Server::pollTimer()
+poll_timer &server::pollTimer()
 {
     return pollTimer_;
 }
 
-boost::asio::io_service &Server::ioService()
+boost::asio::io_service &server::ioService()
 {
     return ioService_;
 }
