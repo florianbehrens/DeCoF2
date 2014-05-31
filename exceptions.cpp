@@ -16,23 +16,39 @@
 
 #include "exceptions.h"
 
+#include "errors.h"
+
 namespace decof
 {
 
+runtime_error::runtime_error(int code, const std::string& what)
+  : std::runtime_error(what),
+    code_(code)
+{}
+
+int runtime_error::code()
+{
+    return code_;
+}
+
 access_denied_error::access_denied_error()
- : std::runtime_error("Access denied error")
+  : runtime_error(ACCESS_DENIED_ERROR, "Access denied error")
 {}
 
 invalid_parameter_error::invalid_parameter_error()
- : std::runtime_error("Invalid parameter error")
+  : runtime_error(INVALID_PARAMETER_ERROR, "Invalid parameter error")
 {}
 
 wrong_type_error::wrong_type_error()
- : std::runtime_error("Wrong type error")
+  : runtime_error(WRONG_TYPE_ERROR, "Wrong type error")
 {}
 
 invalid_value_error::invalid_value_error()
- : std::runtime_error("Invalid value error")
+  : runtime_error(INVALID_VALUE_ERROR, "Invalid value error")
+{}
+
+unknown_operation_error::unknown_operation_error()
+  : runtime_error(UNKNOWN_OPERATION_ERROR, "Unknown operation error")
 {}
 
 } // namespace decof

@@ -85,7 +85,6 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
         std::vector<std::string> tokens;
         boost::algorithm::split(tokens, str, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
-        std::stringstream ss;
         try {
             if (tokens.size() <= 1)
                 throw parse_error();
@@ -103,22 +102,13 @@ void scheme_monitor_protocol::read_handler(const boost::system::error_code &erro
             } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
                 unobserve(tokens[1]);
             } else
-                ss << UNKNOWN_OPERATION_ERROR << std::endl;
-        } catch (access_denied_error) {
-            ss << ACCESS_DENIED_ERROR << std::endl;
-        } catch (invalid_parameter_error) {
-            ss << INVALID_PARAMETER_ERROR << std::endl;
-        } catch (wrong_type_error) {
-            ss << WRONG_TYPE_ERROR << std::endl;
-        } catch (parse_error) {
-            ss << PARSE_ERROR << std::endl;
-        } catch (invalid_value_error) {
-            ss << INVALID_VALUE_ERROR << std::endl;
-        } catch (...) {
-            ss << UNKNOWN_ERROR << std::endl;
+                throw unknown_operation_error();
+        } catch (runtime_error& ex) {
+            std::stringstream ss;
+            ss << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
+            write_next(ss.str());
         }
 
-        write_next(ss.str());
         read_next();
     } else if (error.value() == asio::error::eof) {
         // Connection was closed by peer

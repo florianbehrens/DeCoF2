@@ -35,6 +35,8 @@ namespace asio = boost::asio;
 
 namespace {
 
+const std::string prompt("> ");
+
 struct ws_separated_quotable_list
 {
     ws_separated_quotable_list() {
@@ -123,6 +125,7 @@ void scheme_protocol::accept_handler(const boost::system::error_code &error)
 {
     if (!error) {
         // Prepare for data reception
+        write_next(prompt);
         read_next();
     } else
         throw std::runtime_error(error.message());
@@ -136,7 +139,7 @@ void scheme_protocol::read_next()
         inbuf_,
         '\n',
         std::bind(&scheme_protocol::read_handler, this, std::placeholders::_1, std::placeholders::_2)
-                );
+    );
 }
 
 void scheme_protocol::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
@@ -180,26 +183,17 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
             } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
                 if (tokens.size() == 3) {
                     set_parameter(tokens[1], tokens[2]);
-                    ss << SUCCESS << std::endl;
+                    ss << "OK" << std::endl;
                 }
                 else
                     throw parse_error();
             } else
-                ss << UNKNOWN_OPERATION_ERROR << std::endl;
-        } catch (access_denied_error) {
-            ss << ACCESS_DENIED_ERROR << std::endl;
-        } catch (invalid_parameter_error) {
-            ss << INVALID_PARAMETER_ERROR << std::endl;
-        } catch (wrong_type_error) {
-            ss << WRONG_TYPE_ERROR << std::endl;
-        } catch (parse_error) {
-            ss << PARSE_ERROR << std::endl;
-        } catch (invalid_value_error) {
-            ss << INVALID_VALUE_ERROR << std::endl;
-        } catch (...) {
-            ss << UNKNOWN_ERROR << std::endl;
+                throw unknown_operation_error();
+        } catch (runtime_error& ex) {
+            ss << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
         }
 
+        ss << prompt;
         write_next(ss.str());
         read_next();
     } else if (error.value() == asio::error::eof) {

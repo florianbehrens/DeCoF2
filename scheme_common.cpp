@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef SCHEME_COMMON_H
-#define SCHEME_COMMON_H
-
-#include "errors.h"
-#include "exceptions.h"
+#include "scheme_common.h"
 
 namespace decof
 {
 
-enum scheme_errors
-{
-    PARSE_ERROR = PROTOCOL_SPECIFIC_ERRORS
-};
-
-struct parse_error : public runtime_error
-{
-    parse_error();
-};
+parse_error::parse_error()
+  : runtime_error(PARSE_ERROR, "Parse error")
+{}
 
 } // namespace decof
-
-#endif // SCHEME_COMMON_H

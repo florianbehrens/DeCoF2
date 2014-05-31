@@ -22,24 +22,41 @@
 namespace decof
 {
 
-struct access_denied_error : public std::runtime_error
+class runtime_error : public std::runtime_error
+{
+protected:
+    explicit runtime_error(int code, const std::string& what);
+
+public:
+    int code();
+
+private:
+    int code_;
+};
+
+struct access_denied_error : public runtime_error
 {
     access_denied_error();
 };
 
-struct invalid_parameter_error : public std::runtime_error
+struct invalid_parameter_error : public runtime_error
 {
     invalid_parameter_error();
 };
 
-struct wrong_type_error : public std::runtime_error
+struct wrong_type_error : public runtime_error
 {
     wrong_type_error();
 };
 
-struct invalid_value_error : public std::runtime_error
+struct invalid_value_error : public runtime_error
 {
     invalid_value_error();
+};
+
+struct unknown_operation_error : public runtime_error
+{
+    unknown_operation_error();
 };
 
 } // namespace decof

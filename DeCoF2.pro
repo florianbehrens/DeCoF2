@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     client_proxy.cpp \
     poll_timer.cpp \
     server.cpp \
-    exceptions.cpp
+    exceptions.cpp \
+    scheme_common.cpp
 
 HEADERS += \
     node.h \

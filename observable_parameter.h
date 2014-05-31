@@ -29,7 +29,9 @@ public:
     typedef T value_type;
 
     virtual tree_element::connection observe(tree_element::slot_type slot) noexcept override {
-        return signal_.connect(slot);
+        tree_element::connection retval = signal_.connect(slot);
+        signal(this->value());
+        return retval;
     }
 
 protected:
