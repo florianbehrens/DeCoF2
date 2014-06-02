@@ -30,7 +30,7 @@ namespace decof
 class scheme_monitor_protocol : public client_proxy
 {
 public:
-    explicit scheme_monitor_protocol(server& server, const tcp::endpoint &endpoint);
+    explicit scheme_monitor_protocol(object_dictionary& object_dictionary, const tcp::endpoint &endpoint);
 
     virtual void preload() override;
 
@@ -45,7 +45,6 @@ private:
 
     void notify(const std::string &uri, const boost::any &any_value) noexcept;
 
-    boost::asio::io_service &io_service_;
     tcp::acceptor acceptor_;
     tcp::socket socket_;
     boost::asio::streambuf inbuf_;

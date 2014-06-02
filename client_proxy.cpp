@@ -19,8 +19,8 @@
 namespace decof
 {
 
-client_proxy::client_proxy(server &server)
-  : server_(server)
+client_proxy::client_proxy(object_dictionary& obj_dict)
+  : object_dictionary_(obj_dict)
 {}
 
 client_proxy::~client_proxy()
@@ -32,7 +32,7 @@ client_proxy::~client_proxy()
 
 void client_proxy::observe(std::string uri, tree_element::signal_type::slot_type slot)
 {
-    if (tree_element *te = server_.objectDictionary().find_object(uri)) {
+    if (tree_element *te = object_dictionary_.find_object(uri)) {
         if (observables_.count(uri) == 0) {
             tree_element::connection connection = te->observe(slot);
             observables_.emplace(uri, connection);

@@ -23,7 +23,6 @@
 #include "exceptions.h"
 #include "object_dictionary.h"
 #include "readwrite_parameter.h"
-#include "server.h"
 
 namespace decof
 {
@@ -33,7 +32,7 @@ class tree_element;
 class client_proxy
 {
 protected:
-    explicit client_proxy(server& server);
+    explicit client_proxy(object_dictionary& obj_dict);
 
     /// @brief Virtual destructor.
     /// Makes sure that active connections are properly disconnected.
@@ -45,7 +44,7 @@ public:
 protected:
     template<typename T>
     void set_parameter(std::string uri, T value) {
-        if (tree_element *te = server_.objectDictionary().find_object(uri)) {
+        if (tree_element *te = object_dictionary_.find_object(uri)) {
             // Check parameter type
             basic_parameter<T> *bp = dynamic_cast<basic_parameter<T>*>(te);
 
@@ -68,7 +67,7 @@ public:
     void unobserve(std::string uri);
 
 protected:
-    server& server_;
+    object_dictionary& object_dictionary_;
 
 private:
     std::map<std::string, boost::signals2::connection> observables_;

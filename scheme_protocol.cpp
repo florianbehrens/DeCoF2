@@ -102,11 +102,10 @@ private:
 namespace decof
 {
 
-scheme_protocol::scheme_protocol(server &server, const tcp::endpoint &endpoint)
-  : client_proxy(server),
-    io_service_(server.ioService()),
-    acceptor_(server.ioService(), endpoint),
-    socket_(server.ioService())
+scheme_protocol::scheme_protocol(object_dictionary& object_dictionary, const tcp::endpoint &endpoint)
+  : client_proxy(object_dictionary),
+    acceptor_(object_dictionary.get_io_service(), endpoint),
+    socket_(object_dictionary.get_io_service())
 {}
 
 void scheme_protocol::preload()
@@ -176,7 +175,7 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
                 tokens[1].erase(0, 1);
 
             if (tokens[0] == "get" || tokens[0] == "param-ref") {
-                if (tree_element *te = server_.objectDictionary().find_object(tokens[1]))
+                if (tree_element *te = object_dictionary_.find_object(tokens[1]))
                     ss << string_encoder::encode(te->any_value()) << std::endl;
                 else
                     throw invalid_parameter_error();

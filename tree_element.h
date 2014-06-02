@@ -29,6 +29,7 @@ class any;
 namespace decof
 {
 
+class object_dictionary;
 class observer;
 class node;
 
@@ -61,6 +62,10 @@ public:
 
     // Observe parameter value.
     virtual connection observe(slot_type slot) noexcept = 0;
+
+    /// Returns the object dictionary of this tree element or nullptr if not
+    /// defined.
+    object_dictionary* get_object_dictionary();
 
 private:
     std::string name_;

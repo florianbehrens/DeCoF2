@@ -15,7 +15,9 @@
  */
 
 #include "tree_element.h"
+
 #include "node.h"
+#include "object_dictionary.h"
 
 namespace decof
 {
@@ -61,6 +63,15 @@ void tree_element::set_parent(node *parent)
     if (parent_ != nullptr)
         parent->remove_child(this);
     parent_ = parent;
+}
+
+object_dictionary *tree_element::get_object_dictionary()
+{
+    tree_element* te = this;
+    while (te->parent() != nullptr)
+        te = te->parent();
+
+    return dynamic_cast<object_dictionary*>(te);
 }
 
 } // namespace decof

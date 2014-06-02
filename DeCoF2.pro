@@ -11,8 +11,7 @@ SOURCES += main.cpp \
     scheme_monitor_protocol.cpp \
     string_encoder.cpp \
     client_proxy.cpp \
-    poll_timer.cpp \
-    server.cpp \
+    regular_timer.cpp \
     exceptions.cpp \
     scheme_common.cpp
 
@@ -33,8 +32,7 @@ HEADERS += \
     container_types.h \
     string_encoder.h \
     client_proxy.h \
-    poll_timer.h \
-    server.h \
+    regular_timer.h \
     exceptions.h \
     errors.h
 

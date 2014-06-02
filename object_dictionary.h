@@ -17,24 +17,33 @@
 #ifndef OBJECT_DICTIONARY_H
 #define OBJECT_DICTIONARY_H
 
+#include <boost/asio.hpp>
+
 #include "node.h"
+#include "regular_timer.h"
 
 namespace decof
 {
-
-// Forward declaration
-class server;
 
 /// @brief Object dictionary for parameter tree objects.
 class object_dictionary : public node
 {
 public:
-    friend class server;
+    object_dictionary();
 
     tree_element* find_object(std::string uri);
 
+    regular_timer& get_fast_timer();
+    regular_timer& get_medium_timer();
+    regular_timer& get_slow_timer();
+
+    boost::asio::io_service& get_io_service();
+
 private:
-    object_dictionary();
+    boost::asio::io_service io_service_;
+    regular_timer fast_timer_;
+    regular_timer medium_timer_;
+    regular_timer slow_timer_;
 };
 
 } // namespace decof

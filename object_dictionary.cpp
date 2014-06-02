@@ -16,14 +16,21 @@
 
 #include "object_dictionary.h"
 
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace decof
 {
 
 object_dictionary::object_dictionary()
- : node("root", nullptr)
-{}
+ : node("root", nullptr),
+   fast_timer_(io_service_, std::chrono::milliseconds(50)),
+   medium_timer_(io_service_, std::chrono::milliseconds(500)),
+   slow_timer_(io_service_, std::chrono::milliseconds(5000))
+{
+     fast_timer_.start();
+     medium_timer_.start();
+     slow_timer_.start();
+}
 
 tree_element *object_dictionary::find_object(std::string uri)
 {
@@ -36,6 +43,26 @@ tree_element *object_dictionary::find_object(std::string uri)
     }
 
     return nullptr;
+}
+
+regular_timer& object_dictionary::get_fast_timer()
+{
+    return fast_timer_;
+}
+
+regular_timer& object_dictionary::get_medium_timer()
+{
+    return medium_timer_;
+}
+
+regular_timer& object_dictionary::get_slow_timer()
+{
+    return slow_timer_;
+}
+
+boost::asio::io_service& object_dictionary::get_io_service()
+{
+    return io_service_;
 }
 
 } // namespace decof

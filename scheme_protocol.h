@@ -32,7 +32,7 @@ namespace decof
 class scheme_protocol : public client_proxy
 {
 public:
-    explicit scheme_protocol(server& server, const tcp::endpoint &endpoint);
+    explicit scheme_protocol(object_dictionary& object_dictionary, const tcp::endpoint &endpoint);
 
     virtual void preload() override;
 
@@ -45,7 +45,6 @@ private:
     void write_next(std::string str);
     void write_handler(const boost::system::error_code& error, std::size_t);
 
-    boost::asio::io_service &io_service_;
     tcp::acceptor acceptor_;
     tcp::socket socket_;
     boost::asio::streambuf inbuf_;

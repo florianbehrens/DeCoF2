@@ -15,12 +15,11 @@
 #include "managed_readonly_parameter.h"
 #include "scheme_protocol.h"
 #include "scheme_monitor_protocol.h"
-#include "server.h"
 #include "tree_element.h"
 
 using namespace decof;
 
-server decofServer;
+object_dictionary obj_dict;
 
 struct my_managed_readwrite_parameter : public managed_readwrite_parameter<std::string>
 {
@@ -92,6 +91,16 @@ private:
 
 int main()
 {
+    // Output some diagnostics:
+    std::cout << "sizeof(node) = " << sizeof(node) << std::endl;
+    std::cout << "sizeof(managed_readonly_parameter<std::string>) = " << sizeof(managed_readonly_parameter<std::string>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_parameter<std::string>) = " << sizeof(managed_readwrite_parameter<std::string>) << std::endl;
+    std::cout << "sizeof(external_readonly_parameter<std::string>) = " << sizeof(external_readonly_parameter<std::string>) << std::endl;
+    std::cout << "sizeof(external_readwrite_parameter<std::string>) = " << sizeof(external_readwrite_parameter<std::string>) << std::endl;
+
+    std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
+    std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
+
     // Setup object dictionary
     // root
     //  |-- enabled: string (rw)
@@ -99,9 +108,8 @@ int main()
     //  | |-- time: string (r)
     //  | |-- leaf2: stringlist (rw)
     //  | |-- ip-address: string (rw)
-    object_dictionary& od = decofServer.objectDictionary();
-    new my_managed_readwrite_parameter("enabled", &od, "false");
-    node* subnode = new node("subnode", &od);
+    new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
+    node* subnode = new node("subnode", &obj_dict);
     new time_parameter("time", subnode);
     stringlist sl = { "value1", "value2", "value3" };
     new managed_readwrite_parameter<stringlist>("leaf2", subnode, sl);
@@ -109,14 +117,14 @@ int main()
 
     // Setup client connections
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    scheme_protocol sp(decofServer, cmd_endpoint);
+    scheme_protocol sp(obj_dict, cmd_endpoint);
     sp.preload();
 
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    scheme_monitor_protocol smp(decofServer, mon_endpoint);
+    scheme_monitor_protocol smp(obj_dict, mon_endpoint);
     smp.preload();
 
-    decofServer.ioService().run();
+    obj_dict.get_io_service().run();
 
     return 0;
 }
