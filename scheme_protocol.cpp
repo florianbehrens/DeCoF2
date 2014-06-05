@@ -102,39 +102,25 @@ private:
 namespace decof
 {
 
-scheme_protocol::scheme_protocol(object_dictionary& object_dictionary, const tcp::endpoint &endpoint)
+scheme_protocol::scheme_protocol(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
   : client_proxy(object_dictionary),
-    acceptor_(object_dictionary.get_io_service(), endpoint),
-    socket_(object_dictionary.get_io_service())
-{}
-
-void scheme_protocol::preload()
+    socket_(socket)
 {
-    if (socket_.is_open())
-        socket_.close();
-
-    // Make 1st asynchronous call
-    acceptor_.async_accept(
-        socket_,
-        std::bind(&scheme_protocol::accept_handler, this, std::placeholders::_1)
-    );
+    write_next(prompt);
+    read_next();
 }
 
-void scheme_protocol::accept_handler(const boost::system::error_code &error)
+void scheme_protocol::handle_connect(object_dictionary &object_dictionary, std::shared_ptr<asio::ip::tcp::socket> socket)
 {
-    if (!error) {
-        // Prepare for data reception
-        write_next(prompt);
-        read_next();
-    } else
-        throw std::runtime_error(error.message());
+    // FIXME!
+    new scheme_protocol(object_dictionary, socket);
 }
 
 void scheme_protocol::read_next()
 {
     // Connection accepted, start async reads
     asio::async_read_until(
-        socket_,
+        *socket_.get(),
         inbuf_,
         '\n',
         std::bind(&scheme_protocol::read_handler, this, std::placeholders::_1, std::placeholders::_2)
@@ -197,7 +183,8 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
         read_next();
     } else if (error.value() == asio::error::eof) {
         // Connection was closed by peer
-        preload();
+        // FIXME!
+        delete this;
     } else
         throw std::runtime_error(error.message());
 }
@@ -208,7 +195,7 @@ void scheme_protocol::write_next(std::string str)
     os << str;
 
     asio::async_write(
-        socket_,
+        *socket_.get(),
         outbuf_,
         std::bind(&scheme_protocol::write_handler, this, std::placeholders::_1, std::placeholders::_2)
     );
@@ -218,7 +205,8 @@ void scheme_protocol::write_handler(const boost::system::error_code &error, std:
 {
     if (error.value() == asio::error::eof) {
         // Connection was closed by peer
-        preload();
+        // FIXME!
+        delete this;
     } else if (error)
         throw std::runtime_error(error.message());
 }

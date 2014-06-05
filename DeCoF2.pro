@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     client_proxy.cpp \
     regular_timer.cpp \
     exceptions.cpp \
-    scheme_common.cpp
+    scheme_common.cpp \
+    tcp_connection_manager.cpp
 
 HEADERS += \
     node.h \
@@ -34,7 +35,8 @@ HEADERS += \
     client_proxy.h \
     regular_timer.h \
     exceptions.h \
-    errors.h
+    errors.h \
+    tcp_connection_manager.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32

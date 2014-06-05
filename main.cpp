@@ -15,6 +15,7 @@
 #include "managed_readonly_parameter.h"
 #include "scheme_protocol.h"
 #include "scheme_monitor_protocol.h"
+#include "tcp_connection_manager.h"
 #include "tree_element.h"
 
 using namespace decof;
@@ -115,14 +116,15 @@ int main()
     new managed_readwrite_parameter<stringlist>("leaf2", subnode, sl);
     new ip_address_parameter("ip-address", subnode);
 
-    // Setup client connections
+    // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    scheme_protocol sp(obj_dict, cmd_endpoint);
-    sp.preload();
+    tcp_connection_manager cmd_conn_manager(obj_dict, cmd_endpoint, &scheme_protocol::handle_connect);
+    cmd_conn_manager.preload();
 
+    // Setup scheme monitoring line connection manager
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    scheme_monitor_protocol smp(obj_dict, mon_endpoint);
-    smp.preload();
+    tcp_connection_manager mon_conn_manager(obj_dict, mon_endpoint, &scheme_monitor_protocol::handle_connect);
+    mon_conn_manager.preload();
 
     obj_dict.get_io_service().run();
 

@@ -38,9 +38,6 @@ protected:
     /// Makes sure that active connections are properly disconnected.
     virtual ~client_proxy();
 
-public:
-    virtual void preload() = 0;
-
 protected:
     template<typename T>
     void set_parameter(std::string uri, T value) {

@@ -17,14 +17,12 @@
 #ifndef SCHEME_PROTOCOL_H
 #define SCHEME_PROTOCOL_H
 
-#include <array>
-#include <string>
+#include <memory>
 
 #include <boost/asio.hpp>
 
 #include "client_proxy.h"
-
-using boost::asio::ip::tcp;
+#include "tcp_connection_manager.h"
 
 namespace decof
 {
@@ -32,21 +30,18 @@ namespace decof
 class scheme_protocol : public client_proxy
 {
 public:
-    explicit scheme_protocol(object_dictionary& object_dictionary, const tcp::endpoint &endpoint);
+    explicit scheme_protocol(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
-    virtual void preload() override;
+    static void handle_connect(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
 private:
-    void accept_handler(const boost::system::error_code &error);
-
     void read_next();
     void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     void write_next(std::string str);
     void write_handler(const boost::system::error_code& error, std::size_t);
 
-    tcp::acceptor acceptor_;
-    tcp::socket socket_;
+    std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
 };
