@@ -25,8 +25,6 @@
 namespace decof
 {
 
-class observer;
-
 /**
  * An external_readonly_parameter may only be modified by the server side and is
  * managed by the server implementation, i.e. externally from the framework's

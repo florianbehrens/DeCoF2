@@ -31,6 +31,8 @@
 #include "string_encoder.h"
 #include "tree_element.h"
 
+#if 0
+
 namespace asio = boost::asio;
 
 namespace {
@@ -103,7 +105,7 @@ namespace decof
 {
 
 scheme_protocol::scheme_protocol(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
-  : client_proxy(object_dictionary),
+  : protocol(object_dictionary),
     socket_(socket)
 {
     write_next(prompt);
@@ -114,17 +116,6 @@ void scheme_protocol::handle_connect(object_dictionary &object_dictionary, std::
 {
     // FIXME!
     new scheme_protocol(object_dictionary, socket);
-}
-
-void scheme_protocol::read_next()
-{
-    // Connection accepted, start async reads
-    asio::async_read_until(
-        *socket_.get(),
-        inbuf_,
-        '\n',
-        std::bind(&scheme_protocol::read_handler, this, std::placeholders::_1, std::placeholders::_2)
-    );
 }
 
 void scheme_protocol::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
@@ -189,6 +180,27 @@ void scheme_protocol::read_handler(const boost::system::error_code &error, std::
         throw std::runtime_error(error.message());
 }
 
+void scheme_protocol::write_handler(const boost::system::error_code &error, std::size_t)
+{
+    if (error.value() == asio::error::eof) {
+        // Connection was closed by peer
+        // FIXME!
+        delete this;
+    } else if (error)
+        throw std::runtime_error(error.message());
+}
+
+void scheme_protocol::read_next()
+{
+    // Connection accepted, start async reads
+    asio::async_read_until(
+        *socket_.get(),
+        inbuf_,
+        '\n',
+        std::bind(&scheme_protocol::read_handler, this, std::placeholders::_1, std::placeholders::_2)
+    );
+}
+
 void scheme_protocol::write_next(std::string str)
 {
     std::ostream os(&outbuf_);
@@ -201,14 +213,6 @@ void scheme_protocol::write_next(std::string str)
     );
 }
 
-void scheme_protocol::write_handler(const boost::system::error_code &error, std::size_t)
-{
-    if (error.value() == asio::error::eof) {
-        // Connection was closed by peer
-        // FIXME!
-        delete this;
-    } else if (error)
-        throw std::runtime_error(error.message());
-}
-
 } // namespace decof
+
+#endif

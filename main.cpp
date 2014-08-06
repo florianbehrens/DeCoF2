@@ -15,8 +15,10 @@
 #include "managed_readonly_parameter.h"
 #include "scheme_protocol.h"
 #include "scheme_monitor_protocol.h"
+#include "tcp_connection.h"
 #include "tcp_connection_manager.h"
 #include "tree_element.h"
+#include "textproto_client_context.h"
 
 using namespace decof;
 
@@ -118,13 +120,20 @@ int main()
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    tcp_connection_manager cmd_conn_manager(obj_dict, cmd_endpoint, &scheme_protocol::handle_connect);
-    cmd_conn_manager.preload();
+//    tcp_connection_manager cmd_conn_manager(obj_dict, cmd_endpoint, &scheme_protocol::handle_connect);
+//    cmd_conn_manager.preload();
 
     // Setup scheme monitoring line connection manager
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    tcp_connection_manager mon_conn_manager(obj_dict, mon_endpoint, &scheme_monitor_protocol::handle_connect);
-    mon_conn_manager.preload();
+//    tcp_connection_manager mon_conn_manager(obj_dict, mon_endpoint, &scheme_monitor_protocol::handle_connect);
+//    mon_conn_manager.preload();
+
+    // New connection design
+    tcp_connection_manager conn_mgr(obj_dict, cmd_endpoint);
+    conn_mgr.preload<textproto_client_context>();
+
+//    tcp_connection cmdline(cmd_endpoint);
+//    cmdline.preload();
 
     obj_dict.get_io_service().run();
 

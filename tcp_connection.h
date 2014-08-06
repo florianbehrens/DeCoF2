@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef SCHEME_PROTOCOL_H
-#define SCHEME_PROTOCOL_H
+#ifndef TCP_CONNECTION_H
+#define TCP_CONNECTION_H
+
+#include "connection.h"
 
 #include <memory>
 
 #include <boost/asio.hpp>
 
-#include "protocol.h"
-
 namespace decof
 {
 
-class object_dictionary;
-
-class scheme_protocol : public protocol
+class tcp_connection : public connection
 {
-public:
-    explicit scheme_protocol(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
-
-    static void handle_connect(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+    friend class tcp_connection_manager;
 
 private:
-    virtual void read_handler(const boost::system::error_code &error, std::size_t bytes_transferred) override;
-    virtual void write_handler(const boost::system::error_code &error, std::size_t) override;
+    explicit tcp_connection(std::shared_ptr<boost::asio::ip::tcp::socket> a_socket);
 
-    void read_next();
-    void write_next(std::string str);
+    virtual std::string endpoint() const override;
+
+    virtual void async_read_until(boost::asio::streambuf&, char delim) override;
+
+    virtual void async_write(const std::string& response) override;
+
+private:
+    std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
 };
 
 } // namespace decof
 
-#endif // SCHEME_PROTOCOL_H
+#endif // TCP_CONNECTION_H

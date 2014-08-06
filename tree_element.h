@@ -30,7 +30,6 @@ namespace decof
 {
 
 class object_dictionary;
-class observer;
 class node;
 
 /** Abstract tree element class.

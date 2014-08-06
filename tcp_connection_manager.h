@@ -21,29 +21,51 @@
 
 #include <boost/asio.hpp>
 
+#include "client_context.h"
+#include "object_dictionary.h"
+#include "tcp_connection.h"
+
 namespace decof
 {
-
-// Forward declarations
-class object_dictionary;
 
 class tcp_connection_manager
 {
 public:
-    typedef void (*callback)(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
-
     /// Note that the callback function takes ownership of the provided socket object.
-    tcp_connection_manager(object_dictionary& object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint, callback callback);
+    tcp_connection_manager(object_dictionary& a_object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint);
 
-    void preload();
+    template<typename CTX>
+    void preload()
+    {
+        // Create new socket
+        socket_.reset(new boost::asio::ip::tcp::socket(object_dictionary_.get_io_service()));
+        acceptor_.async_accept(
+            *socket_,
+            std::bind(&tcp_connection_manager::accept_handler<CTX>, this, std::placeholders::_1)
+        );
+    }
 
 private:
-    void accept_handler(boost::system::error_code error);
+    template<typename CTX>
+    void accept_handler(boost::system::error_code error)
+    {
+        // Check whether the server was stopped by a signal before this completion
+        // handler had a chance to run.
+        if (!acceptor_.is_open())
+            return;
+
+        if (!error) {
+            // Create and preload new client context
+            client_context* cli_ctx = new CTX(object_dictionary_, new tcp_connection(socket_));
+            object_dictionary_.add_context(cli_ctx);
+            cli_ctx->preload();
+        } else
+            throw std::runtime_error(std::string(__FUNCTION__) + " received error: " + error.message());
+    }
 
     object_dictionary& object_dictionary_;
     boost::asio::ip::tcp::acceptor acceptor_;
     std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
-    callback callback_;
 };
 
 } // namespace decof

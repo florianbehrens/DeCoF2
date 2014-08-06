@@ -14,35 +14,42 @@
  * limitations under the License.
  */
 
-#ifndef SCHEME_PROTOCOL_H
-#define SCHEME_PROTOCOL_H
+#ifndef CLIENT_CONTEXT_H
+#define CLIENT_CONTEXT_H
 
 #include <memory>
 
-#include <boost/asio.hpp>
-
-#include "protocol.h"
+#include "client_access.h"
 
 namespace decof
 {
 
+class connection;
 class object_dictionary;
 
-class scheme_protocol : public protocol
+class client_context : public client_access
 {
-public:
-    explicit scheme_protocol(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+    typedef int userlevel_t;
 
-    static void handle_connect(object_dictionary& object_dictionary, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+public:
+    explicit client_context(object_dictionary& a_object_dictionary, connection* a_connection);
+    virtual ~client_context();
+
+    userlevel_t userlevel() const;
+    void set_userlevel(userlevel_t a_userlevel);
+
+    connection const* connnection() const;
+
+    virtual void preload() = 0;
 
 private:
-    virtual void read_handler(const boost::system::error_code &error, std::size_t bytes_transferred) override;
-    virtual void write_handler(const boost::system::error_code &error, std::size_t) override;
+    void set_parameter(const std::string& uri, const boost::any& value) override;
+    boost::any get_parameter(const std::string& uri) override;
 
-    void read_next();
-    void write_next(std::string str);
+    object_dictionary& object_dictionary_;
+    std::unique_ptr<connection> connection_;
 };
 
 } // namespace decof
 
-#endif // SCHEME_PROTOCOL_H
+#endif // CLIENT_CONTEXT_H

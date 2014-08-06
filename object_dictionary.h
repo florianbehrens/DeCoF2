@@ -25,9 +25,14 @@
 namespace decof
 {
 
+class client_context;
+class connection;
+
 /// @brief Object dictionary for parameter tree objects.
 class object_dictionary : public node
 {
+    friend class client_context;
+
 public:
     object_dictionary();
 
@@ -39,11 +44,19 @@ public:
 
     boost::asio::io_service& get_io_service();
 
+    void add_context(client_context* a_client_context);
+    const client_context* current_context() const;
+    void delete_current_context();
+
 private:
+    void set_current_context(client_context* a_client_context);
+
     boost::asio::io_service io_service_;
     regular_timer fast_timer_;
     regular_timer medium_timer_;
     regular_timer slow_timer_;
+
+    std::list<std::unique_ptr<client_context>> client_contexts_;
 };
 
 } // namespace decof

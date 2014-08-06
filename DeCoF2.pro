@@ -14,7 +14,10 @@ SOURCES += main.cpp \
     regular_timer.cpp \
     exceptions.cpp \
     scheme_common.cpp \
-    tcp_connection_manager.cpp
+    tcp_connection_manager.cpp \
+    tcp_connection.cpp \
+    client_context.cpp \
+    textproto_client_context.cpp
 
 HEADERS += \
     node.h \
@@ -36,7 +39,13 @@ HEADERS += \
     regular_timer.h \
     exceptions.h \
     errors.h \
-    tcp_connection_manager.h
+    tcp_connection_manager.h \
+    connection.h \
+    tcp_connection.h \
+    protocol.h \
+    client_access.h \
+    client_context.h \
+    textproto_client_context.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32

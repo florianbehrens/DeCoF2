@@ -18,6 +18,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "client_context.h"
+
 namespace decof
 {
 
@@ -64,5 +66,17 @@ boost::asio::io_service& object_dictionary::get_io_service()
 {
     return io_service_;
 }
+
+void object_dictionary::add_context(client_context *a_client_context)
+{}
+
+const client_context *object_dictionary::current_context() const
+{
+    assert(false);
+    return nullptr;
+}
+
+void object_dictionary::delete_current_context()
+{}
 
 } // namespace decof
