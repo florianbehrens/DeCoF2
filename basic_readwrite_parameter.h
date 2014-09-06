@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-#include "tcp_connection_manager.h"
+#ifndef BASIC_READWRITE_PARAMETER_H
+#define BASIC_READWRITE_PARAMETER_H
 
-using boost::asio::ip::tcp;
+#include <boost/any.hpp>
 
-namespace decof
+namespace decof {
+
+class basic_readwrite_parameter
 {
+    friend class client_context;
 
-tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dictionary, const tcp::endpoint& endpoint)
-  : object_dictionary_(a_object_dictionary),
-    acceptor_(a_object_dictionary.get_io_service(), endpoint),
-    socket_(a_object_dictionary.get_io_service())
-{}
+private:
+    virtual void set_private_value(const boost::any& any_value) = 0;
+};
 
 } // namespace decof
+
+#endif // BASIC_READWRITE_PARAMETER_H

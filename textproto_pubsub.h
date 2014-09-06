@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-#include "tcp_connection_manager.h"
+#ifndef TEXTPROTO_PUBSUB_H
+#define TEXTPROTO_PUBSUB_H
 
-using boost::asio::ip::tcp;
+#include "client_context.h"
+
+#include <string>
+
+#include <boost/any.hpp>
 
 namespace decof
 {
 
-tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dictionary, const tcp::endpoint& endpoint)
-  : object_dictionary_(a_object_dictionary),
-    acceptor_(a_object_dictionary.get_io_service(), endpoint),
-    socket_(a_object_dictionary.get_io_service())
-{}
+class textproto_pubsub : public client_context
+{
+public:
+    // We inherit base class constructors
+    using client_context::client_context;
+
+    virtual void preload() override final;
+
+private:
+    void read_handler(const std::string &cstr);
+    void notify(const std::string &uri, const boost::any &any_value);
+};
 
 } // namespace decof
+
+#endif // TEXTPROTO_PUBSUB_H

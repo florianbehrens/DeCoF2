@@ -26,21 +26,32 @@
 namespace decof
 {
 
-class tcp_connection : public connection
+class tcp_connection : public connection, public std::enable_shared_from_this<connection>
 {
-    friend class tcp_connection_manager;
-
 private:
-    explicit tcp_connection(std::shared_ptr<boost::asio::ip::tcp::socket> a_socket);
+    explicit tcp_connection(boost::asio::ip::tcp::socket socket);
+
+public:
+    virtual ~tcp_connection();
 
     virtual std::string endpoint() const override;
 
-    virtual void async_read_until(boost::asio::streambuf&, char delim) override;
+    virtual void async_read_until(char delim) override;
 
-    virtual void async_write(const std::string& response) override;
+    virtual void async_write(const std::string& str) override;
+
+    static std::shared_ptr<connection> create(boost::asio::ip::tcp::socket socket);
 
 private:
-    std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
+    /// Callback for boost::asio read operations.
+    void read_handler(/*std::shared_ptr<tcp_connection>, */const boost::system::error_code& error, std::size_t bytes_transferred);
+
+    /// Callback for boost::asio write operations.
+    void write_handler(/*std::shared_ptr<tcp_connection>, */const boost::system::error_code& error, std::size_t bytes_transferred);
+
+    boost::asio::ip::tcp::socket socket_;
+    boost::asio::streambuf inbuf_;
+    boost::asio::streambuf outbuf_;
 };
 
 } // namespace decof

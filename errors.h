@@ -23,6 +23,7 @@ namespace decof
 enum errors {
     SUCCESS = 0,
     UNKNOWN_ERROR,
+    PARSE_ERROR,
     ACCESS_DENIED_ERROR,
     INVALID_PARAMETER_ERROR,
     WRONG_TYPE_ERROR,

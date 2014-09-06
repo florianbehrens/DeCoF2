@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef SCHEME_COMMON_H
-#define SCHEME_COMMON_H
+#ifndef STRING_CODEC_H
+#define STRING_CODEC_H
 
-#include "errors.h"
-#include "exceptions.h"
+#include <string>
+
+// Forward declaration
+namespace boost {
+class any;
+}
 
 namespace decof
 {
 
-enum scheme_errors
+struct string_codec
 {
-    PARSE_ERROR = PROTOCOL_SPECIFIC_ERRORS
-};
-
-struct parse_error : public runtime_error
-{
-    parse_error();
+public:
+    static std::string encode(const boost::any &any_value);
+    static boost::any decode(const std::string& cstr);
 };
 
 } // namespace decof
 
-#endif // SCHEME_COMMON_H
+#endif // STRING_CODEC_H

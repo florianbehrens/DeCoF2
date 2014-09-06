@@ -37,12 +37,14 @@ public:
     template<typename CTX>
     void preload()
     {
-        // Create new socket
-        socket_.reset(new boost::asio::ip::tcp::socket(object_dictionary_.get_io_service()));
-        acceptor_.async_accept(
-            *socket_,
-            std::bind(&tcp_connection_manager::accept_handler<CTX>, this, std::placeholders::_1)
-        );
+        acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        async_accept<CTX>();
+    }
+
+    template<typename CTX>
+    void async_accept()
+    {
+        acceptor_.async_accept(socket_, std::bind(&tcp_connection_manager::accept_handler<CTX>, this, std::placeholders::_1));
     }
 
 private:
@@ -56,16 +58,18 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            client_context* cli_ctx = new CTX(object_dictionary_, new tcp_connection(socket_));
+            client_context* cli_ctx = new CTX(object_dictionary_, tcp_connection::create(std::move(socket_)));
             object_dictionary_.add_context(cli_ctx);
             cli_ctx->preload();
         } else
             throw std::runtime_error(std::string(__FUNCTION__) + " received error: " + error.message());
+
+        async_accept<CTX>();
     }
 
     object_dictionary& object_dictionary_;
     boost::asio::ip::tcp::acceptor acceptor_;
-    std::shared_ptr<boost::asio::ip::tcp::socket> socket_;
+    boost::asio::ip::tcp::socket socket_;
 };
 
 } // namespace decof

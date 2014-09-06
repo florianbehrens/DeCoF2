@@ -17,19 +17,51 @@
 #ifndef READWRITE_PARAMETER_H
 #define READWRITE_PARAMETER_H
 
+#include "basic_readwrite_parameter.h"
+
+#include "exceptions.h"
+
 namespace decof
 {
 
 template<typename T>
-class readwrite_parameter
+class readwrite_parameter : public basic_readwrite_parameter
 {
-    friend class client_proxy;
-
-public:
-    typedef T value_type;
+    friend class client_context;
 
 private:
-   virtual void set_private_value(const value_type &value) = 0;
+    virtual void set_private_value(const T &value) = 0;
+    virtual void set_private_value(const boost::any& any_value)
+    {
+        try {
+            set_private_value(boost::any_cast<T>(any_value));
+        } catch(boost::bad_any_cast&) {
+            throw wrong_type_error();
+        }
+    }
+};
+
+// Partial template specialization
+template<typename T>
+class readwrite_parameter<std::vector<T>> : public basic_readwrite_parameter
+{
+    friend class client_context;
+
+private:
+    virtual void set_private_value(const std::vector<T> &value) = 0;
+    virtual void set_private_value(const boost::any& any_value)
+    {
+        try {
+            std::vector<boost::any> any_vector = boost::any_cast<std::vector<boost::any>>(any_value);
+            std::vector<T> new_value;
+            new_value.reserve(any_vector.size());
+            for (auto elem : any_vector)
+                new_value.push_back(boost::any_cast<T>(elem));
+            set_private_value(new_value);
+        } catch(boost::bad_any_cast&) {
+            throw wrong_type_error();
+        }
+    }
 };
 
 } // namespace decof

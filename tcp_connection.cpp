@@ -21,19 +21,62 @@
 namespace decof
 {
 
-tcp_connection::tcp_connection(std::shared_ptr<boost::asio::ip::tcp::socket> a_socket)
-  : socket_(a_socket)
-{}
+tcp_connection::tcp_connection(boost::asio::ip::tcp::socket socket)
+  : socket_(std::move(socket))
+{
+    assert(socket_.is_open());
+    connect_signal();
+}
+
+tcp_connection::~tcp_connection()
+{
+    // TODO
+}
 
 std::string tcp_connection::endpoint() const
 {
-    return boost::lexical_cast<std::string>(socket_->remote_endpoint());
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
 }
 
-void tcp_connection::async_read_until(boost::asio::streambuf &, char delim)
-{}
+void tcp_connection::async_read_until(char delim)
+{
+    boost::asio::async_read_until(socket_, inbuf_, delim, std::bind(&tcp_connection::read_handler, this, /*shared_from_this(), */std::placeholders::_1, std::placeholders::_2));
+}
 
-void tcp_connection::async_write(const std::string &response)
-{}
+void tcp_connection::async_write(const std::string &str)
+{
+    std::ostream os(&outbuf_);
+    os << str;
+
+    boost::asio::async_write(socket_, outbuf_, std::bind(&tcp_connection::write_handler, this, /*shared_from_this(), */std::placeholders::_1, std::placeholders::_2));
+}
+
+std::shared_ptr<connection> tcp_connection::create(boost::asio::ip::tcp::socket socket)
+{
+    return std::shared_ptr<connection>(new tcp_connection(std::move(socket)));
+}
+
+void tcp_connection::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+{
+    // TODO
+    if (!error) {
+        // First copy bytes_transferred bytes from the streambuf to a
+        // std::string. This is one of the uglyest things in boost::asio and only
+        // properly documented in stackoverflow:
+        // http://stackoverflow.com/questions/877652/copy-a-streambufs-contents-to-a-string.
+        boost::asio::streambuf::const_buffers_type buffer = inbuf_.data();
+        std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred);
+        inbuf_.consume(bytes_transferred);
+        read_signal(str);
+    } else if (error.value() == boost::asio::error::eof) {
+        // Connection was closed by peer
+        disconnect_signal();
+    }
+}
+
+void tcp_connection::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+{
+    // TODO
+}
 
 } // namespace decof

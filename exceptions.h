@@ -59,6 +59,11 @@ struct unknown_operation_error : public runtime_error
     unknown_operation_error();
 };
 
+struct parse_error : public runtime_error
+{
+    parse_error();
+};
+
 } // namespace decof
 
 #endif // EXCEPTIONS_H

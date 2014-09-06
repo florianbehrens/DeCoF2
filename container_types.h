@@ -23,7 +23,10 @@
 namespace decof
 {
 
-typedef std::vector<std::string> stringlist;
+typedef std::vector<bool> bool_vector;
+typedef std::vector<int> int_vector;
+typedef std::vector<double> double_vector;
+typedef std::vector<std::string> string_vector;
 
 } // namespace decof
 

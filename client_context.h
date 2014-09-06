@@ -17,9 +17,11 @@
 #ifndef CLIENT_CONTEXT_H
 #define CLIENT_CONTEXT_H
 
+#include <map>
 #include <memory>
 
-#include "client_access.h"
+#include "connection.h"
+#include "tree_element.h"
 
 namespace decof
 {
@@ -27,12 +29,12 @@ namespace decof
 class connection;
 class object_dictionary;
 
-class client_context : public client_access
+class client_context
 {
     typedef int userlevel_t;
 
 public:
-    explicit client_context(object_dictionary& a_object_dictionary, connection* a_connection);
+    explicit client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection);
     virtual ~client_context();
 
     userlevel_t userlevel() const;
@@ -42,12 +44,18 @@ public:
 
     virtual void preload() = 0;
 
-private:
-    void set_parameter(const std::string& uri, const boost::any& value) override;
-    boost::any get_parameter(const std::string& uri) override;
+protected:
+    void set_parameter(const std::string& uri, const boost::any& any_value);
+    boost::any get_parameter(const std::string& uri);
+
+    void observe(const std::string& uri, tree_element::signal_type::slot_type slot);
+    void unobserve(const std::string& uri);
 
     object_dictionary& object_dictionary_;
-    std::unique_ptr<connection> connection_;
+    std::shared_ptr<connection> connection_;
+
+private:
+    std::map<std::string, boost::signals2::connection> observables_;
 };
 
 } // namespace decof

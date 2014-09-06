@@ -16,14 +16,18 @@
 
 #include "client_context.h"
 
+#include "basic_readwrite_parameter.h"
 #include "connection.h"
+#include "exceptions.h"
+#include "object_dictionary.h"
+#include "tree_element.h"
 
 namespace decof
 {
 
-client_context::client_context(object_dictionary& a_object_dictionary, connection *a_connection)
+client_context::client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection)
   : object_dictionary_(a_object_dictionary),
-    connection_(a_connection)
+    connection_(connection)
 {}
 
 client_context::~client_context()
@@ -34,13 +38,41 @@ const connection *client_context::connnection() const
     return connection_.get();
 }
 
-void client_context::set_parameter(const std::string &uri, const boost::any &value)
-{}
+void client_context::set_parameter(const std::string &uri, const boost::any &any_value)
+{
+    if (tree_element *te = object_dictionary_.find_object(uri)) {
+        if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
+            parameter->set_private_value(any_value);
+        else
+            throw access_denied_error();
+    } else
+        throw invalid_parameter_error();
+}
 
 boost::any client_context::get_parameter(const std::string &uri)
 {
     assert(false);
     return boost::any();
+}
+
+void client_context::observe(const std::string &uri, tree_element::signal_type::slot_type slot)
+{
+    if (tree_element *te = object_dictionary_.find_object(uri)) {
+        if (observables_.count(uri) == 0) {
+            tree_element::connection connection = te->observe(slot);
+            observables_.emplace(uri, connection);
+        }
+    } else
+        throw invalid_parameter_error();
+}
+
+void client_context::unobserve(const std::string &uri)
+{
+    try {
+        observables_.at(uri).disconnect();
+        observables_.erase(uri);
+    } catch (std::out_of_range&) {
+    }
 }
 
 } // namespace decof

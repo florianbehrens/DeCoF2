@@ -14,12 +14,26 @@
  * limitations under the License.
  */
 
-#include "textproto_client_context.h"
+#ifndef TEXTPROTO_CLISRV_H
+#define TEXTPROTO_CLISRV_H
+
+#include "client_context.h"
 
 namespace decof
 {
 
-void textproto_client_context::preload()
-{}
+class textproto_clisrv : public client_context
+{
+public:
+    // We inherit base class constructors
+    using client_context::client_context;
+
+    virtual void preload() override final;
+
+private:
+    void read_handler(const std::string &cstr);
+};
 
 } // namespace decof
+
+#endif // TEXTPROTO_CLISRV_H

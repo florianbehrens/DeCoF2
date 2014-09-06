@@ -28,7 +28,7 @@
 namespace decof
 {
 
-class node : public observable_parameter<stringlist>
+class node : public observable_parameter<string_vector>
 {
 public:
     typedef std::list<tree_element*> children_t;
@@ -38,14 +38,14 @@ public:
     explicit node(std::string name, node *parent = nullptr);
     virtual ~node();
 
-    virtual stringlist value() override;
+    virtual string_vector value() override;
 
     void add_child(tree_element *child);
     void remove_child(tree_element *child);
     tree_element *find_child(std::string uri);
 
     /// The same as value().
-    stringlist children();
+    string_vector children();
 
 private:
     tree_element *find_immediate_child(const std::string &name);

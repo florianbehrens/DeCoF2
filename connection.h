@@ -18,6 +18,9 @@
 #define CONNECTION_H
 
 #include <boost/asio.hpp>
+#include <boost/signals2.hpp>
+
+#define signals
 
 namespace decof
 {
@@ -25,26 +28,23 @@ namespace decof
 class connection
 {
 public:
-    struct observer {
-        virtual void connected() = 0;
-        virtual void disconnected() = 0;
-        virtual void read_handler(const boost::system::error_code &error, std::size_t bytes_transferred) = 0;
-        virtual void write_handler(const boost::system::error_code &error, std::size_t) = 0;
-    };
 
 public:
     virtual std::string endpoint() const = 0;
 
-    virtual void async_read_until(boost::asio::streambuf&, char delim) = 0;
+    virtual void async_read_until(char delim) = 0;
 
-    virtual void async_write(const std::string& response) = 0;
+    virtual void async_write(const std::string&) = 0;
+
+public signals:
+    boost::signals2::signal<void ()> connect_signal;
+    boost::signals2::signal<void ()> disconnect_signal;
+    boost::signals2::signal<void (const std::string& str)> read_signal;
+    boost::signals2::signal<void ()> write_signal;
 
 protected:
     void notify_read_handler(const boost::system::error_code &error, std::size_t bytes_transferred);
     void notify_write_handler(const boost::system::error_code &error, std::size_t);
-
-private:
-    observer* observer_ = nullptr;
 };
 
 } // namespace decof

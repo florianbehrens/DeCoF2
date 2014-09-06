@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 2014 Florian Behrens
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "textproto_clisrv.h"
+
+#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/any.hpp>
+#include <boost/tokenizer.hpp>
+
+#include "connection.h"
+#include "exceptions.h"
+#include "object_dictionary.h"
+#include "string_codec.h"
+#include "tree_element.h"
+
+namespace {
+
+const std::string prompt("> ");
+
+struct ws_separated_quotable_list
+{
+    ws_separated_quotable_list() {
+        reset();
+    }
+
+    template <typename InputIterator, typename Token>
+    bool operator()(InputIterator& next, InputIterator end, Token& tok) {
+        tok = Token();
+
+        for (; next != end; ++next) {
+            // Ignore whitespaces in between tokens
+            if (start_) {
+                if (::iswspace(*next))
+                    continue;
+                else
+                    start_ = false;
+            }
+
+            if (quote_) {
+                // If in quotation, only search for quotation mark
+                tok += *next;
+                if (*next == '"') {
+                    ++next;
+                    return true;
+                } else
+                    continue;
+            } else if (array_) {
+                // If in array, only search for closing bracket
+                tok += *next;
+                if (*next == ']') {
+                    ++next;
+                    return true;
+                } else
+                    continue;
+            } else {
+                // Find whitespace, quote or opening bracket
+                if (::iswspace(*next)) {
+                    start_ = true;
+                    return true;
+                }
+
+                if (*next == '"')
+                    quote_ = true;
+                else if (*next == '[')
+                    array_ = true;
+
+                tok += *next;
+            }
+        }
+
+        if (tok.size() > 0)
+            return true;
+
+        return false;
+    }
+
+    void reset() {
+        start_ = true;
+        quote_ = false;
+        array_ = false;
+    }
+
+private:
+    bool start_;
+    bool quote_;
+    bool array_;
+};
+
+} // anonymous namespace
+
+namespace decof
+{
+
+void textproto_clisrv::preload()
+{
+    // Connect to signals of connection class
+    connection_->read_signal.connect(std::bind(&textproto_clisrv::read_handler, this, std::placeholders::_1));
+
+    connection_->async_write(prompt);
+    connection_->async_read_until('\n');
+}
+
+void decof::textproto_clisrv::read_handler(const std::string& cstr)
+{
+    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+    std::string str(cstr);
+    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
+    std::vector<std::string> tokens;
+    boost::tokenizer<ws_separated_quotable_list> tokenizer(str);
+
+    for (boost::tokenizer<ws_separated_quotable_list>::iterator beg = tokenizer.begin(); beg != tokenizer.end(); ++beg) {
+        tokens.push_back(*beg);
+    }
+
+    std::stringstream ss;
+    try {
+        if (tokens.size() <= 1)
+            throw parse_error();
+
+        // Lower-case first two substrings
+        std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+        std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
+
+        // Remove optional "'" from parameter name
+        if (tokens[1][0] == '\'')
+            tokens[1].erase(0, 1);
+
+        // Add optional 'root' parameter name base
+        if (tokens[1] != "root" && !boost::algorithm::starts_with(tokens[1], "root:"))
+            tokens[1] = std::string("root:") + tokens[1];
+
+        if (tokens[0] == "get" || tokens[0] == "param-ref") {
+            if (tree_element *te = object_dictionary_.find_object(tokens[1]))
+                ss << string_codec::encode(te->any_value()) << std::endl;
+            else
+                throw invalid_parameter_error();
+        } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
+            if (tokens.size() == 3) {
+                boost::any any_value = string_codec::decode(tokens[2]);
+                set_parameter(tokens[1], any_value);
+                ss << "OK" << std::endl;
+            }
+            else
+                throw parse_error();
+        } else
+            throw unknown_operation_error();
+    } catch (runtime_error& ex) {
+        ss << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
+    }
+
+    ss << prompt;
+    connection_->async_write(ss.str());
+    connection_->async_read_until('\n');
+}
+
+} // namespace decof

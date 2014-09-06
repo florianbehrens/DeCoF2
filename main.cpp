@@ -13,12 +13,10 @@
 #include "object_dictionary.h"
 #include "managed_readwrite_parameter.h"
 #include "managed_readonly_parameter.h"
-#include "scheme_protocol.h"
-#include "scheme_monitor_protocol.h"
-#include "tcp_connection.h"
 #include "tcp_connection_manager.h"
 #include "tree_element.h"
-#include "textproto_client_context.h"
+#include "textproto_clisrv.h"
+#include "textproto_pubsub.h"
 
 using namespace decof;
 
@@ -96,10 +94,10 @@ int main()
 {
     // Output some diagnostics:
     std::cout << "sizeof(node) = " << sizeof(node) << std::endl;
-    std::cout << "sizeof(managed_readonly_parameter<std::string>) = " << sizeof(managed_readonly_parameter<std::string>) << std::endl;
-    std::cout << "sizeof(managed_readwrite_parameter<std::string>) = " << sizeof(managed_readwrite_parameter<std::string>) << std::endl;
-    std::cout << "sizeof(external_readonly_parameter<std::string>) = " << sizeof(external_readonly_parameter<std::string>) << std::endl;
-    std::cout << "sizeof(external_readwrite_parameter<std::string>) = " << sizeof(external_readwrite_parameter<std::string>) << std::endl;
+    std::cout << "sizeof(managed_readonly_parameter<int>) = " << sizeof(managed_readonly_parameter<int>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_parameter<int>) = " << sizeof(managed_readwrite_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readonly_parameter<int>) = " << sizeof(external_readonly_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readwrite_parameter<int>) = " << sizeof(external_readwrite_parameter<int>) << std::endl;
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
@@ -109,31 +107,36 @@ int main()
     //  |-- enabled: string (rw)
     //  |-- subnode: node (r)
     //  | |-- time: string (r)
-    //  | |-- leaf2: stringlist (rw)
+    //  | |-- leaf2: string_vector (rw)
     //  | |-- ip-address: string (rw)
+    //  | |-- bool: bool (rw)
+    //  | |-- integer: int (rw)
+    //  | |-- double: double (rw)
+    //  | |-- bool_vector: bool_vector (rw)
+    //  | |-- int_vector: int_vector (rw)
+    //  | |-- double_vector: double_vector (rw)
     new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
     node* subnode = new node("subnode", &obj_dict);
     new time_parameter("time", subnode);
-    stringlist sl = { "value1", "value2", "value3" };
-    new managed_readwrite_parameter<stringlist>("leaf2", subnode, sl);
+    string_vector sl = { "value1", "value2", "value3" };
+    new managed_readwrite_parameter<string_vector>("leaf2", subnode, sl);
     new ip_address_parameter("ip-address", subnode);
+    new managed_readwrite_parameter<bool>("bool", subnode);
+    new managed_readwrite_parameter<int>("integer", subnode);
+    new managed_readwrite_parameter<double>("double", subnode);
+    new managed_readwrite_parameter<bool_vector>("bool_vector", subnode);
+    new managed_readwrite_parameter<int_vector>("int_vector", subnode);
+    new managed_readwrite_parameter<double_vector>("double_vector", subnode);
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-//    tcp_connection_manager cmd_conn_manager(obj_dict, cmd_endpoint, &scheme_protocol::handle_connect);
-//    cmd_conn_manager.preload();
+    tcp_connection_manager conn_mgr_cmd(obj_dict, cmd_endpoint);
+    conn_mgr_cmd.preload<textproto_clisrv>();
 
     // Setup scheme monitoring line connection manager
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-//    tcp_connection_manager mon_conn_manager(obj_dict, mon_endpoint, &scheme_monitor_protocol::handle_connect);
-//    mon_conn_manager.preload();
-
-    // New connection design
-    tcp_connection_manager conn_mgr(obj_dict, cmd_endpoint);
-    conn_mgr.preload<textproto_client_context>();
-
-//    tcp_connection cmdline(cmd_endpoint);
-//    cmdline.preload();
+    tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
+    conn_mgr_mon.preload<textproto_pubsub>();
 
     obj_dict.get_io_service().run();
 

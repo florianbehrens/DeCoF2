@@ -51,4 +51,8 @@ unknown_operation_error::unknown_operation_error()
   : runtime_error(UNKNOWN_OPERATION_ERROR, "Unknown operation error")
 {}
 
+parse_error::parse_error()
+  : runtime_error(PARSE_ERROR, "Parse error")
+{}
+
 } // namespace decof
