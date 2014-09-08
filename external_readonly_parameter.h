@@ -50,11 +50,11 @@ public:
         return get_external_value();
     }
 
-    virtual tree_element::connection observe(tree_element::slot_type slot) noexcept override {
+    virtual boost::signals2::connection observe(tree_element::slot_type slot) noexcept override {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
-            return tree_element::connection();
+            return boost::signals2::connection();
 
         // Connect to regular timer
         connection_ = obj_dict->get_medium_timer().observe(std::bind(&external_readonly_parameter<T>::notify, this));

@@ -28,8 +28,8 @@ class observable_parameter : public basic_parameter<T>
 public:
     typedef T value_type;
 
-    virtual tree_element::connection observe(tree_element::slot_type slot) noexcept override {
-        tree_element::connection retval = signal_.connect(slot);
+    virtual boost::signals2::connection observe(tree_element::slot_type slot) noexcept override {
+        boost::signals2::connection retval = signal_.connect(slot);
         signal(this->value());
         return retval;
     }

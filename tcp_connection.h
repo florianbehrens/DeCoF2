@@ -34,7 +34,8 @@ private:
 public:
     virtual ~tcp_connection();
 
-    virtual std::string endpoint() const override;
+    virtual std::string type() const override;
+    virtual std::string remote_endpoint() const override;
 
     virtual void async_read_until(char delim) override;
 

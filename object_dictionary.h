@@ -42,6 +42,9 @@ public:
         context_guard(object_dictionary& od, client_context *cc);
         ~context_guard();
 
+        context_guard(const context_guard&) = delete;
+        context_guard& operator=(const context_guard&) = delete;
+
     private:
         object_dictionary& object_dictionary_;
         const client_context* client_context_;
@@ -57,7 +60,7 @@ public:
 
     void add_context(std::shared_ptr<client_context> client_context);
     void remove_context(std::shared_ptr<client_context> client_context);
-    const std::weak_ptr<client_context> current_context() const;
+    const std::shared_ptr<client_context> current_context() const;
 
 private:
     tree_element* find_object(std::string uri);

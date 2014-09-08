@@ -33,7 +33,12 @@ tcp_connection::~tcp_connection()
     // TODO
 }
 
-std::string tcp_connection::endpoint() const
+std::string tcp_connection::type() const
+{
+    return std::string("tcp");
+}
+
+std::string tcp_connection::remote_endpoint() const
 {
     return boost::lexical_cast<std::string>(socket_.remote_endpoint());
 }

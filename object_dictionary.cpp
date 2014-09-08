@@ -75,10 +75,10 @@ void object_dictionary::remove_context(std::shared_ptr<client_context> client_co
     client_contexts_.remove(client_context);
 }
 
-const std::weak_ptr<client_context> object_dictionary::current_context() const
+const std::shared_ptr<client_context> object_dictionary::current_context() const
 {
-    assert(false);
-    return std::weak_ptr<client_context>();
+    assert(current_context_ != nullptr);
+    return current_context_;
 }
 
 tree_element *object_dictionary::find_object(std::string uri)
@@ -96,8 +96,12 @@ tree_element *object_dictionary::find_object(std::string uri)
 
 void object_dictionary::set_current_context(client_context *client_context)
 {
-    assert(current_context_ == nullptr);
-    current_context_ = client_context->shared_from_this();
+    assert((current_context_ == nullptr && client_context != nullptr) ||
+           (current_context_ != nullptr && client_context == nullptr));
+    if (client_context != nullptr)
+        current_context_ = client_context->shared_from_this();
+    else
+        current_context_.reset();
 }
 
 } // namespace decof

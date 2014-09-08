@@ -44,7 +44,6 @@ protected:
 public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
     typedef signal_type::slot_type slot_type;
-    typedef boost::signals2::connection connection;
 
     virtual ~tree_element();
 
@@ -60,7 +59,7 @@ public:
     virtual boost::any any_value() noexcept = 0;
 
     // Observe parameter value.
-    virtual connection observe(slot_type slot) noexcept = 0;
+    virtual boost::signals2::connection observe(slot_type slot) noexcept = 0;
 
     /// Returns the object dictionary of this tree element or nullptr if not
     /// defined.

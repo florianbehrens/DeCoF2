@@ -40,7 +40,7 @@ const connection *client_context::connnection() const
 
 void client_context::set_parameter(const std::string &uri, const boost::any &any_value)
 {
-    object_dictionary::context_guard(object_dictionary_, this);
+    object_dictionary::context_guard cg(object_dictionary_, this);
 
     if (tree_element *te = object_dictionary_.find_object(uri)) {
         if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
@@ -53,7 +53,7 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 
 boost::any client_context::get_parameter(const std::string &uri)
 {
-    object_dictionary::context_guard(object_dictionary_, this);
+    object_dictionary::context_guard cg(object_dictionary_, this);
 
     tree_element *te = object_dictionary_.find_object(uri);
     if (te == nullptr)
@@ -66,7 +66,7 @@ void client_context::observe(const std::string &uri, tree_element::signal_type::
 {
     if (tree_element *te = object_dictionary_.find_object(uri)) {
         if (observables_.count(uri) == 0) {
-            tree_element::connection connection = te->observe(slot);
+            boost::signals2::connection connection = te->observe(slot);
             observables_.emplace(uri, connection);
         }
     } else

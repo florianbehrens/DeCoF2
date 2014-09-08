@@ -30,7 +30,8 @@ class connection
 public:
 
 public:
-    virtual std::string endpoint() const = 0;
+    virtual std::string type() const = 0;
+    virtual std::string remote_endpoint() const = 0;
 
     virtual void async_read_until(char delim) = 0;
 

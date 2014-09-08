@@ -22,6 +22,18 @@ using namespace decof;
 
 object_dictionary obj_dict;
 
+struct current_context_endpoint_parameter : public external_readonly_parameter<std::string>
+{
+    current_context_endpoint_parameter(std::string name, node *parent = nullptr) :
+        external_readonly_parameter<std::string>(name, parent)
+    {}
+
+    virtual value_type get_external_value() {
+        const connection* c = get_object_dictionary()->current_context()->connnection();
+        return c->type() + "://" + c->remote_endpoint();
+    }
+};
+
 struct my_managed_readwrite_parameter : public managed_readwrite_parameter<std::string>
 {
     my_managed_readwrite_parameter(std::string name, node *parent = nullptr, std::string value = std::string())
@@ -105,6 +117,8 @@ int main()
     // Setup object dictionary
     // root
     //  |-- enabled: string (rw)
+    //  |-- current-context: node (r)
+    //  | |-- endpoint: string (r)
     //  |-- subnode: node (r)
     //  | |-- time: string (r)
     //  | |-- leaf2: string_vector (rw)
@@ -116,6 +130,8 @@ int main()
     //  | |-- int_vector: int_vector (rw)
     //  | |-- double_vector: double_vector (rw)
     new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
+    node* current_context_node = new node("current-context", &obj_dict);
+    new current_context_endpoint_parameter("endpoint", current_context_node);
     node* subnode = new node("subnode", &obj_dict);
     new time_parameter("time", subnode);
     string_vector sl = { "value1", "value2", "value3" };
