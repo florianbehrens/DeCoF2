@@ -40,6 +40,8 @@ const connection *client_context::connnection() const
 
 void client_context::set_parameter(const std::string &uri, const boost::any &any_value)
 {
+    object_dictionary::context_guard(object_dictionary_, this);
+
     if (tree_element *te = object_dictionary_.find_object(uri)) {
         if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
             parameter->set_private_value(any_value);
@@ -51,8 +53,13 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 
 boost::any client_context::get_parameter(const std::string &uri)
 {
-    assert(false);
-    return boost::any();
+    object_dictionary::context_guard(object_dictionary_, this);
+
+    tree_element *te = object_dictionary_.find_object(uri);
+    if (te == nullptr)
+        throw invalid_parameter_error();
+
+    return te->any_value();
 }
 
 void client_context::observe(const std::string &uri, tree_element::signal_type::slot_type slot)

@@ -115,6 +115,7 @@ void textproto_clisrv::preload()
 {
     // Connect to signals of connection class
     connection_->read_signal.connect(std::bind(&textproto_clisrv::read_handler, this, std::placeholders::_1));
+    connection_->disconnect_signal.connect(std::bind(&textproto_clisrv::disconnect_handler, this));
 
     connection_->async_write(prompt);
     connection_->async_read_until('\n');
@@ -150,10 +151,8 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
             tokens[1] = std::string("root:") + tokens[1];
 
         if (tokens[0] == "get" || tokens[0] == "param-ref") {
-            if (tree_element *te = object_dictionary_.find_object(tokens[1]))
-                ss << string_codec::encode(te->any_value()) << std::endl;
-            else
-                throw invalid_parameter_error();
+            boost::any any_value = get_parameter(tokens[1]);
+            ss << string_codec::encode(any_value) << std::endl;
         } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
             if (tokens.size() == 3) {
                 boost::any any_value = string_codec::decode(tokens[2]);
@@ -171,6 +170,14 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     ss << prompt;
     connection_->async_write(ss.str());
     connection_->async_read_until('\n');
+}
+
+void textproto_clisrv::disconnect_handler()
+{
+    // Remove this client context from object dictionary. Because it is a
+    // shared pointer, it gets deleted after leaving function scope.
+    auto sptr = shared_from_this();
+    object_dictionary_.remove_context(sptr);
 }
 
 } // namespace decof

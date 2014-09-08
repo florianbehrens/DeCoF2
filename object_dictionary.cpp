@@ -23,6 +23,17 @@
 namespace decof
 {
 
+object_dictionary::context_guard::context_guard(object_dictionary& od, client_context* cc) :
+    object_dictionary_(od)
+{
+    object_dictionary_.set_current_context(cc);
+}
+
+object_dictionary::context_guard::~context_guard()
+{
+    object_dictionary_.set_current_context(nullptr);
+}
+
 object_dictionary::object_dictionary()
  : node("root", nullptr),
    fast_timer_(io_service_, std::chrono::milliseconds(50)),
@@ -32,19 +43,6 @@ object_dictionary::object_dictionary()
      fast_timer_.start();
      medium_timer_.start();
      slow_timer_.start();
-}
-
-tree_element *object_dictionary::find_object(std::string uri)
-{
-    if (uri == name())
-        return this;
-
-    if (boost::algorithm::starts_with(uri, name() + ":")) {
-        std::string sub_uri = uri.substr(uri.find(':') + 1);
-        return find_child(sub_uri);
-    }
-
-    return nullptr;
 }
 
 regular_timer& object_dictionary::get_fast_timer()
@@ -67,16 +65,39 @@ boost::asio::io_service& object_dictionary::get_io_service()
     return io_service_;
 }
 
-void object_dictionary::add_context(client_context *a_client_context)
-{}
+void object_dictionary::add_context(std::shared_ptr<client_context> client_context)
+{
+    client_contexts_.push_back(client_context);
+}
 
-const client_context *object_dictionary::current_context() const
+void object_dictionary::remove_context(std::shared_ptr<client_context> client_context)
+{
+    client_contexts_.remove(client_context);
+}
+
+const std::weak_ptr<client_context> object_dictionary::current_context() const
 {
     assert(false);
+    return std::weak_ptr<client_context>();
+}
+
+tree_element *object_dictionary::find_object(std::string uri)
+{
+    if (uri == name())
+        return this;
+
+    if (boost::algorithm::starts_with(uri, name() + ":")) {
+        std::string sub_uri = uri.substr(uri.find(':') + 1);
+        return find_child(sub_uri);
+    }
+
     return nullptr;
 }
 
-void object_dictionary::delete_current_context()
-{}
+void object_dictionary::set_current_context(client_context *client_context)
+{
+    assert(current_context_ == nullptr);
+    current_context_ = client_context->shared_from_this();
+}
 
 } // namespace decof

@@ -32,6 +32,7 @@ public:
 
 private:
     void read_handler(const std::string &cstr);
+    void disconnect_handler();
 };
 
 } // namespace decof

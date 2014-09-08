@@ -29,7 +29,7 @@ namespace decof
 class connection;
 class object_dictionary;
 
-class client_context
+class client_context : public std::enable_shared_from_this<client_context>
 {
     typedef int userlevel_t;
 

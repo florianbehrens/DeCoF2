@@ -58,7 +58,7 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            client_context* cli_ctx = new CTX(object_dictionary_, tcp_connection::create(std::move(socket_)));
+            std::shared_ptr<client_context> cli_ctx(new CTX(object_dictionary_, tcp_connection::create(std::move(socket_))));
             object_dictionary_.add_context(cli_ctx);
             cli_ctx->preload();
         } else

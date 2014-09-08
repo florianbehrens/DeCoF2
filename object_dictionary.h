@@ -17,6 +17,8 @@
 #ifndef OBJECT_DICTIONARY_H
 #define OBJECT_DICTIONARY_H
 
+#include <memory>
+
 #include <boost/asio.hpp>
 
 #include "node.h"
@@ -34,9 +36,18 @@ class object_dictionary : public node
     friend class client_context;
 
 public:
-    object_dictionary();
+    class context_guard
+    {
+    public:
+        context_guard(object_dictionary& od, client_context *cc);
+        ~context_guard();
 
-    tree_element* find_object(std::string uri);
+    private:
+        object_dictionary& object_dictionary_;
+        const client_context* client_context_;
+    };
+
+    object_dictionary();
 
     regular_timer& get_fast_timer();
     regular_timer& get_medium_timer();
@@ -44,19 +55,22 @@ public:
 
     boost::asio::io_service& get_io_service();
 
-    void add_context(client_context* a_client_context);
-    const client_context* current_context() const;
-    void delete_current_context();
+    void add_context(std::shared_ptr<client_context> client_context);
+    void remove_context(std::shared_ptr<client_context> client_context);
+    const std::weak_ptr<client_context> current_context() const;
 
 private:
-    void set_current_context(client_context* a_client_context);
+    tree_element* find_object(std::string uri);
+
+    void set_current_context(client_context* client_context);
 
     boost::asio::io_service io_service_;
     regular_timer fast_timer_;
     regular_timer medium_timer_;
     regular_timer slow_timer_;
 
-    std::list<std::unique_ptr<client_context>> client_contexts_;
+    std::list<std::shared_ptr<client_context>> client_contexts_;
+    std::shared_ptr<client_context> current_context_;
 };
 
 } // namespace decof
