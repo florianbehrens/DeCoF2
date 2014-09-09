@@ -18,19 +18,20 @@ SOURCES += \
     src/tree_element.cpp
 
 HEADERS += \
-    include/basic_parameter.h \
-    include/basic_readwrite_parameter.h \
-    include/client_context.h \
-    include/exceptions.h \
-    include/external_readonly_parameter.h \
-    include/external_readwrite_parameter.h \
-    include/managed_readonly_parameter.h \
-    include/managed_readwrite_parameter.h \
-    include/node.h \
-    include/object_dictionary.h \
-    include/observable_parameter.h \
-    include/readwrite_parameter.h \
-    include/tree_element.h \
+    include/decof/basic_parameter.h \
+    include/decof/basic_readwrite_parameter.h \
+    include/decof/client_context.h \
+    include/decof/exceptions.h \
+    include/decof/external_readonly_parameter.h \
+    include/decof/external_readwrite_parameter.h \
+    include/decof/managed_readonly_parameter.h \
+    include/decof/managed_readwrite_parameter.h \
+    include/decof/node.h \
+    include/decof/object_dictionary.h \
+    include/decof/observable_parameter.h \
+    include/decof/readwrite_parameter.h \
+    include/decof/tree_element.h \
+    include/decof/types.h \
     src/connection.h \
     src/errors.h \
     src/regular_timer.h \
@@ -38,10 +39,9 @@ HEADERS += \
     src/tcp_connection.h \
     src/tcp_connection_manager.h \
     src/textproto_clisrv.h \
-    src/textproto_pubsub.h \
-    include/types.h
+    src/textproto_pubsub.h
 
-INCLUDEPATH += include src
+INCLUDEPATH += include/decof src
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32
