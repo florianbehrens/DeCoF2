@@ -28,14 +28,18 @@ typedef bool boolean;
 typedef int integer;
 typedef double real;
 typedef std::string string;
-typedef std::string binary;
+
+struct binary : public std::string
+{
+    using std::string::string;
+};
 
 // Sequence parameter types
 typedef std::vector<bool> boolean_seq;
 typedef std::vector<int> integer_seq;
 typedef std::vector<double> real_seq;
 typedef std::vector<std::string> string_seq;
-typedef std::vector<std::string> binary_seq;
+typedef std::vector<binary> binary_seq;
 
 } // namespace decof
 

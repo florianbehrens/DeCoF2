@@ -125,9 +125,13 @@ int main()
     //  | |-- bool: bool (rw)
     //  | |-- integer: int (rw)
     //  | |-- double: double (rw)
-    //  | |-- bool_vector: bool_vector (rw)
-    //  | |-- int_vector: int_vector (rw)
-    //  | |-- double_vector: double_vector (rw)
+    //  | |-- string: string (rw)
+    //  | |-- binary: binary (rw)
+    //  | |-- boolean_seq: boolean_seq (rw)
+    //  | |-- integer_seq: integer_seq (rw)
+    //  | |-- real_seq: real_seq (rw)
+    //  | |-- string_seq: string_seq (rw)
+    //  | |-- binary_seq: binary_seq (rw)
     new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
     decof::node* current_context_node = new decof::node("current-context", &obj_dict);
     new current_context_endpoint_parameter("endpoint", current_context_node);
@@ -139,9 +143,13 @@ int main()
     new decof::managed_readwrite_parameter<decof::boolean>("boolean", subnode);
     new decof::managed_readwrite_parameter<decof::integer>("integer", subnode);
     new decof::managed_readwrite_parameter<decof::real>("real", subnode);
+    new decof::managed_readwrite_parameter<decof::string>("string", subnode);
+    new decof::managed_readwrite_parameter<decof::binary>("binary", subnode);
     new decof::managed_readwrite_parameter<decof::boolean_seq>("boolean_seq", subnode);
     new decof::managed_readwrite_parameter<decof::integer_seq>("integer_seq", subnode);
     new decof::managed_readwrite_parameter<decof::real_seq>("real_seq", subnode);
+    new decof::managed_readwrite_parameter<decof::string_seq>("string_seq", subnode);
+    new decof::managed_readwrite_parameter<decof::binary_seq>("binary_seq", subnode);
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
