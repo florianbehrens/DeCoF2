@@ -42,13 +42,13 @@ std::string string_codec::encode(const boost::any &any_value)
 {
     string_seq str_vec;
 
-    if (any_value.type() == typeid(bool)) {
+    if (any_value.type() == typeid(boolean)) {
         return bool2string(boost::any_cast<bool>(any_value));
-    } else if (any_value.type() == typeid(int))
+    } else if (any_value.type() == typeid(integer))
         return boost::lexical_cast<std::string>(boost::any_cast<int>(any_value));
-    else if (any_value.type() == typeid(double))
+    else if (any_value.type() == typeid(real))
         return boost::lexical_cast<std::string>(boost::any_cast<double>(any_value));
-    else if (any_value.type() == typeid(std::string))
+    else if (any_value.type() == typeid(string))
         return std::string("\"") + boost::any_cast<std::string>(any_value) + "\"";
     else if (any_value.type() == typeid(boolean_seq)) {
         boolean_seq value = boost::any_cast<boolean_seq>(any_value);
@@ -86,13 +86,13 @@ boost::any string_codec::decode(const std::string &cstr)
         if (str.front() == '#') {
             // bool
             if (str == "#f")
-                return boost::any(false);
-            return boost::any(true);
+                return boost::any(boolean(false));
+            return boost::any(boolean(true));
         } else if (str.front() == '"' && str.back() == '"') {
             // Decode string
             boost::algorithm::trim_if(str, boost::is_any_of("\""));
             boost::replace_all(str, "\\\"", "\"");
-            return boost::any(str);
+            return boost::any(string(str));
         } else if (str.front() == '[' && str.back() == ']') {
             // Decode array while checking whether all elems have equal type
             boost::algorithm::trim_if(str, boost::is_any_of("[]"));
@@ -112,12 +112,12 @@ boost::any string_codec::decode(const std::string &cstr)
             return boost::any(any_elems);
         } else if (boost::algorithm::all(str, boost::is_digit() || boost::is_any_of("-"))) {
             // possibly int
-            return boost::any(boost::lexical_cast<int>(str));
+            return boost::any(boost::lexical_cast<integer>(str));
         } else {
             // double
-            return boost::any(boost::lexical_cast<double>(str));
+            return boost::any(boost::lexical_cast<real>(str));
         }
-    } catch (boost::bad_lexical_cast& e) {
+    } catch (boost::bad_lexical_cast&) {
         throw wrong_type_error();
     }
 
