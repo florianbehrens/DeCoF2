@@ -24,7 +24,7 @@ namespace decof
 {
 
 node::node(std::string name, node *parent)
- : observable_parameter<string_vector>(name, parent)
+ : observable_parameter<string_seq>(name, parent)
 {}
 
 node::~node()
@@ -36,7 +36,7 @@ node::~node()
         delete child;
 }
 
-string_vector node::value()
+string_seq node::value()
 {
     return children();
 }
@@ -94,9 +94,9 @@ tree_element *node::find_child(std::string uri)
     return te;
 }
 
-string_vector node::children()
+string_seq node::children()
 {
-    string_vector retval;
+    string_seq retval;
     retval.reserve(children_.size());
     for (const auto c : children_)
         retval.push_back(c->name());

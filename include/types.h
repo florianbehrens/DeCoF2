@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CONTAINER_TYPES_H
-#define CONTAINER_TYPES_H
+#ifndef DECOF_TYPES_H
+#define DECOF_TYPES_H
 
 #include <string>
 #include <vector>
@@ -23,11 +23,20 @@
 namespace decof
 {
 
-typedef std::vector<bool> bool_vector;
-typedef std::vector<int> int_vector;
-typedef std::vector<double> double_vector;
-typedef std::vector<std::string> string_vector;
+// Scalar parameter types
+typedef bool boolean;
+typedef int integer;
+typedef double real;
+typedef std::string string;
+typedef std::string binary;
+
+// Sequence parameter types
+typedef std::vector<bool> boolean_seq;
+typedef std::vector<int> integer_seq;
+typedef std::vector<double> real_seq;
+typedef std::vector<std::string> string_seq;
+typedef std::vector<std::string> binary_seq;
 
 } // namespace decof
 
-#endif // CONTAINER_TYPES_H
+#endif // DECOF_TYPES_H

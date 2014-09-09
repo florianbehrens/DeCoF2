@@ -22,13 +22,13 @@
 #include <string>
 #include <vector>
 
-#include "container_types.h"
+#include "types.h"
 #include "observable_parameter.h"
 
 namespace decof
 {
 
-class node : public observable_parameter<string_vector>
+class node : public observable_parameter<string_seq>
 {
 public:
     typedef std::list<tree_element*> children_t;
@@ -38,14 +38,14 @@ public:
     explicit node(std::string name, node *parent = nullptr);
     virtual ~node();
 
-    virtual string_vector value() override;
+    virtual string_seq value() override;
 
     void add_child(tree_element *child);
     void remove_child(tree_element *child);
     tree_element *find_child(std::string uri);
 
     /// The same as value().
-    string_vector children();
+    string_seq children();
 
 private:
     tree_element *find_immediate_child(const std::string &name);

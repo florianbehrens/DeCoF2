@@ -21,7 +21,6 @@ HEADERS += \
     include/basic_parameter.h \
     include/basic_readwrite_parameter.h \
     include/client_context.h \
-    include/container_types.h \
     include/exceptions.h \
     include/external_readonly_parameter.h \
     include/external_readwrite_parameter.h \
@@ -39,7 +38,8 @@ HEADERS += \
     src/tcp_connection.h \
     src/tcp_connection_manager.h \
     src/textproto_clisrv.h \
-    src/textproto_pubsub.h
+    src/textproto_pubsub.h \
+    include/types.h
 
 INCLUDEPATH += include src
 

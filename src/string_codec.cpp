@@ -21,7 +21,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "container_types.h"
+#include "types.h"
 #include "exceptions.h"
 
 namespace {
@@ -40,7 +40,7 @@ namespace decof
 
 std::string string_codec::encode(const boost::any &any_value)
 {
-    string_vector str_vec;
+    string_seq str_vec;
 
     if (any_value.type() == typeid(bool)) {
         return bool2string(boost::any_cast<bool>(any_value));
@@ -50,27 +50,27 @@ std::string string_codec::encode(const boost::any &any_value)
         return boost::lexical_cast<std::string>(boost::any_cast<double>(any_value));
     else if (any_value.type() == typeid(std::string))
         return std::string("\"") + boost::any_cast<std::string>(any_value) + "\"";
-    else if (any_value.type() == typeid(bool_vector)) {
-        bool_vector value = boost::any_cast<bool_vector>(any_value);
+    else if (any_value.type() == typeid(boolean_seq)) {
+        boolean_seq value = boost::any_cast<boolean_seq>(any_value);
         str_vec.resize(value.size());
         std::transform(value.begin(), value.end(), str_vec.begin(), bool2string);
         return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(int_vector)) {
-        int_vector value = boost::any_cast<int_vector>(any_value);
+    } else if (any_value.type() == typeid(integer_seq)) {
+        integer_seq value = boost::any_cast<integer_seq>(any_value);
         str_vec.resize(value.size());
         std::transform(value.begin(), value.end(), str_vec.begin(), [](int value) {
             return boost::lexical_cast<std::string>(value);
         });
         return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(double_vector)) {
-        double_vector value = boost::any_cast<double_vector>(any_value);
+    } else if (any_value.type() == typeid(real_seq)) {
+        real_seq value = boost::any_cast<real_seq>(any_value);
         str_vec.resize(value.size());
         std::transform(value.begin(), value.end(), str_vec.begin(), [](double value) {
             return boost::lexical_cast<std::string>(value);
         });
         return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(string_vector))
-        return std::string("[\"") + boost::algorithm::join(boost::any_cast<string_vector>(any_value), std::string("\",\"")) + "\"]";
+    } else if (any_value.type() == typeid(string_seq))
+        return std::string("[\"") + boost::algorithm::join(boost::any_cast<string_seq>(any_value), std::string("\",\"")) + "\"]";
     else
         throw wrong_type_error();
 }

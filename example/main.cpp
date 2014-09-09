@@ -17,69 +17,68 @@
 #include "tree_element.h"
 #include "textproto_clisrv.h"
 #include "textproto_pubsub.h"
+#include "types.h"
 
-using namespace decof;
+decof::object_dictionary obj_dict;
 
-object_dictionary obj_dict;
-
-struct current_context_endpoint_parameter : public external_readonly_parameter<std::string>
+struct current_context_endpoint_parameter : public decof::external_readonly_parameter<decof::string>
 {
-    current_context_endpoint_parameter(std::string name, node *parent = nullptr) :
-        external_readonly_parameter<std::string>(name, parent)
+    current_context_endpoint_parameter(std::string name, decof::node *parent = nullptr) :
+        decof::external_readonly_parameter<decof::string>(name, parent)
     {}
 
     virtual value_type get_external_value() {
-        const connection* c = get_object_dictionary()->current_context()->connnection();
+        const decof::connection* c = get_object_dictionary()->current_context()->connnection();
         return c->type() + "://" + c->remote_endpoint();
     }
 };
 
-struct my_managed_readwrite_parameter : public managed_readwrite_parameter<std::string>
+struct my_managed_readwrite_parameter : public decof::managed_readwrite_parameter<decof::string>
 {
-    my_managed_readwrite_parameter(std::string name, node *parent = nullptr, std::string value = std::string())
-     : managed_readwrite_parameter<std::string>(name, parent, value)
+    my_managed_readwrite_parameter(std::string name, decof::node *parent = nullptr, decof::string value = decof::string())
+     : decof::managed_readwrite_parameter<decof::string>(name, parent, value)
     {}
 
-    virtual void verify(const std::string& value) override {
+    virtual void verify(const decof::string& value) override {
         if (value != "true" && value != "false")
-            throw invalid_value_error();
+            throw decof::invalid_value_error();
 
         std::cout << "my_managed_readwrite_parameter was changed to " << value << std::endl;
     }
 };
 
-struct my_managed_readonly_parameter : public managed_readonly_parameter<std::string>
+struct my_managed_readonly_parameter : public decof::managed_readonly_parameter<decof::string>
 {
-    my_managed_readonly_parameter(std::string name, node *parent = nullptr, std::string value = std::string())
-     : managed_readonly_parameter<std::string>(name, parent, value)
+    my_managed_readonly_parameter(std::string name, decof::node *parent = nullptr, decof::string value = decof::string())
+     : decof::managed_readonly_parameter<decof::string>(name, parent, value)
     {}
 
-    virtual bool notify(const std::string& value) {
+    virtual bool notify(const decof::string& value) {
         std::cout << "my_managed_readonly_parameter was changed to " << value << std::endl;
         return true;
     }
 };
 
-struct time_parameter : public external_readonly_parameter<std::string>
+struct time_parameter : public decof::external_readonly_parameter<decof::string>
 {
-    time_parameter(std::string name, node *parent = nullptr)
-     : external_readonly_parameter<std::string>(name, parent)
+    time_parameter(std::string name, decof::node *parent = nullptr)
+     : decof::external_readonly_parameter<decof::string>(name, parent)
     {}
 
 private:
-    std::string get_external_value() override {
+    decof::string get_external_value() override {
         const size_t max_length = 40;
         char str[max_length];
         std::time_t now = std::time(nullptr);
         std::strftime(str, sizeof(str), "%c", std::localtime(&now));
-        return std::string(str);
+        return decof::string(str);
     }
 };
 
-struct ip_address_parameter : public external_readwrite_parameter<std::string>
+struct ip_address_parameter : public decof::external_readwrite_parameter<decof::string>
 {
-    ip_address_parameter(std::string name, node *parent = nullptr)
-     : external_readwrite_parameter<std::string>(name, parent)
+    ip_address_parameter(std::string name, decof::node *parent = nullptr)
+     : decof::external_readwrite_parameter<decof::string>(name, parent)
     {}
 
 private:
@@ -92,8 +91,8 @@ private:
         return true;
     }
 
-    std::string get_external_value() override {
-        std::string str;
+    decof::string get_external_value() override {
+        decof::string str;
         std::fstream file_(filename_, std::ios_base::in);
         std::getline(file_, str);
         return str;
@@ -105,11 +104,11 @@ private:
 int main()
 {
     // Output some diagnostics:
-    std::cout << "sizeof(node) = " << sizeof(node) << std::endl;
-    std::cout << "sizeof(managed_readonly_parameter<int>) = " << sizeof(managed_readonly_parameter<int>) << std::endl;
-    std::cout << "sizeof(managed_readwrite_parameter<int>) = " << sizeof(managed_readwrite_parameter<int>) << std::endl;
-    std::cout << "sizeof(external_readonly_parameter<int>) = " << sizeof(external_readonly_parameter<int>) << std::endl;
-    std::cout << "sizeof(external_readwrite_parameter<int>) = " << sizeof(external_readwrite_parameter<int>) << std::endl;
+    std::cout << "sizeof(node) = " << sizeof(decof::node) << std::endl;
+    std::cout << "sizeof(managed_readonly_parameter<decof::integer>) = " << sizeof(decof::managed_readonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_parameter<decof::integer>) = " << sizeof(decof::managed_readwrite_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readonly_parameter<decof::integer>) = " << sizeof(decof::external_readonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readwrite_parameter<decof::integer>) = " << sizeof(decof::external_readwrite_parameter<decof::integer>) << std::endl;
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
@@ -130,29 +129,29 @@ int main()
     //  | |-- int_vector: int_vector (rw)
     //  | |-- double_vector: double_vector (rw)
     new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
-    node* current_context_node = new node("current-context", &obj_dict);
+    decof::node* current_context_node = new decof::node("current-context", &obj_dict);
     new current_context_endpoint_parameter("endpoint", current_context_node);
-    node* subnode = new node("subnode", &obj_dict);
+    decof::node* subnode = new decof::node("subnode", &obj_dict);
     new time_parameter("time", subnode);
-    string_vector sl = { "value1", "value2", "value3" };
-    new managed_readwrite_parameter<string_vector>("leaf2", subnode, sl);
+    decof::string_seq sl = { "value1", "value2", "value3" };
+    new decof::managed_readwrite_parameter<decof::string_seq>("leaf2", subnode, sl);
     new ip_address_parameter("ip-address", subnode);
-    new managed_readwrite_parameter<bool>("bool", subnode);
-    new managed_readwrite_parameter<int>("integer", subnode);
-    new managed_readwrite_parameter<double>("double", subnode);
-    new managed_readwrite_parameter<bool_vector>("bool_vector", subnode);
-    new managed_readwrite_parameter<int_vector>("int_vector", subnode);
-    new managed_readwrite_parameter<double_vector>("double_vector", subnode);
+    new decof::managed_readwrite_parameter<decof::boolean>("boolean", subnode);
+    new decof::managed_readwrite_parameter<decof::integer>("integer", subnode);
+    new decof::managed_readwrite_parameter<decof::real>("real", subnode);
+    new decof::managed_readwrite_parameter<decof::boolean_seq>("boolean_seq", subnode);
+    new decof::managed_readwrite_parameter<decof::integer_seq>("integer_seq", subnode);
+    new decof::managed_readwrite_parameter<decof::real_seq>("real_seq", subnode);
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    tcp_connection_manager conn_mgr_cmd(obj_dict, cmd_endpoint);
-    conn_mgr_cmd.preload<textproto_clisrv>();
+    decof::tcp_connection_manager conn_mgr_cmd(obj_dict, cmd_endpoint);
+    conn_mgr_cmd.preload<decof::textproto_clisrv>();
 
     // Setup scheme monitoring line connection manager
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
-    conn_mgr_mon.preload<textproto_pubsub>();
+    decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
+    conn_mgr_mon.preload<decof::textproto_pubsub>();
 
     obj_dict.get_io_service().run();
 

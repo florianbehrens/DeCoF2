@@ -22,7 +22,7 @@
 
 #include <boost/any.hpp>
 
-#include "container_types.h"
+#include "types.h"
 #include "tree_element.h"
 
 namespace decof
