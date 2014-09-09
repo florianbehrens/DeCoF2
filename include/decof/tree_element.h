@@ -55,12 +55,6 @@ public:
     node *parent() const;
     void set_parent(node *parent);
 
-    // Provides the value as runtime-generic type.
-    virtual boost::any any_value() noexcept = 0;
-
-    // Observe parameter value.
-    virtual boost::signals2::connection observe(slot_type slot) noexcept = 0;
-
     /// Returns the object dictionary of this tree element or nullptr if not
     /// defined.
     object_dictionary* get_object_dictionary();

@@ -48,6 +48,8 @@ protected:
     void set_parameter(const std::string& uri, const boost::any& any_value);
     boost::any get_parameter(const std::string& uri);
 
+    void signal_event(const std::string &uri);
+
     void observe(const std::string& uri, tree_element::signal_type::slot_type slot);
     void unobserve(const std::string& uri);
 

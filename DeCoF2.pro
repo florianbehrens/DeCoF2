@@ -6,6 +6,7 @@ CONFIG -= qt
 SOURCES += \
     example/main.cpp \
     src/client_context.cpp \
+    src/event.cpp \
     src/exceptions.cpp \
     src/node.cpp \
     src/object_dictionary.cpp \
@@ -18,9 +19,11 @@ SOURCES += \
     src/tree_element.cpp
 
 HEADERS += \
+    include/decof.h \
     include/decof/basic_parameter.h \
     include/decof/basic_readwrite_parameter.h \
     include/decof/client_context.h \
+    include/decof/event.h \
     include/decof/exceptions.h \
     include/decof/external_readonly_parameter.h \
     include/decof/external_readwrite_parameter.h \
@@ -41,7 +44,7 @@ HEADERS += \
     src/textproto_clisrv.h \
     src/textproto_pubsub.h
 
-INCLUDEPATH += include/decof src
+INCLUDEPATH += include include/decof src
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32

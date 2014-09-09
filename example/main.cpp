@@ -7,17 +7,10 @@
 #include <boost/asio/steady_timer.hpp>
 #include <boost/bind.hpp>
 
-#include "exceptions.h"
-#include "external_readonly_parameter.h"
-#include "external_readwrite_parameter.h"
-#include "object_dictionary.h"
-#include "managed_readwrite_parameter.h"
-#include "managed_readonly_parameter.h"
+#include "decof.h"
 #include "tcp_connection_manager.h"
-#include "tree_element.h"
 #include "textproto_clisrv.h"
 #include "textproto_pubsub.h"
-#include "types.h"
 
 decof::object_dictionary obj_dict;
 
@@ -101,6 +94,13 @@ private:
     std::string filename_ = "C:\\Users\\willy\\data.txt";
 };
 
+DECOF_DECLARE_EVENT(exit);
+
+void exit_event::signal()
+{
+    get_object_dictionary()->get_io_service().stop();
+}
+
 int main()
 {
     // Output some diagnostics:
@@ -132,6 +132,8 @@ int main()
     //  | |-- real_seq: real_seq (rw)
     //  | |-- string_seq: string_seq (rw)
     //  | |-- binary_seq: binary_seq (rw)
+    //  |-- events: node (r)
+    //    |-- exit: event
     new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
     decof::node* current_context_node = new decof::node("current-context", &obj_dict);
     new current_context_endpoint_parameter("endpoint", current_context_node);
@@ -150,6 +152,8 @@ int main()
     new decof::managed_readwrite_parameter<decof::real_seq>("real_seq", subnode);
     new decof::managed_readwrite_parameter<decof::string_seq>("string_seq", subnode);
     new decof::managed_readwrite_parameter<decof::binary_seq>("binary_seq", subnode);
+    decof::node* events = new decof::node("events", &obj_dict);
+    new exit_event("exit", events);
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);

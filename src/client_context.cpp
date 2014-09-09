@@ -18,6 +18,7 @@
 
 #include "basic_readwrite_parameter.h"
 #include "connection.h"
+#include "event.h"
 #include "exceptions.h"
 #include "object_dictionary.h"
 #include "tree_element.h"
@@ -55,18 +56,31 @@ boost::any client_context::get_parameter(const std::string &uri)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    tree_element *te = object_dictionary_.find_object(uri);
-    if (te == nullptr)
+    basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri));
+    if (param == nullptr)
         throw invalid_parameter_error();
 
-    return te->any_value();
+    return param->any_value();
+}
+
+void client_context::signal_event(const std::string &uri)
+{
+    object_dictionary::context_guard cg(object_dictionary_, this);
+
+    if (tree_element *te = object_dictionary_.find_object(uri)) {
+        if (event* ev = dynamic_cast<event*>(te))
+            ev->signal();
+        else
+            throw wrong_type_error();
+    } else
+        throw invalid_parameter_error();
 }
 
 void client_context::observe(const std::string &uri, tree_element::signal_type::slot_type slot)
 {
-    if (tree_element *te = object_dictionary_.find_object(uri)) {
+    if (basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri))) {
         if (observables_.count(uri) == 0) {
-            boost::signals2::connection connection = te->observe(slot);
+            boost::signals2::connection connection = param->observe(slot);
             observables_.emplace(uri, connection);
         }
     } else

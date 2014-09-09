@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef BASIC_PARAMETER_H
-#define BASIC_PARAMETER_H
+#ifndef DECOF_BASIC_PARAMETER_H
+#define DECOF_BASIC_PARAMETER_H
 
 #include <vector>
 #include <string>
@@ -28,21 +28,14 @@
 namespace decof
 {
 
-template<typename T>
 class basic_parameter : public tree_element
 {
 public:
-    typedef T value_type;
+    // Provides the value as runtime-generic type.
+    virtual boost::any any_value() = 0;
 
-    // This method is not const because external parameters might need to
-    // alter state, e.g., when reading the value from a file.
-    // Another possible solution could be to make those state holding members
-    // mutable.
-    virtual value_type value() = 0;
-
-    virtual boost::any any_value() noexcept override {
-        return boost::any(value());
-    }
+    // Observe parameter value.
+    virtual boost::signals2::connection observe(slot_type slot) = 0;
 
 protected:
     // We inherit base class constructors
@@ -51,4 +44,4 @@ protected:
 
 } // namespace decof
 
-#endif // BASIC_PARAMETER_H
+#endif // DECOF_BASIC_PARAMETER_H

@@ -151,15 +151,23 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
             tokens[1] = std::string("root:") + tokens[1];
 
         if (tokens[0] == "get" || tokens[0] == "param-ref") {
-            boost::any any_value = get_parameter(tokens[1]);
-            ss << string_codec::encode(any_value) << std::endl;
+            if (tokens.size() == 2) {
+                boost::any any_value = get_parameter(tokens[1]);
+                ss << string_codec::encode(any_value) << std::endl;
+            } else
+                throw parse_error();
         } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
             if (tokens.size() == 3) {
                 boost::any any_value = string_codec::decode(tokens[2]);
                 set_parameter(tokens[1], any_value);
-                ss << "OK" << std::endl;
-            }
-            else
+                ss << "OK\n";
+            } else
+                throw parse_error();
+        } else if (tokens[0] == "signal" || tokens[0] == "exec") {
+            if (tokens.size() == 2) {
+                signal_event(tokens[1]);
+                ss << "OK\n";
+            } else
                 throw parse_error();
         } else
             throw unknown_operation_error();
