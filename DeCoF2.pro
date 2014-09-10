@@ -35,6 +35,7 @@ HEADERS += \
     include/decof/readwrite_parameter.h \
     include/decof/tree_element.h \
     include/decof/types.h \
+    include/decof/userlevel.h \
     src/connection.h \
     src/errors.h \
     src/regular_timer.h \

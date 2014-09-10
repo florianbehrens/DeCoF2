@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef NODE_H
-#define NODE_H
+#ifndef DECOF_NODE_H
+#define DECOF_NODE_H
 
 #include <list>
 #include <memory>
@@ -42,7 +42,7 @@ public:
 
     void add_child(tree_element *child);
     void remove_child(tree_element *child);
-    tree_element *find_child(std::string uri);
+    tree_element *find_child(const std::string &uri);
 
     /// The same as value().
     string_seq children();
@@ -57,4 +57,4 @@ private:
 
 } // namespace decof
 
-#endif // NODE_H
+#endif // DECOF_NODE_H

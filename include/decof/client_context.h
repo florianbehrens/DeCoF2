@@ -31,16 +31,14 @@ class object_dictionary;
 
 class client_context : public std::enable_shared_from_this<client_context>
 {
-    typedef int userlevel_t;
-
 public:
-    explicit client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection);
+    explicit client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel = Normal);
     virtual ~client_context();
 
-    userlevel_t userlevel() const;
-    void set_userlevel(userlevel_t a_userlevel);
-
     connection const* connnection() const;
+
+    userlevel_t userlevel() const;
+    void userlevel(userlevel_t ul);
 
     virtual void preload() = 0;
 
@@ -57,6 +55,7 @@ protected:
     std::shared_ptr<connection> connection_;
 
 private:
+    userlevel_t userlevel_;
     std::map<std::string, boost::signals2::connection> observables_;
 };
 

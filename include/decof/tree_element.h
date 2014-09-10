@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef TREE_ELEMENT_H
-#define TREE_ELEMENT_H
+#ifndef DECOF_TREE_ELEMENT_H
+#define DECOF_TREE_ELEMENT_H
 
 #include <string>
 
 #include <boost/signals2.hpp>
+
+#include "userlevel.h"
 
 // Forward declarations
 namespace boost {
@@ -39,7 +41,7 @@ class node;
 class tree_element
 {
 protected:
-    explicit tree_element(std::string name, node *parent = nullptr);
+    explicit tree_element(std::string name, node *parent = nullptr, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal);
 
 public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
@@ -55,6 +57,12 @@ public:
     node *parent() const;
     void set_parent(node *parent);
 
+    userlevel_t readlevel() const;
+    void readlevel(userlevel_t readlevel);
+
+    userlevel_t writelevel() const;
+    void writelevel(userlevel_t writelevel);
+
     /// Returns the object dictionary of this tree element or nullptr if not
     /// defined.
     object_dictionary* get_object_dictionary();
@@ -62,8 +70,10 @@ public:
 private:
     std::string name_;
     node *parent_;
+    userlevel_t readlevel_;
+    userlevel_t writelevel_;
 };
 
 } // namespace decof
 
-#endif // TREE_ELEMENT_H
+#endif // DECOF_TREE_ELEMENT_H

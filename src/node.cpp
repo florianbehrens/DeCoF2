@@ -70,7 +70,7 @@ tree_element *node::find_immediate_child(const std::string &name)
     return nullptr;
 }
 
-tree_element *node::find_child(std::string uri)
+tree_element *node::find_child(const std::string &uri)
 {
     if (uri.empty())
         return this;

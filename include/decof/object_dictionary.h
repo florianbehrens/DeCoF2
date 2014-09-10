@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef OBJECT_DICTIONARY_H
-#define OBJECT_DICTIONARY_H
+#ifndef DECOF_OBJECT_DICTIONARY_H
+#define DECOF_OBJECT_DICTIONARY_H
 
 #include <memory>
 
@@ -63,7 +63,7 @@ public:
     const std::shared_ptr<client_context> current_context() const;
 
 private:
-    tree_element* find_object(std::string uri);
+    tree_element* find_object(const std::string &uri);
 
     void set_current_context(client_context* client_context);
 
@@ -78,4 +78,4 @@ private:
 
 } // namespace decof
 
-#endif // OBJECT_DICTIONARY_H
+#endif // DECOF_OBJECT_DICTIONARY_H

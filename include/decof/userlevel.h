@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-#include "tcp_connection_manager.h"
-
-using boost::asio::ip::tcp;
+#ifndef DECOF_USERLEVEL_H
+#define DECOF_USERLEVEL_H
 
 namespace decof
 {
 
-tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dictionary, const tcp::endpoint& endpoint, userlevel_t userlevel)
-  : object_dictionary_(a_object_dictionary),
-    acceptor_(a_object_dictionary.get_io_service(), endpoint),
-    socket_(a_object_dictionary.get_io_service()),
-    userlevel_(userlevel)
-{}
+enum userlevel_t
+{
+    Readonly,
+    Normal,
+    Service,
+    Maintenance,
+    Internal
+};
 
 } // namespace decof
+
+#endif // DECOF_USERLEVEL_H

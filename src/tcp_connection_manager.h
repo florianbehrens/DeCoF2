@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef TCP_CONNECTION_MANAGER_H
-#define TCP_CONNECTION_MANAGER_H
+#ifndef DECOF_TCP_CONNECTION_MANAGER_H
+#define DECOF_TCP_CONNECTION_MANAGER_H
 
 #include <memory>
 
@@ -32,7 +32,7 @@ class tcp_connection_manager
 {
 public:
     /// Note that the callback function takes ownership of the provided socket object.
-    tcp_connection_manager(object_dictionary& a_object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint);
+    tcp_connection_manager(object_dictionary& a_object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
 
     template<typename CTX>
     void preload()
@@ -58,7 +58,7 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            std::shared_ptr<client_context> cli_ctx(new CTX(object_dictionary_, tcp_connection::create(std::move(socket_))));
+            std::shared_ptr<client_context> cli_ctx(new CTX(object_dictionary_, tcp_connection::create(std::move(socket_)), userlevel_));
             object_dictionary_.add_context(cli_ctx);
             cli_ctx->preload();
         } else
@@ -70,8 +70,9 @@ private:
     object_dictionary& object_dictionary_;
     boost::asio::ip::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::socket socket_;
+    userlevel_t userlevel_;
 };
 
 } // namespace decof
 
-#endif // TCP_CONNECTION_MANAGER_H
+#endif // DECOF_TCP_CONNECTION_MANAGER_H

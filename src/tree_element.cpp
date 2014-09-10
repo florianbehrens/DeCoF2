@@ -22,9 +22,11 @@
 namespace decof
 {
 
-tree_element::tree_element(std::string name, node *parent)
- : name_(name), parent_(parent)
+tree_element::tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
+ : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
+    assert(writelevel_ != Readonly);
+
     if (parent != nullptr)
         parent->add_child(this);
 }
@@ -63,6 +65,28 @@ void tree_element::set_parent(node *parent)
     if (parent_ != nullptr)
         parent->remove_child(this);
     parent_ = parent;
+}
+
+userlevel_t tree_element::readlevel() const
+{
+    return readlevel_;
+}
+
+void tree_element::readlevel(userlevel_t readlevel)
+{
+    assert(readlevel >= Readonly && readlevel <= Internal);
+    readlevel_ = readlevel;
+}
+
+userlevel_t tree_element::writelevel() const
+{
+    return writelevel_;
+}
+
+void tree_element::writelevel(userlevel_t writelevel)
+{
+    assert(writelevel >= Readonly && writelevel <= Internal);
+    writelevel_ = writelevel;
 }
 
 object_dictionary *tree_element::get_object_dictionary()

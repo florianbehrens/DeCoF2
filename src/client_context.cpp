@@ -26,9 +26,10 @@
 namespace decof
 {
 
-client_context::client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection)
+client_context::client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel)
   : object_dictionary_(a_object_dictionary),
-    connection_(connection)
+    connection_(connection),
+    userlevel_(userlevel)
 {}
 
 client_context::~client_context()
@@ -43,7 +44,8 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (tree_element *te = object_dictionary_.find_object(uri)) {
+    tree_element *te = object_dictionary_.find_object(uri);
+    if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
             parameter->set_private_value(any_value);
         else
@@ -54,20 +56,24 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 
 boost::any client_context::get_parameter(const std::string &uri)
 {
+    boost::any retval;
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri));
-    if (param == nullptr)
+    if (param != nullptr && userlevel_ >= param->readlevel())
+        retval = param->any_value();
+    else
         throw invalid_parameter_error();
 
-    return param->any_value();
+    return retval;
 }
 
 void client_context::signal_event(const std::string &uri)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (tree_element *te = object_dictionary_.find_object(uri)) {
+    tree_element *te = object_dictionary_.find_object(uri);
+    if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (event* ev = dynamic_cast<event*>(te))
             ev->signal();
         else

@@ -13,7 +13,7 @@ device from a PC or any other electronic device.
 
 DeCoF is based on a, well, let's name it *data centric* approach. Data centric
 in this context means that interaction between the device and the remote
-control instance is purely based on modification of named parameter values
+control instance is purely based on modification of state of named objects
 rather than sending a bunch of messages back and forth.
 
 Concepts
@@ -22,31 +22,51 @@ Concepts
 ### System configuration
 
 DeCoF distiguishes clearly between two distinct roles: There is a server that
-'owns' a load of named parameters and one or more clients that want access
-(read, modify) to some or all of those parameters' values.
+'owns' a load of objects and one or more clients that want access to some or 
+all of those objects.
 
 The server consists of the server implementation that is coded against the
 DeCoF framework. The clients are most probably coded with some other framework.
 Both of which communicate over some connection using some protocol. Both are
 not finally defined by DeCoF but some useful implementations are provided.
 
-### Parameters, commands, and nodes
+### Objects, parameters, events, and nodes
 
-As said, *parameters* are named values of a given, fixed type. *Commands* are
-special parameters without a value. They can be used so signal some event.
-Since parameters must have a parent there are also *nodes* around that can
-hold child parameters.
+Objects are organized in a hierarchic tree structure. Each object has a name
+and exactly one parent object except the 'root' object.
 
-Parameters can hold values of the following builtin types:
+Only *node* objects can hold child objects. *Parameters* have a value of a 
+given, fixed value type. *Events* are objects without value but can be used so 
+signal some event.
 
-* bool
+Parameters can hold values of the following builtin value types:
+
+* boolean
 * integer
 * real
 * string
-* and a sequence type for each of the above listed primitive types.
+* binary
+* and a sequence type for each of the above listed primitive value types.
 
-A node is a special parameter of type sequence of strings that holds the names of
-its child parameters.
+A node is a special parameter with value type sequence of strings that holds 
+the names of its child parameters.
+
+### Access control
+
+Two *userlevel* are assigned to each object which are used for access control. 
+One userlevel - the *readlevel* - is used for modifying operations (i.e., 
+setting a parameter value or signalling an event) and the other one - the 
+*writelevel* - is used for non-modifying operations.
+
+The following userlevels are supported:
+
+* Readonly
+* Normal
+* Service
+* Maintenance
+* Internal
+
+The semantics of the various userlevels are project specific.
 
 ### Object dictionary
 
