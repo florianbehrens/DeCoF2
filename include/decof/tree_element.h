@@ -41,7 +41,7 @@ class node;
 class tree_element
 {
 protected:
-    explicit tree_element(std::string name, node *parent = nullptr, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal);
+    explicit tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
 
 public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;

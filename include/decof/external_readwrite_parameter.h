@@ -22,6 +22,16 @@
 #include "observable_parameter.h"
 #include "readwrite_parameter.h"
 
+/// Convenience macro for parameter declaration
+#define DECOF_DECLARE_EXTERNAL_READWRITE_PARAMETER(type_name, value_type)     \
+    struct type_name : public decof::external_readwrite_parameter<value_type> { \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, decof::userlevel_t writelevel = decof::Normal) : \
+            decof::external_readwrite_parameter<value_type>(name, parent, readlevel, writelevel) {} \
+        private:                                                              \
+            virtual bool set_external_value(const value_type &value) override;\
+            virtual value_type get_external_value() override;                 \
+    }
+
 namespace decof
 {
 
@@ -36,24 +46,22 @@ template<typename T>
 class external_readwrite_parameter : public observable_parameter<T>, public readwrite_parameter<T>
 {
 public:
-    typedef T value_type;
-
-    external_readwrite_parameter(std::string name, node *parent = nullptr)
-     : observable_parameter<T>(name, parent)
+    external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal) :
+        observable_parameter<T>(name, parent, readlevel, writelevel)
     {}
 
-    virtual value_type value() {
+    virtual T value() {
         return get_external_value();
     }
 
 private:
-    virtual void set_private_value(const value_type &value) final {
+    virtual void set_private_value(const T &value) final {
         if (set_external_value(value) == true)
             observable_parameter<T>::signal(value);
     }
 
-    virtual bool set_external_value(const value_type &value) = 0;
-    virtual value_type get_external_value() = 0;
+    virtual bool set_external_value(const T &value) = 0;
+    virtual T get_external_value() = 0;
 };
 
 } // namespace decof

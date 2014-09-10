@@ -22,6 +22,14 @@
 #include "object_dictionary.h"
 #include "observable_parameter.h"
 
+/// Convenience macro for parameter declaration
+#define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)      \
+    struct type_name : public decof::external_readonly_parameter<value_type> { \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly) : \
+            decof::external_readonly_parameter<value_type>(name, parent, readlevel) {} \
+        virtual value_type get_external_value() override;                     \
+    }
+
 namespace decof
 {
 
@@ -37,16 +45,15 @@ template<typename T>
 class external_readonly_parameter : public observable_parameter<T>
 {
 public:
-    typedef T value_type;
-
-    // We inherit base class constructors
-    using observable_parameter<T>::observable_parameter;
+    external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly) :
+        observable_parameter<T>(name, parent, readlevel, Infinite)
+    {}
 
     virtual ~external_readonly_parameter() {
         connection_.disconnect();
     }
 
-    virtual value_type value() final {
+    virtual T value() final {
         return get_external_value();
     }
 
@@ -64,11 +71,11 @@ public:
     }
 
 private:
-    virtual value_type get_external_value() = 0;
+    virtual T get_external_value() = 0;
 
     /// Slot member function for @a regular_timer.
     void notify() {
-        value_type cur_value = value();
+        T cur_value = value();
         if (last_value_ != cur_value) {
             observable_parameter<T>::signal(cur_value);
             last_value_ = cur_value;
@@ -76,7 +83,7 @@ private:
     }
 
     boost::signals2::connection connection_;
-    value_type last_value_;
+    T last_value_;
 };
 
 } // namespace decof

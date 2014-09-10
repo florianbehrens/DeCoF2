@@ -19,8 +19,8 @@
 namespace decof
 {
 
-event::event(std::string name, node *parent) :
-    tree_element(name, parent)
+event::event(std::string name, node *parent, userlevel_t writelevel) :
+    tree_element(name, parent, Infinite, writelevel)
 {}
 
 } // namespace decof

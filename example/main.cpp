@@ -12,61 +12,42 @@
 #include "textproto_clisrv.h"
 #include "textproto_pubsub.h"
 
-decof::object_dictionary obj_dict;
-
-struct current_context_endpoint_parameter : public decof::external_readonly_parameter<decof::string>
+namespace
 {
-    current_context_endpoint_parameter(std::string name, decof::node *parent = nullptr) :
-        decof::external_readonly_parameter<decof::string>(name, parent)
-    {}
 
-    virtual value_type get_external_value() {
-        const decof::connection* c = get_object_dictionary()->current_context()->connnection();
-        return c->type() + "://" + c->remote_endpoint();
-    }
-};
+DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(my_managed_readwrite_parameter, decof::string);
+DECOF_DECLARE_MANAGED_READONLY_PARAMETER(my_managed_readonly_parameter, decof::string);
+DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(current_context_endpoint_parameter, decof::string);
+DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(time_parameter, decof::string);
+DECOF_DECLARE_EVENT(exit_event);
 
-struct my_managed_readwrite_parameter : public decof::managed_readwrite_parameter<decof::string>
+void my_managed_readwrite_parameter::verify(const decof::string& value)
 {
-    my_managed_readwrite_parameter(std::string name, decof::node *parent = nullptr, decof::string value = decof::string())
-     : decof::managed_readwrite_parameter<decof::string>(name, parent, value)
-    {}
+    if (value != "true" && value != "false")
+        throw decof::invalid_value_error();
 
-    virtual void verify(const decof::string& value) override {
-        if (value != "true" && value != "false")
-            throw decof::invalid_value_error();
+    std::cout << "my_managed_readwrite_parameter was changed to " << value << std::endl;
+}
 
-        std::cout << "my_managed_readwrite_parameter was changed to " << value << std::endl;
-    }
-};
-
-struct my_managed_readonly_parameter : public decof::managed_readonly_parameter<decof::string>
+current_context_endpoint_parameter::value_type current_context_endpoint_parameter::get_external_value()
 {
-    my_managed_readonly_parameter(std::string name, decof::node *parent = nullptr, decof::string value = decof::string())
-     : decof::managed_readonly_parameter<decof::string>(name, parent, value)
-    {}
+    const decof::connection* c = get_object_dictionary()->current_context()->connnection();
+    return c->type() + "://" + c->remote_endpoint();
+}
 
-    virtual bool notify(const decof::string& value) {
-        std::cout << "my_managed_readonly_parameter was changed to " << value << std::endl;
-        return true;
-    }
-};
-
-struct time_parameter : public decof::external_readonly_parameter<decof::string>
+decof::string time_parameter::get_external_value()
 {
-    time_parameter(std::string name, decof::node *parent = nullptr)
-     : decof::external_readonly_parameter<decof::string>(name, parent)
-    {}
+    const size_t max_length = 40;
+    char str[max_length];
+    std::time_t now = std::time(nullptr);
+    std::strftime(str, sizeof(str), "%c", std::localtime(&now));
+    return decof::string(str);
+}
 
-private:
-    decof::string get_external_value() override {
-        const size_t max_length = 40;
-        char str[max_length];
-        std::time_t now = std::time(nullptr);
-        std::strftime(str, sizeof(str), "%c", std::localtime(&now));
-        return decof::string(str);
-    }
-};
+void exit_event::signal()
+{
+    get_object_dictionary()->get_io_service().stop();
+}
 
 struct ip_address_parameter : public decof::external_readwrite_parameter<decof::string>
 {
@@ -94,12 +75,50 @@ private:
     std::string filename_ = "C:\\Users\\willy\\data.txt";
 };
 
-DECOF_DECLARE_EVENT(exit);
+// Setup object dictionary
+// root
+//  |-- enabled: string (rw)
+//  |-- current-context: node (r)
+//  | |-- endpoint: string (r)
+//  |-- subnode: node (r)
+//  | |-- time: string (r)
+//  | |-- leaf2: string_vector (rw)
+//  | |-- ip-address: string (rw)
+//  | |-- bool: bool (rw)
+//  | |-- integer: int (rw)
+//  | |-- double: double (rw)
+//  | |-- string: string (rw)
+//  | |-- binary: binary (rw)
+//  | |-- boolean_seq: boolean_seq (rw)
+//  | |-- integer_seq: integer_seq (rw)
+//  | |-- real_seq: real_seq (rw)
+//  | |-- string_seq: string_seq (rw)
+//  | |-- binary_seq: binary_seq (rw)
+//  |-- events: node (r)
+//    |-- exit: event
+decof::object_dictionary obj_dict;
+my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
+decof::node current_context_node("current-context", &obj_dict);
+current_context_endpoint_parameter endpoint_param("endpoint", &current_context_node);
+decof::node subnode("subnode", &obj_dict);
+time_parameter time_param("time", &subnode);
+decof::string_seq sl = { "value1", "value2", "value3" };
+decof::managed_readwrite_parameter<decof::string_seq> leaf2_param("leaf2", &subnode, decof::Readonly, decof::Normal, sl);
+ip_address_parameter ipo_address_param("ip-address", &subnode);
+decof::managed_readwrite_parameter<decof::boolean> boolean_param("boolean", &subnode);
+decof::managed_readwrite_parameter<decof::integer> integer_param("integer", &subnode);
+decof::managed_readwrite_parameter<decof::real> real_param("real", &subnode);
+decof::managed_readwrite_parameter<decof::string> string_param("string", &subnode);
+decof::managed_readwrite_parameter<decof::binary> binary_param("binary", &subnode);
+decof::managed_readwrite_parameter<decof::boolean_seq> boolean_seq_param("boolean_seq", &subnode);
+decof::managed_readwrite_parameter<decof::integer_seq> integer_seq_param("integer_seq", &subnode);
+decof::managed_readwrite_parameter<decof::real_seq> real_seq_param("real_seq", &subnode);
+decof::managed_readwrite_parameter<decof::string_seq> string_seq_param("string_seq", &subnode);
+decof::managed_readwrite_parameter<decof::binary_seq> binary_seq_param("binary_seq", &subnode);
+decof::node events_node("events", &obj_dict);
+exit_event exit_ev("exit", &events_node);
 
-void exit_event::signal()
-{
-    get_object_dictionary()->get_io_service().stop();
-}
+} // Anonymous namespace
 
 int main()
 {
@@ -112,48 +131,6 @@ int main()
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
-
-    // Setup object dictionary
-    // root
-    //  |-- enabled: string (rw)
-    //  |-- current-context: node (r)
-    //  | |-- endpoint: string (r)
-    //  |-- subnode: node (r)
-    //  | |-- time: string (r)
-    //  | |-- leaf2: string_vector (rw)
-    //  | |-- ip-address: string (rw)
-    //  | |-- bool: bool (rw)
-    //  | |-- integer: int (rw)
-    //  | |-- double: double (rw)
-    //  | |-- string: string (rw)
-    //  | |-- binary: binary (rw)
-    //  | |-- boolean_seq: boolean_seq (rw)
-    //  | |-- integer_seq: integer_seq (rw)
-    //  | |-- real_seq: real_seq (rw)
-    //  | |-- string_seq: string_seq (rw)
-    //  | |-- binary_seq: binary_seq (rw)
-    //  |-- events: node (r)
-    //    |-- exit: event
-    new my_managed_readwrite_parameter("enabled", &obj_dict, "false");
-    decof::node* current_context_node = new decof::node("current-context", &obj_dict);
-    new current_context_endpoint_parameter("endpoint", current_context_node);
-    decof::node* subnode = new decof::node("subnode", &obj_dict);
-    new time_parameter("time", subnode);
-    decof::string_seq sl = { "value1", "value2", "value3" };
-    new decof::managed_readwrite_parameter<decof::string_seq>("leaf2", subnode, sl);
-    new ip_address_parameter("ip-address", subnode);
-    new decof::managed_readwrite_parameter<decof::boolean>("boolean", subnode);
-    new decof::managed_readwrite_parameter<decof::integer>("integer", subnode);
-    new decof::managed_readwrite_parameter<decof::real>("real", subnode);
-    new decof::managed_readwrite_parameter<decof::string>("string", subnode);
-    new decof::managed_readwrite_parameter<decof::binary>("binary", subnode);
-    new decof::managed_readwrite_parameter<decof::boolean_seq>("boolean_seq", subnode);
-    new decof::managed_readwrite_parameter<decof::integer_seq>("integer_seq", subnode);
-    new decof::managed_readwrite_parameter<decof::real_seq>("real_seq", subnode);
-    new decof::managed_readwrite_parameter<decof::string_seq>("string_seq", subnode);
-    new decof::managed_readwrite_parameter<decof::binary_seq>("binary_seq", subnode);
-    decof::node* events = new decof::node("events", &obj_dict);
-    new exit_event("exit", events);
 
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);

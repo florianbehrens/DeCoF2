@@ -20,11 +20,11 @@
 #include "tree_element.h"
 
 // Macro for simple event declaration.
-#define DECOF_DECLARE_EVENT(name)                                           \
-    struct name##_event : public decof::event                               \
-    {                                                                       \
-        using event::event;                                                 \
-        virtual void signal() override final;                               \
+#define DECOF_DECLARE_EVENT(name)                                             \
+    struct name : public decof::event                                         \
+    {                                                                         \
+        using event::event;                                                   \
+        virtual void signal() override final;                                 \
     }
 
 namespace decof
@@ -33,7 +33,7 @@ namespace decof
 class event : public tree_element
 {
 public:
-    explicit event(std::string name, node *parent = nullptr);
+    explicit event(std::string name, node *parent = nullptr, userlevel_t writelevel = Normal);
     virtual void signal() = 0;
 };
 

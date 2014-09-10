@@ -17,6 +17,8 @@
 #ifndef DECOF_USERLEVEL_H
 #define DECOF_USERLEVEL_H
 
+#include <limits>
+
 namespace decof
 {
 
@@ -26,7 +28,10 @@ enum userlevel_t
     Normal,
     Service,
     Maintenance,
-    Internal
+    Internal,
+
+    // Only for internal use
+    Infinite = std::numeric_limits<int>::max()
 };
 
 } // namespace decof

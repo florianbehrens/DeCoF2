@@ -23,6 +23,16 @@
 #include "observable_parameter.h"
 #include "readwrite_parameter.h"
 
+/// Convenience macro for parameter declaration
+#define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)      \
+    struct type_name : public decof::managed_readwrite_parameter<value_type> { \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, decof::userlevel_t writelevel = decof::Normal, const value_type &value = value_type()) : \
+            decof::managed_readwrite_parameter<value_type>(name, parent, readlevel, writelevel, value) {} \
+        type_name(std::string name, decof::node *parent, const value_type &value) : \
+            decof::managed_readwrite_parameter<value_type>(name, parent, decof::Readonly, decof::Normal, value) {} \
+        virtual void verify(const value_type& value) override;                \
+    }
+
 namespace decof
 {
 
@@ -45,18 +55,20 @@ class managed_readwrite_parameter : public observable_parameter<T>, public readw
     friend class managed_readonly_parameter<T>;
 
 public:
-    typedef T value_type;
-
-    managed_readwrite_parameter(std::string name, node *parent = nullptr, value_type value = value_type())
-     : observable_parameter<T>(name, parent), value_(value)
+    managed_readwrite_parameter(std::string name, node *parent, const T &value)
+     : observable_parameter<T>(name, parent, Readonly, Normal), value_(value)
     {}
 
-    virtual value_type value() {
+    managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal, const T &value = T())
+     : observable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
+    {}
+
+    virtual T value() {
         return value_;
     }
 
 protected:
-    virtual void verify(const value_type&)
+    virtual void verify(const T&)
     {}
 
 private:
@@ -70,7 +82,7 @@ private:
         observable_parameter<T>::signal(value);
     }
 
-    value_type value_;
+    T value_;
 };
 
 } // namespace decof

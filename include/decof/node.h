@@ -35,7 +35,7 @@ public:
     typedef children_t::iterator iterator;
 
 public:
-    explicit node(std::string name, node *parent = nullptr);
+    explicit node(std::string name, node *parent = nullptr, userlevel_t readlevel = Readonly);
     virtual ~node();
 
     virtual string_seq value() override;
