@@ -19,6 +19,14 @@
 
 #include "tree_element.h"
 
+// Macro for simple event declaration.
+#define DECOF_DECLARE_EVENT(name)                                           \
+    struct name##_event : public decof::event                               \
+    {                                                                       \
+        using event::event;                                                 \
+        virtual void signal() override final;                               \
+    }
+
 namespace decof
 {
 

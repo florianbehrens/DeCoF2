@@ -27,11 +27,4 @@
 #include "decof/tree_element.h"
 #include "decof/types.h"
 
-#define DECOF_DECLARE_EVENT(name)                                           \
-    struct name##_event : public decof::event                               \
-    {                                                                       \
-        using event::event;                                                 \
-        virtual void signal() override final;                               \
-    }
-
 #endif // DECOF_H
