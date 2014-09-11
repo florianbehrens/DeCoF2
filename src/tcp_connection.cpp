@@ -28,11 +28,6 @@ tcp_connection::tcp_connection(boost::asio::ip::tcp::socket socket)
     connect_signal();
 }
 
-tcp_connection::~tcp_connection()
-{
-    // TODO
-}
-
 std::string tcp_connection::type() const
 {
     return std::string("tcp");
@@ -45,7 +40,7 @@ std::string tcp_connection::remote_endpoint() const
 
 void tcp_connection::async_read_until(char delim)
 {
-    boost::asio::async_read_until(socket_, inbuf_, delim, std::bind(&tcp_connection::read_handler, this, /*shared_from_this(), */std::placeholders::_1, std::placeholders::_2));
+    boost::asio::async_read_until(socket_, inbuf_, delim, std::bind(&tcp_connection::read_handler, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 }
 
 void tcp_connection::async_write(const std::string &str)
@@ -53,7 +48,13 @@ void tcp_connection::async_write(const std::string &str)
     std::ostream os(&outbuf_);
     os << str;
 
-    boost::asio::async_write(socket_, outbuf_, std::bind(&tcp_connection::write_handler, this, /*shared_from_this(), */std::placeholders::_1, std::placeholders::_2));
+    boost::asio::async_write(socket_, outbuf_, std::bind(&tcp_connection::write_handler, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+}
+
+void tcp_connection::disconnect()
+{
+    socket_.close();
+    disconnect_signal();
 }
 
 std::shared_ptr<connection> tcp_connection::create(boost::asio::ip::tcp::socket socket)
@@ -63,7 +64,6 @@ std::shared_ptr<connection> tcp_connection::create(boost::asio::ip::tcp::socket 
 
 void tcp_connection::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
-    // TODO
     if (!error) {
         // First copy bytes_transferred bytes from the streambuf to a
         // std::string. This is one of the uglyest things in boost::asio and only
@@ -76,12 +76,18 @@ void tcp_connection::read_handler(const boost::system::error_code &error, std::s
     } else if (error.value() == boost::asio::error::eof) {
         // Connection was closed by peer
         disconnect_signal();
+    } else {
+        // Because we don't know what to do else we just close the connection
+        disconnect();
     }
 }
 
-void tcp_connection::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void tcp_connection::write_handler(const boost::system::error_code &error, std::size_t)
 {
-    // TODO
+    if (error) {
+        // Because we don't know what to do else we just close the connection
+        disconnect();
+    }
 }
 
 } // namespace decof

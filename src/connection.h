@@ -34,8 +34,9 @@ public:
     virtual std::string remote_endpoint() const = 0;
 
     virtual void async_read_until(char delim) = 0;
-
     virtual void async_write(const std::string&) = 0;
+
+    virtual void disconnect() = 0;
 
 public signals:
     boost::signals2::signal<void ()> connect_signal;

@@ -26,29 +26,28 @@
 namespace decof
 {
 
-class tcp_connection : public connection, public std::enable_shared_from_this<connection>
+class tcp_connection : public connection, public std::enable_shared_from_this<tcp_connection>
 {
 private:
     explicit tcp_connection(boost::asio::ip::tcp::socket socket);
 
 public:
-    virtual ~tcp_connection();
-
     virtual std::string type() const override;
     virtual std::string remote_endpoint() const override;
 
     virtual void async_read_until(char delim) override;
-
     virtual void async_write(const std::string& str) override;
+
+    virtual void disconnect() override;
 
     static std::shared_ptr<connection> create(boost::asio::ip::tcp::socket socket);
 
 private:
     /// Callback for boost::asio read operations.
-    void read_handler(/*std::shared_ptr<tcp_connection>, */const boost::system::error_code& error, std::size_t bytes_transferred);
+    void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     /// Callback for boost::asio write operations.
-    void write_handler(/*std::shared_ptr<tcp_connection>, */const boost::system::error_code& error, std::size_t bytes_transferred);
+    void write_handler(const boost::system::error_code& error, std::size_t);
 
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf inbuf_;
