@@ -20,7 +20,6 @@
 #include <map>
 #include <memory>
 
-#include "connection.h"
 #include "tree_element.h"
 
 namespace decof
@@ -28,6 +27,7 @@ namespace decof
 
 class connection;
 class object_dictionary;
+class object_visitor;
 
 class client_context : public std::enable_shared_from_this<client_context>
 {
@@ -51,10 +51,14 @@ protected:
     void observe(const std::string& uri, tree_element::signal_type::slot_type slot);
     void unobserve(const std::string& uri);
 
+    void browse(const std::string &root_uri, object_visitor *visitor);
+
     object_dictionary& object_dictionary_;
     std::shared_ptr<connection> connection_;
 
 private:
+    void browse_object(tree_element *te, object_visitor *visitor);
+
     userlevel_t userlevel_;
     std::map<std::string, boost::signals2::connection> observables_;
 };

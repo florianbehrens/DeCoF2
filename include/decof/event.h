@@ -34,6 +34,10 @@ class event : public tree_element
 {
 public:
     explicit event(std::string name, node *parent = nullptr, userlevel_t writelevel = Normal);
+
+    /// Visitor pattern accept method
+    virtual void accept(object_visitor *visitor) override final;
+
     virtual void signal() = 0;
 };
 

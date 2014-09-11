@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "object_visitor.h"
+
 namespace decof
 {
 
@@ -39,6 +41,11 @@ node::~node()
 string_seq node::value()
 {
     return children();
+}
+
+void node::accept(object_visitor *visitor)
+{
+    visitor->visit(this);
 }
 
 void node::add_child(tree_element *child)
@@ -101,6 +108,16 @@ string_seq node::children()
     for (const auto c : children_)
         retval.push_back(c->name());
     return retval;
+}
+
+node::iterator node::begin()
+{
+    return children_.begin();
+}
+
+node::iterator node::end()
+{
+    return children_.end();
 }
 
 } // namespace decof

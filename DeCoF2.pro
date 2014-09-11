@@ -10,12 +10,14 @@ SOURCES += \
     src/exceptions.cpp \
     src/node.cpp \
     src/object_dictionary.cpp \
+    src/object_visitor.cpp \
     src/regular_timer.cpp \
     src/string_codec.cpp \
     src/tcp_connection.cpp \
     src/tcp_connection_manager.cpp \
     src/textproto_clisrv.cpp \
     src/textproto_pubsub.cpp \
+    src/textproto_visitor.cpp \
     src/tree_element.cpp
 
 HEADERS += \
@@ -38,12 +40,14 @@ HEADERS += \
     include/decof/userlevel.h \
     src/connection.h \
     src/errors.h \
+    src/object_visitor.h \
     src/regular_timer.h \
     src/string_codec.h \
     src/tcp_connection.h \
     src/tcp_connection_manager.h \
     src/textproto_clisrv.h \
-    src/textproto_pubsub.h
+    src/textproto_pubsub.h \
+    src/textproto_visitor.h
 
 INCLUDEPATH += include include/decof src
 

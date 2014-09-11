@@ -31,6 +31,7 @@
 #include "exceptions.h"
 #include "object_dictionary.h"
 #include "string_codec.h"
+#include "textproto_visitor.h"
 #include "tree_element.h"
 
 namespace {
@@ -135,42 +136,49 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
 
     std::stringstream ss;
     try {
-        if (tokens.size() <= 1)
+        if (tokens.size() == 0)
             throw parse_error();
 
-        // Lower-case first two substrings
+        // Lower-case first substring
         std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
-        std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
 
-        // Remove optional "'" from parameter name
-        if (tokens[1][0] == '\'')
-            tokens[1].erase(0, 1);
+        if (tokens.size() >= 2) {
+            // Lower-case second substring
+            std::transform(tokens[1].begin(), tokens[1].end(), tokens[1].begin(), ::tolower);
 
-        // Add optional 'root' parameter name base
-        if (tokens[1] != "root" && !boost::algorithm::starts_with(tokens[1], "root:"))
-            tokens[1] = std::string("root:") + tokens[1];
+                // Remove optional "'" from parameter name
+                if (tokens[1][0] == '\'')
+                    tokens[1].erase(0, 1);
 
-        if (tokens[0] == "get" || tokens[0] == "param-ref") {
-            if (tokens.size() == 2) {
-                boost::any any_value = get_parameter(tokens[1]);
-                ss << string_codec::encode(any_value) << std::endl;
-            } else
+            // Add optional 'root' parameter name base
+            if (tokens[1] != "root" && !boost::algorithm::starts_with(tokens[1], "root:"))
+                tokens[1] = std::string("root:") + tokens[1];
+        }
+
+        if ((tokens[0] == "get" || tokens[0] == "param-ref") && tokens.size() == 2) {
+            boost::any any_value = get_parameter(tokens[1]);
+            ss << string_codec::encode(any_value) << std::endl;
+        } else if ((tokens[0] == "set" || tokens[0] == "param-set!") && tokens.size() == 3) {
+            boost::any any_value = string_codec::decode(tokens[2]);
+            set_parameter(tokens[1], any_value);
+            ss << "OK\n";
+        } else if ((tokens[0] == "signal" || tokens[0] == "exec") && tokens.size() == 2) {
+            signal_event(tokens[1]);
+            ss << "OK\n";
+        } else if (tokens[0] == "browse" || tokens[0] == "param-disp") {
+            // This command is for compatibility reasons with legacy DeCoF
+            std::string root_uri("root");
+            if (tokens.size() == 2)
+                root_uri = tokens[1];
+            else if (tokens.size() > 2)
                 throw parse_error();
-        } else if (tokens[0] == "set" || tokens[0] == "param-set!") {
-            if (tokens.size() == 3) {
-                boost::any any_value = string_codec::decode(tokens[2]);
-                set_parameter(tokens[1], any_value);
-                ss << "OK\n";
-            } else
-                throw parse_error();
-        } else if (tokens[0] == "signal" || tokens[0] == "exec") {
-            if (tokens.size() == 2) {
-                signal_event(tokens[1]);
-                ss << "OK\n";
-            } else
-                throw parse_error();
+
+            std::stringstream temp_ss;
+            textproto_visitor visitor(temp_ss);
+            browse(root_uri, &visitor);
+            ss << temp_ss.str();
         } else
-            throw unknown_operation_error();
+            throw parse_error();
     } catch (runtime_error& ex) {
         ss << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
     }

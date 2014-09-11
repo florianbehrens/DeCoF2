@@ -23,6 +23,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
+#include "connection.h"
 #include "exceptions.h"
 #include "string_codec.h"
 

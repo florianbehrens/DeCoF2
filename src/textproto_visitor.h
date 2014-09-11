@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-#include "event.h"
+#ifndef DECOF_DECOF_TEXTPROTO_VISITOR_H
+#define DECOF_TEXTPROTO_VISITOR_H
+
+#include <sstream>
 
 #include "object_visitor.h"
 
 namespace decof
 {
 
-event::event(std::string name, node *parent, userlevel_t writelevel) :
-    tree_element(name, parent, Infinite, writelevel)
-{}
+class tree_element;
 
-void event::accept(object_visitor *visitor)
+class textproto_visitor : public object_visitor
 {
-    visitor->visit(this);
-}
+public:
+    explicit textproto_visitor(std::stringstream &ss);
+
+    virtual void visit(node *node) override;
+    virtual void visit(basic_parameter *param) override;
+
+private:
+    void write_indentation(const tree_element *te);
+
+    std::stringstream &ss_;
+};
 
 } // namespace decof
+
+#endif // DECOF_TEXTPROTO_VISITOR_H

@@ -40,12 +40,21 @@ public:
 
     virtual string_seq value() override;
 
+    /// Visitor pattern accept method
+    virtual void accept(object_visitor *visitor) override final;
+
     void add_child(tree_element *child);
     void remove_child(tree_element *child);
     tree_element *find_child(const std::string &uri);
 
     /// The same as value().
     string_seq children();
+
+    /// Returns an interator for the list of children
+    iterator begin();
+
+    /// Returns an interator for the list of children
+    iterator end();
 
 private:
     tree_element *find_immediate_child(const std::string &name);

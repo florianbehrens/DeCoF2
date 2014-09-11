@@ -32,6 +32,7 @@ namespace decof
 {
 
 class object_dictionary;
+class object_visitor;
 class node;
 
 /** Abstract tree element class.
@@ -40,13 +41,11 @@ class node;
  */
 class tree_element
 {
-protected:
-    explicit tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
-
 public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
     typedef signal_type::slot_type slot_type;
 
+    tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~tree_element();
 
     std::string name() const;
@@ -62,6 +61,9 @@ public:
 
     userlevel_t writelevel() const;
     void writelevel(userlevel_t writelevel);
+
+    /// Visitor pattern accept method
+    virtual void accept(object_visitor *visitor) = 0;
 
     /// Returns the object dictionary of this tree element or nullptr if not
     /// defined.

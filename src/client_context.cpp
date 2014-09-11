@@ -102,4 +102,26 @@ void client_context::unobserve(const std::string &uri)
     }
 }
 
+void client_context::browse(const std::string &root_uri, object_visitor *visitor)
+{
+    object_dictionary::context_guard cg(object_dictionary_, this);
+
+    if (tree_element *te = object_dictionary_.find_object(root_uri)) {
+        // Recursively iterate over all objects beginning from root URI
+        browse_object(te, visitor);
+    } else
+        throw invalid_parameter_error();
+}
+
+void client_context::browse_object(tree_element *te, object_visitor *visitor)
+{
+    te->accept(visitor);
+
+    // If node browse children
+    if (node *n = dynamic_cast<node*>(te)) {
+        for (auto &child : *n)
+            browse_object(child, visitor);
+    }
+}
+
 } // namespace decof

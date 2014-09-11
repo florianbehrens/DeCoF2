@@ -18,6 +18,7 @@
 #define OBSERVABLE_PARAMETER_H
 
 #include "basic_parameter.h"
+#include "object_visitor.h"
 
 namespace decof
 {
@@ -32,7 +33,7 @@ public:
     // alter state, e.g., when reading the value from a file.
     // Another possible solution could be to make those state holding members
     // mutable.
-    virtual value_type value() = 0;
+    virtual T value() = 0;
 
     virtual boost::any any_value() override final {
         return boost::any(value());
@@ -44,11 +45,16 @@ public:
         return retval;
     }
 
+    /// Visitor pattern accept method
+    virtual void accept(object_visitor *visitor) override {
+        visitor->visit(this);
+    }
+
 protected:
     // We inherit base class constructors
     using basic_parameter::basic_parameter;
 
-    void signal(const value_type& value) {
+    void signal(const T& value) {
         signal_(this->fq_name(), boost::any(value));
     }
 
