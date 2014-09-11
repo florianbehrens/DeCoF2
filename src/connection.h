@@ -28,8 +28,8 @@ namespace decof
 class connection
 {
 public:
+    virtual ~connection() {}
 
-public:
     virtual std::string type() const = 0;
     virtual std::string remote_endpoint() const = 0;
 
@@ -43,10 +43,6 @@ public signals:
     boost::signals2::signal<void ()> disconnect_signal;
     boost::signals2::signal<void (const std::string& str)> read_signal;
     boost::signals2::signal<void ()> write_signal;
-
-protected:
-    void notify_read_handler(const boost::system::error_code &error, std::size_t bytes_transferred);
-    void notify_write_handler(const boost::system::error_code &error, std::size_t);
 };
 
 } // namespace decof
