@@ -19,8 +19,9 @@
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 #include "connection.h"
@@ -78,13 +79,17 @@ void textproto_pubsub::read_handler(const std::string &cstr)
 
 void textproto_pubsub::notify(const std::string &uri, const boost::any &any_value)
 {
+    // Strip 'root:' from uri
+    std::string uri_wo_root(uri);
+    boost::algorithm::erase_first(uri_wo_root, "root:");
+
     // Get current time in textual representation
     const size_t max_length = 25;
     char time_str[max_length];
     std::time_t now = std::time(nullptr);
-    std::strftime(time_str, sizeof(time_str), "%FT%TZ", std::localtime(&now));
+    std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
 
-    connection_->async_write(std::string("(") + time_str + " '" + uri + " " + string_codec::encode(any_value) + ")\n");
+    connection_->async_write(std::string("(") + time_str + " '" + uri_wo_root + " " + string_codec::encode(any_value) + ")\n");
 }
 
 } // namespace decof

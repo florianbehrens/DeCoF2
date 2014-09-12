@@ -77,7 +77,8 @@ void object_dictionary::remove_context(std::shared_ptr<client_context> client_co
 
 const std::shared_ptr<client_context> object_dictionary::current_context() const
 {
-    assert(current_context_ != nullptr);
+// FIXME
+//    assert(current_context_ != nullptr);
     return current_context_;
 }
 

@@ -31,8 +31,13 @@ void my_managed_readwrite_parameter::verify(const decof::string& value)
 
 current_context_endpoint_parameter::value_type current_context_endpoint_parameter::get_external_value()
 {
-    const decof::connection* c = get_object_dictionary()->current_context()->connnection();
-    return c->type() + "://" + c->remote_endpoint();
+    const std::shared_ptr<decof::client_context> cc = get_object_dictionary()->current_context();
+    if (cc != nullptr) {
+        const decof::connection* c = cc->connnection();
+        return c->type() + "://" + c->remote_endpoint();
+    }
+
+    return "Unknown";
 }
 
 decof::string time_parameter::get_external_value()

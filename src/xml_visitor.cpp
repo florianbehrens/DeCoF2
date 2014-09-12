@@ -52,6 +52,7 @@ xml_visitor::xml_visitor(std::stringstream &ss) :
         << "<system name=\"DeCoF2 server\" version=\"1.0\">\n";
 
     increment_indentation();
+    ss_ << indentation() << "<description> </description>\n";
 }
 
 xml_visitor::~xml_visitor()

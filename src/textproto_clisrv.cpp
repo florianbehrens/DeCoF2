@@ -119,7 +119,7 @@ void textproto_clisrv::preload()
     connection_->read_signal.connect(std::bind(&textproto_clisrv::read_handler, this, std::placeholders::_1));
     connection_->disconnect_signal.connect(std::bind(&textproto_clisrv::disconnect_handler, this));
 
-    connection_->async_write(prompt);
+    connection_->async_write("DeCoF command line\n" + prompt);
     connection_->async_read_until('\n');
 }
 

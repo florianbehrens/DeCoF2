@@ -84,6 +84,8 @@ void client_context::signal_event(const std::string &uri)
 
 void client_context::observe(const std::string &uri, tree_element::signal_type::slot_type slot)
 {
+    object_dictionary::context_guard cg(object_dictionary_, this);
+
     if (basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri))) {
         if (observables_.count(uri) == 0) {
             boost::signals2::connection connection = param->observe(slot);
