@@ -161,10 +161,10 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
         } else if ((tokens[0] == "set" || tokens[0] == "param-set!") && tokens.size() == 3) {
             boost::any any_value = string_codec::decode(tokens[2]);
             set_parameter(tokens[1], any_value);
-            ss << "OK\n";
+            ss << "0\n";
         } else if ((tokens[0] == "signal" || tokens[0] == "exec") && tokens.size() == 2) {
             signal_event(tokens[1]);
-            ss << "OK\n";
+            ss << "()\n";
         } else if (tokens[0] == "browse" || tokens[0] == "param-disp") {
             // This command is for compatibility reasons with legacy DeCoF
             std::string root_uri("root");
