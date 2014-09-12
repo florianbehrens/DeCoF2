@@ -29,22 +29,18 @@ textproto_visitor::textproto_visitor(std::stringstream &ss) :
 
 void textproto_visitor::visit(node *node)
 {
-    write_indentation(node);
+    write_indentation(ss_, node);
+    if (node->parent() != nullptr)
+        ss_ << ":";
     ss_ << node->name() << std::endl;
 }
 
 void textproto_visitor::visit(basic_parameter *param)
 {
-    write_indentation(param);
-    ss_ << param->name() << " = " << string_codec::encode(param->any_value()) << std::endl;
-}
-
-void textproto_visitor::write_indentation(const tree_element *te)
-{
-    for (tree_element *it = te->parent(); it != nullptr; it = it->parent())
-        ss_ << "  ";
-    if (te->parent() != nullptr)
+    write_indentation(ss_, param);
+    if (param->parent() != nullptr)
         ss_ << ":";
+    ss_ << param->name() << " = " << string_codec::encode(param->any_value()) << std::endl;
 }
 
 } // namespace decof

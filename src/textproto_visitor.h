@@ -35,8 +35,6 @@ public:
     virtual void visit(basic_parameter *param) override;
 
 private:
-    void write_indentation(const tree_element *te);
-
     std::stringstream &ss_;
 };
 

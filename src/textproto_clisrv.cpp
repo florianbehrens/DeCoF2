@@ -33,6 +33,7 @@
 #include "string_codec.h"
 #include "textproto_visitor.h"
 #include "tree_element.h"
+#include "xml_visitor.h"
 
 namespace {
 
@@ -176,6 +177,19 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
             std::stringstream temp_ss;
             textproto_visitor visitor(temp_ss);
             browse(root_uri, &visitor);
+            ss << temp_ss.str();
+        } else if (tokens[0] == "disc") {
+            std::string root_uri("root");
+            if (tokens.size() == 2)
+                root_uri = tokens[1];
+            else if (tokens.size() > 2)
+                throw parse_error();
+
+            std::stringstream temp_ss;
+            {
+                xml_visitor visitor(temp_ss);
+                browse(root_uri, &visitor);
+            }
             ss << temp_ss.str();
         } else
             throw parse_error();

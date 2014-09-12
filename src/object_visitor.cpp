@@ -79,4 +79,32 @@ void object_visitor::visit(observable_parameter<binary_seq> *param)
     visit(static_cast<basic_parameter*>(param));
 }
 
+void object_visitor::write_indentation(std::stringstream& ss, const tree_element *te)
+{
+    ss << indentation();
+    for (tree_element *it = te->parent(); it != nullptr; it = it->parent())
+        ss << "  ";
+}
+
+std::string object_visitor::indentation()
+{
+    std::string retval;
+    for (size_t i = 0; i < indentation_baselevel_; ++i)
+        retval += "  ";
+    return retval;
+}
+
+void object_visitor::increment_indentation(size_t levels)
+{
+    indentation_baselevel_ += levels;
+}
+
+void object_visitor::decrement_indentation(size_t levels)
+{
+    if (indentation_baselevel_ >= levels)
+        indentation_baselevel_ -= levels;
+    else
+        indentation_baselevel_ = 0u;
+}
+
 } // namespace decof

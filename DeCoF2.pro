@@ -18,7 +18,8 @@ SOURCES += \
     src/textproto_clisrv.cpp \
     src/textproto_pubsub.cpp \
     src/textproto_visitor.cpp \
-    src/tree_element.cpp
+    src/tree_element.cpp \
+    src/xml_visitor.cpp
 
 HEADERS += \
     include/decof.h \
@@ -47,7 +48,8 @@ HEADERS += \
     src/tcp_connection_manager.h \
     src/textproto_clisrv.h \
     src/textproto_pubsub.h \
-    src/textproto_visitor.h
+    src/textproto_visitor.h \
+    src/xml_visitor.h
 
 INCLUDEPATH += include include/decof src
 

@@ -17,6 +17,8 @@
 #ifndef DECOF_OBJECT_VISITOR_H
 #define DECOF_OBJECT_VISITOR_H
 
+#include <sstream>
+
 #include "types.h"
 
 namespace decof
@@ -28,6 +30,7 @@ class event;
 class node;
 template<typename T>
 class observable_parameter;
+class tree_element;
 
 /// Abstract object dictionary visitor class.
 /// @pattern Visitor
@@ -47,6 +50,15 @@ public:
     virtual void visit(observable_parameter<real_seq> *param);
     virtual void visit(observable_parameter<string_seq> *param);
     virtual void visit(observable_parameter<binary_seq> *param);
+
+protected:
+    void write_indentation(std::stringstream &ss, const tree_element *te);
+    std::string indentation();
+
+    void increment_indentation(size_t levels = 1u);
+    void decrement_indentation(size_t levels = 1u);
+
+    size_t indentation_baselevel_ = 0u;
 };
 
 } // namespace decof
