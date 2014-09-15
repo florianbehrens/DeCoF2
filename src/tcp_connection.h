@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef TCP_CONNECTION_H
-#define TCP_CONNECTION_H
+#ifndef DECOF_TCP_CONNECTION_H
+#define DECOF_TCP_CONNECTION_H
 
 #include "connection.h"
 
@@ -36,6 +36,7 @@ public:
     virtual std::string remote_endpoint() const override;
 
     virtual void async_read_until(char delim) override;
+    virtual void async_read_some() override;
     virtual void async_write(const std::string& str) override;
 
     virtual void disconnect() override;
@@ -56,4 +57,4 @@ private:
 
 } // namespace decof
 
-#endif // TCP_CONNECTION_H
+#endif // DECOF_TCP_CONNECTION_H

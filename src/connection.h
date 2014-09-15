@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CONNECTION_H
-#define CONNECTION_H
+#ifndef DECOF_CONNECTION_H
+#define DECOF_CONNECTION_H
 
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
@@ -33,7 +33,8 @@ public:
     virtual std::string type() const = 0;
     virtual std::string remote_endpoint() const = 0;
 
-    virtual void async_read_until(char delim) = 0;
+    virtual void async_read_until(char) = 0;
+    virtual void async_read_some() = 0;
     virtual void async_write(const std::string&) = 0;
 
     virtual void disconnect() = 0;
@@ -47,4 +48,4 @@ public signals:
 
 } // namespace decof
 
-#endif // CONNECTION_H
+#endif // DECOF_CONNECTION_H

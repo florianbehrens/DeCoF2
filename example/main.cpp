@@ -11,6 +11,7 @@
 #include "tcp_connection_manager.h"
 #include "textproto_clisrv.h"
 #include "textproto_pubsub.h"
+#include "webservice.h"
 
 namespace
 {
@@ -146,6 +147,11 @@ int main()
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
     decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
     conn_mgr_mon.preload<decof::textproto_pubsub>();
+
+    // Setup webservice
+    boost::asio::ip::tcp::endpoint websvc_endpoint(boost::asio::ip::tcp::v4(), 8080);
+    decof::tcp_connection_manager conn_mgr_websvc(obj_dict, websvc_endpoint);
+    conn_mgr_websvc.preload<decof::webservice>();
 
     obj_dict.get_io_service().run();
 

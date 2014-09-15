@@ -8,10 +8,12 @@ SOURCES += \
     src/client_context.cpp \
     src/event.cpp \
     src/exceptions.cpp \
+    src/http_reply.cpp \
     src/node.cpp \
     src/object_dictionary.cpp \
     src/object_visitor.cpp \
     src/regular_timer.cpp \
+    src/request_parser.cpp \
     src/string_codec.cpp \
     src/tcp_connection.cpp \
     src/tcp_connection_manager.cpp \
@@ -19,6 +21,7 @@ SOURCES += \
     src/textproto_pubsub.cpp \
     src/textproto_visitor.cpp \
     src/tree_element.cpp \
+    src/webservice.cpp \
     src/xml_visitor.cpp
 
 HEADERS += \
@@ -41,14 +44,19 @@ HEADERS += \
     include/decof/userlevel.h \
     src/connection.h \
     src/errors.h \
+    src/header.hpp \
+    src/http_reply.h \
     src/object_visitor.h \
     src/regular_timer.h \
+    src/request.hpp \
+    src/request_parser.hpp \
     src/string_codec.h \
     src/tcp_connection.h \
     src/tcp_connection_manager.h \
     src/textproto_clisrv.h \
     src/textproto_pubsub.h \
     src/textproto_visitor.h \
+    src/webservice.h \
     src/xml_visitor.h
 
 INCLUDEPATH += include include/decof src

@@ -43,6 +43,20 @@ void tcp_connection::async_read_until(char delim)
     boost::asio::async_read_until(socket_, inbuf_, delim, std::bind(&tcp_connection::read_handler, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 }
 
+void tcp_connection::async_read_some()
+{
+    auto self(shared_from_this());
+
+    // Reserve some bytes in streambuf
+    boost::asio::streambuf::mutable_buffers_type bufs = inbuf_.prepare(512);
+
+    socket_.async_read_some(bufs, [this, self](const boost::system::error_code &error, std::size_t bytes_transferred) {
+        // received data is "committed" from output sequence to input sequence
+        inbuf_.commit(bytes_transferred);
+        read_handler(error, bytes_transferred);
+    });
+}
+
 void tcp_connection::async_write(const std::string &str)
 {
     std::ostream os(&outbuf_);
@@ -84,7 +98,9 @@ void tcp_connection::read_handler(const boost::system::error_code &error, std::s
 
 void tcp_connection::write_handler(const boost::system::error_code &error, std::size_t)
 {
-    if (error) {
+    if (!error)
+        write_signal();
+    else {
         // Because we don't know what to do else we just close the connection
         disconnect();
     }
