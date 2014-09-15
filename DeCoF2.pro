@@ -5,24 +5,24 @@ CONFIG -= qt
 
 SOURCES += \
     example/main.cpp \
-    src/client_context.cpp \
-    src/event.cpp \
-    src/exceptions.cpp \
-    src/http_reply.cpp \
-    src/node.cpp \
-    src/object_dictionary.cpp \
-    src/object_visitor.cpp \
-    src/regular_timer.cpp \
-    src/request_parser.cpp \
-    src/string_codec.cpp \
-    src/tcp_connection.cpp \
-    src/tcp_connection_manager.cpp \
-    src/textproto_clisrv.cpp \
-    src/textproto_pubsub.cpp \
-    src/textproto_visitor.cpp \
-    src/tree_element.cpp \
-    src/webservice.cpp \
-    src/xml_visitor.cpp
+    src/core/client_context.cpp \
+    src/core/event.cpp \
+    src/core/exceptions.cpp \
+    src/core/node.cpp \
+    src/core/object_dictionary.cpp \
+    src/core/object_visitor.cpp \
+    src/core/regular_timer.cpp \
+    src/core/string_codec.cpp \
+    src/core/tcp_connection.cpp \
+    src/core/tcp_connection_manager.cpp \
+    src/core/tree_element.cpp \
+    src/textproto/textproto_clisrv.cpp \
+    src/textproto/textproto_pubsub.cpp \
+    src/textproto/textproto_visitor.cpp \
+    src/webservice/http_reply.cpp \
+    src/webservice/request_parser.cpp \
+    src/webservice/webservice.cpp \
+    src/webservice/xml_visitor.cpp
 
 HEADERS += \
     include/decof.h \
@@ -42,24 +42,23 @@ HEADERS += \
     include/decof/tree_element.h \
     include/decof/types.h \
     include/decof/userlevel.h \
-    src/connection.h \
-    src/errors.h \
-    src/header.hpp \
-    src/http_reply.h \
-    src/object_visitor.h \
-    src/regular_timer.h \
-    src/request.hpp \
-    src/request_parser.hpp \
-    src/string_codec.h \
-    src/tcp_connection.h \
-    src/tcp_connection_manager.h \
-    src/textproto_clisrv.h \
-    src/textproto_pubsub.h \
-    src/textproto_visitor.h \
-    src/webservice.h \
-    src/xml_visitor.h
+    src/core/connection.h \
+    src/core/errors.h \
+    src/core/object_visitor.h \
+    src/core/regular_timer.h \
+    src/core/string_codec.h \
+    src/core/tcp_connection.h \
+    src/core/tcp_connection_manager.h \
+    src/textproto/textproto_clisrv.h \
+    src/textproto/textproto_pubsub.h \
+    src/textproto/textproto_visitor.h \
+    src/webservice/http_reply.h \
+    src/webservice/request.hpp \
+    src/webservice/request_parser.hpp \
+    src/webservice/webservice.h \
+    src/webservice/xml_visitor.h
 
-INCLUDEPATH += include include/decof src
+INCLUDEPATH += include/decof src/core
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32
