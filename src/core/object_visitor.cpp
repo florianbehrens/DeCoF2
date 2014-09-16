@@ -79,10 +79,10 @@ void object_visitor::visit(observable_parameter<binary_seq> *param)
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::write_indentation(std::stringstream& ss, const tree_element *te)
+void object_visitor::write_indentation(std::stringstream& ss, const object *te)
 {
     ss << indentation();
-    for (tree_element *it = te->parent(); it != nullptr; it = it->parent())
+    for (object *it = te->parent(); it != nullptr; it = it->parent())
         ss << "  ";
 }
 

@@ -20,7 +20,7 @@
 #include <map>
 #include <memory>
 
-#include "tree_element.h"
+#include "object.h"
 
 namespace decof
 {
@@ -48,7 +48,7 @@ protected:
 
     void signal_event(const std::string &uri);
 
-    void observe(const std::string& uri, tree_element::signal_type::slot_type slot);
+    void observe(const std::string& uri, object::signal_type::slot_type slot);
     void unobserve(const std::string& uri);
 
     void browse(const std::string &root_uri, object_visitor *visitor);
@@ -57,7 +57,7 @@ protected:
     std::shared_ptr<connection> connection_;
 
 private:
-    void browse_object(tree_element *te, object_visitor *visitor);
+    void browse_object(object *te, object_visitor *visitor);
 
     userlevel_t userlevel_;
     std::map<std::string, boost::signals2::connection> observables_;

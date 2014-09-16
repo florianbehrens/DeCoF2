@@ -63,7 +63,7 @@ public:
     const std::shared_ptr<client_context> current_context() const;
 
 private:
-    tree_element* find_object(const std::string &uri);
+    object* find_object(const std::string &uri);
 
     void set_current_context(client_context* client_context);
 

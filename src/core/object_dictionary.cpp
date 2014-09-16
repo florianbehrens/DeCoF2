@@ -82,7 +82,7 @@ const std::shared_ptr<client_context> object_dictionary::current_context() const
     return current_context_;
 }
 
-tree_element *object_dictionary::find_object(const std::string &uri)
+object *object_dictionary::find_object(const std::string &uri)
 {
     if (uri == name())
         return this;

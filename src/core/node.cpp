@@ -48,7 +48,7 @@ void node::accept(object_visitor *visitor)
     visitor->visit(this);
 }
 
-void node::add_child(tree_element *child)
+void node::add_child(object *child)
 {
 #ifndef NDEBUG
     // Check whether child already is registered
@@ -60,12 +60,12 @@ void node::add_child(tree_element *child)
     children_.push_back(child);
 }
 
-void node::remove_child(tree_element *child)
+void node::remove_child(object *child)
 {
     children_.remove(child);
 }
 
-tree_element *node::find_immediate_child(const std::string &name)
+object *node::find_immediate_child(const std::string &name)
 {
     children_t::iterator it = std::find_if(children_.begin(), children_.end(), [name](const children_t::value_type &value) {
         return value->name() == name;
@@ -77,7 +77,7 @@ tree_element *node::find_immediate_child(const std::string &name)
     return nullptr;
 }
 
-tree_element *node::find_child(const std::string &uri)
+object *node::find_child(const std::string &uri)
 {
     if (uri.empty())
         return this;
@@ -90,7 +90,7 @@ tree_element *node::find_child(const std::string &uri)
         sub_uri = uri.substr(idx + 1, uri.length());
 
     // Find immediate child element
-    tree_element *te = find_immediate_child(child_name);
+    object *te = find_immediate_child(child_name);
 
     // Check whether child element is a node
     node *child_node = dynamic_cast<node *>(te);

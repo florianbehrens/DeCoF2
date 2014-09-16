@@ -22,13 +22,13 @@
 
 #include <boost/any.hpp>
 
+#include "object.h"
 #include "types.h"
-#include "tree_element.h"
 
 namespace decof
 {
 
-class basic_parameter : public tree_element
+class basic_parameter : public object
 {
 public:
     // Provides the value as runtime-generic type.
@@ -39,7 +39,7 @@ public:
 
 protected:
     // We inherit base class constructors
-    using tree_element::tree_element;
+    using object::object;
 };
 
 } // namespace decof

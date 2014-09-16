@@ -29,10 +29,10 @@
 
 #include "connection.h"
 #include "exceptions.h"
+#include "object.h"
 #include "object_dictionary.h"
 #include "string_codec.h"
 #include "textproto_visitor.h"
-#include "tree_element.h"
 
 namespace
 {

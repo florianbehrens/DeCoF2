@@ -39,7 +39,7 @@ public:
         return boost::any(value());
     }
 
-    virtual boost::signals2::connection observe(tree_element::slot_type slot) noexcept override {
+    virtual boost::signals2::connection observe(object::slot_type slot) noexcept override {
         boost::signals2::connection retval = signal_.connect(slot);
         signal(this->value());
         return retval;
@@ -59,7 +59,7 @@ protected:
     }
 
 private:
-    tree_element::signal_type signal_;
+    object::signal_type signal_;
 };
 
 } // namespace decof

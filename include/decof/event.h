@@ -17,7 +17,7 @@
 #ifndef DECOF_EVENT_H
 #define DECOF_EVENT_H
 
-#include "tree_element.h"
+#include "object.h"
 
 // Macro for simple event declaration.
 #define DECOF_DECLARE_EVENT(name)                                             \
@@ -30,7 +30,7 @@
 namespace decof
 {
 
-class event : public tree_element
+class event : public object
 {
 public:
     explicit event(std::string name, node *parent = nullptr, userlevel_t writelevel = Normal);

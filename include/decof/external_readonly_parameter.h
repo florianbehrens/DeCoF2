@@ -57,7 +57,7 @@ public:
         return get_external_value();
     }
 
-    virtual boost::signals2::connection observe(tree_element::slot_type slot) noexcept override {
+    virtual boost::signals2::connection observe(object::slot_type slot) noexcept override {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)

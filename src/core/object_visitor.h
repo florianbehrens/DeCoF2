@@ -30,7 +30,7 @@ class event;
 class node;
 template<typename T>
 class observable_parameter;
-class tree_element;
+class object;
 
 /// Abstract object dictionary visitor class.
 /// @pattern Visitor
@@ -52,7 +52,7 @@ public:
     virtual void visit(observable_parameter<binary_seq> *param);
 
 protected:
-    void write_indentation(std::stringstream &ss, const tree_element *te);
+    void write_indentation(std::stringstream &ss, const object *te);
     std::string indentation();
 
     void increment_indentation(size_t levels = 1u);

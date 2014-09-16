@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_TREE_ELEMENT_H
-#define DECOF_TREE_ELEMENT_H
+#ifndef DECOF_OBJECT_H
+#define DECOF_OBJECT_H
 
 #include <string>
 
@@ -35,21 +35,21 @@ class object_dictionary;
 class object_visitor;
 class node;
 
-/** Abstract tree element class.
+/** Abstract object class.
  *
  * @pattern Compositum.
  */
-class tree_element
+class object
 {
 public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
     typedef signal_type::slot_type slot_type;
 
-    tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
-    virtual ~tree_element();
+    object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
+    virtual ~object();
 
     std::string name() const;
-    void set_name(std::string name);
+    void name(std::string name);
 
     std::string fq_name() const;
 
@@ -78,4 +78,4 @@ private:
 
 } // namespace decof
 
-#endif // DECOF_TREE_ELEMENT_H
+#endif // DECOF_OBJECT_H

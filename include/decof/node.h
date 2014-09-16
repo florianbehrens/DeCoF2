@@ -31,7 +31,7 @@ namespace decof
 class node : public observable_parameter<string_seq>
 {
 public:
-    typedef std::list<tree_element*> children_t;
+    typedef std::list<object*> children_t;
     typedef children_t::iterator iterator;
 
 public:
@@ -43,9 +43,9 @@ public:
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) override final;
 
-    void add_child(tree_element *child);
-    void remove_child(tree_element *child);
-    tree_element *find_child(const std::string &uri);
+    void add_child(object *child);
+    void remove_child(object *child);
+    object *find_child(const std::string &uri);
 
     /// The same as value().
     string_seq children();
@@ -57,7 +57,7 @@ public:
     iterator end();
 
 private:
-    tree_element *find_immediate_child(const std::string &name);
+    object *find_immediate_child(const std::string &name);
 
     // We use std::list because iterators of a list remain valid when elements
     // are deleted.

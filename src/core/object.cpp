@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "tree_element.h"
+#include "object.h"
 
 #include "node.h"
 #include "object_dictionary.h"
@@ -22,7 +22,7 @@
 namespace decof
 {
 
-tree_element::tree_element(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
+object::object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
  : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
     assert(writelevel_ != Readonly);
@@ -31,23 +31,23 @@ tree_element::tree_element(std::string name, node *parent, userlevel_t readlevel
         parent->add_child(this);
 }
 
-tree_element::~tree_element()
+object::~object()
 {
     if (parent_ != nullptr)
         parent_->remove_child(this);
 }
 
-std::string tree_element::name() const
+std::string object::name() const
 {
     return name_;
 }
 
-void tree_element::set_name(std::string name)
+void object::name(std::string name)
 {
     name_ = name;
 }
 
-std::string tree_element::fq_name() const
+std::string object::fq_name() const
 {
     if (parent_ == nullptr)
         return name_;
@@ -55,43 +55,43 @@ std::string tree_element::fq_name() const
     return parent_->fq_name() + std::string(":") + name_;
 }
 
-node *tree_element::parent() const
+node *object::parent() const
 {
     return parent_;
 }
 
-void tree_element::set_parent(node *parent)
+void object::set_parent(node *parent)
 {
     if (parent_ != nullptr)
         parent->remove_child(this);
     parent_ = parent;
 }
 
-userlevel_t tree_element::readlevel() const
+userlevel_t object::readlevel() const
 {
     return readlevel_;
 }
 
-void tree_element::readlevel(userlevel_t readlevel)
+void object::readlevel(userlevel_t readlevel)
 {
     assert(readlevel >= Readonly && readlevel <= Internal);
     readlevel_ = readlevel;
 }
 
-userlevel_t tree_element::writelevel() const
+userlevel_t object::writelevel() const
 {
     return writelevel_;
 }
 
-void tree_element::writelevel(userlevel_t writelevel)
+void object::writelevel(userlevel_t writelevel)
 {
     assert(writelevel >= Readonly && writelevel <= Internal);
     writelevel_ = writelevel;
 }
 
-object_dictionary *tree_element::get_object_dictionary()
+object_dictionary *object::get_object_dictionary()
 {
-    tree_element* te = this;
+    object* te = this;
     while (te->parent() != nullptr)
         te = te->parent();
 

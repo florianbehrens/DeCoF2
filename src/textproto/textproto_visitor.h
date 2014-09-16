@@ -24,7 +24,7 @@
 namespace decof
 {
 
-class tree_element;
+class object;
 
 class textproto_visitor : public object_visitor
 {

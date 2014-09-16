@@ -21,10 +21,10 @@
 #include "decof/exceptions.h"
 #include "decof/external_readonly_parameter.h"
 #include "decof/external_readwrite_parameter.h"
+#include "decof/object.h"
 #include "decof/object_dictionary.h"
 #include "decof/managed_readwrite_parameter.h"
 #include "decof/managed_readonly_parameter.h"
-#include "decof/tree_element.h"
 #include "decof/types.h"
 
 #endif // DECOF_H

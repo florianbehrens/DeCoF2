@@ -20,8 +20,8 @@
 #include "connection.h"
 #include "event.h"
 #include "exceptions.h"
+#include "object.h"
 #include "object_dictionary.h"
-#include "tree_element.h"
 
 namespace decof
 {
@@ -44,7 +44,7 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    tree_element *te = object_dictionary_.find_object(uri);
+    object *te = object_dictionary_.find_object(uri);
     if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
             parameter->set_private_value(any_value);
@@ -72,7 +72,7 @@ void client_context::signal_event(const std::string &uri)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    tree_element *te = object_dictionary_.find_object(uri);
+    object *te = object_dictionary_.find_object(uri);
     if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (event* ev = dynamic_cast<event*>(te))
             ev->signal();
@@ -82,7 +82,7 @@ void client_context::signal_event(const std::string &uri)
         throw invalid_parameter_error();
 }
 
-void client_context::observe(const std::string &uri, tree_element::signal_type::slot_type slot)
+void client_context::observe(const std::string &uri, object::signal_type::slot_type slot)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -108,14 +108,14 @@ void client_context::browse(const std::string &root_uri, object_visitor *visitor
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (tree_element *te = object_dictionary_.find_object(root_uri)) {
+    if (object *te = object_dictionary_.find_object(root_uri)) {
         // Recursively iterate over all objects beginning from root URI
         browse_object(te, visitor);
     } else
         throw invalid_parameter_error();
 }
 
-void client_context::browse_object(tree_element *te, object_visitor *visitor)
+void client_context::browse_object(object *te, object_visitor *visitor)
 {
     te->accept(visitor);
 

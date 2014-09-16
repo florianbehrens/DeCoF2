@@ -9,13 +9,13 @@ SOURCES += \
     src/core/event.cpp \
     src/core/exceptions.cpp \
     src/core/node.cpp \
+    src/core/object.cpp \
     src/core/object_dictionary.cpp \
     src/core/object_visitor.cpp \
     src/core/regular_timer.cpp \
     src/core/string_codec.cpp \
     src/core/tcp_connection.cpp \
     src/core/tcp_connection_manager.cpp \
-    src/core/tree_element.cpp \
     src/textproto/textproto_clisrv.cpp \
     src/textproto/textproto_pubsub.cpp \
     src/textproto/textproto_visitor.cpp \
@@ -36,10 +36,10 @@ HEADERS += \
     include/decof/managed_readonly_parameter.h \
     include/decof/managed_readwrite_parameter.h \
     include/decof/node.h \
+    include/decof/object.h \
     include/decof/object_dictionary.h \
     include/decof/observable_parameter.h \
     include/decof/readwrite_parameter.h \
-    include/decof/tree_element.h \
     include/decof/types.h \
     include/decof/userlevel.h \
     src/core/connection.h \
@@ -68,4 +68,5 @@ else:unix: LIBS += -lboost_system
 win32:INCLUDEPATH += $$PWD/../boost_1_54_0
 win32:DEPENDPATH += $$PWD/../boost_1_54_0
 
-OTHER_FILES +=
+OTHER_FILES += \
+    README.md
