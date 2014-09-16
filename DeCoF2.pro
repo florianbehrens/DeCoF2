@@ -38,8 +38,8 @@ HEADERS += \
     include/decof/node.h \
     include/decof/object.h \
     include/decof/object_dictionary.h \
-    include/decof/observable_parameter.h \
     include/decof/readwrite_parameter.h \
+    include/decof/typed_parameter.h \
     include/decof/types.h \
     include/decof/userlevel.h \
     src/core/connection.h \

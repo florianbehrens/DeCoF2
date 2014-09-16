@@ -19,8 +19,8 @@
 
 #include <string>
 
-#include "observable_parameter.h"
 #include "readwrite_parameter.h"
+#include "typed_parameter.h"
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_EXTERNAL_READWRITE_PARAMETER(type_name, value_type)     \
@@ -43,11 +43,11 @@ namespace decof
  * This parameter type can be monitored efficiently.
  */
 template<typename T>
-class external_readwrite_parameter : public observable_parameter<T>, public readwrite_parameter<T>
+class external_readwrite_parameter : public typed_parameter<T>, public readwrite_parameter<T>
 {
 public:
     external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal) :
-        observable_parameter<T>(name, parent, readlevel, writelevel)
+        typed_parameter<T>(name, parent, readlevel, writelevel)
     {}
 
     virtual T value() {
@@ -57,7 +57,7 @@ public:
 private:
     virtual void set_private_value(const T &value) final {
         if (set_external_value(value) == true)
-            observable_parameter<T>::signal(value);
+            typed_parameter<T>::signal(value);
     }
 
     virtual bool set_external_value(const T &value) = 0;

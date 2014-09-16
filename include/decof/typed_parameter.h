@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef OBSERVABLE_PARAMETER_H
-#define OBSERVABLE_PARAMETER_H
+#ifndef DECOF_TYPED_PARAMETER_H
+#define DECOF_TYPED_PARAMETER_H
 
 #include "basic_parameter.h"
 #include "object_visitor.h"
@@ -24,7 +24,7 @@ namespace decof
 {
 
 template<typename T>
-class observable_parameter : public basic_parameter
+class typed_parameter : public basic_parameter
 {
 public:
     typedef T value_type;
@@ -64,4 +64,4 @@ private:
 
 } // namespace decof
 
-#endif // OBSERVABLE_PARAMETER_H
+#endif // DECOF_TYPED_PARAMETER_H

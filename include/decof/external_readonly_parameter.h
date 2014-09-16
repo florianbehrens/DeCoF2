@@ -20,7 +20,7 @@
 #include <string>
 
 #include "object_dictionary.h"
-#include "observable_parameter.h"
+#include "typed_parameter.h"
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)      \
@@ -42,11 +42,11 @@ namespace decof
  * uses a polling timer for monitoring.
  */
 template<typename T>
-class external_readonly_parameter : public observable_parameter<T>
+class external_readonly_parameter : public typed_parameter<T>
 {
 public:
     external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly) :
-        observable_parameter<T>(name, parent, readlevel, Infinite)
+        typed_parameter<T>(name, parent, readlevel, Infinite)
     {}
 
     virtual ~external_readonly_parameter() {
@@ -67,7 +67,7 @@ public:
         connection_ = obj_dict->get_medium_timer().observe(std::bind(&external_readonly_parameter<T>::notify, this));
 
         // Call base class member function
-        return observable_parameter<T>::observe(slot);
+        return typed_parameter<T>::observe(slot);
     }
 
 private:
@@ -77,7 +77,7 @@ private:
     void notify() {
         T cur_value = value();
         if (last_value_ != cur_value) {
-            observable_parameter<T>::signal(cur_value);
+            typed_parameter<T>::signal(cur_value);
             last_value_ = cur_value;
         }
     }

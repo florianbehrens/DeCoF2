@@ -20,8 +20,8 @@
 #include <string>
 #include <vector>
 
-#include "observable_parameter.h"
 #include "readwrite_parameter.h"
+#include "typed_parameter.h"
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)      \
@@ -50,17 +50,17 @@ class managed_readonly_parameter;
  * - Copyconstructible
  */
 template<typename T>
-class managed_readwrite_parameter : public observable_parameter<T>, public readwrite_parameter<T>
+class managed_readwrite_parameter : public typed_parameter<T>, public readwrite_parameter<T>
 {
     friend class managed_readonly_parameter<T>;
 
 public:
     managed_readwrite_parameter(std::string name, node *parent, const T &value)
-     : observable_parameter<T>(name, parent, Readonly, Normal), value_(value)
+     : typed_parameter<T>(name, parent, Readonly, Normal), value_(value)
     {}
 
     managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal, const T &value = T())
-     : observable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
+     : typed_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
     virtual T value() {
@@ -79,7 +79,7 @@ private:
 
         verify(value);
         value_ = value;
-        observable_parameter<T>::signal(value);
+        typed_parameter<T>::signal(value);
     }
 
     T value_;

@@ -33,16 +33,16 @@ public:
     virtual void visit(event *ev) override;
     virtual void visit(node *node) override;
     virtual void visit(basic_parameter*) override;
-    virtual void visit(observable_parameter<boolean> *param) override;
-    virtual void visit(observable_parameter<integer> *param) override;
-    virtual void visit(observable_parameter<real> *param) override;
-    virtual void visit(observable_parameter<string> *param) override;
-    virtual void visit(observable_parameter<binary> *param) override;
-    virtual void visit(observable_parameter<boolean_seq> *param) override;
-    virtual void visit(observable_parameter<integer_seq> *param) override;
-    virtual void visit(observable_parameter<real_seq> *param) override;
-    virtual void visit(observable_parameter<string_seq> *param) override;
-    virtual void visit(observable_parameter<binary_seq> *param) override;
+    virtual void visit(typed_parameter<boolean> *param) override;
+    virtual void visit(typed_parameter<integer> *param) override;
+    virtual void visit(typed_parameter<real> *param) override;
+    virtual void visit(typed_parameter<string> *param) override;
+    virtual void visit(typed_parameter<binary> *param) override;
+    virtual void visit(typed_parameter<boolean_seq> *param) override;
+    virtual void visit(typed_parameter<integer_seq> *param) override;
+    virtual void visit(typed_parameter<real_seq> *param) override;
+    virtual void visit(typed_parameter<string_seq> *param) override;
+    virtual void visit(typed_parameter<binary_seq> *param) override;
 
 private:
     void write_param(basic_parameter *param, const std::string &type_str);

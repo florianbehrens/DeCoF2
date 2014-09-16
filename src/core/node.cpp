@@ -26,7 +26,7 @@ namespace decof
 {
 
 node::node(std::string name, node *parent, userlevel_t readlevel)
- : observable_parameter<string_seq>(name, parent, readlevel, Internal)
+ : typed_parameter<string_seq>(name, parent, readlevel, Internal)
 {}
 
 node::~node()

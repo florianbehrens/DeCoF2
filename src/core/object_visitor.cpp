@@ -18,7 +18,7 @@
 
 #include "event.h"
 #include "node.h"
-#include "observable_parameter.h"
+#include "typed_parameter.h"
 
 namespace decof
 {
@@ -29,52 +29,52 @@ void object_visitor::visit(event*)
 void object_visitor::visit(node*)
 {}
 
-void object_visitor::visit(observable_parameter<boolean> *param)
+void object_visitor::visit(typed_parameter<boolean> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<integer> *param)
+void object_visitor::visit(typed_parameter<integer> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<real> *param)
+void object_visitor::visit(typed_parameter<real> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<string> *param)
+void object_visitor::visit(typed_parameter<string> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<binary> *param)
+void object_visitor::visit(typed_parameter<binary> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<boolean_seq> *param)
+void object_visitor::visit(typed_parameter<boolean_seq> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<integer_seq> *param)
+void object_visitor::visit(typed_parameter<integer_seq> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<real_seq> *param)
+void object_visitor::visit(typed_parameter<real_seq> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<string_seq> *param)
+void object_visitor::visit(typed_parameter<string_seq> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
 
-void object_visitor::visit(observable_parameter<binary_seq> *param)
+void object_visitor::visit(typed_parameter<binary_seq> *param)
 {
     visit(static_cast<basic_parameter*>(param));
 }
