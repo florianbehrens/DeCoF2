@@ -36,7 +36,7 @@ Objects are organized in a hierarchic tree structure. Each object has a name
 and exactly one parent object except the 'root' object.
 
 Only *node* objects can hold child objects. *Parameters* have a value of a 
-given, fixed value type. *Events* are objects without value but can be used so 
+given, fixed value type. *Events* are objects without value but can be used to
 signal some event.
 
 Parameters can hold values of the following builtin value types:
@@ -50,6 +50,11 @@ Parameters can hold values of the following builtin value types:
 
 A node is a special parameter with value type sequence of strings that holds 
 the names of its child parameters.
+
+Parameter's values can be either readwrite or readonly. I.e., they may either
+be modified by the server implementation (readonly parameters) or by a client
+(readwrite parameters). It is not possible (or at least conceptually not
+allowed) to alter readwrite parameters by the server implementation.
 
 ### Access control
 
@@ -74,27 +79,118 @@ The *object dictionary* is the container of all parameter instances. The object
 dictionary itself is a node. It has the name 'root'. All parameters are
 children or successors of the root parameter.
 
-### Operations between clients and server
+### Interaction models
 
-The server framework allows the following abstract operations from clients on
-each parameter in the object dictionary:
+The server framework supports two distinct models for interaction between
+clients and server:
 
-* Get operation (client/server model)
-* Set operation (client/server model)
-* Subscribe operation (publish/subscribe model)
-* Unsubscribe operation (publish/subscribe model)
+* Client/server model
+* Publish/subscribe model
 
-These operations can be realized by messages sent back and forth in any format.
-The framework provides some useful protocols and even allows to write your own.
+#### Client/server model
 
-Parameters may either be modified by the server implementation (readonly
-parameters) or by the client side (readwrite parameters). It is not possible
-(or at least conceptually not allowed) to alter readwrite parameters by the
-server implementation.
+In the 'classic' client/server model, the server framework allows the following
+abstract operations from clients on each parameter in the object dictionary:
+
+* Get operation (parameters and nodes only)
+* Set operation (parameters only)
+* Execute operation (events only)
+
+#### Publish/subscribe model
+
+In the publish/subscribe model, the clients take the role of a subscriber
+whereas the server have the role of the publisher. In this model the server
+framework allows the following abstract operations on each parameter in the
+object dictionary:
+
+* Subscribe operation
+* Unsubscribe operation
+* Notify operation
+
+Subscribers can initiate subscribe und unsubscribe operations, whereas the
+notify operation is carried out on value changes by the publisher.
+
+All those mentioned operations can be realized by messages sent back and forth
+in any format. The framework provides some useful protocols and even allows to
+write your own.
 
 ### Discovery
 
 Discovery is a term that describes the process of finding out about the
 parameters available in a server's object dictionary. This can be carried out
-by tranversing the parameter tree from node to node or by special discovery
+by traversing the parameter tree from node to node or by special discovery
 means.
+
+Implementation
+--------------
+
+### Protocols
+
+#### General
+
+There are several protocol implementations provided but the framework is
+intentionally open for new implementations.
+
+#### Text protocol
+
+The text protocol is around for historical reasons and for its simplicity and
+usability when it comes to manual (keyboard) interaction with a server.
+
+The text protocol implements both the client/server and publish/subscribe
+interaction models as well as supports some simple discovery means.
+
+##### Client/server model
+
+The client/server interaction model is supported typically via TCP port 1998.
+Operations are encoded in ASCII text in the following manner:
+
+`[(] <operation> [']<uri> [<value>] [)]`
+
+The paratheses and the `'` are for historical reasons and optional.
+
+`<operation>` can be one of:
+
+* `param-ref` or `get` for a get operation
+* `param-set!` or `set` for a set operation
+
+The former keywords are for historical reasons.
+
+The value is only needed for set operations.
+
+##### Publish/subscribe model
+
+The publish/subscribe interaction model is supported typically via TCP port
+1999. Operations are encoded in ASCII text in the same way as in the
+client/server model.
+
+`<operation>` can be one of:
+
+* `add` or `subscribe` for a subscribe operation
+* `remove` or `unsunscribe` for a unsubscribe operation
+
+The former keywords again are for historical reasons.
+
+##### URI representation
+
+The `uri` represents an object within the object dictionary with its fully
+qualified name, seperated with a colon (`:`), e.g., `root:node:my_parameter`.
+The `root:` prefix is optional.
+
+##### Value encoding
+
+Values are encoded according to their type as follows:
+
+* boolean: `#t` for true and `#f` for false
+* integer: in stringified representation, e.g., `-123`
+* real: in stringified representation (may be scientific) with decimal point,
+  e.g., `-123.0` or `-1.23e2`
+* string: enclosed in double quotes (`"`)
+* binary: prefixed with a `&`
+* sequences are enclosed in square brackets (`[]`) with the individual
+  elements seperated by commas (`,`)
+
+##### Discovery
+
+The text protocol supports a simple dicovery means by using the operation
+`param-disp` or `browse`. The output is a textual representation of the
+objects in the object dictionary.
