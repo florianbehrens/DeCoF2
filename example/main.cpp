@@ -9,9 +9,9 @@
 
 #include "decof.h"
 #include "tcp_connection_manager.h"
-#include "textproto_clisrv.h"
-#include "textproto_pubsub.h"
-#include "webservice.h"
+#include "textproto/textproto_clisrv.h"
+#include "textproto/textproto_pubsub.h"
+#include "webservice/webservice.h"
 
 namespace
 {

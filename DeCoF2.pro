@@ -52,13 +52,14 @@ HEADERS += \
     src/textproto/textproto_clisrv.h \
     src/textproto/textproto_pubsub.h \
     src/textproto/textproto_visitor.h \
+    src/webservice/header.hpp \
     src/webservice/http_reply.h \
     src/webservice/request.hpp \
     src/webservice/request_parser.hpp \
     src/webservice/webservice.h \
     src/webservice/xml_visitor.h
 
-INCLUDEPATH += include/decof src/core
+INCLUDEPATH += include include/decof src src/core
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../boost_1_54_0/stage/lib/ -llibboost_system-mgw48-mt-1_54 -lwsock32 -lws2_32
