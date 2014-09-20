@@ -67,9 +67,17 @@ struct ws_separated_quotable_list
                 } else
                     continue;
             } else if (array_) {
-                // If in array, only search for closing bracket
+                // If in array, only search for closing square bracket
                 tok += *next;
                 if (*next == ']') {
+                    ++next;
+                    return true;
+                } else
+                    continue;
+            } else if (tuple_) {
+                // If in tuple, only search for closing bracket
+                tok += *next;
+                if (*next == '}') {
                     ++next;
                     return true;
                 } else
@@ -81,10 +89,17 @@ struct ws_separated_quotable_list
                     return true;
                 }
 
-                if (*next == '"')
+                switch (*next) {
+                case '"':
                     quote_ = true;
-                else if (*next == '[')
+                    break;
+                case '[':
                     array_ = true;
+                    break;
+                case '{':
+                    tuple_ = true;
+                    break;
+                }
 
                 tok += *next;
             }
@@ -100,12 +115,14 @@ struct ws_separated_quotable_list
         start_ = true;
         quote_ = false;
         array_ = false;
+        tuple_ = false;
     }
 
 private:
     bool start_;
     bool quote_;
     bool array_;
+    bool tuple_;
 };
 
 } // anonymous namespace

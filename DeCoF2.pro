@@ -29,6 +29,7 @@ HEADERS += \
     include/decof/basic_parameter.h \
     include/decof/basic_readwrite_parameter.h \
     include/decof/client_context.h \
+    include/decof/conversion.h \
     include/decof/event.h \
     include/decof/exceptions.h \
     include/decof/external_readonly_parameter.h \

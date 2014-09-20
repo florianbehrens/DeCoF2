@@ -18,7 +18,7 @@
 #define READWRITE_PARAMETER_H
 
 #include "basic_readwrite_parameter.h"
-
+#include "conversion.h"
 #include "exceptions.h"
 
 namespace decof
@@ -31,10 +31,15 @@ class readwrite_parameter : public basic_readwrite_parameter
 
 private:
     virtual void set_private_value(const T &value) = 0;
+
+    /// @brief Set value wrapped in a runtime dynamic type.
+    /// Scalar and sequence types must be wrapped in a boost::any as they are.
+    /// Tuple types must be dismantled and the individual elements wrapped in a
+    /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
     virtual void set_private_value(const boost::any& any_value)
     {
         try {
-            set_private_value(boost::any_cast<T>(any_value));
+            set_private_value(Conversion<T>::from_any(any_value));
         } catch(boost::bad_any_cast&) {
             throw wrong_type_error();
         }

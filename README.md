@@ -46,7 +46,8 @@ Parameters can hold values of the following builtin value types:
 * real
 * string
 * binary
-* and a sequence type for each of the above listed primitive value types.
+* a sequence type of each of the above listed primitive value types
+* a tuple type of any combination of the above listed primitive value types.
 
 A node is a special parameter with value type sequence of strings that holds 
 the names of its child parameters.
@@ -188,6 +189,8 @@ Values are encoded according to their type as follows:
 * binary: prefixed with a `&`
 * sequences are enclosed in square brackets (`[]`) with the individual
   elements seperated by commas (`,`)
+* tuples are enclosed in curly brackets (`{}`) with the individual elements
+  separated by commas (`,`).
 
 ##### Discovery
 

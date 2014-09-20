@@ -25,7 +25,7 @@ namespace decof
 
 // Scalar parameter types
 typedef bool boolean;
-typedef int integer;
+typedef int32_t integer;
 typedef double real;
 typedef std::string string;
 
@@ -40,6 +40,13 @@ typedef std::vector<int> integer_seq;
 typedef std::vector<double> real_seq;
 typedef std::vector<std::string> string_seq;
 typedef std::vector<binary> binary_seq;
+
+// Tuple parameter type
+template<typename... Args>
+struct tuple : public std::tuple<Args...>
+{
+    using std::tuple<Args...>::tuple;
+};
 
 } // namespace decof
 

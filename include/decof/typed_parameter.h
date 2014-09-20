@@ -18,6 +18,7 @@
 #define DECOF_TYPED_PARAMETER_H
 
 #include "basic_parameter.h"
+#include "conversion.h"
 #include "object_visitor.h"
 
 namespace decof
@@ -29,14 +30,18 @@ class typed_parameter : public basic_parameter
 public:
     typedef T value_type;
 
-    // This method is not const because external parameters might need to
-    // alter state, e.g., when reading the value from a file.
-    // Another possible solution could be to make those state holding members
-    // mutable.
+    /// @note This method is not const because external parameters might need to
+    /// alter state, e.g., when reading the value from a file.
+    /// Another possible solution could be to make those state holding members
+    /// mutable.
     virtual T value() = 0;
 
+    /// @brief Return value as runtime dynamic type.
+    /// Scalar and sequence types are wrapped in a boost::any as they are.
+    /// Tuple types are dismantled and the individual elements wrapped in a
+    /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
     virtual boost::any any_value() override final {
-        return boost::any(value());
+        return Conversion<T>::to_any(value());
     }
 
     virtual boost::signals2::connection observe(object::slot_type slot) noexcept override {

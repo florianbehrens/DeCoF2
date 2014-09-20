@@ -25,21 +25,15 @@
 #include <boost/archive/iterators/remove_whitespace.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "types.h"
+#include "conversion.h"
 #include "exceptions.h"
+#include "types.h"
 
 namespace {
 
-std::string bool2string(bool value)
-{
-    if (value == true)
-        return std::string("#t");
-    return std::string("#f");
-}
-
 // The following two functions are based on code from
 // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
-std::string base64encode(decof::binary bin)
+inline std::string base64encode(const decof::binary &bin)
 {
     using namespace boost::archive::iterators;
 
@@ -52,7 +46,7 @@ std::string base64encode(decof::binary bin)
     return base64;
 }
 
-decof::binary base64decode(std::string base64)
+inline decof::binary base64decode(std::string base64)
 {
     using namespace boost::archive::iterators;
 
@@ -65,6 +59,144 @@ decof::binary base64decode(std::string base64)
     return result;
 }
 
+inline std::string encode_boolean(decof::boolean value)
+{
+    if (value == true)
+        return std::string("#t");
+    return std::string("#f");
+}
+
+inline std::string encode_integer(decof::integer value)
+{
+    return boost::lexical_cast<std::string>(value);
+}
+
+inline std::string encode_real(decof::real value)
+{
+    return boost::lexical_cast<std::string>(value);
+}
+
+inline std::string encode_string(const decof::string &value)
+{
+    return std::string("\"") + value + "\"";
+}
+
+inline std::string encode_binary(const decof::binary &value)
+{
+    return std::string("&") + base64encode(value);
+}
+
+inline std::string encode_boolean_seq(decof::boolean_seq value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), encode_boolean);
+    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
+}
+
+inline std::string encode_integer_seq(decof::integer_seq value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), encode_integer);
+    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
+}
+
+inline std::string encode_real_seq(decof::real_seq value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), encode_real);
+    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
+}
+
+inline std::string encode_string_seq(const decof::string_seq &value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), encode_string);
+    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
+}
+
+inline std::string encode_binary_seq(const decof::binary_seq &value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), encode_binary);
+    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
+}
+
+inline std::string encode_tuple(const decof::dynamic_tuple &value)
+{
+    std::vector<std::string> str_vec(value.size());
+    std::transform(value.begin(), value.end(), str_vec.begin(), decof::string_codec::encode);
+    return std::string("{") + boost::algorithm::join(str_vec, ",") + "}";
+}
+
+inline decof::boolean decode_boolean(const std::string &str)
+{
+    if (str == "#f")
+        return false;
+    else if (str == "#t")
+        return true;
+    else
+        throw decof::invalid_value_error();
+}
+
+inline decof::integer decode_integer(const std::string &str)
+{
+    return boost::lexical_cast<decof::integer>(str);
+}
+
+inline decof::real decode_real(const std::string &str)
+{
+    return boost::lexical_cast<decof::real>(str);
+}
+
+inline decof::string decode_string(std::string str)
+{
+    boost::algorithm::trim_if(str, boost::is_any_of("\""));
+    boost::replace_all(str, "\\\"", "\"");
+    return str;
+}
+
+inline decof::binary decode_binary(const std::string &str)
+{
+    try {
+        return decof::binary(base64decode(str.substr(1)));
+    } catch (std::exception&) {
+        throw decof::invalid_value_error();
+    }
+}
+
+inline std::vector<boost::any> decode_sequence(std::string str)
+{
+    std::vector<boost::any> retval;
+    std::vector<std::string> elems;
+    boost::any last_any_elem;
+
+    boost::algorithm::trim_if(str, boost::is_any_of("[]"));
+    boost::algorithm::split(elems, str, boost::algorithm::is_any_of(","), boost::algorithm::token_compress_off);
+
+    for (auto &elem : elems) {
+        boost::any any_elem = decof::string_codec::decode(elem);
+
+        if (!last_any_elem.empty() && last_any_elem.type() != any_elem.type())
+            throw decof::wrong_type_error();
+
+        retval.push_back(any_elem);
+    }
+
+    return retval;
+}
+
+inline std::vector<boost::any> decode_tuple(std::string str)
+{
+    std::vector<std::string> str_vec;
+    boost::algorithm::trim_if(str, boost::is_any_of("{}"));
+    boost::algorithm::split(str_vec, str, boost::algorithm::is_any_of(","), boost::algorithm::token_compress_off);
+
+    std::vector<boost::any> any_vec(str_vec.size());
+    std::transform(str_vec.begin(), str_vec.end(), any_vec.begin(), decof::string_codec::decode);
+
+    return any_vec;
+}
+
 } // Anonymous namespace
 
 namespace decof
@@ -72,44 +204,29 @@ namespace decof
 
 std::string string_codec::encode(const boost::any &any_value)
 {
-    string_seq str_vec;
-
-    if (any_value.type() == typeid(boolean)) {
-        return bool2string(boost::any_cast<bool>(any_value));
-    } else if (any_value.type() == typeid(integer))
-        return boost::lexical_cast<std::string>(boost::any_cast<int>(any_value));
+    if (any_value.type() == typeid(boolean))
+        return encode_boolean(boost::any_cast<boolean>(any_value));
+    else if (any_value.type() == typeid(integer))
+        return encode_integer(boost::any_cast<integer>(any_value));
     else if (any_value.type() == typeid(real))
-        return boost::lexical_cast<std::string>(boost::any_cast<double>(any_value));
+        return encode_real(boost::any_cast<real>(any_value));
     else if (any_value.type() == typeid(string))
-        return std::string("\"") + boost::any_cast<std::string>(any_value) + "\"";
+        return encode_string(boost::any_cast<string>(any_value));
     else if (any_value.type() == typeid(binary))
-        return std::string("&") + base64encode(boost::any_cast<binary>(any_value));
-    else if (any_value.type() == typeid(boolean_seq)) {
-        boolean_seq value = boost::any_cast<boolean_seq>(any_value);
-        str_vec.resize(value.size());
-        std::transform(value.begin(), value.end(), str_vec.begin(), bool2string);
-        return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(integer_seq)) {
-        integer_seq value = boost::any_cast<integer_seq>(any_value);
-        str_vec.resize(value.size());
-        std::transform(value.begin(), value.end(), str_vec.begin(), encode);
-        return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(real_seq)) {
-        real_seq value = boost::any_cast<real_seq>(any_value);
-        str_vec.resize(value.size());
-        std::transform(value.begin(), value.end(), str_vec.begin(), encode);
-        return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(string_seq)) {
-        string_seq value = boost::any_cast<string_seq>(any_value);
-        str_vec.resize(value.size());
-        std::transform(value.begin(), value.end(), str_vec.begin(), encode);
-        return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else if (any_value.type() == typeid(binary_seq)) {
-        binary_seq value = boost::any_cast<binary_seq>(any_value);
-        str_vec.resize(value.size());
-        std::transform(value.begin(), value.end(), str_vec.begin(), encode);
-        return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-    } else
+        return encode_binary(boost::any_cast<binary>(any_value));
+    else if (any_value.type() == typeid(boolean_seq))
+        return encode_boolean_seq(boost::any_cast<boolean_seq>(any_value));
+    else if (any_value.type() == typeid(integer_seq))
+        return encode_integer_seq(boost::any_cast<integer_seq>(any_value));
+    else if (any_value.type() == typeid(real_seq))
+        return encode_real_seq(boost::any_cast<real_seq>(any_value));
+    else if (any_value.type() == typeid(string_seq))
+        return encode_string_seq(boost::any_cast<string_seq>(any_value));
+    else if (any_value.type() == typeid(binary_seq))
+        return encode_binary_seq(boost::any_cast<binary_seq>(any_value));
+    else if (any_value.type() == typeid(dynamic_tuple))
+        return encode_tuple(boost::any_cast<dynamic_tuple>(any_value));
+    else
         throw wrong_type_error();
 }
 
@@ -123,48 +240,27 @@ boost::any string_codec::decode(const std::string &cstr)
     try {
         if (str.front() == '#') {
             // boolean
-            if (str == "#f")
-                return boost::any(boolean(false));
-            return boost::any(boolean(true));
+            return boost::any(decode_boolean(str));
         } else if (str.front() == '&') {
             // binary
-            try {
-                return boost::any(binary(base64decode(str.substr(1))));
-            } catch (std::exception&) {
-                throw invalid_value_error();
-            }
+            return boost::any(decode_binary(str));
         } else if (str.front() == '"' && str.back() == '"') {
             // string
-            boost::algorithm::trim_if(str, boost::is_any_of("\""));
-            boost::replace_all(str, "\\\"", "\"");
-            return boost::any(string(str));
+            return boost::any(decode_string(str));
         } else if (str.front() == '[' && str.back() == ']') {
-            // Decode array while checking whether all elems have equal type
-            boost::algorithm::trim_if(str, boost::is_any_of("[]"));
-
-            std::vector<std::string> elems;
-            boost::algorithm::split(elems, str, boost::algorithm::is_any_of(","), boost::algorithm::token_compress_off);
-
-            boost::any last_any_elem;
-            std::vector<boost::any> any_elems;
-            for (auto elem : elems) {
-                boost::any any_elem = decode(elem);
-                if (!last_any_elem.empty() && last_any_elem.type() != any_elem.type())
-                    throw wrong_type_error();
-                any_elems.push_back(any_elem);
-            }
-
-            return boost::any(any_elems);
+            // sequence
+            return boost::any(decode_sequence(str));
+        } else if (str.front() == '{' && str.back() == '}') {
+            // tuple
+            return boost::any(decode_tuple(str));
         } else if (boost::algorithm::all(str, boost::is_digit() || boost::is_any_of("-"))) {
             // possibly integer
-            return boost::any(boost::lexical_cast<integer>(str));
+            return boost::any(decode_integer(str));
         } else {
             // real
-            return boost::any(boost::lexical_cast<real>(str));
+            return boost::any(decode_real(str));
         }
-    } catch (boost::bad_lexical_cast&) {
-        throw wrong_type_error();
-    }
+    } catch (boost::bad_lexical_cast&) {}
 
     throw wrong_type_error();
 }

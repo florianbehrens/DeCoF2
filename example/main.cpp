@@ -100,6 +100,8 @@ private:
 //  | |-- real_seq: real_seq (rw)
 //  | |-- string_seq: string_seq (rw)
 //  | |-- binary_seq: binary_seq (rw)
+//  |-- tuples: node (r)
+//  | |-- tuple2: tuple<boolean, integer> (ro)
 //  |-- events: node (r)
 //    |-- exit: event
 decof::object_dictionary obj_dict;
@@ -121,6 +123,8 @@ decof::managed_readwrite_parameter<decof::integer_seq> integer_seq_param("intege
 decof::managed_readwrite_parameter<decof::real_seq> real_seq_param("real_seq", &subnode);
 decof::managed_readwrite_parameter<decof::string_seq> string_seq_param("string_seq", &subnode);
 decof::managed_readwrite_parameter<decof::binary_seq> binary_seq_param("binary_seq", &subnode);
+decof::node tuples_node("tuples", &obj_dict);
+decof::managed_readwrite_parameter<decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary>> scalar_tuple("scalar_tuple", &tuples_node);
 decof::node events_node("events", &obj_dict);
 exit_event exit_ev("exit", &events_node);
 
