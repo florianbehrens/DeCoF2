@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "string_codec.h"
+#include "string_encoder.h"
 
 #include <boost/any.hpp>
 #include <boost/algorithm/string.hpp>
@@ -44,19 +44,6 @@ inline std::string base64encode(const decof::binary &bin)
     base64.append(writePaddChars, '=');
 
     return base64;
-}
-
-inline decof::binary base64decode(std::string base64)
-{
-    using namespace boost::archive::iterators;
-
-    typedef transform_width<binary_from_base64<remove_whitespace<std::string::const_iterator>>, 8, 6> it_binary_t;
-
-    unsigned int paddChars = count(base64.begin(), base64.end(), '=');
-    std::replace(base64.begin(), base64.end(), '=', 'A');
-    decof::binary result(it_binary_t(base64.begin()), it_binary_t(base64.end()));
-    result.erase(result.end() - paddChars, result.end());
-    return result;
 }
 
 inline std::string encode_boolean(decof::boolean value)
@@ -124,77 +111,8 @@ inline std::string encode_binary_seq(const decof::binary_seq &value)
 inline std::string encode_tuple(const decof::dynamic_tuple &value)
 {
     std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), decof::string_codec::encode);
+    std::transform(value.begin(), value.end(), str_vec.begin(), decof::string_encoder::encode);
     return std::string("{") + boost::algorithm::join(str_vec, ",") + "}";
-}
-
-inline decof::boolean decode_boolean(const std::string &str)
-{
-    if (str == "#f")
-        return false;
-    else if (str == "#t")
-        return true;
-    else
-        throw decof::invalid_value_error();
-}
-
-inline decof::integer decode_integer(const std::string &str)
-{
-    return boost::lexical_cast<decof::integer>(str);
-}
-
-inline decof::real decode_real(const std::string &str)
-{
-    return boost::lexical_cast<decof::real>(str);
-}
-
-inline decof::string decode_string(std::string str)
-{
-    boost::algorithm::trim_if(str, boost::is_any_of("\""));
-    boost::replace_all(str, "\\\"", "\"");
-    return str;
-}
-
-inline decof::binary decode_binary(const std::string &str)
-{
-    try {
-        return decof::binary(base64decode(str.substr(1)));
-    } catch (std::exception&) {
-        throw decof::invalid_value_error();
-    }
-}
-
-inline std::vector<boost::any> decode_sequence(std::string str)
-{
-    std::vector<boost::any> retval;
-    std::vector<std::string> elems;
-    boost::any last_any_elem;
-
-    boost::algorithm::trim_if(str, boost::is_any_of("[]"));
-    boost::algorithm::split(elems, str, boost::algorithm::is_any_of(","), boost::algorithm::token_compress_off);
-
-    for (auto &elem : elems) {
-        boost::any any_elem = decof::string_codec::decode(elem);
-
-        if (!last_any_elem.empty() && last_any_elem.type() != any_elem.type())
-            throw decof::wrong_type_error();
-
-        retval.push_back(any_elem);
-    }
-
-    return retval;
-}
-
-inline std::vector<boost::any> decode_tuple(std::string str)
-{
-    std::vector<std::string> str_vec;
-    boost::algorithm::trim_if(str, boost::is_any_of("{}"));
-    boost::algorithm::split(str_vec, str, boost::algorithm::is_any_of(","), boost::algorithm::token_compress_off);
-
-    std::vector<boost::any> any_vec(str_vec.size());
-    std::transform(str_vec.begin(), str_vec.end(), any_vec.begin(), decof::string_codec::decode);
-
-    return any_vec;
 }
 
 } // Anonymous namespace
@@ -202,7 +120,7 @@ inline std::vector<boost::any> decode_tuple(std::string str)
 namespace decof
 {
 
-std::string string_codec::encode(const boost::any &any_value)
+std::string string_encoder::encode(const boost::any &any_value)
 {
     if (any_value.type() == typeid(boolean))
         return encode_boolean(boost::any_cast<boolean>(any_value));
@@ -228,41 +146,6 @@ std::string string_codec::encode(const boost::any &any_value)
         return encode_tuple(boost::any_cast<dynamic_tuple>(any_value));
     else
         throw wrong_type_error();
-}
-
-boost::any string_codec::decode(const std::string &cstr)
-{
-    assert(cstr.size() > 0);
-
-    std::string str(cstr);
-    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v"));
-
-    try {
-        if (str.front() == '#') {
-            // boolean
-            return boost::any(decode_boolean(str));
-        } else if (str.front() == '&') {
-            // binary
-            return boost::any(decode_binary(str));
-        } else if (str.front() == '"' && str.back() == '"') {
-            // string
-            return boost::any(decode_string(str));
-        } else if (str.front() == '[' && str.back() == ']') {
-            // sequence
-            return boost::any(decode_sequence(str));
-        } else if (str.front() == '{' && str.back() == '}') {
-            // tuple
-            return boost::any(decode_tuple(str));
-        } else if (boost::algorithm::all(str, boost::is_digit() || boost::is_any_of("-"))) {
-            // possibly integer
-            return boost::any(decode_integer(str));
-        } else {
-            // real
-            return boost::any(decode_real(str));
-        }
-    } catch (boost::bad_lexical_cast&) {}
-
-    throw wrong_type_error();
 }
 
 } // namespace decof

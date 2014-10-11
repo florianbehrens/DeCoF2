@@ -18,7 +18,7 @@
 
 #include "basic_parameter.h"
 #include "node.h"
-#include "string_codec.h"
+#include "string_encoder.h"
 
 namespace decof
 {
@@ -40,7 +40,7 @@ void textproto_visitor::visit(basic_parameter *param)
     write_indentation(ss_, param);
     if (param->parent() != nullptr)
         ss_ << ":";
-    ss_ << param->name() << " = " << string_codec::encode(param->any_value()) << std::endl;
+    ss_ << param->name() << " = " << string_encoder::encode(param->any_value()) << std::endl;
 }
 
 } // namespace decof

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef STRING_CODEC_H
-#define STRING_CODEC_H
+#ifndef STRING_ENCODER_H
+#define STRING_ENCODER_H
 
 #include <string>
 
@@ -27,13 +27,11 @@ class any;
 namespace decof
 {
 
-struct string_codec
+struct string_encoder
 {
-public:
     static std::string encode(const boost::any &any_value);
-    static boost::any decode(const std::string& cstr);
 };
 
 } // namespace decof
 
-#endif // STRING_CODEC_H
+#endif // STRING_ENCODER_H

@@ -31,7 +31,13 @@ public:
     virtual void preload() override final;
 
 private:
+    /** @brief boost::asio read handler.
+     * Parses and evaluates textproto client/server command lines. Expects
+     * command lines like: <operation> [ <uri> [ <value-string> ]].
+     * Operation must be one of: get, param-ref, set, param-set!, signal, exec,
+     * browse, param-disp. */
     void read_handler(const std::string &cstr);
+
     void disconnect_handler();
 };
 

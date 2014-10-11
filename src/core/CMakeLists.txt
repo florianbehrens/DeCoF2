@@ -1,0 +1,13 @@
+add_library(
+    decof2-core
+    client_context.cpp
+    event.cpp
+    exceptions.cpp
+    node.cpp
+    object.cpp
+    object_dictionary.cpp
+    object_visitor.cpp
+    regular_timer.cpp
+    tcp_connection.cpp
+    tcp_connection_manager.cpp
+)

@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) 2014 Florian Behrens
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// For debugging purposes
+%no-lines
+
+// Set namespace
+%namespace              decof
+
+// Set parser source file (default is parse.cc)
+%parsefun-source        parse.cpp
+
+// Set parser class name to 'parser'
+%class-name             parser
+
+// Add #include statement in parser class
+%baseclass-preinclude   "parser_includes.h"
+
+// Terminal token definition that are recognized by the lexer/scanner
+%token                  BOOLEAN INTEGER REAL STRING BINARY
+
+// Set polymorphic rules, i.e. rules return different types
+%polymorphic            ANY: boost::any; SEQ: std::vector<boost::any>;
+
+// Define rule return types
+%type                   <ANY> expression scalar
+%type                   <SEQ> opt_series series sequence tuple
+
+// Set start rule
+%start                  expression
+
+%%
+
+expression:
+    scalar
+    {
+        // Swap boost::any types $1 and result_
+        result_.swap($1);
+    }
+    | sequence
+    {
+        // Assign $1 of type std::vector<boost::any> to result_
+        result_ = $1;
+    }
+    | tuple
+    {
+        // Assign $1 of type std::vector<boost::any> to result_
+        result_ = $1;
+    }
+    ;
+
+scalar:
+    BOOLEAN
+    {
+        if (d_scanner.matched() == "#t") $$ = true; else $$ = false;
+    }
+    | INTEGER
+    {
+        // Convert matched string to integer type
+        $$ = static_cast<decof::integer>(std::stoi(d_scanner.matched()));
+    }
+    | REAL
+    {
+        // Convert matched string to double type
+        $$ = static_cast<decof::real>(std::stod(d_scanner.matched()));
+    }
+    | STRING
+    {
+        // Trim "" from matched string
+        const std::string &str = d_scanner.matched();
+        $$ = static_cast<decof::string>(str.substr(1, str.size() - 2));
+    }
+    | BINARY
+    {
+        // Decode matched string
+        $$ = base64decode(d_scanner.matched().substr(1));
+    }
+    ;
+
+opt_series:
+    /* empty */
+    {
+        // Some empty semantic action seems to be necessary...
+        $$;
+    }
+    | series
+    {
+        // Swap std::vector<boost::any> types $$ and $1
+        $<SEQ>$.swap($<SEQ>1);
+    }
+    ;
+
+series:
+    scalar
+    {
+        // Initialize std::vector<boost::any> with single element from scalar rule
+        $<SEQ>$.push_back($1);
+    }
+    | series ',' scalar
+    {
+        // Append boost::any $3 to std::vector<boost::any> $1 and return
+        $<SEQ>1.push_back($3);
+        $<SEQ>$.swap($<SEQ>1);
+    }
+    ;
+
+sequence:
+    '[' opt_series ']'
+    {
+        // Swap std::vector<boost::any> types $$ and $2
+        $<SEQ>$.swap($<SEQ>2);
+    }
+    ;
+
+tuple:
+    '{' opt_series '}'
+    {
+        // Swap std::vector<boost::any> types $$ and $2
+        $<SEQ>$.swap($<SEQ>2);
+    }
+    ;

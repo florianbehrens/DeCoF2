@@ -1,0 +1,7 @@
+# Flexc++ generated files
+scannerbase.h
+lex.cpp
+
+# Bisonc++ generated files
+parserbase.h
+parse.cpp

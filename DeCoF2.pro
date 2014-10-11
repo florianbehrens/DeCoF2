@@ -13,9 +13,11 @@ SOURCES += \
     src/core/object_dictionary.cpp \
     src/core/object_visitor.cpp \
     src/core/regular_timer.cpp \
-    src/core/string_codec.cpp \
     src/core/tcp_connection.cpp \
     src/core/tcp_connection_manager.cpp \
+    src/textproto/lex.cpp \
+    src/textproto/parse.cpp \
+    src/textproto/string_encoder.cpp \
     src/textproto/textproto_clisrv.cpp \
     src/textproto/textproto_pubsub.cpp \
     src/textproto/textproto_visitor.cpp \
@@ -47,9 +49,16 @@ HEADERS += \
     src/core/errors.h \
     src/core/object_visitor.h \
     src/core/regular_timer.h \
-    src/core/string_codec.h \
     src/core/tcp_connection.h \
     src/core/tcp_connection_manager.h \
+    src/textproto/parser.h \
+    src/textproto/parser.ih \
+    src/textproto/parserbase.h \
+    src/textproto/parser_includes.h \
+    src/textproto/scanner.h \
+    src/textproto/scanner.ih \
+    src/textproto/scannerbase.h \
+    src/textproto/string_encoder.h \
     src/textproto/textproto_clisrv.h \
     src/textproto/textproto_pubsub.h \
     src/textproto/textproto_visitor.h \
@@ -70,4 +79,6 @@ win32:INCLUDEPATH += $$PWD/../boost_1_54_0
 win32:DEPENDPATH += $$PWD/../boost_1_54_0
 
 OTHER_FILES += \
-    README.md
+    README.md \
+    src/textproto/grammar.bisonc++ \
+    src/textproto/scanner.flexc++

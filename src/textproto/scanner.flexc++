@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2014 Florian Behrens
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Set namespace
+%namespace decof
+
+// Set scanner source file (default is lex.cc)
+%lex-source "lex.cpp"
+
+// Set scanner class name to 'scanner'
+%class-name scanner
+
+%%
+// Boolean literal: '#t' or '#f'
+#t|#f           return parser::BOOLEAN;
+
+// Integer literal
+-?[0-9]+        return parser::INTEGER;
+
+// Floating point literal
+-?[0-9]*\.[0-9]*((e|E)-?[0-9]+)? return parser::REAL;
+
+// String literal
+\"[^"]*\"       return parser::STRING;
+
+// Binary literal starting with a '&'
+&[A-Za-z0-9+/=]* return parser::BINARY;
+
+// Ignore whitespace
+[[:blank:]]+    // ignore
+
+// Return all other characters as is
+.               return matched()[0];

@@ -20,7 +20,6 @@
 #include "basic_readwrite_parameter.h"
 #include "event.h"
 #include "node.h"
-#include "string_codec.h"
 
 namespace
 {
