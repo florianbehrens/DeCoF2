@@ -18,6 +18,7 @@
 
 #include "object_dictionary.h"
 #include "http_reply.h"
+#include "json_visitor.h"
 #include "request.hpp"
 #include "tcp_connection.h"
 #include "xml_visitor.h"
@@ -47,15 +48,24 @@ void webservice::read_handler(const std::string &cstr)
     else if (result == http::server::request_parser::good) {
         http_reply reply;
 
-        if(request.method == std::string("GET") && request.uri == std::string("/browse")) {
-            std::stringstream ss;
-            {
-                xml_visitor visitor(ss);
-                browse(&visitor);
-            }
-            reply.content(ss.str());
-        } else
-            reply = http_reply::stock_reply(http_reply::not_found);
+        if (request.method == std::string("GET")) {
+            if (request.uri == std::string("/browse-xml")) {
+                std::stringstream ss;
+                {
+                    xml_visitor visitor(ss);
+                    browse(&visitor);
+                }
+                reply.content(ss.str(), "text/xml");
+            } else if (request.uri == std::string("/browse-json")) {
+                std::stringstream ss;
+                {
+                    json_visitor visitor(ss);
+                    browse(&visitor);
+                }
+                reply.content(ss.str(), "application/json");
+            } else
+                reply = http_reply::stock_reply(http_reply::not_found);
+        }
 
         connection_->async_write(reply.to_string());
     }
