@@ -62,7 +62,7 @@ xml_visitor::~xml_visitor()
         auto node = node_stack_.top();
 
         if (node->parent() == nullptr)
-            ss_ << indentation() << "<module name=\"root\">\n";
+            ss_ << indentation() << "<module name=\"" << node->name() << "\">\n";
         else
             ss_ << indentation() << "<xtypedef name=\"" << node_type_str(node) << "\">\n";
 

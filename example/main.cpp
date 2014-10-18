@@ -104,7 +104,7 @@ private:
 //  | |-- tuple2: tuple<boolean, integer> (ro)
 //  |-- events: node (r)
 //    |-- exit: event
-decof::object_dictionary obj_dict;
+decof::object_dictionary obj_dict("example");
 my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
 decof::node current_context_node("current-context", &obj_dict);
 current_context_endpoint_parameter endpoint_param("endpoint", &current_context_node);

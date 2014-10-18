@@ -51,7 +51,11 @@ protected:
     void observe(const std::string& uri, object::signal_type::slot_type slot);
     void unobserve(const std::string& uri);
 
-    void browse(const std::string &root_uri, object_visitor *visitor);
+    /** @brief Traverse object tree using visitor pattern.
+     * @param visitor Pointer to visitor object.
+     * @param root_uri Root element to start browsing. If omitted browsing
+     * starts at root uri. */
+    void browse(object_visitor *visitor, const std::string &root_uri = std::string());
 
     object_dictionary& object_dictionary_;
     std::shared_ptr<connection> connection_;

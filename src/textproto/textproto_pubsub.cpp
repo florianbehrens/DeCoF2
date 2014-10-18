@@ -57,10 +57,6 @@ void textproto_pubsub::read_handler(const std::string &cstr)
         if (tokens[1][0] == '\'')
             tokens[1].erase(0, 1);
 
-        // Add optional 'root' parameter name base
-        if (tokens[1] != "root" && !boost::algorithm::starts_with(tokens[1], "root:"))
-            tokens[1] = std::string("root:") + tokens[1];
-
         if (tokens[0] == "subscribe" || tokens[0] == "add") {
             //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
             observe(tokens[1], std::bind(&textproto_pubsub::notify, this, std::placeholders::_1, std::placeholders::_2));
@@ -79,17 +75,13 @@ void textproto_pubsub::read_handler(const std::string &cstr)
 
 void textproto_pubsub::notify(const std::string &uri, const boost::any &any_value)
 {
-    // Strip 'root:' from uri
-    std::string uri_wo_root(uri);
-    boost::algorithm::erase_first(uri_wo_root, "root:");
-
     // Get current time in textual representation
     const size_t max_length = 25;
     char time_str[max_length];
     std::time_t now = std::time(nullptr);
     std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
 
-    connection_->async_write(std::string("(") + time_str + " '" + uri_wo_root + " " + string_encoder::encode(any_value) + ")\n");
+    connection_->async_write(std::string("(") + time_str + " '" + uri + " " + string_encoder::encode(any_value) + ")\n");
 }
 
 } // namespace decof

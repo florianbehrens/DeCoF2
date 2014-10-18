@@ -51,7 +51,7 @@ void webservice::read_handler(const std::string &cstr)
             std::stringstream ss;
             {
                 xml_visitor visitor(ss);
-                browse("root", &visitor);
+                browse(&visitor);
             }
             reply.content(ss.str());
         } else

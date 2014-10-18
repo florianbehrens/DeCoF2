@@ -34,8 +34,8 @@ object_dictionary::context_guard::~context_guard()
     object_dictionary_.set_current_context(nullptr);
 }
 
-object_dictionary::object_dictionary()
- : node("root", nullptr),
+object_dictionary::object_dictionary(const std::string &root_uri)
+ : node(root_uri, nullptr),
    fast_timer_(io_service_, std::chrono::milliseconds(50)),
    medium_timer_(io_service_, std::chrono::milliseconds(500)),
    slow_timer_(io_service_, std::chrono::milliseconds(5000))

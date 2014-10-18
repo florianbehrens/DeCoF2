@@ -104,11 +104,15 @@ void client_context::unobserve(const std::string &uri)
     }
 }
 
-void client_context::browse(const std::string &root_uri, object_visitor *visitor)
+void client_context::browse(object_visitor *visitor, const std::string &root_uri)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (object *te = object_dictionary_.find_object(root_uri)) {
+    std::string uri = root_uri;
+    if (uri.empty())
+        uri = object_dictionary_.name();
+
+    if (object *te = object_dictionary_.find_object(uri)) {
         // Recursively iterate over all objects beginning from root URI
         browse_object(te, visitor);
     } else

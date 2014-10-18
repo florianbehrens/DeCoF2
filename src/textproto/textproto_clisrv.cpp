@@ -65,15 +65,9 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     std::transform(op.begin(), op.end(), op.begin(), ::tolower);
     std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
 
-    if (!uri.empty()) {
-        // Remove optional "'" from parameter name
-        if (uri[0] == '\'')
+    // Remove optional "'" from parameter name
+    if (!uri.empty() && uri[0] == '\'')
             uri.erase(0, 1);
-
-        // Add optional 'root' parameter name base
-        if (uri != "root" && !boost::algorithm::starts_with(uri, "root:"))
-            uri = std::string("root:") + uri;
-    }
 
     // Parse optional value string using flexc++/bisonc++ parser
     boost::any any_value;
@@ -96,12 +90,12 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
             ss_out << "()\n";
         } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
             // This command is for compatibility reasons with legacy DeCoF
-            std::string root_uri("root");
+            std::string root_uri(object_dictionary_.name());
             if (!uri.empty())
                 root_uri = uri;
             std::stringstream temp_ss;
             textproto_visitor visitor(temp_ss);
-            browse(root_uri, &visitor);
+            browse(&visitor, root_uri);
             ss_out << temp_ss.str();
         } else
             throw parse_error();

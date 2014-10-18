@@ -50,7 +50,7 @@ public:
         const client_context* client_context_;
     };
 
-    object_dictionary();
+    object_dictionary(const std::string &root_uri = "root");
 
     regular_timer& get_fast_timer();
     regular_timer& get_medium_timer();
