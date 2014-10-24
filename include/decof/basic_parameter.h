@@ -23,7 +23,6 @@
 #include <boost/any.hpp>
 
 #include "object.h"
-#include "types.h"
 
 namespace decof
 {
