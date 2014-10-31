@@ -35,10 +35,7 @@ class object_dictionary;
 class object_visitor;
 class node;
 
-/** Abstract object class.
- *
- * @pattern Compositum.
- */
+/** @brief Abstract object class. */
 class object
 {
 public:

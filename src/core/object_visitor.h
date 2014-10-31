@@ -32,8 +32,9 @@ template<typename T>
 class typed_parameter;
 class object;
 
-/// Abstract object dictionary visitor class.
-/// @pattern Visitor
+/** @brief Abstract object dictionary visitor class.
+ * See the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor</a>
+ * pattern. */
 class object_visitor
 {
 public:
