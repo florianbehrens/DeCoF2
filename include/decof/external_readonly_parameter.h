@@ -53,11 +53,11 @@ public:
         connection_.disconnect();
     }
 
-    virtual T value() final {
+    virtual T value() override final {
         return get_external_value();
     }
 
-    virtual boost::signals2::connection observe(object::slot_type slot) noexcept override {
+    virtual boost::signals2::connection observe(object::slot_type slot) override {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)

@@ -36,7 +36,7 @@ private:
     /// Scalar and sequence types must be wrapped in a boost::any as they are.
     /// Tuple types must be dismantled and the individual elements wrapped in a
     /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
-    virtual void set_private_value(const boost::any& any_value)
+    virtual void set_private_value(const boost::any& any_value) override final
     {
         try {
             set_private_value(Conversion<T>::from_any(any_value));
@@ -54,7 +54,7 @@ class readwrite_parameter<std::vector<T>> : public basic_readwrite_parameter
 
 private:
     virtual void set_private_value(const std::vector<T> &value) = 0;
-    virtual void set_private_value(const boost::any& any_value)
+    virtual void set_private_value(const boost::any& any_value) override final
     {
         try {
             std::vector<boost::any> any_vector = boost::any_cast<std::vector<boost::any>>(any_value);

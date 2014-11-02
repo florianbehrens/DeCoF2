@@ -50,12 +50,12 @@ public:
         typed_parameter<T>(name, parent, readlevel, writelevel)
     {}
 
-    virtual T value() {
+    virtual T value() override final {
         return get_external_value();
     }
 
 private:
-    virtual void set_private_value(const T &value) final {
+    virtual void set_private_value(const T &value) override final {
         if (set_external_value(value) == true)
             typed_parameter<T>::signal(value);
     }

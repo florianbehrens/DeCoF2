@@ -63,7 +63,7 @@ public:
      : typed_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
-    virtual T value() {
+    virtual T value() override final {
         return value_;
     }
 
@@ -72,7 +72,7 @@ protected:
     {}
 
 private:
-    virtual void set_private_value(const T &value) final
+    virtual void set_private_value(const T &value) override final
     {
         if (value_ == value)
             return;

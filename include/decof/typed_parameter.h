@@ -44,7 +44,7 @@ public:
         return Conversion<T>::to_any(value());
     }
 
-    virtual boost::signals2::connection observe(object::slot_type slot) noexcept override {
+    virtual boost::signals2::connection observe(object::slot_type slot) override {
         boost::signals2::connection retval = signal_.connect(slot);
         signal(this->value());
         return retval;
