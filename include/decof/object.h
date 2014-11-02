@@ -35,7 +35,11 @@ class object_dictionary;
 class object_visitor;
 class node;
 
-/** @brief Abstract object class. */
+/** @brief Abstract object class.
+ * This is the base class of all objects in a DeCoF object tree. All objects
+ * have in common a short (#name) and fully qualified name (#fq_name), a parent
+ * (#parent, except the root object), and read (#readlevel) and write levels
+ * (#writelevel). */
 class object
 {
 public:
