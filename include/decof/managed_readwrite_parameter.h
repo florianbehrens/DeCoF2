@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "readwrite_parameter.h"
+#include "typed_client_write_interface.h"
 #include "typed_parameter.h"
 
 /// Convenience macro for parameter declaration
@@ -50,7 +50,7 @@ class managed_readonly_parameter;
  * - Copyconstructible
  */
 template<typename T>
-class managed_readwrite_parameter : public typed_parameter<T>, public readwrite_parameter<T>
+class managed_readwrite_parameter : public typed_parameter<T>, public typed_client_write_interface<T>
 {
     friend class managed_readonly_parameter<T>;
 
@@ -72,7 +72,7 @@ protected:
     {}
 
 private:
-    virtual void set_private_value(const T &value) override final
+    virtual void value(const T &value) override final
     {
         if (value_ == value)
             return;

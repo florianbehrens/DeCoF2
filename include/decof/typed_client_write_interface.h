@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef READWRITE_PARAMETER_H
-#define READWRITE_PARAMETER_H
+#ifndef DECOF_TYPED_CLIENT_WRITE_INTERFACE_H
+#define DECOF_TYPED_CLIENT_WRITE_INTERFACE_H
 
-#include "basic_readwrite_parameter.h"
+#include "client_write_interface.h"
 #include "conversion.h"
 #include "exceptions.h"
 
@@ -25,21 +25,14 @@ namespace decof
 {
 
 template<typename T>
-class readwrite_parameter : public basic_readwrite_parameter
+class typed_client_write_interface : public client_write_interface
 {
-    friend class client_context;
-
 private:
-    virtual void set_private_value(const T &value) = 0;
-
-    /// @brief Set value wrapped in a runtime dynamic type.
-    /// Scalar and sequence types must be wrapped in a boost::any as they are.
-    /// Tuple types must be dismantled and the individual elements wrapped in a
-    /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
-    virtual void set_private_value(const boost::any& any_value) override final
+    virtual void value(const T &value) = 0;
+    virtual void value(const boost::any& any_value) override final
     {
         try {
-            set_private_value(Conversion<T>::from_any(any_value));
+            value(Conversion<T>::from_any(any_value));
         } catch(boost::bad_any_cast&) {
             throw wrong_type_error();
         }
@@ -48,13 +41,13 @@ private:
 
 // Partial template specialization
 template<typename T>
-class readwrite_parameter<std::vector<T>> : public basic_readwrite_parameter
+class typed_client_write_interface<std::vector<T>> : public client_write_interface
 {
     friend class client_context;
 
 private:
-    virtual void set_private_value(const std::vector<T> &value) = 0;
-    virtual void set_private_value(const boost::any& any_value) override final
+    virtual void value(const std::vector<T> &value) = 0;
+    virtual void value(const boost::any& any_value) override final
     {
         try {
             std::vector<boost::any> any_vector = boost::any_cast<std::vector<boost::any>>(any_value);
@@ -62,7 +55,7 @@ private:
             new_value.reserve(any_vector.size());
             for (auto elem : any_vector)
                 new_value.push_back(boost::any_cast<T>(elem));
-            set_private_value(new_value);
+            value(new_value);
         } catch(boost::bad_any_cast&) {
             throw wrong_type_error();
         }
@@ -71,4 +64,4 @@ private:
 
 } // namespace decof
 
-#endif // READWRITE_PARAMETER_H
+#endif // DECOF_TYPED_CLIENT_WRITE_INTERFACE_H
