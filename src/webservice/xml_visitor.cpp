@@ -17,7 +17,7 @@
 #include "xml_visitor.h"
 
 #include "basic_parameter.h"
-#include "basic_readwrite_parameter.h"
+#include "client_write_interface.h"
 #include "event.h"
 #include "node.h"
 
@@ -157,7 +157,7 @@ void xml_visitor::visit(typed_parameter<binary_seq> *param)
 void xml_visitor::write_param(basic_parameter *param, const std::string &type_str)
 {
     if (!first_pass_) {
-        bool readonly = (dynamic_cast<basic_readwrite_parameter*>(param) == nullptr);
+        bool readonly = (dynamic_cast<client_write_interface*>(param) == nullptr);
         bool node = (dynamic_cast<decof::node*>(param) != nullptr);
 
         ss_ << indentation() << "<param name=\"" << param->name() << "\" "

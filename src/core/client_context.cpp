@@ -16,7 +16,7 @@
 
 #include "client_context.h"
 
-#include "basic_readwrite_parameter.h"
+#include "client_write_interface.h"
 #include "connection.h"
 #include "event.h"
 #include "exceptions.h"
@@ -46,8 +46,8 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 
     object *te = object_dictionary_.find_object(uri);
     if (te != nullptr && userlevel_ >= te->writelevel()) {
-        if (basic_readwrite_parameter* parameter = dynamic_cast<basic_readwrite_parameter*>(te))
-            parameter->set_private_value(any_value);
+        if (client_write_interface* parameter = dynamic_cast<client_write_interface*>(te))
+            parameter->value(any_value);
         else
             throw access_denied_error();
     } else

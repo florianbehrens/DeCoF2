@@ -17,7 +17,7 @@
 #include "json_visitor.h"
 
 #include "basic_parameter.h"
-#include "basic_readwrite_parameter.h"
+#include "client_write_interface.h"
 #include "event.h"
 #include "node.h"
 
