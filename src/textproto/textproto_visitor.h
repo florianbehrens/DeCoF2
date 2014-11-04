@@ -32,7 +32,7 @@ public:
     explicit textproto_visitor(std::stringstream &ss);
 
     virtual void visit(node *node) override;
-    virtual void visit(basic_parameter *param) override;
+    virtual void visit(object *obj) override;
 
 private:
     std::stringstream &ss_;

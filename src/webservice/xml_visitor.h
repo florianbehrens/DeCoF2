@@ -32,7 +32,7 @@ public:
 
     virtual void visit(event *ev) override;
     virtual void visit(node *node) override;
-    virtual void visit(basic_parameter*) override;
+    virtual void visit(object*) override;
     virtual void visit(typed_parameter<boolean> *param) override;
     virtual void visit(typed_parameter<integer> *param) override;
     virtual void visit(typed_parameter<real> *param) override;
@@ -45,7 +45,7 @@ public:
     virtual void visit(typed_parameter<binary_seq> *param) override;
 
 private:
-    void write_param(basic_parameter *param, const std::string &type_str);
+    void write_param(object *obj, const std::string &type_str);
 
     std::stringstream &ss_;
     std::stack<node*> node_stack_;

@@ -14,33 +14,28 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_BASIC_PARAMETER_H
-#define DECOF_BASIC_PARAMETER_H
-
-#include <vector>
-#include <string>
+#ifndef DECOF_CLIENT_READ_INTERFACE_H
+#define DECOF_CLIENT_READ_INTERFACE_H
 
 #include <boost/any.hpp>
-
-#include "object.h"
+#include <boost/signals2.hpp>
 
 namespace decof
 {
 
-class basic_parameter : public object
+class client_read_interface
 {
 public:
+    typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
+    typedef signal_type::slot_type slot_type;
+
     // Provides the value as runtime-generic type.
     virtual boost::any any_value() = 0;
 
     // Observe parameter value.
     virtual boost::signals2::connection observe(slot_type slot) = 0;
-
-protected:
-    // We inherit base class constructors
-    using object::object;
 };
 
 } // namespace decof
 
-#endif // DECOF_BASIC_PARAMETER_H
+#endif // DECOF_CLIENT_READ_INTERFACE_H

@@ -59,8 +59,9 @@ boost::any client_context::get_parameter(const std::string &uri)
     boost::any retval;
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri));
-    if (param != nullptr && userlevel_ >= param->readlevel())
+    object *obj = object_dictionary_.find_object(uri);
+    client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
+    if (param != nullptr && userlevel_ >= obj->readlevel())
         retval = param->any_value();
     else
         throw invalid_parameter_error();
@@ -82,11 +83,11 @@ void client_context::signal_event(const std::string &uri)
         throw invalid_parameter_error();
 }
 
-void client_context::observe(const std::string &uri, object::signal_type::slot_type slot)
+void client_context::observe(const std::string &uri, client_read_interface::signal_type::slot_type slot)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (basic_parameter* param = dynamic_cast<basic_parameter*>(object_dictionary_.find_object(uri))) {
+    if (client_read_interface* param = dynamic_cast<client_read_interface*>(object_dictionary_.find_object(uri))) {
         if (observables_.count(uri) == 0) {
             boost::signals2::connection connection = param->observe(slot);
             observables_.emplace(uri, connection);

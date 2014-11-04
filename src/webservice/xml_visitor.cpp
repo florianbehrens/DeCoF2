@@ -16,7 +16,6 @@
 
 #include "xml_visitor.h"
 
-#include "basic_parameter.h"
 #include "client_write_interface.h"
 #include "event.h"
 #include "node.h"
@@ -101,7 +100,7 @@ void xml_visitor::visit(node *node)
         write_param(node, node_type_str(node));
 }
 
-void xml_visitor::visit(basic_parameter*)
+void xml_visitor::visit(object*)
 {}
 
 void xml_visitor::visit(typed_parameter<boolean> *param)
@@ -154,16 +153,16 @@ void xml_visitor::visit(typed_parameter<binary_seq> *param)
     write_param(param, "BINARY_SEQ");
 }
 
-void xml_visitor::write_param(basic_parameter *param, const std::string &type_str)
+void xml_visitor::write_param(object *obj, const std::string &type_str)
 {
     if (!first_pass_) {
-        bool readonly = (dynamic_cast<client_write_interface*>(param) == nullptr);
-        bool node = (dynamic_cast<decof::node*>(param) != nullptr);
+        bool readonly = (dynamic_cast<client_write_interface*>(obj) == nullptr);
+        bool node = (dynamic_cast<decof::node*>(obj) != nullptr);
 
-        ss_ << indentation() << "<param name=\"" << param->name() << "\" "
+        ss_ << indentation() << "<param name=\"" << obj->name() << "\" "
             << "type=\"" << type_str << "\""
             << (node ? "" : std::string(" mode=\"") + (readonly ? "readonly" : "readwrite") + "\"")
-            << (readonly ? "" : std::string(" readlevel=\"") + userlevel_names[param->readlevel()] + "\" " + "writelevel=\"" + userlevel_names[param->writelevel()] + "\"")
+            << (readonly ? "" : std::string(" readlevel=\"") + userlevel_names[obj->readlevel()] + "\" " + "writelevel=\"" + userlevel_names[obj->writelevel()] + "\"")
             << "><description> </description></param>\n";
     }
 }

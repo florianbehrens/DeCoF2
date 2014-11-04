@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef EXTERNAL_READONLY_PARAMETER_H
-#define EXTERNAL_READONLY_PARAMETER_H
+#ifndef DECOF_EXTERNAL_READONLY_PARAMETER_H
+#define DECOF_EXTERNAL_READONLY_PARAMETER_H
 
 #include <string>
 
@@ -57,7 +57,7 @@ public:
         return get_external_value();
     }
 
-    virtual boost::signals2::connection observe(object::slot_type slot) override {
+    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
@@ -88,4 +88,4 @@ private:
 
 } // namespace decof
 
-#endif // EXTERNAL_READONLY_PARAMETER_H
+#endif // DECOF_EXTERNAL_READONLY_PARAMETER_H

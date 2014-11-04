@@ -19,21 +19,16 @@
 
 #include <string>
 
-#include <boost/signals2.hpp>
+#include <boost/any.hpp>
 
 #include "userlevel.h"
-
-// Forward declarations
-namespace boost {
-class any;
-}
 
 namespace decof
 {
 
+class node;
 class object_dictionary;
 class object_visitor;
-class node;
 
 /** @brief Abstract object class.
  * This is the base class of all objects in a DeCoF object tree. All objects
@@ -43,9 +38,6 @@ class node;
 class object
 {
 public:
-    typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
-    typedef signal_type::slot_type slot_type;
-
     object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
 

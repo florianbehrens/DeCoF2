@@ -31,52 +31,52 @@ void object_visitor::visit(node*)
 
 void object_visitor::visit(typed_parameter<boolean> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<integer> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<real> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<string> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<binary> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<boolean_seq> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<integer_seq> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<real_seq> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<string_seq> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::visit(typed_parameter<binary_seq> *param)
 {
-    visit(static_cast<basic_parameter*>(param));
+    visit(static_cast<object*>(param));
 }
 
 void object_visitor::write_indentation(std::stringstream& ss, const object *te)

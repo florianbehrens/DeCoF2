@@ -25,7 +25,7 @@ namespace decof
 {
 
 // Forward declarations
-class basic_parameter;
+class client_read_interface;
 class event;
 class node;
 template<typename T>
@@ -40,7 +40,7 @@ class object_visitor
 public:
     virtual void visit(event*);
     virtual void visit(node*);
-    virtual void visit(basic_parameter*) = 0;
+    virtual void visit(object*) = 0;
     virtual void visit(typed_parameter<boolean> *param);
     virtual void visit(typed_parameter<integer> *param);
     virtual void visit(typed_parameter<real> *param);

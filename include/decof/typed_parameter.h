@@ -17,34 +17,21 @@
 #ifndef DECOF_TYPED_PARAMETER_H
 #define DECOF_TYPED_PARAMETER_H
 
-#include "basic_parameter.h"
+#include "typed_client_read_interface.h"
 #include "conversion.h"
+#include "object.h"
 #include "object_visitor.h"
 
 namespace decof
 {
 
 template<typename T>
-class typed_parameter : public basic_parameter
+class typed_parameter : public object, public typed_client_read_interface<T>
 {
 public:
     typedef T value_type;
 
-    /// @note This method is not const because external parameters might need to
-    /// alter state, e.g., when reading the value from a file.
-    /// Another possible solution could be to make those state holding members
-    /// mutable.
-    virtual T value() = 0;
-
-    /// @brief Return value as runtime dynamic type.
-    /// Scalar and sequence types are wrapped in a boost::any as they are.
-    /// Tuple types are dismantled and the individual elements wrapped in a
-    /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
-    virtual boost::any any_value() override final {
-        return Conversion<T>::to_any(value());
-    }
-
-    virtual boost::signals2::connection observe(object::slot_type slot) override {
+    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
         boost::signals2::connection retval = signal_.connect(slot);
         signal(this->value());
         return retval;
@@ -57,14 +44,14 @@ public:
 
 protected:
     // We inherit base class constructors
-    using basic_parameter::basic_parameter;
+    using object::object;
 
     void signal(const T& value) {
         signal_(this->fq_name(), boost::any(value));
     }
 
 private:
-    object::signal_type signal_;
+    client_read_interface::signal_type signal_;
 };
 
 } // namespace decof

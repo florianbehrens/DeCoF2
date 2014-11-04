@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef CLIENT_CONTEXT_H
-#define CLIENT_CONTEXT_H
+#ifndef DECOF_CLIENT_CONTEXT_H
+#define DECOF_CLIENT_CONTEXT_H
 
 #include <map>
 #include <memory>
 
-#include "object.h"
+#include <boost/any.hpp>
+#include <boost/signals2.hpp>
+
+#include "client_read_interface.h"
+#include "userlevel.h"
 
 namespace decof
 {
 
 class connection;
+class object;
 class object_dictionary;
 class object_visitor;
 
@@ -48,7 +53,7 @@ protected:
 
     void signal_event(const std::string &uri);
 
-    void observe(const std::string& uri, object::signal_type::slot_type slot);
+    void observe(const std::string& uri, client_read_interface::signal_type::slot_type slot);
     void unobserve(const std::string& uri);
 
     /** @brief Traverse object tree using visitor pattern.
@@ -69,4 +74,4 @@ private:
 
 } // namespace decof
 
-#endif // CLIENT_CONTEXT_H
+#endif // DECOF_CLIENT_CONTEXT_H

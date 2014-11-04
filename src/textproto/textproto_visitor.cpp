@@ -16,7 +16,6 @@
 
 #include "textproto_visitor.h"
 
-#include "basic_parameter.h"
 #include "node.h"
 #include "string_encoder.h"
 
@@ -35,12 +34,15 @@ void textproto_visitor::visit(node *node)
     ss_ << node->name() << std::endl;
 }
 
-void textproto_visitor::visit(basic_parameter *param)
+void textproto_visitor::visit(object *obj)
 {
-    write_indentation(ss_, param);
-    if (param->parent() != nullptr)
-        ss_ << ":";
-    ss_ << param->name() << " = " << string_encoder::encode(param->any_value()) << std::endl;
+    client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
+    if (read_if) {
+        write_indentation(ss_, obj);
+        if (obj->parent() != nullptr)
+            ss_ << ":";
+        ss_ << obj->name() << " = " << string_encoder::encode(read_if->any_value()) << std::endl;
+    }
 }
 
 } // namespace decof

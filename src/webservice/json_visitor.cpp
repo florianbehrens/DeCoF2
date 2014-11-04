@@ -16,8 +16,6 @@
 
 #include "json_visitor.h"
 
-#include "basic_parameter.h"
-#include "client_write_interface.h"
 #include "event.h"
 #include "node.h"
 
@@ -48,9 +46,9 @@ void json_visitor::visit(node *node)
     increment_indentation();
 }
 
-void json_visitor::visit(basic_parameter *param)
+void json_visitor::visit(object *obj)
 {
-    write_param(param, "UNKNOWN");
+    write_param(obj, "UNKNOWN");
 }
 
 void json_visitor::visit(typed_parameter<boolean> *param)
@@ -112,9 +110,9 @@ void json_visitor::check_indentation(object *obj)
     }
 }
 
-void json_visitor::write_param(basic_parameter *param, const std::string &type_str)
+void json_visitor::write_param(object *obj, const std::string &type_str)
 {
-    ss_ << indentation() << "\"" << param->name() << "\": \"" << type_str << "\"\n";
+    ss_ << indentation() << "\"" << obj->name() << "\": \"" << type_str << "\"\n";
 }
 
 } // namespace decof
