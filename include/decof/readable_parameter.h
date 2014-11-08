@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_TYPED_PARAMETER_H
-#define DECOF_TYPED_PARAMETER_H
+#ifndef DECOF_READABLE_PARAMETER_H
+#define DECOF_READABLE_PARAMETER_H
 
-#include "typed_client_read_interface.h"
+#include "basic_parameter.h"
 #include "conversion.h"
-#include "object.h"
 #include "object_visitor.h"
+#include "typed_client_read_interface.h"
 
 namespace decof
 {
 
 template<typename T>
-class typed_parameter : public object, public typed_client_read_interface<T>
+class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
 {
 public:
-    typedef T value_type;
-
     virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
         boost::signals2::connection retval = signal_.connect(slot);
         signal(this->value());
@@ -44,7 +42,7 @@ public:
 
 protected:
     // We inherit base class constructors
-    using object::object;
+    using basic_parameter<T>::basic_parameter;
 
     void signal(const T& value) {
         signal_(this->fq_name(), boost::any(value));
@@ -56,4 +54,4 @@ private:
 
 } // namespace decof
 
-#endif // DECOF_TYPED_PARAMETER_H
+#endif // DECOF_READABLE_PARAMETER_H

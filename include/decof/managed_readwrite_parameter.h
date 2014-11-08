@@ -20,8 +20,8 @@
 #include <string>
 #include <vector>
 
+#include "readable_parameter.h"
 #include "typed_client_write_interface.h"
-#include "typed_parameter.h"
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)      \
@@ -50,17 +50,17 @@ class managed_readonly_parameter;
  * - Copyconstructible
  */
 template<typename T>
-class managed_readwrite_parameter : public typed_parameter<T>, public typed_client_write_interface<T>
+class managed_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
 {
     friend class managed_readonly_parameter<T>;
 
 public:
     managed_readwrite_parameter(std::string name, node *parent, const T &value)
-     : typed_parameter<T>(name, parent, Readonly, Normal), value_(value)
+     : readable_parameter<T>(name, parent, Readonly, Normal), value_(value)
     {}
 
     managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal, const T &value = T())
-     : typed_parameter<T>(name, parent, readlevel, writelevel), value_(value)
+     : readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
     virtual T value() override final {
@@ -79,7 +79,7 @@ private:
 
         verify(value);
         value_ = value;
-        typed_parameter<T>::signal(value);
+        readable_parameter<T>::signal(value);
     }
 
     T value_;

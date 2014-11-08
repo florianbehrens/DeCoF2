@@ -53,7 +53,7 @@ public:
     {
         if (managed_readwrite_parameter<T>::value_ != value) {
             managed_readwrite_parameter<T>::value_ = value;
-            typed_parameter<T>::signal(value);
+            readable_parameter<T>::signal(value);
         }
     }
 };

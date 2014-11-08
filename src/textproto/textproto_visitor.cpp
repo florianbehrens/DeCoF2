@@ -37,12 +37,13 @@ void textproto_visitor::visit(node *node)
 void textproto_visitor::visit(object *obj)
 {
     client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
-    if (read_if) {
-        write_indentation(ss_, obj);
-        if (obj->parent() != nullptr)
-            ss_ << ":";
-        ss_ << obj->name() << " = " << string_encoder::encode(read_if->any_value()) << std::endl;
-    }
+
+    write_indentation(ss_, obj);
+
+    ss_ << (obj->parent() != nullptr ? ":" : "" )
+        << obj->name()
+        << (read_if ? std::string(" = ") + string_encoder::encode(read_if->any_value()) : "")
+        << std::endl;
 }
 
 } // namespace decof

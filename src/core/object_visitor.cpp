@@ -18,63 +18,67 @@
 
 #include "event.h"
 #include "node.h"
-#include "typed_parameter.h"
+#include "basic_parameter.h"
 
 namespace decof
 {
 
-void object_visitor::visit(event*)
-{}
+void object_visitor::visit(event *event)
+{
+    visit(static_cast<object*>(event));
+}
 
-void object_visitor::visit(node*)
-{}
+void object_visitor::visit(node *node)
+{
+    visit(static_cast<object*>(node));
+}
 
-void object_visitor::visit(typed_parameter<boolean> *param)
+void object_visitor::visit(basic_parameter<boolean> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<integer> *param)
+void object_visitor::visit(basic_parameter<integer> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<real> *param)
+void object_visitor::visit(basic_parameter<real> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<string> *param)
+void object_visitor::visit(basic_parameter<string> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<binary> *param)
+void object_visitor::visit(basic_parameter<binary> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<boolean_seq> *param)
+void object_visitor::visit(basic_parameter<boolean_seq> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<integer_seq> *param)
+void object_visitor::visit(basic_parameter<integer_seq> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<real_seq> *param)
+void object_visitor::visit(basic_parameter<real_seq> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<string_seq> *param)
+void object_visitor::visit(basic_parameter<string_seq> *param)
 {
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(typed_parameter<binary_seq> *param)
+void object_visitor::visit(basic_parameter<binary_seq> *param)
 {
     visit(static_cast<object*>(param));
 }

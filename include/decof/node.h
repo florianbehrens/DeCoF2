@@ -22,13 +22,13 @@
 #include <string>
 #include <vector>
 
-#include "typed_parameter.h"
+#include "readable_parameter.h"
 #include "types.h"
 
 namespace decof
 {
 
-class node : public typed_parameter<string_seq>
+class node : public readable_parameter<string_seq>
 {
 public:
     typedef std::list<object*> children_t;

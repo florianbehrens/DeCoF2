@@ -103,52 +103,52 @@ void xml_visitor::visit(node *node)
 void xml_visitor::visit(object*)
 {}
 
-void xml_visitor::visit(typed_parameter<boolean> *param)
+void xml_visitor::visit(basic_parameter<boolean> *param)
 {
     write_param(param, "BOOLEAN");
 }
 
-void xml_visitor::visit(typed_parameter<integer> *param)
+void xml_visitor::visit(basic_parameter<integer> *param)
 {
     write_param(param, "INTEGER");
 }
 
-void xml_visitor::visit(typed_parameter<real> *param)
+void xml_visitor::visit(basic_parameter<real> *param)
 {
     write_param(param, "REAL");
 }
 
-void xml_visitor::visit(typed_parameter<string> *param)
+void xml_visitor::visit(basic_parameter<string> *param)
 {
     write_param(param, "STRING");
 }
 
-void xml_visitor::visit(typed_parameter<binary> *param)
+void xml_visitor::visit(basic_parameter<binary> *param)
 {
     write_param(param, "BINARY");
 }
 
-void xml_visitor::visit(typed_parameter<boolean_seq> *param)
+void xml_visitor::visit(basic_parameter<boolean_seq> *param)
 {
     write_param(param, "BOOLEAN_SEQ");
 }
 
-void xml_visitor::visit(typed_parameter<integer_seq> *param)
+void xml_visitor::visit(basic_parameter<integer_seq> *param)
 {
     write_param(param, "INTEGER_SEQ");
 }
 
-void xml_visitor::visit(typed_parameter<real_seq> *param)
+void xml_visitor::visit(basic_parameter<real_seq> *param)
 {
     write_param(param, "REAL_SEQ");
 }
 
-void xml_visitor::visit(typed_parameter<string_seq> *param)
+void xml_visitor::visit(basic_parameter<string_seq> *param)
 {
     write_param(param, "STRING_SEQ");
 }
 
-void xml_visitor::visit(typed_parameter<binary_seq> *param)
+void xml_visitor::visit(basic_parameter<binary_seq> *param)
 {
     write_param(param, "BINARY_SEQ");
 }

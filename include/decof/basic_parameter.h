@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_H
-#define DECOF_H
+#ifndef DECOF_BASIC_PARAMETER_H
+#define DECOF_BASIC_PARAMETER_H
 
-#include "decof/event.h"
-#include "decof/exceptions.h"
-#include "decof/external_readonly_parameter.h"
-#include "decof/external_readwrite_parameter.h"
-#include "decof/object.h"
-#include "decof/object_dictionary.h"
-#include "decof/managed_readwrite_parameter.h"
-#include "decof/managed_readonly_parameter.h"
-#include "decof/types.h"
-#include "decof/writeonly_parameter.h"
+#include "object.h"
 
-#endif // DECOF_H
+namespace decof
+{
+
+/** @brief Basic parameter type.
+ *
+ * A @a basic_parameter adds to the #object class the concept of a parameter
+ * value of a certain type. It does not contain any accessing functions. */
+template<typename T>
+class basic_parameter : public object
+{
+public:
+    typedef T value_type;
+
+protected:
+    // We inherit base class constructors
+    using object::object;
+};
+
+} // namespace decof
+
+#endif // DECOF_BASIC_PARAMETER_H

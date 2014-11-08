@@ -21,6 +21,9 @@ DECOF_DECLARE_MANAGED_READONLY_PARAMETER(my_managed_readonly_parameter, decof::s
 DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(current_context_endpoint_parameter, decof::string);
 DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(time_parameter, decof::string);
 DECOF_DECLARE_EVENT(exit_event);
+DECOF_DECLARE_WRITEONLY_PARAMETER(cout_parameter, decof::string);
+typedef decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary> cout_tuple_parameter_type;
+DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_type);
 
 void my_managed_readwrite_parameter::verify(const decof::string& value)
 {
@@ -53,6 +56,20 @@ decof::string time_parameter::get_external_value()
 void exit_event::signal()
 {
     get_object_dictionary()->get_io_service().stop();
+}
+
+void cout_parameter::value(const decof::string &value)
+{
+    std::cout << value << std::endl;
+}
+
+void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
+{
+    std::cout << "Boolean value: " << std::get<0>(value) << std::endl
+              << "Integer value: " << std::get<1>(value) << std::endl
+              << "Real value: " << std::get<2>(value) << std::endl
+              << "String value: " << std::get<3>(value) << std::endl
+              << "Binary value: " << std::get<4>(value) << std::endl;
 }
 
 struct ip_address_parameter : public decof::external_readwrite_parameter<decof::string>
@@ -103,7 +120,11 @@ private:
 //  |-- tuples: node (r)
 //  | |-- tuple2: tuple<boolean, integer> (ro)
 //  |-- events: node (r)
-//    |-- exit: event
+//  | |-- exit: event
+//  |-- writeonly: node (r)
+//  | |-- string: string (w)
+//  | |-- tuple: tuple (w)
+
 decof::object_dictionary obj_dict("example");
 my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
 decof::node current_context_node("current-context", &obj_dict);
@@ -127,6 +148,9 @@ decof::node tuples_node("tuples", &obj_dict);
 decof::managed_readwrite_parameter<decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary>> scalar_tuple("scalar_tuple", &tuples_node);
 decof::node events_node("events", &obj_dict);
 exit_event exit_ev("exit", &events_node);
+decof::node writeonly_node("writeonly", &obj_dict);
+cout_parameter cout_param("string", &writeonly_node);
+cout_tuple_parameter cout_tuple_param("tuple", &writeonly_node);
 
 } // Anonymous namespace
 
@@ -138,6 +162,7 @@ int main()
     std::cout << "sizeof(managed_readwrite_parameter<decof::integer>) = " << sizeof(decof::managed_readwrite_parameter<decof::integer>) << std::endl;
     std::cout << "sizeof(external_readonly_parameter<decof::integer>) = " << sizeof(decof::external_readonly_parameter<decof::integer>) << std::endl;
     std::cout << "sizeof(external_readwrite_parameter<decof::integer>) = " << sizeof(decof::external_readwrite_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(writeonly_parameter<decof::integer>) = " << sizeof(decof::writeonly_parameter<decof::integer>) << std::endl;
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;

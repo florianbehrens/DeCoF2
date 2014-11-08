@@ -35,11 +35,11 @@ not finally defined by DeCoF but some useful implementations are provided.
 Objects are organized in a hierarchic tree structure. Each object has a name
 and exactly one parent object except the 'root' object.
 
-Only *node* objects can hold child objects. *Parameters* have a value of a 
-given, fixed value type. *Events* are objects without value but can be used to
-signal some event.
+Only *node* objects can hold child objects. *Parameters* are associated a value 
+of a given, fixed value type. *Events* are objects without value but can be used 
+to signal some event.
 
-Parameters can hold values of the following builtin value types:
+Parameters values can be of one of the following builtin value types:
 
 * boolean
 * integer
@@ -52,17 +52,20 @@ Parameters can hold values of the following builtin value types:
 A node is a special parameter with value type sequence of strings that holds 
 the names of its child parameters.
 
-Parameter's values can be either readwrite or readonly. I.e., they may either
-be modified by the server implementation (readonly parameters) or by a client
-(readwrite parameters). It is not possible (or at least conceptually not
-allowed) to alter readwrite parameters by the server implementation.
+From the client's perspective, parameter values can be either readonly, 
+writeonly, or readwrite. For readwrite parameters there is a special rule: Since 
+those are for modification of the client side the framework does not support 
+modification by the server implementation.
 
 ### Access control
 
 Two *userlevel* are assigned to each object which are used for access control. 
-One userlevel - the *readlevel* - is used for modifying operations (i.e., 
-setting a parameter value or signalling an event) and the other one - the 
-*writelevel* - is used for non-modifying operations.
+The *writelevel* is used for modifying operations (i.e., setting a parameter 
+value or signalling an event) and the *readlevel* is used for non-modifying 
+operations.
+
+Readonly parameters obviously only have a *readlevel*, while writeonly 
+parameters only have a *writelevel*.
 
 The following userlevels are supported:
 
