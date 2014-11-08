@@ -77,8 +77,8 @@ The semantics of the various userlevels are project specific.
 ### Object dictionary
 
 The *object dictionary* is the container of all parameter instances. The object
-dictionary itself is a node. It has the name 'root'. All parameters are
-children or successors of the root parameter.
+dictionary itself is a node with an implementation specific name. All parameters 
+are children or successors of the root parameter.
 
 ### Interaction models
 
