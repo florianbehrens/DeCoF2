@@ -16,11 +16,15 @@
 
 #include "webservice.h"
 
+#include <boost/algorithm/string.hpp>
+
+#include "exceptions.h"
 #include "object_dictionary.h"
 #include "http_reply.h"
 #include "json_visitor.h"
 #include "request.hpp"
 #include "tcp_connection.h"
+#include "webservice_encoder.h"
 #include "xml_visitor.h"
 
 namespace decof
@@ -63,8 +67,16 @@ void webservice::read_handler(const std::string &cstr)
                     browse(&visitor);
                 }
                 reply.content(ss.str(), "application/json");
-            } else
-                reply = http_reply::stock_reply(http_reply::not_found);
+            } else {
+                try {
+                    boost::any any_value = get_parameter(request.uri, '/');
+                    reply.content(webservice_encoder::encode(any_value), "text/plain");
+                } catch (access_denied_error&) {
+                    reply = http_reply::stock_reply(http_reply::unauthorized);
+                } catch (...) {
+                    reply = http_reply::stock_reply(http_reply::not_found);
+                }
+            }
         }
 
         connection_->async_write(reply.to_string());

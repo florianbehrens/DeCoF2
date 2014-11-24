@@ -157,14 +157,32 @@ void xml_visitor::write_param(object *obj, const std::string &type_str)
 {
     if (!first_pass_) {
         bool readonly = (dynamic_cast<client_write_interface*>(obj) == nullptr);
-        bool node = (dynamic_cast<decof::node*>(obj) != nullptr);
 
-        ss_ << indentation() << "<param name=\"" << obj->name() << "\" "
-            << "type=\"" << type_str << "\""
-            << (node ? "" : std::string(" mode=\"") + (readonly ? "readonly" : "readwrite") + "\"")
-            << (readonly ? "" : std::string(" readlevel=\"") + userlevel_names[obj->readlevel()] + "\" " + "writelevel=\"" + userlevel_names[obj->writelevel()] + "\"")
-            << "><description> </description></param>\n";
+        ss_ << indentation() << "<param name=\"" << obj->name() << "\" " << "type=\"" << type_str << "\"";
+
+        if (dynamic_cast<decof::node*>(obj) == nullptr) {
+            ss_ << std::string(" mode=\"");
+
+            if (readonly)
+                ss_ << "readonly";
+            else
+                ss_ << "readwrite";
+
+            ss_ << "\"";
+        }
+
+        if (readonly == false)
+            ss_ << " readlevel=\"" << userlevel_name(obj->readlevel()) << "\" writelevel=\"" << userlevel_name(obj->writelevel()) << "\"";
+
+        ss_ << "><description> </description></param>\n";
     }
+}
+
+std::string xml_visitor::userlevel_name(userlevel_t ul) const
+{
+    if (ul < sizeof(userlevel_names) / sizeof(std::string))
+        return userlevel_names[ul];
+    return "Invalid";
 }
 
 } // namespace decof

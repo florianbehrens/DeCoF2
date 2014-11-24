@@ -77,12 +77,12 @@ object *node::find_immediate_child(const std::string &name)
     return nullptr;
 }
 
-object *node::find_child(const std::string &uri)
+object *node::find_child(const std::string &uri, char separator)
 {
     if (uri.empty())
         return this;
 
-    std::string::size_type idx = uri.find(':');
+    std::string::size_type idx = uri.find(separator);
     std::string child_name = uri.substr(0, idx);
     std::string sub_uri;
 

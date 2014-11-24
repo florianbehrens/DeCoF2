@@ -63,7 +63,7 @@ public:
     const std::shared_ptr<client_context> current_context() const;
 
 private:
-    object* find_object(const std::string &uri);
+    object* find_object(const std::string &curi, char separator = ':');
 
     void set_current_context(client_context* client_context);
 

@@ -27,10 +27,10 @@ add_library(
     parser.h
     parser.ih
     parser_includes.h
-    string_encoder.cpp
-    string_encoder.h
     textproto_clisrv.cpp
     textproto_clisrv.h
+    textproto_encoder.cpp
+    textproto_encoder.h
     textproto_pubsub.cpp
     textproto_pubsub.h
     textproto_visitor.cpp

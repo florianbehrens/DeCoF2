@@ -17,7 +17,7 @@
 #include "textproto_visitor.h"
 
 #include "node.h"
-#include "string_encoder.h"
+#include "textproto_encoder.h"
 
 namespace decof
 {
@@ -42,7 +42,7 @@ void textproto_visitor::visit(object *obj)
 
     ss_ << (obj->parent() != nullptr ? ":" : "" )
         << obj->name()
-        << (read_if ? std::string(" = ") + string_encoder::encode(read_if->any_value()) : "")
+        << (read_if ? std::string(" = ") + textproto_encoder::encode(read_if->any_value()) : "")
         << std::endl;
 }
 

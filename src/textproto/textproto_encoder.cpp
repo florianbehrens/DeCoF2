@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "string_encoder.h"
+#include "textproto_encoder.h"
 
 #include <boost/any.hpp>
 #include <boost/algorithm/string.hpp>
@@ -111,7 +111,7 @@ inline std::string encode_binary_seq(const decof::binary_seq &value)
 inline std::string encode_tuple(const decof::dynamic_tuple &value)
 {
     std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), decof::string_encoder::encode);
+    std::transform(value.begin(), value.end(), str_vec.begin(), decof::textproto_encoder::encode);
     return std::string("{") + boost::algorithm::join(str_vec, ",") + "}";
 }
 
@@ -120,7 +120,7 @@ inline std::string encode_tuple(const decof::dynamic_tuple &value)
 namespace decof
 {
 
-std::string string_encoder::encode(const boost::any &any_value)
+std::string textproto_encoder::encode(const boost::any &any_value)
 {
     if (any_value.type() == typeid(boolean))
         return encode_boolean(boost::any_cast<boolean>(any_value));

@@ -10,6 +10,8 @@ add_library(
     request_parser.hpp
     webservice.cpp
     webservice.h
+    webservice_encoder.cpp
+    webservice_encoder.h
     xml_visitor.cpp
     xml_visitor.h
 )

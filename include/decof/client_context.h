@@ -48,8 +48,8 @@ public:
     virtual void preload() = 0;
 
 protected:
-    void set_parameter(const std::string& uri, const boost::any& any_value);
-    boost::any get_parameter(const std::string& uri);
+    void set_parameter(const std::string& uri, const boost::any& any_value, char separator = ':');
+    boost::any get_parameter(const std::string& uri, char separator = ':');
 
     void signal_event(const std::string &uri);
 

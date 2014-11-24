@@ -32,8 +32,12 @@ const std::string ok =
   "HTTP/1.0 200 OK\r\n";
 const std::string bad_request =
   "HTTP/1.0 400 Bad Request\r\n";
+const std::string unauthorized =
+  "HTTP/1.0 401 Unauthorized\r\n";
 const std::string not_found =
   "HTTP/1.0 404 Not Found\r\n";
+const std::string unprocessable_entity =
+  "HTTP/1.0 422 Unprocessable Entity\r\n";
 const std::string internal_server_error =
   "HTTP/1.0 500 Internal Server Error\r\n";
 
@@ -45,8 +49,12 @@ const std::string& to_string(decof::http_reply::status_t status)
         return ok;
     case decof::http_reply::bad_request:
         return bad_request;
+    case decof::http_reply::unauthorized:
+        return unauthorized;
     case decof::http_reply::not_found:
         return not_found;
+    case decof::http_reply::unprocessable_entity:
+        return unprocessable_entity;
     default:
         return internal_server_error;
     }
@@ -68,6 +76,11 @@ const std::string not_found =
   "<head><title>Not Found</title></head>"
   "<body><h1>404 Not Found</h1></body>"
   "</html>";
+const std::string unauthorized =
+  "<html>"
+  "<head><title>Unauthorized</title></head>"
+  "<body><h1>401 Unauthorized</h1></body>"
+  "</html>";
 const std::string internal_server_error =
   "<html>"
   "<head><title>Internal Server Error</title></head>"
@@ -82,6 +95,8 @@ std::string to_string(decof::http_reply::status_t status)
         return ok;
     case decof::http_reply::bad_request:
         return bad_request;
+    case decof::http_reply::unauthorized:
+        return unauthorized;
     case decof::http_reply::not_found:
         return not_found;
     default:

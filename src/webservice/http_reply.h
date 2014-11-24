@@ -33,7 +33,9 @@ public:
     {
         ok = 200,
         bad_request = 400,
-        not_found = 404
+        unauthorized = 401,
+        not_found = 404,
+        unprocessable_entity = 422
     };
 
     explicit http_reply(status_t status = ok);
@@ -41,7 +43,7 @@ public:
     void header(const std::string &name, const std::string &value);
     std::string header(const std::string &name) const;
 
-    void content(const std::string &content, const std::string &content_type = "text/xml");
+    void content(const std::string &content, const std::string &content_type);
     std::string content() const;
 
     /// Convert the reply into a vector of buffers. The buffers do not own the

@@ -18,6 +18,7 @@
 #define DECOF_XML_VISITOR_H
 
 #include "object_visitor.h"
+#include "userlevel.h"
 
 #include <stack>
 
@@ -46,6 +47,7 @@ public:
 
 private:
     void write_param(object *obj, const std::string &type_str);
+    std::string userlevel_name(userlevel_t ul) const;
 
     std::stringstream &ss_;
     std::stack<node*> node_stack_;

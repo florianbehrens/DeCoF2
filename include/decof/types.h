@@ -35,11 +35,17 @@ struct binary : public std::string
 };
 
 // Sequence parameter types
-typedef std::vector<bool> boolean_seq;
-typedef std::vector<int> integer_seq;
-typedef std::vector<double> real_seq;
-typedef std::vector<std::string> string_seq;
-typedef std::vector<binary> binary_seq;
+template<typename T>
+struct sequence : public std::vector<T>
+{
+    using std::vector<T>::vector;
+};
+
+typedef sequence<bool> boolean_seq;
+typedef sequence<int> integer_seq;
+typedef sequence<double> real_seq;
+typedef sequence<std::string> string_seq;
+typedef sequence<binary> binary_seq;
 
 // Tuple parameter type
 template<typename... Args>

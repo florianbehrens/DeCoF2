@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef STRING_ENCODER_H
-#define STRING_ENCODER_H
+#ifndef DECOF_TEXTPROTO_ENCODER_H
+#define DECOF_TEXTPROTO_ENCODER_H
 
 #include <string>
 
@@ -27,11 +27,11 @@ class any;
 namespace decof
 {
 
-struct string_encoder
+struct textproto_encoder
 {
     static std::string encode(const boost::any &any_value);
 };
 
 } // namespace decof
 
-#endif // STRING_ENCODER_H
+#endif // DECOF_TEXTPROTO_ENCODER_H

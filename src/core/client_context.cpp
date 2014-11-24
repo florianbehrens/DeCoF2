@@ -40,11 +40,11 @@ const connection *client_context::connnection() const
     return connection_.get();
 }
 
-void client_context::set_parameter(const std::string &uri, const boost::any &any_value)
+void client_context::set_parameter(const std::string &uri, const boost::any &any_value, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object *te = object_dictionary_.find_object(uri);
+    object *te = object_dictionary_.find_object(uri, separator);
     if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (client_write_interface* parameter = dynamic_cast<client_write_interface*>(te))
             parameter->value(any_value);
@@ -54,12 +54,12 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
         throw invalid_parameter_error();
 }
 
-boost::any client_context::get_parameter(const std::string &uri)
+boost::any client_context::get_parameter(const std::string &uri, char separator)
 {
     boost::any retval;
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object *obj = object_dictionary_.find_object(uri);
+    object *obj = object_dictionary_.find_object(uri, separator);
     client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
     if (param != nullptr && userlevel_ >= obj->readlevel())
         retval = param->any_value();

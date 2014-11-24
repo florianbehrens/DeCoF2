@@ -45,7 +45,7 @@ public:
 
     void add_child(object *child);
     void remove_child(object *child);
-    object *find_child(const std::string &uri);
+    object *find_child(const std::string &uri, char separator = ':');
 
     /// The same as value().
     string_seq children();

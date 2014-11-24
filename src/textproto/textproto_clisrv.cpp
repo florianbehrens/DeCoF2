@@ -29,7 +29,7 @@
 #include "object.h"
 #include "object_dictionary.h"
 #include "parser.h"
-#include "string_encoder.h"
+#include "textproto_encoder.h"
 #include "textproto_visitor.h"
 
 namespace
@@ -81,7 +81,7 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     try {
         if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
             boost::any any_value = get_parameter(uri);
-            ss_out << string_encoder::encode(any_value) << std::endl;
+            ss_out << textproto_encoder::encode(any_value) << std::endl;
         } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
             set_parameter(uri, any_value);
             ss_out << "0\n";

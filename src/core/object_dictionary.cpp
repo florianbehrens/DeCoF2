@@ -82,14 +82,20 @@ const std::shared_ptr<client_context> object_dictionary::current_context() const
     return current_context_;
 }
 
-object *object_dictionary::find_object(const std::string &uri)
+object *object_dictionary::find_object(const std::string &curi, char separator)
 {
+    std::string uri(curi);
+
+    // Ignore leading separator character
+    if (uri.length() > 0 && uri[0] == separator)
+        uri = curi.substr(1);
+
     if (uri == name())
         return this;
 
-    if (boost::algorithm::starts_with(uri, name() + ":")) {
-        std::string sub_uri = uri.substr(uri.find(':') + 1);
-        return find_child(sub_uri);
+    if (boost::algorithm::starts_with(uri, name() + separator)) {
+        std::string sub_uri = uri.substr(uri.find(separator) + 1);
+        return find_child(sub_uri, separator);
     }
 
     return nullptr;
