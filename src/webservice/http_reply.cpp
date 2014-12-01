@@ -22,8 +22,8 @@
 namespace
 {
 
-const char name_value_separator[] = { ':', ' ' };
-const char crlf[] = { '\r', '\n' };
+const char name_value_separator[] = { ':', ' ', '\0' };
+const char crlf[] = { '\r', '\n', '\0' };
 
 namespace status_strings
 {
