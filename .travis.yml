@@ -1,0 +1,5 @@
+language: cpp
+compiler: gcc
+install: sudo apt-get install libboost-all-dev flexc++ bisonc++
+before_script: mkdir build && cd build
+script: cmake .. && make
