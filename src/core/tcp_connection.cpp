@@ -28,6 +28,12 @@ tcp_connection::tcp_connection(boost::asio::ip::tcp::socket socket)
     connect_signal();
 }
 
+tcp_connection::~tcp_connection()
+{
+    if (socket_.is_open())
+        socket_.close();
+}
+
 std::string tcp_connection::type() const
 {
     return std::string("tcp");

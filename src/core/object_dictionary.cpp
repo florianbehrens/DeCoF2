@@ -35,34 +35,36 @@ object_dictionary::context_guard::~context_guard()
 }
 
 object_dictionary::object_dictionary(const std::string &root_uri)
- : node(root_uri, nullptr),
-   fast_timer_(io_service_, std::chrono::milliseconds(50)),
-   medium_timer_(io_service_, std::chrono::milliseconds(500)),
-   slow_timer_(io_service_, std::chrono::milliseconds(5000))
+ : node(root_uri, nullptr)
 {
-     fast_timer_.start();
-     medium_timer_.start();
-     slow_timer_.start();
+    io_service_ptr_ = std::make_shared<boost::asio::io_service>();
+    fast_timer_ptr_.reset(new regular_timer(*io_service_ptr_.get(), std::chrono::milliseconds(50)));
+    medium_timer_ptr_.reset(new regular_timer(*io_service_ptr_.get(), std::chrono::milliseconds(500)));
+    slow_timer_ptr_.reset(new regular_timer(*io_service_ptr_.get(), std::chrono::milliseconds(5000)));
+
+    fast_timer_ptr_->start();
+    medium_timer_ptr_->start();
+    slow_timer_ptr_->start();
 }
 
 regular_timer& object_dictionary::get_fast_timer()
 {
-    return fast_timer_;
+    return *fast_timer_ptr_.get();
 }
 
 regular_timer& object_dictionary::get_medium_timer()
 {
-    return medium_timer_;
+    return *medium_timer_ptr_.get();
 }
 
 regular_timer& object_dictionary::get_slow_timer()
 {
-    return slow_timer_;
+    return *slow_timer_ptr_.get();
 }
 
-boost::asio::io_service& object_dictionary::get_io_service()
+std::shared_ptr<boost::asio::io_service> object_dictionary::io_service()
 {
-    return io_service_;
+    return io_service_ptr_;
 }
 
 void object_dictionary::add_context(std::shared_ptr<client_context> client_context)

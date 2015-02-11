@@ -28,6 +28,8 @@ public:
     // We inherit base class constructors
     using client_context::client_context;
 
+    virtual std::string connection_type() const override final;
+    virtual std::string remote_endpoint() const override final;
     virtual void preload() override final;
 
 private:

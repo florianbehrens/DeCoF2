@@ -178,7 +178,6 @@ The former keywords again are for historical reasons.
 
 The `uri` represents an object within the object dictionary with its fully
 qualified name, seperated with a colon (`:`), e.g., `root:node:my_parameter`.
-The `root:` prefix is optional.
 
 ##### Value encoding
 
@@ -200,3 +199,13 @@ Values are encoded according to their type as follows:
 The text protocol supports a simple dicovery means by using the operation
 `param-disp` or `browse`. The output is a textual representation of the
 objects in the object dictionary.
+
+#### RESTful protocol
+
+The RESTful protocol based on HTTP only supports the client/server model. HTTP 
+GET requests are used for get operations, and HTTP PUT requests are used for set 
+operations.
+
+The HTTP URL represents an object within the object dictionary with its fully
+qualified name, seperated with a slash (`/`), e.g., `/root/node/my_parameter`.
+

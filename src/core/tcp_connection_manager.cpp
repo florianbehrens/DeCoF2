@@ -23,8 +23,8 @@ namespace decof
 
 tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dictionary, const tcp::endpoint& endpoint, userlevel_t userlevel)
   : object_dictionary_(a_object_dictionary),
-    acceptor_(a_object_dictionary.get_io_service(), endpoint),
-    socket_(a_object_dictionary.get_io_service()),
+    acceptor_(*a_object_dictionary.io_service().get(), endpoint),
+    socket_(*a_object_dictionary.io_service().get()),
     userlevel_(userlevel)
 {}
 

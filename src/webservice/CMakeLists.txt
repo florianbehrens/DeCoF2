@@ -1,15 +1,10 @@
 add_library(
     decof2-webservice
-    header.hpp
-    http_reply.cpp
-    http_reply.h
+    http_body_parser.cpp
+    http_context.cpp
+    http_context.h
     json_visitor.cpp
     json_visitor.h
-    request.hpp
-    request_parser.cpp
-    request_parser.hpp
-    webservice.cpp
-    webservice.h
     webservice_encoder.cpp
     webservice_encoder.h
     xml_visitor.cpp

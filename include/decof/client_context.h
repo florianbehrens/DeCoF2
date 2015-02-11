@@ -40,10 +40,15 @@ public:
     explicit client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel = Normal);
     virtual ~client_context();
 
-    connection const* connnection() const;
-
     userlevel_t userlevel() const;
     void userlevel(userlevel_t ul);
+
+    /// Returns the connection type, e.g., "tcp", "serial".
+    virtual std::string connection_type() const = 0;
+
+    /// @brief Returns the connections' remote endpoint.
+    /// For a TCP connection this results in a string such as "10.0.0.1:1234".
+    virtual std::string remote_endpoint() const = 0;
 
     virtual void preload() = 0;
 

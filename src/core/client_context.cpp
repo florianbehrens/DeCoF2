@@ -35,11 +35,6 @@ client_context::client_context(object_dictionary& a_object_dictionary, std::shar
 client_context::~client_context()
 {}
 
-const connection *client_context::connnection() const
-{
-    return connection_.get();
-}
-
 void client_context::set_parameter(const std::string &uri, const boost::any &any_value, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);

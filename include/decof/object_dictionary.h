@@ -56,7 +56,7 @@ public:
     regular_timer& get_medium_timer();
     regular_timer& get_slow_timer();
 
-    boost::asio::io_service& get_io_service();
+    std::shared_ptr<boost::asio::io_service> io_service();
 
     void add_context(std::shared_ptr<client_context> client_context);
     void remove_context(std::shared_ptr<client_context> client_context);
@@ -67,10 +67,10 @@ private:
 
     void set_current_context(client_context* client_context);
 
-    boost::asio::io_service io_service_;
-    regular_timer fast_timer_;
-    regular_timer medium_timer_;
-    regular_timer slow_timer_;
+    std::shared_ptr<boost::asio::io_service> io_service_ptr_;
+    std::unique_ptr<regular_timer> fast_timer_ptr_;
+    std::unique_ptr<regular_timer> medium_timer_ptr_;
+    std::unique_ptr<regular_timer> slow_timer_ptr_;
 
     std::list<std::shared_ptr<client_context>> client_contexts_;
     std::shared_ptr<client_context> current_context_;

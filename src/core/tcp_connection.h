@@ -32,6 +32,8 @@ private:
     explicit tcp_connection(boost::asio::ip::tcp::socket socket);
 
 public:
+    virtual ~tcp_connection();
+
     virtual std::string type() const override;
     virtual std::string remote_endpoint() const override;
 

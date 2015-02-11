@@ -31,6 +31,16 @@
 namespace decof
 {
 
+std::string textproto_pubsub::connection_type() const
+{
+    return connection_->type();
+}
+
+std::string textproto_pubsub::remote_endpoint() const
+{
+    return connection_->remote_endpoint();
+}
+
 void textproto_pubsub::preload()
 {
     // Connect to signals of connection class

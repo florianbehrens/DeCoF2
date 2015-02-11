@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <string>
 
 #include <boost/asio.hpp>
@@ -11,7 +12,7 @@
 #include "tcp_connection_manager.h"
 #include "textproto/textproto_clisrv.h"
 #include "textproto/textproto_pubsub.h"
-#include "webservice/webservice.h"
+#include "webservice/http_context.h"
 
 namespace
 {
@@ -36,10 +37,8 @@ void my_managed_readwrite_parameter::verify(const decof::string& value)
 current_context_endpoint_parameter::value_type current_context_endpoint_parameter::get_external_value()
 {
     const std::shared_ptr<decof::client_context> cc = get_object_dictionary()->current_context();
-    if (cc != nullptr) {
-        const decof::connection* c = cc->connnection();
-        return c->type() + "://" + c->remote_endpoint();
-    }
+    if (cc != nullptr)
+        return cc->connection_type() + "://" + cc->remote_endpoint();
 
     return "Unknown";
 }
@@ -55,7 +54,7 @@ decof::string time_parameter::get_external_value()
 
 void exit_event::signal()
 {
-    get_object_dictionary()->get_io_service().stop();
+    get_object_dictionary()->io_service()->stop();
 }
 
 void cout_parameter::value(const decof::string &value)
@@ -107,7 +106,7 @@ private:
 //  | |-- time: string (r)
 //  | |-- leaf2: string_vector (rw)
 //  | |-- ip-address: string (rw)
-//  | |-- bool: bool (rw)
+//  | |-- boolean: bool (rw)
 //  | |-- integer: int (rw)
 //  | |-- double: double (rw)
 //  | |-- string: string (rw)
@@ -177,12 +176,12 @@ int main()
     decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
     conn_mgr_mon.preload<decof::textproto_pubsub>();
 
-    // Setup webservice
-    boost::asio::ip::tcp::endpoint websvc_endpoint(boost::asio::ip::tcp::v4(), 8080);
-    decof::tcp_connection_manager conn_mgr_websvc(obj_dict, websvc_endpoint);
-    conn_mgr_websvc.preload<decof::webservice>();
+    // Setup HTTP context
+    auto http_ctx_ptr = std::make_shared<decof::http_context>(obj_dict, std::shared_ptr<decof::connection>(nullptr));
+    obj_dict.add_context(http_ctx_ptr);
+    http_ctx_ptr->preload();
 
-    obj_dict.get_io_service().run();
+    obj_dict.io_service()->run();
 
     return 0;
 }

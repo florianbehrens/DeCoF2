@@ -42,6 +42,16 @@ const std::string prompt("> ");
 namespace decof
 {
 
+std::string textproto_clisrv::connection_type() const
+{
+    return connection_->type();
+}
+
+std::string textproto_clisrv::remote_endpoint() const
+{
+    return connection_->remote_endpoint();
+}
+
 void textproto_clisrv::preload()
 {
     // Connect to signals of connection class
