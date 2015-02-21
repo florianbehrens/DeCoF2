@@ -138,7 +138,7 @@ intentionally open for new implementations.
 #### Text protocol
 
 The text protocol is around for historical reasons and for its simplicity and
-usability when it comes to manual (keyboard) interaction with a server.
+usability when it comes to manual (terminal) interaction with a server.
 
 The text protocol implements both the client/server and publish/subscribe
 interaction models as well as supports some simple discovery means.
@@ -209,3 +209,48 @@ operations.
 The HTTP URL represents an object within the object dictionary with its fully
 qualified name, seperated with a slash (`/`), e.g., `/root/node/my_parameter`.
 
+The RESTful protocol based on HTTP only supports the client/server model. 
+Objects are identified by the HTTP URI within a HTTP GET or HTTP PUT request 
+(e.g., `/root/node/my_parameter`).
+
+The TCP port used is configurable but 8080 is the typical choice.
+
+##### Value encoding
+
+This chapter specifies the value encoding that this implementation produces in 
+GET requests and expects in PUT requests. The value encoding is chosen for best
+interaction with Javascript and the
+[XMLHttpRequest](http://en.wikipedia.org/wiki/XMLHttpRequest) function as being
+standardized by the [W3C](http://www.w3.org/TR/XMLHttpRequest/).
+
+For this reason, numeric primitive (integer, real) and boolean type values are 
+encoded as a Javascript literal that can be converted to a Javascript number 
+using the Number() global function.
+
+String and binary types are encoded as is. String character encoding is 
+transparent for the DeCoF2 framework and subject to specification between client and 
+server implementation.
+
+Sequences of numeric types are encoded for use with 
+[Javascript Typed Arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays).
+Javascript Typed Arrays are binary data buffers that require a [Typed Array 
+View](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays#Typed_array_views)
+for access to the individual elements of the array. Multibyte numbers are always
+encoded in big-endian byte order.
+
+* Sequences of boolean types are encoded in one octet per value being 1 for 
+true and zero for false for use with `Uint8Array`.
+* Sequences of integer types are encoded with four octets per value for use with
+`Int32Array`.
+* Sequences of real types are encoded with eight bytes per value according to 
+double precision IEEE 754 for use with `Float64Array`.
+
+Sequences of string and binary types are encoded as is without any separator 
+character and are prepended by a `UInt32Array` followed by CR+LF containing a 
+positive integer for each element of the sequence denoting the elements' length
+in bytes.
+
+The individual elements of a tuple type are encoded like non-sequence types and 
+are prepended by a `UInt32Array` followed by CR+LF containing a 
+positive integer for each element of the sequence denoting the elements' length
+in bytes.

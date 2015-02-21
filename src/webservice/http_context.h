@@ -76,7 +76,7 @@ private:
     void handle_exception(http_server::connection_ptr connection, std::exception_ptr ex_ptr);
 
     /// Sends the given response to the client.
-    void send_response(http_server::connection_ptr connection, const response &response);
+    void send_response(http_server::connection_ptr connection, response response);
 
     // We must hold a shared pointer to the io_service here because the
     // http_server_ object does only hold a boost::shared_ptr with a custom,

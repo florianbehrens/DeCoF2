@@ -19,12 +19,6 @@
 
 #include <string>
 
-//#include <boost/proto/detail/preprocessed/expr_variadic.hpp>
-
-//#include <boost/proto/detail/expr.hpp>
-
-//#include <boost/function_types/detail/pp_cc_loop/preprocessed.hpp>
-
 namespace decof
 {
 

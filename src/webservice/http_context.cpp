@@ -206,7 +206,7 @@ void http_context::handle_get_request(const http_server::request &request, http_
     } else {
         boost::any any_value = get_parameter(request.destination, '/');
         response.content = webservice_encoder::encode(any_value) + "\r\n";
-        response.headers.push_back(http_server::response_header({ "Content-Type", (any_value.type() == typeid(decof::binary) ? "application/json" : "text/plain") }));
+        response.headers.push_back(http_server::response_header({ "Content-Type", (any_value.type() == typeid(decof::binary) ? "application/json" : "text/plain; charset=utf-8") }));
     }
 
     response.headers.push_back(http_server::response_header({ "Content-Length", std::to_string(response.content.length()) }));
@@ -264,8 +264,10 @@ void http_context::handle_exception(http_server::connection_ptr connection, std:
     send_response(connection, resp);
 }
 
-void http_context::send_response(http_server::connection_ptr connection, const http_context::response &response)
+void http_context::send_response(http_server::connection_ptr connection, http_context::response response)
 {
+    response.headers.push_back(http_server::response_header({ "Access-Control-Allow-Origin", "*" }));
+
     connection->set_status(static_cast<http_server::connection::status_t>(response.status));
     connection->set_headers(response.headers);
     connection->write(response.content);
