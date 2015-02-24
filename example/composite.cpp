@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_H
-#define DECOF_H
+#include "composite.h"
 
-#include "decof/event.h"
-#include "decof/exceptions.h"
-#include "decof/external_readonly_parameter.h"
-#include "decof/external_readwrite_parameter.h"
-#include "decof/object.h"
-#include "decof/object_dictionary.h"
-#include "decof/managed_readwrite_parameter.h"
-#include "decof/managed_readonly_parameter.h"
-#include "decof/types.h"
-#include "decof/userlevel.h"
-#include "decof/writeonly_parameter.h"
+composite::composite(std::string name, decof::node *parent, decof::userlevel_t readlevel) :
+    node(name, parent, readlevel),
+    summand1_("summand1", this, readlevel, readlevel),
+    summand2_("summand2", this, readlevel, readlevel),
+    sum_("sum", this, readlevel)
+{}
 
-#endif // DECOF_H
+decof::integer composite::sum_type::get_external_value()
+{
+    composite *c = dynamic_cast<composite *>(parent());
+    return c->summand1_.value() + c->summand2_.value();
+}

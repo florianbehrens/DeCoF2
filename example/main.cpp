@@ -14,6 +14,8 @@
 #include "textproto/textproto_pubsub.h"
 #include "webservice/http_context.h"
 
+#include "composite.h"
+
 namespace
 {
 
@@ -123,6 +125,10 @@ private:
 //  |-- writeonly: node (r)
 //  | |-- string: string (w)
 //  | |-- tuple: tuple (w)
+//  |-- composite
+//  | |-- summand1
+//  | |-- summand2
+//  | |-- sum
 
 decof::object_dictionary obj_dict("example");
 my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
@@ -150,6 +156,7 @@ exit_event exit_ev("exit", &events_node);
 decof::node writeonly_node("writeonly", &obj_dict);
 cout_parameter cout_param("string", &writeonly_node);
 cout_tuple_parameter cout_tuple_param("tuple", &writeonly_node);
+composite comp("composite", &obj_dict);
 
 } // Anonymous namespace
 
