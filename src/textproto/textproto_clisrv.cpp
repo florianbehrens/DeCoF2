@@ -91,7 +91,8 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     try {
         if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
             boost::any any_value = get_parameter(uri);
-            ss_out << textproto_encoder::encode(any_value) << std::endl;
+            textproto_encoder().encode_any(ss_out, any_value);
+            ss_out << std::endl;
         } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
             set_parameter(uri, any_value);
             ss_out << "0\n";

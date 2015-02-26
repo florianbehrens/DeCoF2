@@ -41,9 +41,12 @@ void textproto_visitor::visit(object *obj)
     write_indentation(ss_, obj);
 
     ss_ << (obj->parent() != nullptr ? ":" : "" )
-        << obj->name()
-        << (read_if ? std::string(" = ") + textproto_encoder::encode(read_if->any_value()) : "")
-        << std::endl;
+        << obj->name();
+    if (read_if != nullptr) {
+        ss_ << " = ";
+        textproto_encoder().encode_any(ss_, read_if->any_value());
+    }
+    ss_ << std::endl;
 }
 
 } // namespace decof

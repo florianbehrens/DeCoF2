@@ -19,17 +19,16 @@
 
 #include <string>
 
-// Forward declaration
-namespace boost {
-class any;
-}
+#include "basic_value_encoder.h"
 
 namespace decof
 {
 
-struct textproto_encoder
+struct textproto_encoder : public basic_value_encoder
 {
-    static std::string encode(const boost::any &any_value);
+    virtual void encode(std::stringstream &out, const boolean &value);
+    virtual void encode(std::stringstream &out, const string &value);
+    virtual void encode(std::stringstream &out, const binary &value);
 };
 
 } // namespace decof

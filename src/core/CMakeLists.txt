@@ -1,5 +1,7 @@
 add_library(
     decof2-core
+    basic_value_encoder.cpp
+    basic_value_encoder.h
     client_context.cpp
     connection.h
     errors.h

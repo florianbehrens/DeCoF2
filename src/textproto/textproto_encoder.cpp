@@ -17,19 +17,32 @@
 #include "textproto_encoder.h"
 
 #include <boost/any.hpp>
+#include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
-#include <boost/archive/iterators/remove_whitespace.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "conversion.h"
 #include "exceptions.h"
 #include "types.h"
 
 namespace {
+
+struct string_escaper
+{
+    template<typename T>
+    std::string operator()(const T& match) const
+    {
+        std::string s;
+        typename T::const_iterator i = match.begin();
+        for (; i != match.end(); i++) {
+            s += str(boost::format("%02x") % static_cast<int>(*i));
+        }
+        return s;
+    }
+};
 
 // The following two functions are based on code from
 // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
@@ -46,106 +59,29 @@ inline std::string base64encode(const decof::binary &bin)
     return base64;
 }
 
-inline std::string encode_boolean(decof::boolean value)
-{
-    if (value == true)
-        return std::string("#t");
-    return std::string("#f");
-}
-
-inline std::string encode_integer(decof::integer value)
-{
-    return boost::lexical_cast<std::string>(value);
-}
-
-inline std::string encode_real(decof::real value)
-{
-    return boost::lexical_cast<std::string>(value);
-}
-
-inline std::string encode_string(const decof::string &value)
-{
-    return std::string("\"") + value + "\"";
-}
-
-inline std::string encode_binary(const decof::binary &value)
-{
-    return std::string("&") + base64encode(value);
-}
-
-inline std::string encode_boolean_seq(decof::boolean_seq value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), encode_boolean);
-    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-}
-
-inline std::string encode_integer_seq(decof::integer_seq value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), encode_integer);
-    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-}
-
-inline std::string encode_real_seq(decof::real_seq value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), encode_real);
-    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-}
-
-inline std::string encode_string_seq(const decof::string_seq &value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), encode_string);
-    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-}
-
-inline std::string encode_binary_seq(const decof::binary_seq &value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), encode_binary);
-    return std::string("[") + boost::algorithm::join(str_vec, ",") + "]";
-}
-
-inline std::string encode_tuple(const decof::dynamic_tuple &value)
-{
-    std::vector<std::string> str_vec(value.size());
-    std::transform(value.begin(), value.end(), str_vec.begin(), decof::textproto_encoder::encode);
-    return std::string("{") + boost::algorithm::join(str_vec, ",") + "}";
-}
-
 } // Anonymous namespace
 
 namespace decof
 {
 
-std::string textproto_encoder::encode(const boost::any &any_value)
+void textproto_encoder::encode(std::stringstream &out, const boolean &value)
 {
-    if (any_value.type() == typeid(boolean))
-        return encode_boolean(boost::any_cast<boolean>(any_value));
-    else if (any_value.type() == typeid(integer))
-        return encode_integer(boost::any_cast<integer>(any_value));
-    else if (any_value.type() == typeid(real))
-        return encode_real(boost::any_cast<real>(any_value));
-    else if (any_value.type() == typeid(string))
-        return encode_string(boost::any_cast<string>(any_value));
-    else if (any_value.type() == typeid(binary))
-        return encode_binary(boost::any_cast<binary>(any_value));
-    else if (any_value.type() == typeid(boolean_seq))
-        return encode_boolean_seq(boost::any_cast<boolean_seq>(any_value));
-    else if (any_value.type() == typeid(integer_seq))
-        return encode_integer_seq(boost::any_cast<integer_seq>(any_value));
-    else if (any_value.type() == typeid(real_seq))
-        return encode_real_seq(boost::any_cast<real_seq>(any_value));
-    else if (any_value.type() == typeid(string_seq))
-        return encode_string_seq(boost::any_cast<string_seq>(any_value));
-    else if (any_value.type() == typeid(binary_seq))
-        return encode_binary_seq(boost::any_cast<binary_seq>(any_value));
-    else if (any_value.type() == typeid(dynamic_tuple))
-        return encode_tuple(boost::any_cast<dynamic_tuple>(any_value));
+    if (value == true)
+        out << "#t";
     else
-        throw wrong_type_error();
+        out << "#f";
+}
+
+void textproto_encoder::encode(std::stringstream &out, const string &value)
+{
+    std::string escaped = value;
+    boost::find_format_all(escaped, boost::token_finder(!boost::is_print() || boost::is_any_of("\"")), string_escaper());
+    out << "\"" << escaped << "\"";
+}
+
+void textproto_encoder::encode(std::stringstream &out, const binary &value)
+{
+    out << "&" << base64encode(value);
 }
 
 } // namespace decof

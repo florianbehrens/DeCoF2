@@ -91,7 +91,11 @@ void textproto_pubsub::notify(const std::string &uri, const boost::any &any_valu
     std::time_t now = std::time(nullptr);
     std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
 
-    connection_->async_write(std::string("(") + time_str + " '" + uri + " " + textproto_encoder::encode(any_value) + ")\n");
+    std::stringstream ss;
+    ss << "(" << time_str << " '" << uri << " ";
+    textproto_encoder().encode_any(ss, any_value);
+    ss << ")\n";
+    connection_->async_write(ss.str());
 }
 
 } // namespace decof
