@@ -1,7 +1,15 @@
-include_directories(${CMAKE_SOURCE_DIR}/src/webservice)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
     test
     test_main.cpp
     test_http_body_parser.cpp
+    test_parameter_access.cpp
 )
-target_link_libraries(test decof2-webservice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(
+    test
+    decof2-webservice
+    decof2-textproto
+    decof2-core
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)

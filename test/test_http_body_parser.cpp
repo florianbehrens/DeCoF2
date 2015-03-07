@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "http_body_parser.h"
+#include "webservice/http_body_parser.h"
 
 BOOST_AUTO_TEST_SUITE(http_body_parser)
 

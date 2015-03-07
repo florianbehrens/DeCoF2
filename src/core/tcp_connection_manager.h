@@ -34,6 +34,10 @@ public:
     /// Note that the callback function takes ownership of the provided socket object.
     tcp_connection_manager(object_dictionary& a_object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
 
+    /// Returns the listening port.
+    /// This is identical to the port given in constructor if non-zero.
+    unsigned short port() const;
+
     template<typename CTX>
     void preload()
     {

@@ -28,4 +28,9 @@ tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dicti
     userlevel_(userlevel)
 {}
 
+unsigned short tcp_connection_manager::port() const
+{
+    return acceptor_.local_endpoint().port();
+}
+
 } // namespace decof
