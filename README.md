@@ -259,6 +259,4 @@ in bytes.
 
 DeCoF2 has the following link-time dependencies:
 * Boost 1.54 (system thread unit_test_framework)
-* Flexc++ (Tested with 2.01.00)
-* Bisonc++ (Tested with 4.09.02)
 * C++ Network Library (cpp-netlib) (Tested with 0.11.1)
