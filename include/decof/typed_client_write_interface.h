@@ -39,19 +39,19 @@ private:
     }
 };
 
-// Partial template specialization
+// Partial template specialization for sequence types.
 template<typename T>
-class typed_client_write_interface<std::vector<T>> : public client_write_interface
+class typed_client_write_interface<decof::sequence<T>> : public client_write_interface
 {
     friend class client_context;
 
 private:
-    virtual void value(const std::vector<T> &value) = 0;
+    virtual void value(const decof::sequence<T> &value) = 0;
     virtual void value(const boost::any& any_value) override final
     {
         try {
-            std::vector<boost::any> any_vector = boost::any_cast<std::vector<boost::any>>(any_value);
-            std::vector<T> new_value;
+            const std::vector<boost::any> &any_vector = boost::any_cast<const std::vector<boost::any> &>(any_value);
+            decof::sequence<T> new_value;
             new_value.reserve(any_vector.size());
             for (auto elem : any_vector)
                 new_value.push_back(boost::any_cast<T>(elem));
