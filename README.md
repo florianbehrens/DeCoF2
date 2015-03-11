@@ -254,3 +254,9 @@ The individual elements of a tuple type are encoded like non-sequence types and
 are prepended by a `UInt32Array` followed by CR+LF containing a 
 positive integer for each element of the sequence denoting the elements' length
 in bytes.
+
+### Dependencies
+
+DeCoF2 has the following link-time dependencies:
+* Boost 1.54 (system thread unit_test_framework)
+* C++ Network Library (cpp-netlib) (Tested with 0.11.1)
