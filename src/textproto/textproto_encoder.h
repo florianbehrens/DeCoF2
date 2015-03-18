@@ -26,9 +26,9 @@ namespace decof
 
 struct textproto_encoder : public basic_value_encoder
 {
-    virtual void encode(std::stringstream &out, const boolean &value);
-    virtual void encode(std::stringstream &out, const string &value);
-    virtual void encode(std::stringstream &out, const binary &value);
+    virtual void encode(std::ostream &out, const boolean &value);
+    virtual void encode(std::ostream &out, const string &value);
+    virtual void encode(std::ostream &out, const binary &value);
 };
 
 } // namespace decof

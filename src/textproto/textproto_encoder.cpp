@@ -17,54 +17,15 @@
 #include "textproto_encoder.h"
 
 #include <boost/any.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/archive/iterators/base64_from_binary.hpp>
-#include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
 
 #include "conversion.h"
 #include "exceptions.h"
 #include "types.h"
 
-namespace {
-
-struct string_escaper
-{
-    template<typename T>
-    std::string operator()(const T& match) const
-    {
-        std::string s;
-        typename T::const_iterator i = match.begin();
-        for (; i != match.end(); i++) {
-            s += str(boost::format("%02x") % static_cast<int>(*i));
-        }
-        return s;
-    }
-};
-
-// The following two functions are based on code from
-// http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
-inline std::string base64encode(const decof::binary &bin)
-{
-    using namespace boost::archive::iterators;
-
-    typedef base64_from_binary<transform_width<std::string::const_iterator, 6, 8>> it_base64_t;
-
-    unsigned int writePaddChars = (3 - bin.length() % 3) % 3;
-    std::string base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
-    base64.append(writePaddChars, '=');
-
-    return base64;
-}
-
-} // Anonymous namespace
-
 namespace decof
 {
 
-void textproto_encoder::encode(std::stringstream &out, const boolean &value)
+void textproto_encoder::encode(std::ostream &out, const boolean &value)
 {
     if (value == true)
         out << "#t";
@@ -72,16 +33,14 @@ void textproto_encoder::encode(std::stringstream &out, const boolean &value)
         out << "#f";
 }
 
-void textproto_encoder::encode(std::stringstream &out, const string &value)
+void textproto_encoder::encode(std::ostream &out, const string &value)
 {
-    std::string escaped = value;
-    boost::find_format_all(escaped, boost::token_finder(!boost::is_print() || boost::is_any_of("\"")), string_escaper());
-    out << "\"" << escaped << "\"";
+    out << "\"" << html_string_escape(value) << "\"";
 }
 
-void textproto_encoder::encode(std::stringstream &out, const binary &value)
+void textproto_encoder::encode(std::ostream &out, const binary &value)
 {
-    out << "&" << base64encode(value);
+    out << "&" << base64_encode(value);
 }
 
 } // namespace decof

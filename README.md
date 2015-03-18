@@ -236,7 +236,7 @@ Sequences of numeric types are encoded for use with
 Javascript Typed Arrays are binary data buffers that require a [Typed Array 
 View](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays#Typed_array_views)
 for access to the individual elements of the array. Multibyte numbers are always
-encoded in big-endian byte order.
+encoded in little-endian byte order as clients will be x86-based in most cases.
 
 * Sequences of boolean types are encoded in one octet per value being 1 for 
 true and zero for false for use with `Uint8Array`.
@@ -254,6 +254,58 @@ The individual elements of a tuple type are encoded like non-sequence types and
 are prepended by a `UInt32Array` followed by CR+LF containing a 
 positive integer for each element of the sequence denoting the elements' length
 in bytes.
+
+#### SCGI protocol
+
+##### General
+
+The
+[Simple Common Gateway Interface](http://de.wikipedia.org/wiki/Simple_Common_Gateway_Interface)
+protocol is used by many webservers such as Apache, and Lighttpd, as backend 
+protocol that overcomes the efficiency issues of 'classic' CGI. It is similar to 
+FastCGI but easier to implement as it is not a binary protocol.
+
+In conjunction with a webserver this protocol can be used with DeCoF2 servers
+to provide webservices for interaction with the object dictionary.
+
+Objects are identified by the HTTP URI within a HTTP GET or HTTP PUT request 
+(e.g., `/root/node/my_parameter`). This protocol only supports the client/server
+model.
+
+##### Value encoding
+
+This chapter specifies the value encoding that this implementation produces in 
+GET requests and expects in PUT requests. The value encoding is chosen for best
+interaction with Javascript and the
+[XMLHttpRequest](http://en.wikipedia.org/wiki/XMLHttpRequest) function as being
+standardized by the [W3C](http://www.w3.org/TR/XMLHttpRequest/).
+
+For this reason, numeric primitive (integer, real) and boolean type values are 
+encoded as a Javascript literal that can be converted to a Javascript number 
+using the Number() global function.
+
+Control characters of strings are HTML escaped and binary types are base64 
+encoded.
+
+Sequences of numeric types are encoded for use with 
+[Javascript Typed Arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays).
+Javascript Typed Arrays are binary data buffers that require a [Typed Array 
+View](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays#Typed_array_views)
+for access to the individual elements of the array. Multibyte numbers are always
+encoded in little-endian byte order as clients will be x86-based in most cases.
+
+* Sequences of boolean types are encoded in one octet per value being 1 for 
+true and zero for false for use with `Uint8Array`.
+* Sequences of integer types are encoded with four octets per value for use with
+`Int32Array`.
+* Sequences of real types are encoded with eight bytes per value according to 
+double precision IEEE 754 for use with `Float64Array`.
+
+Sequences of string and binary types are encoded as their scalar counterparts 
+while the individual elements are separated by CR+LF.
+
+The individual elements of a tuple type are encoded like non-sequence types and 
+separated by CR+LF.
 
 ### Dependencies
 

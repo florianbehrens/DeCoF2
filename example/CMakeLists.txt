@@ -7,6 +7,7 @@ add_executable(
 )
 target_link_libraries(
     example
+    decof2-scgi
     decof2-textproto
     decof2-webservice
     decof2-core

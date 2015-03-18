@@ -1,0 +1,11 @@
+add_library(
+    decof2-scgi
+    context.cpp
+    context.h
+    js_value_encoder.cpp
+    js_value_encoder.h
+    response.cpp
+    response.h
+    request_parser.cpp
+    request_parser.h
+)

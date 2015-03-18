@@ -4,11 +4,14 @@ add_executable(
     test_main.cpp
     test_http_body_parser.cpp
     test_parameter_access.cpp
+    test_scgi_response.cpp
+    test_scgi_parser.cpp
 )
 target_link_libraries(
     test
     decof2-webservice
     decof2-textproto
+    decof2-scgi
     decof2-core
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}

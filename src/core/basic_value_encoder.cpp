@@ -18,7 +18,34 @@
 
 #include <iomanip>
 
+#include <boost/format.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/find_format.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
+
 #include "exceptions.h"
+
+namespace {
+
+struct string_escaper
+{
+    template<typename T>
+    std::string operator()(const T& match) const
+    {
+        std::string s;
+        typename T::const_iterator i = match.begin();
+        for (; i != match.end(); i++) {
+            unsigned char c = *i;
+            s += boost::str(boost::format("%%%02X") % static_cast<unsigned int>(c));
+        }
+        return s;
+    }
+};
+
+} // Anonymous namespace
 
 namespace decof
 {
@@ -26,13 +53,34 @@ namespace decof
 basic_value_encoder::~basic_value_encoder()
 {}
 
-void basic_value_encoder::encode_any(std::string &str, const boost::any &any_value)
+std::string basic_value_encoder::html_string_escape(const std::string &str)
 {
-    std::stringstream out(str);
-    encode_any(out, any_value);
+    return boost::find_format_all_copy(str, boost::token_finder(!boost::is_print() || boost::is_any_of("\"")), string_escaper());
 }
 
-void basic_value_encoder::encode_any(std::stringstream &out, const boost::any &any_value)
+std::string basic_value_encoder::base64_encode(const binary &bin)
+{
+    // The following is based on code from
+    // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
+    using namespace boost::archive::iterators;
+
+    typedef base64_from_binary<transform_width<std::string::const_iterator, 6, 8>> it_base64_t;
+
+    unsigned int writePaddChars = (3 - bin.length() % 3) % 3;
+    std::string base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
+    base64.append(writePaddChars, '=');
+
+    return base64;
+}
+
+void basic_value_encoder::encode_any(std::string &str, const boost::any &any_value)
+{
+    std::stringstream out;
+    encode_any(out, any_value);
+    str = std::move(out.str());
+}
+
+void basic_value_encoder::encode_any(std::ostream &out, const boost::any &any_value)
 {
     if (any_value.type() == typeid(boolean))
         encode(out, boost::any_cast<boolean>(any_value));
@@ -60,32 +108,32 @@ void basic_value_encoder::encode_any(std::stringstream &out, const boost::any &a
         throw wrong_type_error();
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const boolean &value)
+void basic_value_encoder::encode(std::ostream &out, const boolean &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const integer &value)
+void basic_value_encoder::encode(std::ostream &out, const integer &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const real &value)
+void basic_value_encoder::encode(std::ostream &out, const real &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const string &value)
+void basic_value_encoder::encode(std::ostream &out, const string &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const binary &value)
+void basic_value_encoder::encode(std::ostream &out, const binary &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const boolean_seq &value)
+void basic_value_encoder::encode(std::ostream &out, const boolean_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
@@ -97,7 +145,7 @@ void basic_value_encoder::encode(std::stringstream &out, const boolean_seq &valu
     out << "]";
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const integer_seq &value)
+void basic_value_encoder::encode(std::ostream &out, const integer_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
@@ -109,7 +157,7 @@ void basic_value_encoder::encode(std::stringstream &out, const integer_seq &valu
     out << "]";
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const real_seq &value)
+void basic_value_encoder::encode(std::ostream &out, const real_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
@@ -121,7 +169,7 @@ void basic_value_encoder::encode(std::stringstream &out, const real_seq &value)
     out << "]";
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const string_seq &value)
+void basic_value_encoder::encode(std::ostream &out, const string_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
@@ -133,7 +181,7 @@ void basic_value_encoder::encode(std::stringstream &out, const string_seq &value
     out << "]";
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const binary_seq &value)
+void basic_value_encoder::encode(std::ostream &out, const binary_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
@@ -145,7 +193,7 @@ void basic_value_encoder::encode(std::stringstream &out, const binary_seq &value
     out << "]";
 }
 
-void basic_value_encoder::encode(std::stringstream &out, const dynamic_tuple &value)
+void basic_value_encoder::encode(std::ostream &out, const dynamic_tuple &value)
 {
     out << "{";
     auto it = value.cbegin();
