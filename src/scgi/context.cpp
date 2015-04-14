@@ -23,6 +23,7 @@
 #include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "connection.h"
 #include "exceptions.h"
@@ -212,7 +213,10 @@ void scgi_context::handle_put_request()
     boost::any value;
     std::vector<boost::any> vec;
 
-    const std::string &contentType = parser_.headers["CONTENT_TYPE"];
+    // Split content type value into parts
+    std::vector<std::string> contentTypeValues;
+    boost::algorithm::split(contentTypeValues, parser_.headers["CONTENT_TYPE"], boost::is_any_of("; \t"), boost::algorithm::token_compress_on);
+    std::string &contentType = contentTypeValues[0];
 
     boost::algorithm::trim_if(parser_.body, boost::is_space());
     std::istringstream ss(parser_.body);
