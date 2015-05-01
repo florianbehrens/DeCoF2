@@ -49,15 +49,20 @@ private:
     void read_handler(const std::string &cstr);
 
     /// Handle HTTP GET request.
+    /// A GET request is used to read readable parameters.
     void handle_get_request();
 
     /// Handle HTTP PUT request.
+    /// A PUT request is used to modify readwrite parameters. According to the
+    /// HTTP/1.1 specification (RFC2616, clause §9.2.1), PUT requests shall be
+    /// idempotent (i.e., multiple invocations result in the same side effects
+    /// as a single invocation).
     void handle_put_request();
 
-    /// Handles exceptions resulting from a HTTP request.
-    /// @note It is required to do this in a function on its own due to the
-    /// asynchronous request processing.
-//    void handle_exception(http_server::connection_ptr connection, std::exception_ptr ex_ptr);
+    /// Handle HTTP POST request.
+    /// POST requests must be used to modify writeonly parameters or to execute
+    /// events.
+    void handle_post_request();
 
     /// Sends the given reply to the client.
     void send_response(const response &resp);

@@ -16,6 +16,8 @@
 
 #include "request_parser.h"
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace decof
@@ -103,10 +105,16 @@ request_parser::result_type request_parser::consume(char input) noexcept
                             method = method_type::put;
                         else if (current_value_ == "POST")
                             method = method_type::post;
-                    }
-
-                    if (current_header_ == "REQUEST_URI") {
+                    } else if (current_header_ == "REQUEST_URI") {
                         uri = current_value_;
+                    } else if (current_header_ == "CONTENT_TYPE") {
+                        // Split content type value into parts
+                        std::vector<std::string> content_type_values;
+                        boost::algorithm::split(content_type_values, current_value_, boost::is_any_of("; \t"), boost::algorithm::token_compress_on);
+                        try {
+                            content_type = content_type_values.at(0);
+                            encoding = content_type_values.at(1);
+                        } catch (std::out_of_range&) {}
                     }
 
                     headers[current_header_].swap(current_value_);

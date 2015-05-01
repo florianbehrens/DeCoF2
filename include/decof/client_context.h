@@ -56,7 +56,10 @@ protected:
     void set_parameter(const std::string& uri, const boost::any& any_value, char separator = ':');
     boost::any get_parameter(const std::string& uri, char separator = ':');
 
-    void signal_event(const std::string &uri);
+    /// Signal event.
+    /// @param uri The event URI.
+    /// @param separator Hierachy level separator charater used in URI.
+    void signal_event(const std::string &uri, char separator = ':');
 
     void observe(const std::string& uri, client_read_interface::signal_type::slot_type slot);
     void unobserve(const std::string& uri);

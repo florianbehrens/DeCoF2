@@ -36,10 +36,10 @@ Objects are organized in a hierarchic tree structure. Each object has a name
 and exactly one parent object except the 'root' object.
 
 Only *node* objects can hold child objects. *Parameters* are associated a value 
-of a given, fixed value type. *Events* are objects without value but can be used 
-to signal some event.
+of a given, fixed value type. *Events* are objects without value but can be 
+used to signal some event.
 
-Parameters values can be of one of the following builtin value types:
+Parameter values can be of one of the following builtin value types:
 
 * boolean
 * integer
@@ -53,9 +53,12 @@ A node is a special parameter with value type sequence of strings that holds
 the names of its child parameters.
 
 From the client's perspective, parameter values can be either readonly, 
-writeonly, or readwrite. For readwrite parameters there is a special rule: Since 
-those are for modification of the client side the framework does not support 
-modification by the server implementation.
+writeonly, or readwrite. For readwrite parameters there is a special rule: 
+Since those are for modification of the client side the framework does not 
+support modification by the server implementation. As a best practice a 
+modification operation on a writable parameter (i.e., writeonly and readwrite 
+parameters) should be idempotent, i.e., the side effects on such an operation 
+should be the same if carried out once or multiple times.
 
 ### Access control
 
@@ -261,16 +264,22 @@ in bytes.
 
 The
 [Simple Common Gateway Interface](http://de.wikipedia.org/wiki/Simple_Common_Gateway_Interface)
-protocol is used by many webservers such as Apache, and Lighttpd, as backend 
-protocol that overcomes the efficiency issues of 'classic' CGI. It is similar to 
-FastCGI but easier to implement as it is not a binary protocol.
+protocol is used by many webservers such as Apache, Nginx, and Lighttpd, as 
+backend protocol that overcomes the efficiency issues of 'classic' CGI. It is 
+similar to FastCGI but easier to implement as it is not a binary protocol.
 
 In conjunction with a webserver this protocol can be used with DeCoF2 servers
 to provide webservices for interaction with the object dictionary.
 
-Objects are identified by the HTTP URI within a HTTP GET or HTTP PUT request 
-(e.g., `/root/node/my_parameter`). This protocol only supports the client/server
-model.
+Objects are identified by the HTTP URI within a HTTP GET, HTTP PUT, or HTTP 
+POST request (e.g., `/root/node/my_parameter`), respectively. This protocol 
+only supports the client/server model.
+
+HTTP GET requests are used to read readable parameters. To modify any writable 
+parameter use HTTP PUT. Since the latter is required to be idempotent (i.e.,
+multiple invocations result in the same side effects as a single one) by the 
+HTTP/1.1 spec (RFC2616, clause §9.1.2) a HTTP POST request is required to 
+invoke an event which likely modifies state in a non-idempotent way.
 
 ##### Value encoding
 

@@ -20,10 +20,9 @@
 #include <cctype>
 #include <utility>
 
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 #include "connection.h"
 #include "exceptions.h"
@@ -177,6 +176,8 @@ void scgi_context::read_handler(const std::string &cstr)
                 handle_get_request();
             else if (parser_.method == request_parser::method_type::put)
                 handle_put_request();
+            else if (parser_.method == request_parser::method_type::post)
+                handle_post_request();
             else
                 throw parse_error();
         } else
@@ -213,52 +214,46 @@ void scgi_context::handle_put_request()
     boost::any value;
     std::vector<boost::any> vec;
 
-    // Split content type value into parts
-    std::vector<std::string> contentTypeValues;
-    boost::algorithm::split(contentTypeValues, parser_.headers["CONTENT_TYPE"], boost::is_any_of("; \t"), boost::algorithm::token_compress_on);
-    std::string &contentType = contentTypeValues[0];
-
     boost::algorithm::trim_if(parser_.body, boost::is_space());
     std::istringstream ss(parser_.body);
 
     try {
-        if (contentType == "vnd/com.toptica.decof.boolean") {
+        if (parser_.content_type == "vnd/com.toptica.decof.boolean") {
             if (parser_.body == "true")
                 value = true;
             else if (parser_.body == "false")
                 value = false;
             else
                 throw invalid_value_error();
-        } else if (contentType == "vnd/com.toptica.decof.integer") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.integer") {
             ss >> str;
             value = boost::lexical_cast<decof::integer>(str);
-        } else if (contentType == "vnd/com.toptica.decof.real") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.real") {
             ss >> str;
             value = boost::lexical_cast<decof::real>(str);
-        } else if (contentType == "vnd/com.toptica.decof.string") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
             value = parser_.body;
-        } else if (contentType == "vnd/com.toptica.decof.binary") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.binary") {
             decof::binary bin;
             bin.swap(parser_.body);
             value = std::move(bin);
-        } else if (contentType == "vnd/com.toptica.decof.boolean_seq") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
             vec.reserve(parser_.body.size() / sizeof(char));
             std::transform(parser_.body.cbegin(),parser_.body.cend(), vec.begin(), [](const char c) { return c > 0; });
             value = vec;
-        } else if (contentType == "vnd/com.toptica.decof.integer_seq") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
             size_t size = parser_.body.size() / sizeof(decof::integer);
             vec.reserve(size);
             int32_t *elems = reinterpret_cast<int32_t*>(&parser_.body[0]);
             std::copy_n(elems, size, vec.begin());
             value = vec;
-        } else if (contentType == "vnd/com.toptica.decof.real_seq") {
+        } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
             size_t size = parser_.body.size() / sizeof(decof::real);
             vec.reserve(size);
             double *elems = reinterpret_cast<double*>(&parser_.body[0]);
             std::copy_n(elems, size, vec.begin());
             value = vec;
-        } else if (contentType == "vnd/com.toptica.decof.string_seq") {
-//            int32_t sizes[] = reinterpret_cast<int32_t>(parser_.body.data());
+        } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
             auto pos = parser_.body.find("\r\n");
             if (pos >= parser_.body.size())
                 throw invalid_value_error();
@@ -273,8 +268,9 @@ void scgi_context::handle_put_request()
                 str = parser_.body.substr(pos, pos + size);
                 vec.push_back(boost::any(str));
             }
-        } else if (contentType == "vnd/com.toptica.decof.binary_seq") {
-        } else if (contentType == "vnd/com.toptica.decof.tuple")
+        } else if (parser_.content_type == "vnd/com.toptica.decof.binary_seq") {
+            throw std::runtime_error("Not yet implemented");
+        } else if (parser_.content_type == "vnd/com.toptica.decof.tuple")
             throw std::runtime_error("Not yet implemented");
         else
             throw wrong_type_error();
@@ -285,6 +281,12 @@ void scgi_context::handle_put_request()
     }
 
     set_parameter(parser_.uri, value, '/');
+    send_response(response::stock_response(response::status_code::ok));
+}
+
+void scgi_context::handle_post_request()
+{
+    signal_event(parser_.uri, '/');
     send_response(response::stock_response(response::status_code::ok));
 }
 

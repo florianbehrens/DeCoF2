@@ -64,11 +64,11 @@ boost::any client_context::get_parameter(const std::string &uri, char separator)
     return retval;
 }
 
-void client_context::signal_event(const std::string &uri)
+void client_context::signal_event(const std::string &uri, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object *te = object_dictionary_.find_object(uri);
+    object *te = object_dictionary_.find_object(uri, separator);
     if (te != nullptr && userlevel_ >= te->writelevel()) {
         if (event* ev = dynamic_cast<event*>(te))
             ev->signal();

@@ -72,6 +72,8 @@ public:
     method_type method;
     std::string uri;
     headers_type headers;
+    std::string content_type;
+    std::string encoding;
     std::string body;
 
 private:
