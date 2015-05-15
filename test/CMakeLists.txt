@@ -4,6 +4,7 @@ add_executable(
     test_main.cpp
     test_http_body_parser.cpp
     test_parameter_access.cpp
+    test_scgi_access.cpp
     test_scgi_response.cpp
     test_scgi_parser.cpp
 )
