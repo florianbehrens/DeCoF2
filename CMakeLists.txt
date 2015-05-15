@@ -14,7 +14,7 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-add_definitions(-std=c++1y)
+add_definitions(-std=c++0x)
 include_directories(include include/decof src/core)
 add_subdirectory(src)
 add_subdirectory(test)
