@@ -137,8 +137,6 @@ request_parser::result_type request_parser::consume(char input) noexcept
                 return bad;
             break;
         }
-    } catch (boost::bad_lexical_cast) {
-        return bad;
     } catch (...) {
         return bad;
     }

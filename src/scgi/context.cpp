@@ -188,6 +188,8 @@ void scgi_context::read_handler(const std::string &cstr)
         send_response(response::stock_response(response::status_code::not_found));
     } catch (runtime_error&) {
         send_response(response::stock_response(response::status_code::bad_request));
+    } catch (std::out_of_range&) {
+        send_response(response::stock_response(response::status_code::bad_request));
     } catch (...) {
         send_response(response::stock_response(response::status_code::internal_server_error));
     }
