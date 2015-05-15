@@ -198,4 +198,65 @@ BOOST_FIXTURE_TEST_CASE(put_boolean, fixture)
     BOOST_REQUIRE_EQUAL(boolean_rw.value(), false);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_integer, fixture)
+{
+    managed_readonly_parameter<decof::integer> integer_ro("integer_ro", &od, -12345);
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/integer_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.integer" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "-12345");
+}
+
+BOOST_FIXTURE_TEST_CASE(put_integer, fixture)
+{
+    managed_readwrite_parameter<decof::integer> integer_rw("integer_rw", &od, 0);
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         "6" },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/integer_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.integer" }
+        },
+        "-12345"
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+
+    BOOST_REQUIRE_EQUAL(integer_rw.value(), -12345);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
