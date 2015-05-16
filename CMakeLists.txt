@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(decof2)
 
-find_package(Boost 1.46 REQUIRED COMPONENTS system thread unit_test_framework)
+find_package(Boost 1.49 REQUIRED COMPONENTS system thread unit_test_framework)
 
 # Doxygen API documentation generation
 find_package(Doxygen)
