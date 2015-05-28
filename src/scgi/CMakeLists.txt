@@ -1,5 +1,6 @@
 add_library(
     decof2-scgi
+    array_view.h
     context.cpp
     context.h
     js_value_encoder.cpp

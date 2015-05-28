@@ -26,7 +26,7 @@ T native_to_little_endian(const T &value)
 
     // System is big endian?
     uint32_t test = 1;
-    if (*reinterpret_cast<const char*>(&test) == '\001') {
+    if (*reinterpret_cast<const char*>(&test) != '\001') {
         const size_t size = sizeof(T);
         const char *input = reinterpret_cast<const char *>(&value);
         char *output = reinterpret_cast<char *>(&retval);
@@ -62,7 +62,7 @@ void js_value_encoder::encode(std::ostream &out, const boolean_seq &value)
 void js_value_encoder::encode(std::ostream &out, const integer_seq &value)
 {
     for (const auto &elem : value) {
-        uint32_t elem_le = native_to_little_endian(elem);
+        int32_t elem_le = native_to_little_endian(elem);
         out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
     }
 }

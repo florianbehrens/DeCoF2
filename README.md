@@ -289,12 +289,10 @@ interaction with Javascript and the
 [XMLHttpRequest](http://en.wikipedia.org/wiki/XMLHttpRequest) function as being
 standardized by the [W3C](http://www.w3.org/TR/XMLHttpRequest/).
 
-For this reason, numeric primitive (integer, real) and boolean type values are 
-encoded as a Javascript literal that can be converted to a Javascript number 
-using the Number() global function.
-
-Control characters of strings are HTML escaped and binary types are base64 
-encoded.
+For this reason, numeric primitive (integer, real) and boolean type values are
+encoded as a Javascript literal that can be converted to a Javascript number
+using the Number() global function. String and binary parameters are encoded as
+is.
 
 Sequences of numeric types are encoded for use with 
 [Javascript Typed Arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays).
@@ -310,11 +308,16 @@ true and zero for false for use with `Uint8Array`.
 * Sequences of real types are encoded with eight bytes per value according to 
 double precision IEEE 754 for use with `Float64Array`.
 
-Sequences of string and binary types are encoded as their scalar counterparts 
-while the individual elements are separated by CR+LF.
+Sequences of string and binary types are encoded with their individual elements
+encoded as [Bencode strings](http://en.wikipedia.org/wiki/Bencode), separated by
+CR+LF.
 
-The individual elements of a tuple type are encoded like non-sequence types and 
-separated by CR+LF.
+The individual elements of a tuple type are encoded
+
+* like non-sequence types in case of a numeric type, and
+* as a Bencode string in case of string and binary types
+
+and separated by CR+LF.
 
 ### Dependencies
 

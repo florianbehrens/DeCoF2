@@ -24,6 +24,7 @@
 #include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "array_view.h"
 #include "connection.h"
 #include "exceptions.h"
 #include "js_value_encoder.h"
@@ -31,106 +32,23 @@
 namespace
 {
 
-/*** @brief Static array container without memory ownership.
- * This container provides the standard container interface but does not hold
- * ownership of the underlying memory. */
 template<typename T>
-struct array_view
+T little_endian_to_native(const T &value)
 {
-    typedef T value_type;
-    typedef T* iterator;
-    typedef const T* const_iterator;
+    T retval = value;
 
-    /// Constructs #array_view from pointer with size.
-    explicit array_view(T *const ptr, size_t size) :
-        ptr_(ptr),
-        size_(size)
-    {}
-
-    /// Constructs #array_view from begin and end pointer.
-    explicit array_view(T *const begin, T *const end) :
-        ptr_(begin),
-        size_(end - begin)
-    {
-        assert(end >= begin);
+    // System is big endian?
+    uint32_t test = 1;
+    if (*reinterpret_cast<const char*>(&test) != '\001') {
+        const size_t size = sizeof(T);
+        const char *input = reinterpret_cast<const char *>(&value);
+        char *output = reinterpret_cast<char *>(&retval);
+        for (size_t i = 0; i < size; ++i)
+            output[i] = input[size-1-i];
     }
 
-    T& at(size_t pos) {
-        if (pos >= size_)
-            throw std::range_error("array_view: out of range access");
-        return ptr_[pos];
-    }
-
-    const T& at(size_t pos) const {
-        if (pos >= size_)
-            throw std::range_error("array_view: out of range access");
-        return ptr_[pos];
-    }
-
-    T& operator=(size_t pos) {
-        return ptr_[pos];
-    }
-
-    const T& operator=(size_t pos) const {
-        return ptr_[pos];
-    }
-
-    T& front() {
-        return ptr_[0];
-    }
-
-    const T& front() const {
-        return ptr_[0];
-    }
-
-    T& back() {
-        return ptr_[size_-1];
-    }
-
-    const T& back() const {
-        return ptr_[size_-1];
-    }
-
-    T* data() {
-        return ptr_;
-    }
-
-    const T* data() const {
-        return ptr_;
-    }
-
-    iterator begin() {
-        return ptr_;
-    }
-
-    const_iterator begin() const {
-        return ptr_;
-    }
-
-    const_iterator cbegin() const {
-        return ptr_;
-    }
-
-    iterator end() {
-        return ptr_ + size_;
-    }
-
-    const_iterator end() const {
-        return ptr_ + size_;
-    }
-
-    const_iterator cend() const {
-        return ptr_ + size_;
-    }
-
-    size_t size() const {
-        return size_;
-    }
-
-private:
-    T *const ptr_;
-    const size_t size_;
-};
+    return retval;
+}
 
 } // Anonymous namespace
 
@@ -241,13 +159,18 @@ void scgi_context::handle_put_request()
             value = std::move(bin);
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
             vec.reserve(parser_.body.size() / sizeof(char));
-            std::transform(parser_.body.cbegin(),parser_.body.cend(), vec.begin(), [](const char c) { return c > 0; });
+            for (char c : parser_.body)
+                vec.emplace_back(boost::any(c > 0));
             value = vec;
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
+            if (parser_.body.size() % sizeof(decof::integer))
+                throw invalid_value_error();
+
             size_t size = parser_.body.size() / sizeof(decof::integer);
             vec.reserve(size);
-            int32_t *elems = reinterpret_cast<int32_t*>(&parser_.body[0]);
-            std::copy_n(elems, size, vec.begin());
+            array_view<const int32_t> elems(reinterpret_cast<const int32_t*>(&parser_.body[0]), size);
+            for (auto elem : elems)
+                vec.emplace_back(little_endian_to_native(elem));
             value = vec;
         } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
             size_t size = parser_.body.size() / sizeof(decof::real);

@@ -259,4 +259,337 @@ BOOST_FIXTURE_TEST_CASE(put_integer, fixture)
     BOOST_REQUIRE_EQUAL(integer_rw.value(), -12345);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_real, fixture)
+{
+    managed_readonly_parameter<decof::real> real_ro("real_ro", &od, -123.45);
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/real_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.real" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "-123.45");
+}
+
+BOOST_FIXTURE_TEST_CASE(put_real, fixture)
+{
+    managed_readwrite_parameter<decof::real> real_rw("real_rw", &od, 0);
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         "7" },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/real_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.real" }
+        },
+        "-123.45"
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+
+    BOOST_REQUIRE_EQUAL(real_rw.value(), -123.45);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_string, fixture)
+{
+    managed_readonly_parameter<decof::string> string_ro("string_ro", &od, "Hello\nWorld");
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/string_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.string" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "Hello\nWorld");
+}
+
+BOOST_FIXTURE_TEST_CASE(put_string, fixture)
+{
+    managed_readwrite_parameter<decof::string> string_rw("string_rw", &od);
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         "11" },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/string_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.string" }
+        },
+        "Hello\nWorld"
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+
+    BOOST_REQUIRE_EQUAL(string_rw.value(), "Hello\nWorld");
+}
+
+BOOST_FIXTURE_TEST_CASE(get_binary, fixture)
+{
+    managed_readonly_parameter<decof::binary> binary_ro("binary_ro", &od, "Hello\nWorld");
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/binary_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.binary" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "Hello\nWorld");
+}
+
+BOOST_FIXTURE_TEST_CASE(put_binary, fixture)
+{
+    managed_readwrite_parameter<decof::binary> binary_rw("binary_rw", &od);
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         "11" },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/binary_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.binary" }
+        },
+        "Hello\nWorld"
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+
+    BOOST_REQUIRE_EQUAL(binary_rw.value(), "Hello\nWorld");
+}
+
+BOOST_FIXTURE_TEST_CASE(get_boolean_seq, fixture)
+{
+    managed_readonly_parameter<decof::boolean_seq> boolean_seq_ro("boolean_seq_ro", &od, decof::boolean_seq{ true, false, true });
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/boolean_seq_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.boolean_seq" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, std::string("\x01\x00\x01", 3));
+}
+
+BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
+{
+    managed_readwrite_parameter<decof::boolean_seq> boolean_seq_rw("boolean_seq_rw", &od);
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         "3" },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/boolean_seq_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.boolean_seq" }
+        },
+        { "\x01\x00\x01", 3 }
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    decof::boolean_seq nominal{ true, false, true };
+    decof::boolean_seq actual = boolean_seq_rw.value();
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+        actual.cbegin(),
+        actual.cend(),
+        nominal.cbegin(),
+        nominal.cend());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_integer_seq, fixture)
+{
+    managed_readonly_parameter<decof::integer_seq> integer_seq_ro("integer_seq_ro", &od, decof::integer_seq{
+        std::numeric_limits<decof::integer>::max(),
+        0,
+        std::numeric_limits<decof::integer>::min()
+    });
+
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/test/integer_seq_ro" },
+        { "REQUEST_METHOD",         "GET" },
+        { "CONTENT_TYPE",           "vnd/com.toptica.decof.integer_seq" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Skip rest of header
+    do {
+        std::getline(is, str, '\n');
+    } while (str != "\r");
+
+    // Read response body
+    std::getline(is, str, '\r');
+
+    auto actual = reinterpret_cast<const std::int32_t*>(str.data());
+    auto size = integer_seq_ro.value().size();
+    auto nominal = integer_seq_ro.value();
+    BOOST_REQUIRE_EQUAL(str.length(), size * sizeof(std::int32_t));
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+        nominal.cbegin(),
+        nominal.cend(),
+        actual,
+        actual + size);
+}
+
+BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
+{
+    managed_readwrite_parameter<decof::integer_seq> integer_seq_rw("integer_seq_rw", &od);
+
+    std::int32_t data[] = {
+        std::numeric_limits<decof::integer>::max(),
+        0,
+        std::numeric_limits<decof::integer>::min()
+    };
+
+    ss << scgi_request(
+        {
+            { "CONTENT_LENGTH",         std::to_string(sizeof(data)) },
+            { "SCGI",                   "1" },
+            { "REMOTE_PORT",            "12345" },
+            { "REMOTE_ADDR",            "127.0.0.1" },
+            { "REQUEST_URI",            "/test/integer_seq_rw" },
+            { "REQUEST_METHOD",         "PUT" },
+            { "CONTENT_TYPE",           "vnd/com.toptica.decof.integer_seq" }
+        },
+        { reinterpret_cast<char *>(data), sizeof(data) }
+    );
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    od.io_service()->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    decof::integer_seq actual = integer_seq_rw.value();
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+        data,
+        data + sizeof(data) / sizeof(data[0]),
+        actual.cbegin(),
+        actual.cend());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
