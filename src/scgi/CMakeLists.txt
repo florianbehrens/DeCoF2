@@ -13,3 +13,7 @@ add_library(
     request_parser.cpp
     request_parser.h
 )
+target_link_libraries(
+    decof2-scgi
+    decof2-core
+)

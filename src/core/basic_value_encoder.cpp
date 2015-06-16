@@ -17,6 +17,7 @@
 #include "basic_value_encoder.h"
 
 #include <iomanip>
+#include <sstream>
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string/classification.hpp>

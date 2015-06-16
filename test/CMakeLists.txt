@@ -3,7 +3,6 @@ add_executable(
     test
     test_main.cpp
     test_bencode_string_parser.cpp
-    test_http_body_parser.cpp
     test_parameter_access.cpp
     test_scgi_access.cpp
     test_scgi_response.cpp
@@ -11,7 +10,6 @@ add_executable(
 )
 target_link_libraries(
     test
-    decof2-webservice
     decof2-textproto
     decof2-scgi
     decof2-core

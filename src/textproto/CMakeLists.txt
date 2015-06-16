@@ -1,5 +1,4 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-
 add_library(
     decof2-textproto
     lex.cpp
@@ -17,4 +16,8 @@ add_library(
     textproto_visitor.h
     scanner.h
     scanner.ih
+)
+target_link_libraries(
+    decof2-textproto
+    decof2-core
 )

@@ -19,3 +19,7 @@ add_library(
     tcp_connection_manager.cpp
     tcp_connection_manager.h
 )
+target_link_libraries(
+    decof2-core
+    ${Boost_SYSTEM_LIBRARY}
+)

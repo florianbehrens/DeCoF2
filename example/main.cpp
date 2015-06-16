@@ -13,7 +13,6 @@
 #include "scgi/context.h"
 #include "textproto/textproto_clisrv.h"
 #include "textproto/textproto_pubsub.h"
-#include "webservice/http_context.h"
 
 #include "composite.h"
 
@@ -183,11 +182,6 @@ int main()
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
     decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
     conn_mgr_mon.preload<decof::textproto_pubsub>();
-
-    // Setup HTTP context
-//    auto http_ctx_ptr = std::make_shared<decof::http_context>(obj_dict, std::shared_ptr<decof::connection>(nullptr));
-//    obj_dict.add_context(http_ctx_ptr);
-//    http_ctx_ptr->preload();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
