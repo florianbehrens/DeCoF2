@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(decof2)
 
-find_package(Boost 1.54 REQUIRED COMPONENTS system thread unit_test_framework)
+find_package(Boost 1.49 REQUIRED COMPONENTS system thread unit_test_framework)
 
 # Doxygen API documentation generation
 find_package(Doxygen)
@@ -14,7 +14,7 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-add_definitions(-std=c++1y)
+add_definitions(-std=c++0x)
 include_directories(include include/decof src/core)
 add_subdirectory(src)
 add_subdirectory(test)
