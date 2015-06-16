@@ -14,30 +14,8 @@
  * limitations under the License.
  */
 
+#include "endian.h"
 #include "js_value_encoder.h"
-
-namespace
-{
-
-template<typename T>
-T native_to_little_endian(const T &value)
-{
-    T retval = value;
-
-    // System is big endian?
-    uint32_t test = 1;
-    if (*reinterpret_cast<const char*>(&test) != '\001') {
-        const size_t size = sizeof(T);
-        const char *input = reinterpret_cast<const char *>(&value);
-        char *output = reinterpret_cast<char *>(&retval);
-        for (size_t i = 0; i < size; ++i)
-            output[i] = input[size-1-i];
-    }
-
-    return retval;
-}
-
-} // Anonymous namespace
 
 namespace decof
 {
@@ -77,20 +55,29 @@ void js_value_encoder::encode(std::ostream &out, const real_seq &value)
 
 void js_value_encoder::encode(std::ostream &out, const string_seq &value)
 {
+    // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
     for (const auto &elem : value)
-        out << html_string_escape(elem) << "\r\n";
+        out << elem.size() << ":" << elem << "\r\n";
 }
 
 void js_value_encoder::encode(std::ostream &out, const binary_seq &value)
 {
+    // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
     for (const auto &elem : value)
-        out << base64_encode(elem) << "\r\n";
+        out << elem.size() << ":" << elem << "\r\n";
 }
 
 void js_value_encoder::encode(std::ostream &out, const dynamic_tuple &value)
 {
     for (const auto &elem : value) {
-        encode_any(out, elem);
+        if (elem.type() == typeid(decof::string)) {
+            decof::string value = boost::any_cast<decof::string>(elem);
+            out << value.size() << ":" << value;
+        } else if (elem.type() == typeid(decof::binary)) {
+            decof::binary value = boost::any_cast<decof::binary>(elem);
+            out << value.size() << ":" << value;
+        } else
+            encode_any(out, elem);
         out << "\r\n";
     }
 }

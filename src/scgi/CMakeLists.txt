@@ -1,8 +1,11 @@
 add_library(
     decof2-scgi
     array_view.h
+    bencode_string_parser.cpp
+    bencode_string_parser.h
     context.cpp
     context.h
+    endian.h
     js_value_encoder.cpp
     js_value_encoder.h
     response.cpp

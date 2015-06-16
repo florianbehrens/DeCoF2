@@ -55,4 +55,8 @@ parse_error::parse_error()
   : runtime_error(PARSE_ERROR, "Parse error")
 {}
 
+not_implemented_error::not_implemented_error()
+  : runtime_error(NOT_IMPLEMENTED_ERROR, "Not implemented")
+{}
+
 } // namespace decof

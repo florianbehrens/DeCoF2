@@ -2,6 +2,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
     test
     test_main.cpp
+    test_bencode_string_parser.cpp
     test_http_body_parser.cpp
     test_parameter_access.cpp
     test_scgi_access.cpp

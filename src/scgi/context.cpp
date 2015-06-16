@@ -25,32 +25,11 @@
 #include <boost/lexical_cast.hpp>
 
 #include "array_view.h"
+#include "bencode_string_parser.h"
 #include "connection.h"
+#include "endian.h"
 #include "exceptions.h"
 #include "js_value_encoder.h"
-
-namespace
-{
-
-template<typename T>
-T little_endian_to_native(const T &value)
-{
-    T retval = value;
-
-    // System is big endian?
-    uint32_t test = 1;
-    if (*reinterpret_cast<const char*>(&test) != '\001') {
-        const size_t size = sizeof(T);
-        const char *input = reinterpret_cast<const char *>(&value);
-        char *output = reinterpret_cast<char *>(&retval);
-        for (size_t i = 0; i < size; ++i)
-            output[i] = input[size-1-i];
-    }
-
-    return retval;
-}
-
-} // Anonymous namespace
 
 namespace decof
 {
@@ -152,7 +131,7 @@ void scgi_context::handle_put_request()
             ss >> str;
             value = boost::lexical_cast<decof::real>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
-            value = parser_.body;
+            value = std::move(parser_.body);
         } else if (parser_.content_type == "vnd/com.toptica.decof.binary") {
             decof::binary bin;
             bin.swap(parser_.body);
@@ -161,7 +140,7 @@ void scgi_context::handle_put_request()
             vec.reserve(parser_.body.size() / sizeof(char));
             for (char c : parser_.body)
                 vec.emplace_back(boost::any(c > 0));
-            value = vec;
+            value = std::move(vec);
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
             if (parser_.body.size() % sizeof(decof::integer))
                 throw invalid_value_error();
@@ -171,32 +150,56 @@ void scgi_context::handle_put_request()
             array_view<const int32_t> elems(reinterpret_cast<const int32_t*>(&parser_.body[0]), size);
             for (auto elem : elems)
                 vec.emplace_back(little_endian_to_native(elem));
-            value = vec;
+            value = std::move(vec);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
-            size_t size = parser_.body.size() / sizeof(decof::real);
-            vec.reserve(size);
-            double *elems = reinterpret_cast<double*>(&parser_.body[0]);
-            std::copy_n(elems, size, vec.begin());
-            value = vec;
-        } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
-            auto pos = parser_.body.find("\r\n");
-            if (pos >= parser_.body.size())
+            if (parser_.body.size() % sizeof(decof::real))
                 throw invalid_value_error();
 
-            array_view<const int32_t> view(reinterpret_cast<const int32_t*>(parser_.body.data()), pos / sizeof(int32_t));
-            vec.resize(view.size());
+            size_t size = parser_.body.size() / sizeof(decof::real);
+            vec.reserve(size);
 
-            pos += 2;
-            for (const auto &size : view) {
-                if (pos + size > parser_.body.size())
+            array_view<const double> elems(reinterpret_cast<const double*>(&parser_.body[0]), size);
+            for (auto elem : elems)
+                vec.emplace_back(little_endian_to_native(elem));
+            value = std::move(vec);
+        } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
+            auto it = parser_.body.cbegin();
+            for (; it != parser_.body.cend(); it += 2) {
+                bencode_string_parser parser;
+                bencode_string_parser::result_type result;
+                std::tie(result, it) = parser.parse(it, parser_.body.cend());
+
+                if (result == bencode_string_parser::good) {
+                    vec.push_back(boost::any(std::move(parser.data)));
+                } else
                     throw invalid_value_error();
-                str = parser_.body.substr(pos, pos + size);
-                vec.push_back(boost::any(str));
+
+                if (it == parser_.body.cend())
+                    break;
             }
+
+            value = std::move(vec);
         } else if (parser_.content_type == "vnd/com.toptica.decof.binary_seq") {
-            throw std::runtime_error("Not yet implemented");
+            auto it = parser_.body.cbegin();
+            for (; it != parser_.body.cend(); it += 2) {
+                bencode_string_parser parser;
+                bencode_string_parser::result_type result;
+                std::tie(result, it) = parser.parse(it, parser_.body.cend());
+
+                if (result == bencode_string_parser::good) {
+                    decof::binary binary;
+                    binary.swap(parser.data);
+                    vec.push_back(boost::any(std::move(binary)));
+                } else
+                    throw invalid_value_error();
+
+                if (it == parser_.body.cend())
+                    break;
+            }
+
+            value = std::move(vec);
         } else if (parser_.content_type == "vnd/com.toptica.decof.tuple")
-            throw std::runtime_error("Not yet implemented");
+            throw not_implemented_error();
         else
             throw wrong_type_error();
     } catch (boost::bad_any_cast&) {

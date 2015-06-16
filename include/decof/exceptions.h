@@ -64,6 +64,11 @@ struct parse_error : public runtime_error
     parse_error();
 };
 
+struct not_implemented_error : public runtime_error
+{
+    not_implemented_error();
+};
+
 } // namespace decof
 
 #endif // EXCEPTIONS_H
