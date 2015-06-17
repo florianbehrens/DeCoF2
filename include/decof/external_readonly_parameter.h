@@ -57,6 +57,14 @@ public:
         return get_external_value();
     }
 
+    /// @brief Call this member function to signal value changes.
+    /// In cases where a value change information is obtained by external means,
+    /// (e.g., from a select() on a file descriptor) calling this member
+    /// function results in a value update for subscribers.
+    void value_changed() {
+        notify();
+    }
+
     virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
