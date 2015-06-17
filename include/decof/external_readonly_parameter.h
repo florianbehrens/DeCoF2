@@ -64,7 +64,7 @@ public:
             return boost::signals2::connection();
 
         // Connect to regular timer
-        connection_ = obj_dict->get_medium_timer().observe(std::bind(&external_readonly_parameter<T>::notify, this));
+        connection_ = obj_dict->get_timer().observe(std::bind(&external_readonly_parameter<T>::notify, this));
 
         // Call base class member function
         return readable_parameter<T>::observe(slot);

@@ -52,9 +52,7 @@ public:
 
     object_dictionary(const std::string &root_uri = "root");
 
-    regular_timer& get_fast_timer();
-    regular_timer& get_medium_timer();
-    regular_timer& get_slow_timer();
+    regular_timer& get_timer();
 
     std::shared_ptr<boost::asio::io_service> io_service();
 

@@ -47,19 +47,9 @@ object_dictionary::object_dictionary(const std::string &root_uri)
     slow_timer_ptr_->start();
 }
 
-regular_timer& object_dictionary::get_fast_timer()
-{
-    return *fast_timer_ptr_.get();
-}
-
-regular_timer& object_dictionary::get_medium_timer()
+regular_timer& object_dictionary::get_timer()
 {
     return *medium_timer_ptr_.get();
-}
-
-regular_timer& object_dictionary::get_slow_timer()
-{
-    return *slow_timer_ptr_.get();
 }
 
 std::shared_ptr<boost::asio::io_service> object_dictionary::io_service()
