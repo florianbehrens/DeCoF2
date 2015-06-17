@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef DECOF_CLI_SCANNER_H
+#define DECOF_CLI_SCANNER_H
 
 // $insert baseclass_h
 #include "scannerbase.h"
@@ -84,4 +84,4 @@ inline void scanner::print()
 // $insert namespace-close
 }
 
-#endif // SCANNER_H
+#endif // DECOF_CLI_SCANNER_H

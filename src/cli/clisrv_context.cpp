@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "textproto_clisrv.h"
+#include "clisrv_context.h"
 
 #include <sstream>
 #include <string>
@@ -29,8 +29,8 @@
 #include "object.h"
 #include "object_dictionary.h"
 #include "parser.h"
-#include "textproto_encoder.h"
-#include "textproto_visitor.h"
+#include "encoder.h"
+#include "visitor.h"
 
 namespace
 {
@@ -42,27 +42,27 @@ const std::string prompt("> ");
 namespace decof
 {
 
-std::string textproto_clisrv::connection_type() const
+std::string clisrv_context::connection_type() const
 {
     return connection_->type();
 }
 
-std::string textproto_clisrv::remote_endpoint() const
+std::string clisrv_context::remote_endpoint() const
 {
     return connection_->remote_endpoint();
 }
 
-void textproto_clisrv::preload()
+void clisrv_context::preload()
 {
     // Connect to signals of connection class
-    connection_->read_signal.connect(std::bind(&textproto_clisrv::read_handler, this, std::placeholders::_1));
-    connection_->disconnect_signal.connect(std::bind(&textproto_clisrv::disconnect_handler, this));
+    connection_->read_signal.connect(std::bind(&clisrv_context::read_handler, this, std::placeholders::_1));
+    connection_->disconnect_signal.connect(std::bind(&clisrv_context::disconnect_handler, this));
 
     connection_->async_write("DeCoF command line\n" + prompt);
     connection_->async_read_until('\n');
 }
 
-void decof::textproto_clisrv::read_handler(const std::string& cstr)
+void decof::clisrv_context::read_handler(const std::string& cstr)
 {
     // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
     std::string str(cstr);
@@ -91,7 +91,7 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     try {
         if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
             boost::any any_value = get_parameter(uri);
-            textproto_encoder().encode_any(ss_out, any_value);
+            encoder().encode_any(ss_out, any_value);
             ss_out << std::endl;
         } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
             set_parameter(uri, any_value);
@@ -105,7 +105,7 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
             if (!uri.empty())
                 root_uri = uri;
             std::stringstream temp_ss;
-            textproto_visitor visitor(temp_ss);
+            visitor visitor(temp_ss);
             browse(&visitor, root_uri);
             ss_out << temp_ss.str();
         } else
@@ -119,7 +119,7 @@ void decof::textproto_clisrv::read_handler(const std::string& cstr)
     connection_->async_read_until('\n');
 }
 
-void textproto_clisrv::disconnect_handler()
+void clisrv_context::disconnect_handler()
 {
     // Remove this client context from object dictionary. Because it is a
     // shared pointer, it gets deleted after leaving function scope.

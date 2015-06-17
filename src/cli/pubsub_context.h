@@ -14,30 +14,33 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_DECOF_TEXTPROTO_VISITOR_H
-#define DECOF_TEXTPROTO_VISITOR_H
+#ifndef DECOF_CLI_PUBSUB_CONTEXT_H
+#define DECOF_CLI_PUBSUB_CONTEXT_H
 
-#include <sstream>
+#include "client_context.h"
 
-#include "object_visitor.h"
+#include <string>
+
+#include <boost/any.hpp>
 
 namespace decof
 {
 
-class object;
-
-class textproto_visitor : public object_visitor
+class pubsub_context : public client_context
 {
 public:
-    explicit textproto_visitor(std::stringstream &ss);
+    // We inherit base class constructors
+    using client_context::client_context;
 
-    virtual void visit(node *node) override;
-    virtual void visit(object *obj) override;
+    virtual std::string connection_type() const override final;
+    virtual std::string remote_endpoint() const override final;
+    virtual void preload() override final;
 
 private:
-    std::stringstream &ss_;
+    void read_handler(const std::string &cstr);
+    void notify(const std::string &uri, const boost::any &any_value);
 };
 
 } // namespace decof
 
-#endif // DECOF_TEXTPROTO_VISITOR_H
+#endif // DECOF_CLI_PUBSUB_CONTEXT_H

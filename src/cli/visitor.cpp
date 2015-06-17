@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "textproto_visitor.h"
+#include "visitor.h"
 
 #include "node.h"
-#include "textproto_encoder.h"
+#include "encoder.h"
 
 namespace decof
 {
 
-textproto_visitor::textproto_visitor(std::stringstream &ss) :
+visitor::visitor(std::stringstream &ss) :
     ss_(ss)
 {}
 
-void textproto_visitor::visit(node *node)
+void visitor::visit(node *node)
 {
     write_indentation(ss_, node);
     if (node->parent() != nullptr)
@@ -34,7 +34,7 @@ void textproto_visitor::visit(node *node)
     ss_ << node->name() << std::endl;
 }
 
-void textproto_visitor::visit(object *obj)
+void visitor::visit(object *obj)
 {
     client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
 
@@ -44,7 +44,7 @@ void textproto_visitor::visit(object *obj)
         << obj->name();
     if (read_if != nullptr) {
         ss_ << " = ";
-        textproto_encoder().encode_any(ss_, read_if->any_value());
+        encoder().encode_any(ss_, read_if->any_value());
     }
     ss_ << std::endl;
 }

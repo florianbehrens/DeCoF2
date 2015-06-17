@@ -19,7 +19,7 @@
 
 #include "decof.h"
 #include "tcp_connection_manager.h"
-#include "textproto/textproto_clisrv.h"
+#include "cli/clisrv_context.h"
 
 BOOST_AUTO_TEST_SUITE(parameter_access)
 
@@ -35,7 +35,7 @@ struct fixture
         is(&buf)
     {
         // Setup server
-        conn_mgr.preload<textproto_clisrv>();
+        conn_mgr.preload<clisrv_context>();
 
         // Connect with server and wait for prompt
         client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), conn_mgr.port()));

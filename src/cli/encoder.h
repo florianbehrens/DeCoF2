@@ -14,33 +14,23 @@
  * limitations under the License.
  */
 
-#include "textproto_encoder.h"
+#ifndef DECOF_CLI_ENCODER_H
+#define DECOF_CLI_ENCODER_H
 
-#include <boost/any.hpp>
+#include <string>
 
-#include "conversion.h"
-#include "exceptions.h"
-#include "types.h"
+#include "basic_value_encoder.h"
 
 namespace decof
 {
 
-void textproto_encoder::encode(std::ostream &out, const boolean &value)
+struct encoder : public basic_value_encoder
 {
-    if (value == true)
-        out << "#t";
-    else
-        out << "#f";
-}
-
-void textproto_encoder::encode(std::ostream &out, const string &value)
-{
-    out << "\"" << html_string_escape(value) << "\"";
-}
-
-void textproto_encoder::encode(std::ostream &out, const binary &value)
-{
-    out << "&" << base64_encode(value);
-}
+    virtual void encode(std::ostream &out, const boolean &value);
+    virtual void encode(std::ostream &out, const string &value);
+    virtual void encode(std::ostream &out, const binary &value);
+};
 
 } // namespace decof
+
+#endif // DECOF_CLI_ENCODER_H

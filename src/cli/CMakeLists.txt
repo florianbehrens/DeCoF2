@@ -1,0 +1,23 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+add_library(
+    decof2-cli
+    lex.cpp
+    parse.cpp
+    parser.h
+    parser.ih
+    parser_includes.h
+    clisrv_context.cpp
+    clisrv_context.h
+    encoder.cpp
+    encoder.h
+    pubsub_context.cpp
+    pubsub_context.h
+    visitor.cpp
+    visitor.h
+    scanner.h
+    scanner.ih
+)
+target_link_libraries(
+    decof2-cli
+    decof2-core
+)

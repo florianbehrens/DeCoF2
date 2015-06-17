@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef TEXTPROTO_CLISRV_H
-#define TEXTPROTO_CLISRV_H
+#ifndef DECOF_CLI_CLISRV_CONTEXT_H
+#define DECOF_CLI_CLISRV_CONTEXT_H
 
 #include "client_context.h"
 
 namespace decof
 {
 
-class textproto_clisrv : public client_context
+class clisrv_context : public client_context
 {
 public:
     // We inherit base class constructors
@@ -34,7 +34,7 @@ public:
 
 private:
     /** @brief boost::asio read handler.
-     * Parses and evaluates textproto client/server command lines. Expects
+     * Parses and evaluates CLI client/server command lines. Expects
      * command lines like: <operation> [ <uri> [ <value-string> ]].
      * Operation must be one of: get, param-ref, set, param-set!, signal, exec,
      * browse, param-disp. */
@@ -45,4 +45,4 @@ private:
 
 } // namespace decof
 
-#endif // TEXTPROTO_CLISRV_H
+#endif // DECOF_CLI_CLISRV_CONTEXT_H

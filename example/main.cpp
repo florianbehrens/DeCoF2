@@ -10,9 +10,9 @@
 
 #include "decof.h"
 #include "tcp_connection_manager.h"
+#include "cli/clisrv_context.h"
+#include "cli/pubsub_context.h"
 #include "scgi/context.h"
-#include "textproto/textproto_clisrv.h"
-#include "textproto/textproto_pubsub.h"
 
 #include "composite.h"
 
@@ -176,12 +176,12 @@ int main()
     // Setup scheme command line connection manager
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
     decof::tcp_connection_manager conn_mgr_cmd(obj_dict, cmd_endpoint);
-    conn_mgr_cmd.preload<decof::textproto_clisrv>();
+    conn_mgr_cmd.preload<decof::clisrv_context>();
 
     // Setup scheme monitoring line connection manager
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
     decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
-    conn_mgr_mon.preload<decof::textproto_pubsub>();
+    conn_mgr_mon.preload<decof::pubsub_context>();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);

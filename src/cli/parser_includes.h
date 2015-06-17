@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_INCLUDES_H
-#define PARSER_INCLUDES_H
+#ifndef DECOF_CLI_PARSER_INCLUDES_H
+#define DECOF_CLI_PARSER_INCLUDES_H
 
 #include <boost/any.hpp>
 
 #include <types.h>
 
-#endif // PARSER_INCLUDES_H
+#endif // DECOF_CLI_PARSER_INCLUDES_H

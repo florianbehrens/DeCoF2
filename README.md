@@ -138,12 +138,13 @@ Implementation
 There are several protocol implementations provided but the framework is
 intentionally open for new implementations.
 
-#### Text protocol
+#### Command line interface protocol
 
-The text protocol is around for historical reasons and for its simplicity and
-usability when it comes to manual (terminal) interaction with a server.
+The command line interface (CLI) protocol is around for historical reasons and
+for its simplicity and usability when it comes to manual (terminal) interaction
+with a server.
 
-The text protocol implements both the client/server and publish/subscribe
+The CLI protocol implements both the client/server and publish/subscribe
 interaction models as well as supports some simple discovery means.
 
 ##### Client/server model
@@ -199,7 +200,7 @@ Values are encoded according to their type as follows:
 
 ##### Discovery
 
-The text protocol supports a simple dicovery means by using the operation
+The CLI protocol supports a simple dicovery means by using the operation
 `param-disp` or `browse`. The output is a textual representation of the
 objects in the object dictionary.
 

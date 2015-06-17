@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "textproto_pubsub.h"
+#include "pubsub_context.h"
 
 #include <string>
 #include <vector>
@@ -26,29 +26,29 @@
 
 #include "connection.h"
 #include "exceptions.h"
-#include "textproto_encoder.h"
+#include "encoder.h"
 
 namespace decof
 {
 
-std::string textproto_pubsub::connection_type() const
+std::string pubsub_context::connection_type() const
 {
     return connection_->type();
 }
 
-std::string textproto_pubsub::remote_endpoint() const
+std::string pubsub_context::remote_endpoint() const
 {
     return connection_->remote_endpoint();
 }
 
-void textproto_pubsub::preload()
+void pubsub_context::preload()
 {
     // Connect to signals of connection class
-    connection_->read_signal.connect(std::bind(&textproto_pubsub::read_handler, this, std::placeholders::_1));
+    connection_->read_signal.connect(std::bind(&pubsub_context::read_handler, this, std::placeholders::_1));
     connection_->async_read_until('\n');
 }
 
-void textproto_pubsub::read_handler(const std::string &cstr)
+void pubsub_context::read_handler(const std::string &cstr)
 {
     // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
     std::string str(cstr);
@@ -69,7 +69,7 @@ void textproto_pubsub::read_handler(const std::string &cstr)
 
         if (tokens[0] == "subscribe" || tokens[0] == "add") {
             //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
-            observe(tokens[1], std::bind(&textproto_pubsub::notify, this, std::placeholders::_1, std::placeholders::_2));
+            observe(tokens[1], std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
         } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
             unobserve(tokens[1]);
         } else
@@ -83,7 +83,7 @@ void textproto_pubsub::read_handler(const std::string &cstr)
     connection_->async_read_until('\n');
 }
 
-void textproto_pubsub::notify(const std::string &uri, const boost::any &any_value)
+void pubsub_context::notify(const std::string &uri, const boost::any &any_value)
 {
     // Get current time in textual representation
     const size_t max_length = 25;
@@ -93,7 +93,7 @@ void textproto_pubsub::notify(const std::string &uri, const boost::any &any_valu
 
     std::stringstream ss;
     ss << "(" << time_str << " '" << uri << " ";
-    textproto_encoder().encode_any(ss, any_value);
+    encoder().encode_any(ss, any_value);
     ss << ")\n";
     connection_->async_write(ss.str());
 }

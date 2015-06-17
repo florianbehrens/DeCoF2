@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef DECOF_CLI_PARSER_H
+#define DECOF_CLI_PARSER_H
 
 #include "scanner.h"
 #include "parserbase.h"
@@ -54,4 +54,4 @@ private:
 // $insert namespace-close
 }
 
-#endif // PARSER_H
+#endif // DECOF_CLI_PARSER_H
