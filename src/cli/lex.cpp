@@ -12,6 +12,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
     // s_ranges__: use (unsigned) characters as index to obtain
     //           that character's range-number.
     //           The range for EOF is defined in a constant in the
@@ -535,4 +538,6 @@ void scannerBase::print__() const
 
 
 // $insert namespace-close
+}
+
 }

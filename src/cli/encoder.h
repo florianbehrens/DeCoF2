@@ -24,12 +24,17 @@
 namespace decof
 {
 
+namespace cli
+{
+
 struct encoder : public basic_value_encoder
 {
     virtual void encode(std::ostream &out, const boolean &value);
     virtual void encode(std::ostream &out, const string &value);
     virtual void encode(std::ostream &out, const binary &value);
 };
+
+} // namespace cli
 
 } // namespace decof
 

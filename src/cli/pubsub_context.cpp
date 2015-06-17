@@ -31,6 +31,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 std::string pubsub_context::connection_type() const
 {
     return connection_->type();
@@ -97,5 +100,7 @@ void pubsub_context::notify(const std::string &uri, const boost::any &any_value)
     ss << ")\n";
     connection_->async_write(ss.str());
 }
+
+} // namespace cli
 
 } // namespace decof

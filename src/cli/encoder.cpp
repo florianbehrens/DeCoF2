@@ -25,6 +25,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 void encoder::encode(std::ostream &out, const boolean &value)
 {
     if (value == true)
@@ -42,5 +45,7 @@ void encoder::encode(std::ostream &out, const binary &value)
 {
     out << "&" << base64_encode(value);
 }
+
+} // namespace cli
 
 } // namespace decof

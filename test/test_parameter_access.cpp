@@ -24,6 +24,7 @@
 BOOST_AUTO_TEST_SUITE(parameter_access)
 
 using namespace decof;
+namespace cli = decof::cli;
 namespace asio = boost::asio;
 
 struct fixture
@@ -35,7 +36,7 @@ struct fixture
         is(&buf)
     {
         // Setup server
-        conn_mgr.preload<clisrv_context>();
+        conn_mgr.preload<cli::clisrv_context>();
 
         // Connect with server and wait for prompt
         client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), conn_mgr.port()));

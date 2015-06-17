@@ -24,6 +24,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 // $insert classHead
 class scanner: public scannerBase
 {
@@ -82,6 +85,8 @@ inline void scanner::print()
 }
 
 // $insert namespace-close
+}
+
 }
 
 #endif // DECOF_CLI_SCANNER_H

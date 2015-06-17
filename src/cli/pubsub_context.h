@@ -26,6 +26,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 class pubsub_context : public client_context
 {
 public:
@@ -40,6 +43,8 @@ private:
     void read_handler(const std::string &cstr);
     void notify(const std::string &uri, const boost::any &any_value);
 };
+
+} // namespace cli
 
 } // namespace decof
 

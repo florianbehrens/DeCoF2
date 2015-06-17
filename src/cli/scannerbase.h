@@ -15,6 +15,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 class scannerBase
 {
                 // idx: rule, value: tail length (NO_INCREMENTS if no tail)
@@ -394,6 +397,8 @@ inline void scannerBase::noReturn__()
 }
 
 // $insert namespace-close
+}
+
 }
 
 #endif //  scannerBASE_H_INCLUDED

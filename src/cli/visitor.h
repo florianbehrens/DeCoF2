@@ -24,19 +24,24 @@
 namespace decof
 {
 
+namespace cli
+{
+
 class object;
 
-class visitor : public object_visitor
+class visitor : public decof::object_visitor
 {
 public:
     explicit visitor(std::stringstream &ss);
 
-    virtual void visit(node *node) override;
-    virtual void visit(object *obj) override;
+    virtual void visit(decof::node *node) override;
+    virtual void visit(decof::object *obj) override;
 
 private:
     std::stringstream &ss_;
 };
+
+} // namespace cli
 
 } // namespace decof
 

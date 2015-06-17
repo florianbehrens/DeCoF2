@@ -42,6 +42,9 @@ const std::string prompt("> ");
 namespace decof
 {
 
+namespace cli
+{
+
 std::string clisrv_context::connection_type() const
 {
     return connection_->type();
@@ -62,7 +65,7 @@ void clisrv_context::preload()
     connection_->async_read_until('\n');
 }
 
-void decof::clisrv_context::read_handler(const std::string& cstr)
+void clisrv_context::read_handler(const std::string& cstr)
 {
     // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
     std::string str(cstr);
@@ -126,5 +129,7 @@ void clisrv_context::disconnect_handler()
     auto sptr = shared_from_this();
     object_dictionary_.remove_context(sptr);
 }
+
+} // namespace cli
 
 } // namespace decof

@@ -20,6 +20,9 @@ namespace // anonymous
 namespace decof
 {
 
+namespace cli
+{
+
 // $insert polymorphic
 enum class Tag__
 {
@@ -345,6 +348,8 @@ inline SType &SType::operator=(Tp_ &&rhs)
 #define parser parserBase
 
 // $insert namespace-close
+}
+
 }
 
 #endif

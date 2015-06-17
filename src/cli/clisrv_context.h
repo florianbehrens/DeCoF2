@@ -22,6 +22,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 class clisrv_context : public client_context
 {
 public:
@@ -42,6 +45,8 @@ private:
 
     void disconnect_handler();
 };
+
+} // namespace cli
 
 } // namespace decof
 

@@ -22,11 +22,14 @@
 namespace decof
 {
 
+namespace cli
+{
+
 visitor::visitor(std::stringstream &ss) :
     ss_(ss)
 {}
 
-void visitor::visit(node *node)
+void visitor::visit(decof::node *node)
 {
     write_indentation(ss_, node);
     if (node->parent() != nullptr)
@@ -34,7 +37,7 @@ void visitor::visit(node *node)
     ss_ << node->name() << std::endl;
 }
 
-void visitor::visit(object *obj)
+void visitor::visit(decof::object *obj)
 {
     client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
 
@@ -48,5 +51,7 @@ void visitor::visit(object *obj)
     }
     ss_ << std::endl;
 }
+
+} // namespace cli
 
 } // namespace decof

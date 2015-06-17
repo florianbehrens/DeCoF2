@@ -47,6 +47,9 @@ inline decof::binary base64decode(std::string base64)
 namespace decof
 {
 
+namespace cli
+{
+
 parser::parser(std::istream &in) :
     d_scanner(in)
 {}
@@ -78,4 +81,6 @@ inline void parser::exceptionHandler__(std::exception const &)
 }
 
 // $insert namespace-close
+}
+
 }

@@ -24,6 +24,9 @@
 namespace decof
 {
 
+namespace cli
+{
+
 #undef parser
 class parser: public parserBase
 {        
@@ -52,6 +55,8 @@ private:
 };
 
 // $insert namespace-close
+}
+
 }
 
 #endif // DECOF_CLI_PARSER_H
