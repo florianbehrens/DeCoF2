@@ -66,9 +66,7 @@ private:
     void set_current_context(client_context* client_context);
 
     std::shared_ptr<boost::asio::io_service> io_service_ptr_;
-    std::unique_ptr<regular_timer> fast_timer_ptr_;
-    std::unique_ptr<regular_timer> medium_timer_ptr_;
-    std::unique_ptr<regular_timer> slow_timer_ptr_;
+    std::unique_ptr<regular_timer> timer_ptr_;
 
     std::list<std::shared_ptr<client_context>> client_contexts_;
     std::shared_ptr<client_context> current_context_;
