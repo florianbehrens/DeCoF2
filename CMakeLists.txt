@@ -16,6 +16,7 @@ endif(DOXYGEN_FOUND)
 
 add_definitions(-std=c++0x)
 include_directories(include include/decof src/core)
+add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(example)

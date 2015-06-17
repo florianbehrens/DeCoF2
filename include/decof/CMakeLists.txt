@@ -1,0 +1,24 @@
+add_custom_target(
+    decof2-core-headers
+    SOURCES
+        basic_parameter.h
+        client_context.h
+        client_read_interface.h
+        client_write_interface.h
+        conversion.h
+        event.h
+        exceptions.h
+        external_readonly_parameter.h
+        external_readwrite_parameter.h
+        managed_readonly_parameter.h
+        managed_readwrite_parameter.h
+        node.h
+        object_dictionary.h
+        object.h
+        readable_parameter.h
+        typed_client_read_interface.h
+        typed_client_write_interface.h
+        types.h
+        userlevel.h
+        writeonly_parameter.h
+)
