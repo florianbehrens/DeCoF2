@@ -36,21 +36,7 @@ object_dictionary::context_guard::~context_guard()
 
 object_dictionary::object_dictionary(const std::string &root_uri)
  : node(root_uri, nullptr)
-{
-    io_service_ptr_ = std::make_shared<boost::asio::io_service>();
-    timer_ptr_.reset(new regular_timer(*io_service_ptr_.get(), std::chrono::milliseconds(500)));
-    timer_ptr_->start();
-}
-
-regular_timer& object_dictionary::get_timer()
-{
-    return *timer_ptr_.get();
-}
-
-std::shared_ptr<boost::asio::io_service> object_dictionary::io_service()
-{
-    return io_service_ptr_;
-}
+{}
 
 void object_dictionary::add_context(std::shared_ptr<client_context> client_context)
 {
@@ -67,6 +53,11 @@ const std::shared_ptr<client_context> object_dictionary::current_context() const
 // FIXME
 //    assert(current_context_ != nullptr);
     return current_context_;
+}
+
+object_dictionary::tick_connection object_dictionary::register_for_tick(object_dictionary::tick_slot_type slot)
+{
+    return tick_signal_.connect(slot);
 }
 
 object *object_dictionary::find_object(const std::string &curi, char separator)
@@ -96,6 +87,11 @@ void object_dictionary::set_current_context(client_context *client_context)
         current_context_ = client_context->shared_from_this();
     else
         current_context_.reset();
+}
+
+void object_dictionary::tick()
+{
+    tick_signal_();
 }
 
 } // namespace decof

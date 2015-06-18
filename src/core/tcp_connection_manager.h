@@ -19,7 +19,8 @@
 
 #include <memory>
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 #include "client_context.h"
 #include "object_dictionary.h"
@@ -32,7 +33,9 @@ class tcp_connection_manager
 {
 public:
     /// Note that the callback function takes ownership of the provided socket object.
-    tcp_connection_manager(object_dictionary& a_object_dictionary, const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
+    tcp_connection_manager(object_dictionary& obj_dict,
+                           std::shared_ptr<boost::asio::io_service> io_service,
+                           const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
 
     /// Returns the listening port.
     /// This is identical to the port given in constructor if non-zero.

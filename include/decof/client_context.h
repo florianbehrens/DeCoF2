@@ -70,6 +70,11 @@ protected:
      * starts at root uri. */
     void browse(object_visitor *visitor, const std::string &root_uri = std::string());
 
+    /// @brief Timer tick.
+    /// Call this member function regularly in order to check for value changes
+    /// of observed external_readonly_parameters.
+    void tick();
+
     object_dictionary& object_dictionary_;
     std::shared_ptr<connection> connection_;
 

@@ -17,7 +17,6 @@
 #ifndef DECOF_CONNECTION_H
 #define DECOF_CONNECTION_H
 
-#include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 
 #define signals
@@ -29,11 +28,6 @@ namespace decof
  *
  * This class provides basic functionality for all different transport
  * connections such as TCP, serial line, etc.
- *
- * Though heavily based on @a boost::asio which uses compile-time
- * polymorphism with templates, this class uses runtime polymorphism with
- * virtual functions. This makes the implementation of transport protocols
- * easier because there is no need for heavy template programming.
  *
  * For reading and writing over the connection virtual functions are provided
  * in a similar manner as @a boost::asio provides. Callbacks are implemented

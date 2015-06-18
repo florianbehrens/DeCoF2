@@ -16,6 +16,7 @@
 
 #include "pubsub_context.h"
 
+#include <sstream>
 #include <string>
 #include <vector>
 

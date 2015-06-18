@@ -21,10 +21,10 @@ using boost::asio::ip::tcp;
 namespace decof
 {
 
-tcp_connection_manager::tcp_connection_manager(object_dictionary& a_object_dictionary, const tcp::endpoint& endpoint, userlevel_t userlevel)
-  : object_dictionary_(a_object_dictionary),
-    acceptor_(*a_object_dictionary.io_service().get(), endpoint),
-    socket_(*a_object_dictionary.io_service().get()),
+tcp_connection_manager::tcp_connection_manager(object_dictionary& obj_dict, std::shared_ptr<boost::asio::io_service> io_service, const tcp::endpoint& endpoint, userlevel_t userlevel)
+  : object_dictionary_(obj_dict),
+    acceptor_(*io_service.get(), endpoint),
+    socket_(*io_service.get()),
     userlevel_(userlevel)
 {}
 

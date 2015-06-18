@@ -12,8 +12,6 @@ add_library(
     object_dictionary.cpp
     object_visitor.cpp
     object_visitor.h
-    regular_timer.cpp
-    regular_timer.h
     tcp_connection.cpp
     tcp_connection.h
     tcp_connection_manager.cpp

@@ -115,6 +115,11 @@ void client_context::browse(object_visitor *visitor, const std::string &root_uri
         throw invalid_parameter_error();
 }
 
+void client_context::tick()
+{
+    object_dictionary_.tick();
+}
+
 void client_context::browse_object(object *te, object_visitor *visitor)
 {
     te->accept(visitor);

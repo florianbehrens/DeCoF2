@@ -7,6 +7,7 @@ add_executable(
 )
 target_link_libraries(
     example
+    decof2-asio-tick
     decof2-cli
     decof2-scgi
 )

@@ -19,10 +19,7 @@
 
 #include <memory>
 
-#include <boost/asio.hpp>
-
 #include "node.h"
-#include "regular_timer.h"
 
 namespace decof
 {
@@ -36,6 +33,10 @@ class object_dictionary : public node
     friend class client_context;
 
 public:
+    typedef boost::signals2::signal<void ()> tick_type;
+    typedef tick_type::slot_type tick_slot_type;
+    typedef boost::signals2::connection tick_connection;
+
     class context_guard
     {
     public:
@@ -52,24 +53,26 @@ public:
 
     object_dictionary(const std::string &root_uri = "root");
 
-    regular_timer& get_timer();
-
-    std::shared_ptr<boost::asio::io_service> io_service();
-
     void add_context(std::shared_ptr<client_context> client_context);
     void remove_context(std::shared_ptr<client_context> client_context);
     const std::shared_ptr<client_context> current_context() const;
+
+    /// @brief Registers a timer observer.
+    /// The connection with the timer registrar is based on @a boost::signals2.
+    /// @param slot The signal slot.
+    /// @return A @a boost::signals2 connection object.
+    tick_connection register_for_tick(tick_slot_type slot);
 
 private:
     object* find_object(const std::string &curi, char separator = ':');
 
     void set_current_context(client_context* client_context);
 
-    std::shared_ptr<boost::asio::io_service> io_service_ptr_;
-    std::unique_ptr<regular_timer> timer_ptr_;
+    void tick();
 
     std::list<std::shared_ptr<client_context>> client_contexts_;
     std::shared_ptr<client_context> current_context_;
+    tick_type tick_signal_;
 };
 
 } // namespace decof

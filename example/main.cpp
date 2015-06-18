@@ -10,6 +10,7 @@
 
 #include "decof.h"
 #include "tcp_connection_manager.h"
+#include "asio_tick/asio_tick.h"
 #include "cli/clisrv_context.h"
 #include "cli/pubsub_context.h"
 #include "scgi/context.h"
@@ -18,6 +19,8 @@
 
 namespace
 {
+
+std::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service());
 
 DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(my_managed_readwrite_parameter, decof::string);
 DECOF_DECLARE_MANAGED_READONLY_PARAMETER(my_managed_readonly_parameter, decof::string);
@@ -56,7 +59,7 @@ decof::string time_parameter::get_external_value()
 
 void exit_event::signal()
 {
-    get_object_dictionary()->io_service()->stop();
+    io_service->stop();
 }
 
 void cout_parameter::value(const decof::string &value)
@@ -173,22 +176,27 @@ int main()
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
 
-    // Setup scheme command line connection manager
+    // Setup request/respone CLI context
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    decof::tcp_connection_manager conn_mgr_cmd(obj_dict, cmd_endpoint);
+    decof::tcp_connection_manager conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);
     conn_mgr_cmd.preload<decof::cli::clisrv_context>();
 
-    // Setup scheme monitoring line connection manager
+    // Setup publish/subscribe CLI context
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    decof::tcp_connection_manager conn_mgr_mon(obj_dict, mon_endpoint);
+    decof::tcp_connection_manager conn_mgr_mon(obj_dict, io_service, mon_endpoint);
     conn_mgr_mon.preload<decof::cli::pubsub_context>();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
-    decof::tcp_connection_manager scgi_conn_mgr(obj_dict, scgi_endpoint);
+    decof::tcp_connection_manager scgi_conn_mgr(obj_dict, io_service, scgi_endpoint);
     scgi_conn_mgr.preload<decof::scgi::scgi_context>();
 
-    obj_dict.io_service()->run();
+    // Setup asio_tick context
+    decof::asio_tick::asio_tick_context tick_ctx(obj_dict, io_service);
+    tick_ctx.preload();
+
+    // Start blocking main loop
+    io_service->run();
 
     return 0;
 }

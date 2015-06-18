@@ -32,9 +32,10 @@ namespace asio = boost::asio;
 struct fixture
 {
     fixture() :
+        io_service(new asio::io_service()),
+        client_sock(*io_service),
         od("test"),
-        conn_mgr(od, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0)),
-        client_sock(*od.io_service().get()),
+        conn_mgr(od, io_service, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0)),
         is(&buf)
     {
         // Setup server
@@ -42,7 +43,7 @@ struct fixture
 
         // Connect with server
         client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), conn_mgr.port()));
-        od.io_service()->poll();
+        io_service->poll();
     }
 
     ~fixture()
@@ -50,9 +51,11 @@ struct fixture
         client_sock.close();
     }
 
+    std::shared_ptr<asio::io_service> io_service;
+    asio::ip::tcp::socket client_sock;
+
     object_dictionary od;
     tcp_connection_manager conn_mgr;
-    boost::asio::ip::tcp::socket client_sock;
 
     asio::streambuf buf;
     std::istream is;
@@ -131,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE(post_event, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -156,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE(get_boolean, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -191,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE(put_boolean, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -216,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(get_integer, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -251,7 +254,7 @@ BOOST_FIXTURE_TEST_CASE(put_integer, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n"));
@@ -277,7 +280,7 @@ BOOST_FIXTURE_TEST_CASE(get_real, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -312,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(put_real, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n"));
@@ -338,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE(get_string, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -373,7 +376,7 @@ BOOST_FIXTURE_TEST_CASE(put_string, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n"));
@@ -399,7 +402,7 @@ BOOST_FIXTURE_TEST_CASE(get_binary, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -434,7 +437,7 @@ BOOST_FIXTURE_TEST_CASE(put_binary, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n"));
@@ -460,7 +463,7 @@ BOOST_FIXTURE_TEST_CASE(get_boolean_seq, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -495,7 +498,7 @@ BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -530,7 +533,7 @@ BOOST_FIXTURE_TEST_CASE(get_integer_seq, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -580,7 +583,7 @@ BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -614,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(get_real_seq, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -664,7 +667,7 @@ BOOST_FIXTURE_TEST_CASE(put_real_seq, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -697,7 +700,7 @@ BOOST_FIXTURE_TEST_CASE(get_string_seq, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -750,7 +753,7 @@ BOOST_FIXTURE_TEST_CASE(put_string_seq, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -785,7 +788,7 @@ BOOST_FIXTURE_TEST_CASE(get_binary_seq, fixture)
     });
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
@@ -838,7 +841,7 @@ BOOST_FIXTURE_TEST_CASE(put_binary_seq, fixture)
     );
 
     client_sock.write_some(asio::buffer(ss.str()));
-    od.io_service()->poll();
+    io_service->poll();
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));

@@ -71,8 +71,8 @@ public:
         if (obj_dict == nullptr)
             return boost::signals2::connection();
 
-        // Connect to regular timer
-        connection_ = obj_dict->get_timer().observe(std::bind(&external_readonly_parameter<T>::notify, this));
+        // Connect to regular tick
+        connection_ = obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T>::notify, this));
 
         // Call base class member function
         return readable_parameter<T>::observe(slot);
@@ -81,7 +81,7 @@ public:
 private:
     virtual T get_external_value() = 0;
 
-    /// Slot member function for @a regular_timer.
+    /// Slot member function for regular tick.
     void notify() {
         T cur_value = value();
         if (last_value_ != cur_value) {
