@@ -20,3 +20,8 @@ add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(example)
+add_custom_target(
+    decof2-readme
+    SOURCES
+        README.md
+)
