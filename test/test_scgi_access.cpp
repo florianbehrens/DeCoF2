@@ -15,7 +15,13 @@
  */
 
 #include <iterator>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -856,6 +862,39 @@ BOOST_FIXTURE_TEST_CASE(put_binary_seq, fixture)
         nominal + sizeof(nominal) / sizeof(nominal[0]),
         actual.cbegin(),
         actual.cend());
+}
+
+BOOST_FIXTURE_TEST_CASE(browse, fixture)
+{
+    ss << scgi_request({
+        { "CONTENT_LENGTH",         "0" },
+        { "SCGI",                   "1" },
+        { "REMOTE_PORT",            "12345" },
+        { "REMOTE_ADDR",            "127.0.0.1" },
+        { "REQUEST_URI",            "/browse" },
+        { "REQUEST_METHOD",         "GET" }
+    });
+
+    client_sock.write_some(asio::buffer(ss.str()));
+    io_service->poll();
+
+    // Read response header
+    asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
+    std::getline(is, str, '\r');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+
+    // Read rest of header
+    std::unordered_map<std::string, std::string> headers;
+    do {
+        std::vector<std::string> header;
+        std::getline(is, str, '\n');
+        std::string trimmed_str = boost::trim_copy(str);
+        boost::split(header, trimmed_str, boost::is_any_of(": "), boost::token_compress_on);
+        headers[header[0]] = header[1];
+    } while (str != "\r");
+
+    BOOST_REQUIRE_EQUAL(headers["Content-Type"], "text/xml");
+    BOOST_REQUIRE_GT(std::stoi(headers["Content-Length"]), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

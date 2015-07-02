@@ -12,6 +12,8 @@ add_library(
     response.h
     request_parser.cpp
     request_parser.h
+    xml_visitor.cpp
+    xml_visitor.h
 )
 target_link_libraries(
     decof2-scgi

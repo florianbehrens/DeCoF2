@@ -229,6 +229,9 @@ multiple invocations result in the same side effects as a single one) by the
 HTTP/1.1 spec (RFC2616, clause §9.1.2) a HTTP POST request is required to 
 invoke an event which likely modifies state in a non-idempotent way.
 
+For historical reasons, a HTTP GET request to the special URI /browse returns a
+proprietary XML representation of the object tree.
+
 ##### Value encoding
 
 This chapter specifies the value encoding that this implementation produces in 

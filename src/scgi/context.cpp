@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <cctype>
+#include <sstream>
 #include <utility>
 
 #include <boost/algorithm/string/trim.hpp>
@@ -30,6 +31,7 @@
 #include "endian.h"
 #include "exceptions.h"
 #include "js_value_encoder.h"
+#include "xml_visitor.h"
 
 namespace decof
 {
@@ -96,14 +98,19 @@ void scgi_context::read_handler(const std::string &cstr)
 
 void scgi_context::handle_get_request()
 {
-    boost::any any_value = get_parameter(parser_.uri, '/');
+    std::ostringstream body_oss;
     response resp = response::stock_response(response::status_code::ok);
 
-    std::stringstream body_ss;
-    scgi::js_value_encoder().encode_any(body_ss, any_value);
-    resp.headers["Content-Type"] = "text/plain";
-    resp.body = std::move(body_ss.str());
+    if (parser_.uri == "/browse" || parser_.uri == "/browse/") {
+        resp.headers["Content-Type"] = "text/xml";
+        xml_visitor visitor(body_oss);
+        browse(&visitor);
+    } else {
+        resp.headers["Content-Type"] = "text/plain";
+        scgi::js_value_encoder().encode_any(body_oss, get_parameter(parser_.uri, '/'));
+    }
 
+    resp.body = std::move(body_oss.str());
     send_response(resp);
 }
 
