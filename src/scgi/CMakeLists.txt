@@ -1,5 +1,5 @@
-add_library(
-    decof2-scgi
+set(
+    DECOF2_SCGI_SRC
     array_view.h
     bencode_string_parser.cpp
     bencode_string_parser.h
@@ -15,7 +15,23 @@ add_library(
     xml_visitor.cpp
     xml_visitor.h
 )
+
+# Standard DeCoF2 SCGI library
+add_library(
+    decof2-scgi
+    ${DECOF2_SCGI_SRC}
+)
 target_link_libraries(
     decof2-scgi
     decof2-core
+)
+
+# DeCoF2 SCGI library with covergae information
+add_library(
+    decof2-scgi-gcov
+    ${DECOF2_SCGI_SRC}
+)
+target_link_libraries(
+    decof2-scgi-gcov
+    decof2-core-gcov
 )

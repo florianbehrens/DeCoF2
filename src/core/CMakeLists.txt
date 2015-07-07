@@ -1,5 +1,5 @@
-add_library(
-    decof2-core
+set(
+    DECOF2_CORE_SRC
     basic_value_encoder.cpp
     basic_value_encoder.h
     client_context.cpp
@@ -17,7 +17,29 @@ add_library(
     tcp_connection_manager.cpp
     tcp_connection_manager.h
 )
+
+# Standard DeCoF2 core library
+add_library(
+    decof2-core
+    ${DECOF2_CORE_SRC}
+)
 target_link_libraries(
     decof2-core
     ${Boost_SYSTEM_LIBRARY}
+)
+
+# DeCoF2 core library with coverage information
+add_library(
+    decof2-core-gcov
+    ${DECOF2_CORE_SRC}
+)
+target_link_libraries(
+    decof2-core-gcov
+    ${Boost_SYSTEM_LIBRARY}
+)
+target_compile_options(
+    decof2-core-gcov
+    PUBLIC
+        -fprofile-arcs
+        -ftest-coverage
 )

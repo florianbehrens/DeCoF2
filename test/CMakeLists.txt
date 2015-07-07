@@ -10,9 +10,10 @@ add_executable(
 )
 target_link_libraries(
     test
-    decof2-cli
-    decof2-core
-    decof2-scgi
+    decof2-cli-gcov
+    decof2-core-gcov
+    decof2-scgi-gcov
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    gcov
 )

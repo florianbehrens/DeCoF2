@@ -1,6 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-add_library(
-    decof2-cli
+set(
+    DECOF2_CLI_SRC
     lex.cpp
     parse.cpp
     parser.h
@@ -17,7 +17,23 @@ add_library(
     scanner.h
     scanner.ih
 )
+
+# Standard DeCoF2 CLI library
+add_library(
+    decof2-cli
+    ${DECOF2_CLI_SRC}
+)
 target_link_libraries(
     decof2-cli
     decof2-core
+)
+
+# DeCoF2 CLI library with coverage information
+add_library(
+    decof2-cli-gcov
+    ${DECOF2_CLI_SRC}
+)
+target_link_libraries(
+    decof2-cli-gcov
+    decof2-core-gcov
 )
