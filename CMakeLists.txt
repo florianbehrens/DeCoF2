@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 project(decof2)
 
 find_package(Boost 1.49 REQUIRED COMPONENTS system unit_test_framework)
