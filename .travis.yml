@@ -7,7 +7,7 @@ before_install:
   - sudo add-apt-repository -y ppa:sschuberth/cmake-here # for CMake > 2.8.7
   - sudo apt-get update -qq
 install:
-  - sudo apt-get install -qq gcc-4.9 g++-4.9 boost1.54 cmake doxygen python-pip
+  - sudo apt-get install -qq gcc-4.9 g++-4.9 boost1.54 cmake-data cmake doxygen python-pip
 # We want to compile with g++-4.9 rather than the default g++
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 90
 before_script:
