@@ -41,6 +41,9 @@ public:
     object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
 
+    object(object&) = delete;
+    object &operator=(object &) = delete;
+
     std::string name() const;
     void name(std::string name);
 

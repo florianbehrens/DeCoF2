@@ -23,6 +23,9 @@
 namespace decof
 {
 
+object_visitor::~object_visitor()
+{}
+
 void object_visitor::visit(event *event)
 {
     visit(static_cast<object*>(event));

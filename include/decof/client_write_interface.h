@@ -30,6 +30,9 @@ class client_write_interface
 {
     friend class client_context;
 
+public:
+    virtual ~client_write_interface() {}
+
 private:
     /** @brief Set value wrapped in a runtime dynamic type.
      *
