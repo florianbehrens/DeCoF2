@@ -29,6 +29,8 @@ public:
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
     typedef signal_type::slot_type slot_type;
 
+    virtual ~client_read_interface() {}
+
     // Provides the value as runtime-generic type.
     virtual boost::any any_value() = 0;
 
