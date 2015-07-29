@@ -17,4 +17,4 @@ script:
   - cmake .. && make && test/test
 after_success:
   - cd ..
-  - coveralls --gcov=gcov-4.9 --gcov-options '\-lp'
+  - coveralls --gcov=gcov-4.9 --gcov-options '\-lp' --exclude build
