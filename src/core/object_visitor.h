@@ -38,7 +38,6 @@ class object;
 class object_visitor
 {
 public:
-    virtual ~object_visitor();
     virtual void visit(event *event);
     virtual void visit(node *node);
     virtual void visit(object*) = 0;
