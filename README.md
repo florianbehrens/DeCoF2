@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/florianbehrens/DeCoF2.svg?branch=master)](https://travis-ci.org/florianbehrens/DeCoF2)
+[![Coverage Status](https://coveralls.io/repos/florianbehrens/DeCoF2/badge.svg?branch=master&service=github)](https://coveralls.io/github/florianbehrens/DeCoF2?branch=master)
 
 DeCoF2
 ======
