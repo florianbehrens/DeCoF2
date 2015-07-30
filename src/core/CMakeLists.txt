@@ -11,7 +11,6 @@ set(
     object.cpp
     object_dictionary.cpp
     object_visitor.cpp
-    object_visitor.h
     tcp_connection.cpp
     tcp_connection.h
     tcp_connection_manager.cpp
