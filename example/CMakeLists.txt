@@ -1,6 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
     example
+    EXCLUDE_FROM_ALL
     main.cpp
     composite.cpp
     composite.h
