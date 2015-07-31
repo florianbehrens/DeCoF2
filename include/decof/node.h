@@ -43,8 +43,20 @@ public:
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) override final;
 
+    /// @brief Add child #object to #node.
+    /// @pre The child object must not have been added before. Adding the same child
+    /// twice is considered an error and results in undefined behavior.
+    /// @param child Child #object to be added to parent #node.
+    /// @note The parent #node does not take ownership of the given child, i.e.,
+    /// children do not get deleted on deletion of the parent!
     void add_child(object *child);
+
+    /// Remove child #object from parent #node.
+    /// @param child Child #object to be added to parent #node.
+    /// @note The parent #node does not take ownership of the given child, i.e.,
+    /// children do not get deleted on deletion of the parent!
     void remove_child(object *child);
+
     object *find_child(const std::string &uri, char separator = ':');
 
     /// The same as value().
@@ -57,6 +69,9 @@ public:
     iterator end();
 
 private:
+    /// Finds first child #object with given name.
+    /// @param name Child #object name.
+    /// @return Pointer to found child #object or nullptr.
     object *find_immediate_child(const std::string &name);
 
     // We use std::list because iterators of a list remain valid when elements

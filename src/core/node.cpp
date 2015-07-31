@@ -30,13 +30,7 @@ node::node(std::string name, node *parent, userlevel_t readlevel)
 {}
 
 node::~node()
-{
-    // Iterators of std::list remain valid when list elements are removed,
-    // therefore this range-based for-loop works though delete child implicitly
-    // calls node::remove_child.
-    for (auto child : children_)
-        delete child;
-}
+{}
 
 string_seq node::value()
 {
@@ -50,12 +44,10 @@ void node::accept(object_visitor *visitor)
 
 void node::add_child(object *child)
 {
-#ifndef NDEBUG
     // Check whether child already is registered
-    for (auto existing_child : children_)
-        if (existing_child == child)
-            assert(false);
-#endif
+    assert(std::find_if(children_.cbegin(), children_.cend(), [child](const object *o) {
+        return o == child;
+    }) == children_.cend());
 
     children_.push_back(child);
 }
