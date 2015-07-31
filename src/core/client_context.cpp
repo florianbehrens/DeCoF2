@@ -35,6 +35,16 @@ client_context::client_context(object_dictionary& a_object_dictionary, std::shar
 client_context::~client_context()
 {}
 
+userlevel_t client_context::userlevel() const
+{
+    return userlevel_;
+}
+
+void client_context::userlevel(userlevel_t ul)
+{
+    userlevel_ = ul;
+}
+
 std::string client_context::connection_type() const
 {
     return std::string("undefined");
@@ -53,13 +63,14 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     object *te = object_dictionary_.find_object(uri, separator);
-    if (te != nullptr && userlevel_ >= te->writelevel()) {
-        if (client_write_interface* parameter = dynamic_cast<client_write_interface*>(te))
-            parameter->value(any_value);
-        else
-            throw access_denied_error();
-    } else
+    client_write_interface* param = dynamic_cast<client_write_interface*>(te);
+
+    if (param == nullptr)
         throw invalid_parameter_error();
+    if (userlevel_ < te->writelevel())
+        throw access_denied_error();
+
+    param->value(any_value);
 }
 
 boost::any client_context::get_parameter(const std::string &uri, char separator)
@@ -69,12 +80,13 @@ boost::any client_context::get_parameter(const std::string &uri, char separator)
 
     object *obj = object_dictionary_.find_object(uri, separator);
     client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
-    if (param != nullptr && userlevel_ >= obj->readlevel())
-        retval = param->any_value();
-    else
-        throw invalid_parameter_error();
 
-    return retval;
+    if (param == nullptr)
+        throw invalid_parameter_error();
+    if (userlevel_ < obj->readlevel())
+        throw access_denied_error();
+
+    return param->any_value();
 }
 
 void client_context::signal_event(const std::string &uri, char separator)

@@ -25,7 +25,7 @@
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)      \
     struct type_name : public decof::external_readonly_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly) : \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal) : \
             decof::external_readonly_parameter<value_type>(name, parent, readlevel) {} \
         virtual value_type get_external_value() override;                     \
     }
@@ -45,8 +45,8 @@ template<typename T>
 class external_readonly_parameter : public readable_parameter<T>
 {
 public:
-    external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly) :
-        readable_parameter<T>(name, parent, readlevel, Infinite)
+    external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Normal) :
+        readable_parameter<T>(name, parent, readlevel, Forbidden)
     {}
 
     virtual ~external_readonly_parameter() {

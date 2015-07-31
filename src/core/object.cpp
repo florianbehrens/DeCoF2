@@ -25,8 +25,6 @@ namespace decof
 object::object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
  : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
-    assert(writelevel_ != Readonly);
-
     if (parent != nullptr)
         parent->add_child(this);
 }
@@ -74,7 +72,6 @@ userlevel_t object::readlevel() const
 
 void object::readlevel(userlevel_t readlevel)
 {
-    assert(readlevel >= Readonly && readlevel <= Internal);
     readlevel_ = readlevel;
 }
 
@@ -85,7 +82,6 @@ userlevel_t object::writelevel() const
 
 void object::writelevel(userlevel_t writelevel)
 {
-    assert(writelevel >= Readonly && writelevel <= Internal);
     writelevel_ = writelevel;
 }
 

@@ -9,6 +9,7 @@ add_executable(
     test_scgi_access.cpp
     test_scgi_response.cpp
     test_scgi_parser.cpp
+    test_userlevels.cpp
 )
 target_link_libraries(
     test

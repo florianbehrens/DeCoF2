@@ -18,14 +18,13 @@
 #define MANAGED_READONLY_PARAMETER_H
 
 #include <string>
-#include <vector>
 
-#include "managed_readwrite_parameter.h"
+#include "readable_parameter.h"
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_MANAGED_READONLY_PARAMETER(type_name, value_type)       \
     struct type_name : public decof::managed_readonly_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, const value_type &value = value_type()) : \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal, const value_type &value = value_type()) : \
             decof::managed_readonly_parameter<value_type>(name, parent, readlevel, value) {} \
     }
 
@@ -38,24 +37,33 @@ namespace decof
  * This parameter type can be monitored efficiently.
  */
 template<typename T>
-class managed_readonly_parameter : public managed_readwrite_parameter<T>
+class managed_readonly_parameter : public readable_parameter<T>
 {
 public:
     managed_readonly_parameter(std::string name, node *parent, const T &value)
-     : managed_readwrite_parameter<T>(name, parent, Readonly, Infinite, value)
+     : readable_parameter<T>(name, parent, Normal, Forbidden),
+       value_(value)
     {}
 
-    managed_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, const T &value = T())
-     : managed_readwrite_parameter<T>(name, parent, readlevel, Infinite, value)
+    managed_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, const T &value = T())
+     : readable_parameter<T>(name, parent, readlevel, Forbidden),
+       value_(value)
     {}
+
+    virtual T value() override final {
+        return value_;
+    }
 
     void set_value(const T &value)
     {
-        if (managed_readwrite_parameter<T>::value_ != value) {
-            managed_readwrite_parameter<T>::value_ = value;
+        if (value_ != value) {
+            value_ = value;
             readable_parameter<T>::signal(value);
         }
     }
+
+private:
+    T value_;
 };
 
 } // namespace decof

@@ -24,14 +24,13 @@ namespace decof
 
 enum userlevel_t
 {
-    Readonly,
     Normal,
     Service,
     Maintenance,
     Internal,
 
     // Only for internal use
-    Infinite = std::numeric_limits<int>::max()
+    Forbidden = std::numeric_limits<int>::max()
 };
 
 } // namespace decof

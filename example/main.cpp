@@ -140,7 +140,7 @@ current_context_endpoint_parameter endpoint_param("endpoint", &current_context_n
 decof::node subnode("subnode", &obj_dict);
 time_parameter time_param("time", &subnode);
 decof::string_seq sl = { "value1", "value2", "value3" };
-decof::managed_readwrite_parameter<decof::string_seq> leaf2_param("leaf2", &subnode, decof::Readonly, decof::Normal, sl);
+decof::managed_readwrite_parameter<decof::string_seq> leaf2_param("leaf2", &subnode, decof::Normal, decof::Normal, sl);
 ip_address_parameter ipo_address_param("ip-address", &subnode);
 decof::managed_readwrite_parameter<decof::boolean> boolean_param("boolean", &subnode);
 decof::managed_readwrite_parameter<decof::integer> integer_param("integer", &subnode);

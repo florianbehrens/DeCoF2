@@ -46,7 +46,7 @@ template<typename T>
 class external_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
 {
 public:
-    external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal) :
+    external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal) :
         readable_parameter<T>(name, parent, readlevel, writelevel)
     {}
 

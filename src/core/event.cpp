@@ -22,7 +22,7 @@ namespace decof
 {
 
 event::event(std::string name, node *parent, userlevel_t writelevel) :
-    object(name, parent, Infinite, writelevel)
+    object(name, parent, Forbidden, writelevel)
 {}
 
 void event::accept(object_visitor *visitor)

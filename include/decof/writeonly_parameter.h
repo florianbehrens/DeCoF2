@@ -37,7 +37,7 @@ class writeonly_parameter : public basic_parameter<T>, public typed_client_write
 {
 public:
     writeonly_parameter(std::string name, node *parent, userlevel_t writelevel = Normal) :
-        basic_parameter<T>(name, parent, Infinite, writelevel)
+        basic_parameter<T>(name, parent, Forbidden, writelevel)
     {}
 
     /// Visitor pattern accept method

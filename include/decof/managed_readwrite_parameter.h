@@ -18,7 +18,6 @@
 #define MANAGED_READWRITE_PARAMETER_H
 
 #include <string>
-#include <vector>
 
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"
@@ -26,40 +25,30 @@
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)      \
     struct type_name : public decof::managed_readwrite_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, decof::userlevel_t writelevel = decof::Normal, const value_type &value = value_type()) : \
+        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal, decof::userlevel_t writelevel = decof::Normal, const value_type &value = value_type()) : \
             decof::managed_readwrite_parameter<value_type>(name, parent, readlevel, writelevel, value) {} \
         type_name(std::string name, decof::node *parent, const value_type &value) : \
-            decof::managed_readwrite_parameter<value_type>(name, parent, decof::Readonly, decof::Normal, value) {} \
+            decof::managed_readwrite_parameter<value_type>(name, parent, decof::Normal, decof::Normal, value) {} \
         virtual void verify(const value_type& value) override;                \
     }
 
 namespace decof
 {
 
-// Forward declaration
-template<typename T>
-class managed_readonly_parameter;
-
 /**
  * A managed_readwrite_parameter may only be modified by the client side.
  *
  * This parameter type can be monitored efficiently.
- *
- * T requirements:
- * - Defaultconstructible
- * - Copyconstructible
  */
 template<typename T>
 class managed_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
 {
-    friend class managed_readonly_parameter<T>;
-
 public:
     managed_readwrite_parameter(std::string name, node *parent, const T &value)
-     : readable_parameter<T>(name, parent, Readonly, Normal), value_(value)
+     : readable_parameter<T>(name, parent, Normal, Normal), value_(value)
     {}
 
-    managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Readonly, userlevel_t writelevel = Normal, const T &value = T())
+    managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal, const T &value = T())
      : readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
