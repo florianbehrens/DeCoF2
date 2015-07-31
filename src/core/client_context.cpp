@@ -94,13 +94,14 @@ void client_context::signal_event(const std::string &uri, char separator)
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     object *te = object_dictionary_.find_object(uri, separator);
-    if (te != nullptr && userlevel_ >= te->writelevel()) {
-        if (event* ev = dynamic_cast<event*>(te))
-            ev->signal();
-        else
-            throw wrong_type_error();
-    } else
+    event* ev = dynamic_cast<event*>(te);
+
+    if (ev == nullptr)
         throw invalid_parameter_error();
+    if (userlevel_ < te->writelevel())
+        throw access_denied_error();
+
+    ev->signal();
 }
 
 void client_context::observe(const std::string &uri, client_read_interface::signal_type::slot_type slot)
