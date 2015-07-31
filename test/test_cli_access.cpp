@@ -21,7 +21,7 @@
 #include "tcp_connection_manager.h"
 #include "cli/clisrv_context.h"
 
-BOOST_AUTO_TEST_SUITE(parameter_access)
+BOOST_AUTO_TEST_SUITE(cli_access)
 
 using namespace decof;
 namespace cli = decof::cli;
