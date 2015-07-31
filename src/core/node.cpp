@@ -95,7 +95,7 @@ object *node::find_child(const std::string &uri, char separator)
     // Check whether child element is a node
     node *child_node = dynamic_cast<node *>(te);
     if (child_node != nullptr) {
-        return child_node->find_child(sub_uri);
+        return child_node->find_child(sub_uri, separator);
     }
 
     return te;
