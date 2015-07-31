@@ -35,6 +35,19 @@ client_context::client_context(object_dictionary& a_object_dictionary, std::shar
 client_context::~client_context()
 {}
 
+std::string client_context::connection_type() const
+{
+    return std::string("undefined");
+}
+
+std::string client_context::remote_endpoint() const
+{
+    return std::string("undefined");
+}
+
+void client_context::preload()
+{}
+
 void client_context::set_parameter(const std::string &uri, const boost::any &any_value, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);

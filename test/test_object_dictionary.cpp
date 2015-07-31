@@ -18,8 +18,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "decof.h"
 #include "client_context.h"
+#include "decof.h"
 
 BOOST_AUTO_TEST_SUITE(object_dictionary)
 
@@ -28,19 +28,6 @@ struct fixture
     struct my_context_t : public decof::client_context
     {
         using decof::client_context::client_context;
-        
-        std::string connection_type() const override
-        {
-            return std::string();
-        }
-        
-        std::string remote_endpoint() const override
-        {
-            return std::string();
-        }    
-        
-        void preload() override
-        {}
         
         void get_parameter(const std::string &uri, char separator = ':')
         {

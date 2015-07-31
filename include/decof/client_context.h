@@ -44,13 +44,13 @@ public:
     void userlevel(userlevel_t ul);
 
     /// Returns the connection type, e.g., "tcp", "serial".
-    virtual std::string connection_type() const = 0;
+    virtual std::string connection_type() const;
 
     /// @brief Returns the connections' remote endpoint.
     /// For a TCP connection this results in a string such as "10.0.0.1:1234".
-    virtual std::string remote_endpoint() const = 0;
+    virtual std::string remote_endpoint() const;
 
-    virtual void preload() = 0;
+    virtual void preload();
 
 protected:
     void set_parameter(const std::string& uri, const boost::any& any_value, char separator = ':');

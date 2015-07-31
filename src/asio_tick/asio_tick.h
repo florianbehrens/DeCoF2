@@ -37,8 +37,6 @@ public:
                                std::shared_ptr<boost::asio::io_service> io_service,
                                std::chrono::milliseconds interval = std::chrono::milliseconds(100));
 
-    std::string connection_type() const override;
-    std::string remote_endpoint() const override;
     void preload() override;
 
 private:

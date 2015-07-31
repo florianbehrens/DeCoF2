@@ -29,16 +29,6 @@ asio_tick_context::asio_tick_context(decof::object_dictionary &obj_dict, std::sh
     interval_(interval)
 {}
 
-std::string asio_tick_context::connection_type() const
-{
-    return "asio_tick";
-}
-
-std::string asio_tick_context::remote_endpoint() const
-{
-    return "none";
-}
-
 void asio_tick_context::preload()
 {
     timer_.expires_from_now(interval_);
