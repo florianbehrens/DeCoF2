@@ -26,6 +26,9 @@ namespace decof
 class client_read_interface
 {
 public:
+    /// @brief The signal type for object update notifications.
+    /// The first argument contains the object URI with the default separator ':'!
+    /// The second argument contains the objects value as @a boost::any.
     typedef boost::signals2::signal<void (const std::string&, const boost::any&)> signal_type;
     typedef signal_type::slot_type slot_type;
 

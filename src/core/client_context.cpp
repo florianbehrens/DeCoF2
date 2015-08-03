@@ -104,11 +104,11 @@ void client_context::signal_event(const std::string &uri, char separator)
     ev->signal();
 }
 
-void client_context::observe(const std::string &uri, client_read_interface::signal_type::slot_type slot)
+void client_context::observe(const std::string &uri, client_read_interface::signal_type::slot_type slot, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    if (client_read_interface* param = dynamic_cast<client_read_interface*>(object_dictionary_.find_object(uri))) {
+    if (client_read_interface* param = dynamic_cast<client_read_interface*>(object_dictionary_.find_object(uri, separator))) {
         if (observables_.count(uri) == 0) {
             boost::signals2::connection connection = param->observe(slot);
             observables_.emplace(uri, connection);
