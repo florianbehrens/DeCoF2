@@ -8,6 +8,7 @@ set(
 # Standard DeCoF2 ASIO Tick library
 add_library(
     decof2-asio-tick
+    EXCLUDE_FROM_ALL
     ${DECOF2_ASIO_TICK_SRC}
 )
 target_link_libraries(
@@ -18,6 +19,7 @@ target_link_libraries(
 # DeCoF2 ASIO Tick library with coverage information
 add_library(
     decof2-asio-tick-gcov
+    EXCLUDE_FROM_ALL
     ${DECOF2_ASIO_TICK_SRC}
 )
 target_link_libraries(

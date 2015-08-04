@@ -20,6 +20,7 @@ set(
 # Standard DeCoF2 core library
 add_library(
     decof2-core
+    EXCLUDE_FROM_ALL
     ${DECOF2_CORE_SRC}
 )
 target_link_libraries(
@@ -30,6 +31,7 @@ target_link_libraries(
 # DeCoF2 core library with coverage information
 add_library(
     decof2-core-gcov
+    EXCLUDE_FROM_ALL
     ${DECOF2_CORE_SRC}
 )
 target_link_libraries(

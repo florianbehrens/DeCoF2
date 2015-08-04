@@ -19,6 +19,7 @@ set(
 # Standard DeCoF2 SCGI library
 add_library(
     decof2-scgi
+    EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
 )
 target_link_libraries(
@@ -29,6 +30,7 @@ target_link_libraries(
 # DeCoF2 SCGI library with covergae information
 add_library(
     decof2-scgi-gcov
+    EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
 )
 target_link_libraries(

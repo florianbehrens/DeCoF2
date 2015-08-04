@@ -1,6 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
     test
+    EXCLUDE_FROM_ALL
     test_main.cpp
     test_bencode_string_parser.cpp
     test_cli_access.cpp
