@@ -92,6 +92,7 @@ std::basic_ostream<char, Traits>& operator<<(std::basic_ostream<char, Traits> &o
         os << "\r\n";
 
     os << std::flush;
+    return os;
 }
 
 #endif // DECOF_SCGI_RESPONSE
