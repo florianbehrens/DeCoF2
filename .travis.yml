@@ -14,7 +14,7 @@ install:
 before_script:
   - mkdir build && cd build
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Release .. && make example test && test/test
+  - cmake .. && make example test doc && test/test
 after_success:
   - cd ..
   - coveralls --include src --include include --gcov=gcov-4.9 --gcov-options '\-lp'
