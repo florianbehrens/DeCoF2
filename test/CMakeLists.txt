@@ -1,6 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
-    test
+    test_decof2
     EXCLUDE_FROM_ALL
     test_main.cpp
     test_bencode_string_parser.cpp
@@ -14,7 +14,7 @@ add_executable(
     test_userlevels.cpp
 )
 target_link_libraries(
-    test
+    test_decof2
     decof2-cli-gcov
     decof2-core-gcov
     decof2-scgi-gcov
