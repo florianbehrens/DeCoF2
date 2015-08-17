@@ -19,7 +19,7 @@ set(
 
 # Standard DeCoF2 core library
 add_library(
-    decof2-core
+    decof2-core ${DECOF2_LIBRARY_TYPE}
     EXCLUDE_FROM_ALL
     ${DECOF2_CORE_SRC}
 )

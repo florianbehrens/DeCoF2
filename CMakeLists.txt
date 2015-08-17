@@ -14,6 +14,12 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
+# Use DECOF2_LIBRARY_TYPE to control library type, i.e., static or 
+# dynamic.
+if(NOT DEFINED DECOF2_LIBRARY_TYPE)
+    set(DECOF2_LIBRARY_TYPE "SHARED")
+endif()
+
 add_definitions(-std=c++0x)
 include_directories(include include/decof src/core)
 add_subdirectory(include)

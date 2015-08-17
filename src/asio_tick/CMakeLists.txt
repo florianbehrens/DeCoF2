@@ -7,7 +7,7 @@ set(
 
 # Standard DeCoF2 ASIO Tick library
 add_library(
-    decof2-asio-tick
+    decof2-asio-tick ${DECOF2_LIBRARY_TYPE}
     EXCLUDE_FROM_ALL
     ${DECOF2_ASIO_TICK_SRC}
 )

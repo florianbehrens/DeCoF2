@@ -18,7 +18,7 @@ set(
 
 # Standard DeCoF2 SCGI library
 add_library(
-    decof2-scgi
+    decof2-scgi ${DECOF2_LIBRARY_TYPE}
     EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
 )
