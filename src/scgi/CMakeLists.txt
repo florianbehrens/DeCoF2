@@ -22,6 +22,15 @@ add_library(
     EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
 )
+target_include_directories(
+    decof2-scgi
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
+)
 target_link_libraries(
     decof2-scgi
     decof2-core
@@ -32,6 +41,15 @@ add_library(
     decof2-scgi-gcov
     EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
+)
+target_include_directories(
+    decof2-scgi-gcov
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
 )
 target_link_libraries(
     decof2-scgi-gcov

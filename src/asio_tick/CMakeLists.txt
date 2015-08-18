@@ -1,4 +1,3 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(
     DECOF2_ASIO_TICK_SRC
     asio_tick.cpp
@@ -11,6 +10,15 @@ add_library(
     EXCLUDE_FROM_ALL
     ${DECOF2_ASIO_TICK_SRC}
 )
+target_include_directories(
+    decof2-asio-tick
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
+)
 target_link_libraries(
     decof2-asio-tick
     decof2-core
@@ -21,6 +29,15 @@ add_library(
     decof2-asio-tick-gcov
     EXCLUDE_FROM_ALL
     ${DECOF2_ASIO_TICK_SRC}
+)
+target_include_directories(
+    decof2-asio-tick-gcov
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
 )
 target_link_libraries(
     decof2-asio-tick-gcov

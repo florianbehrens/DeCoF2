@@ -23,6 +23,13 @@ add_library(
     EXCLUDE_FROM_ALL
     ${DECOF2_CORE_SRC}
 )
+target_include_directories(
+    decof2-core
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+)
 target_link_libraries(
     decof2-core
     ${Boost_SYSTEM_LIBRARY}
@@ -33,6 +40,13 @@ add_library(
     decof2-core-gcov
     EXCLUDE_FROM_ALL
     ${DECOF2_CORE_SRC}
+)
+target_include_directories(
+    decof2-core-gcov
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
 )
 target_link_libraries(
     decof2-core-gcov

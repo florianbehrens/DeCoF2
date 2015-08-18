@@ -1,4 +1,3 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(
     DECOF2_CLI_SRC
     lex.cpp
@@ -24,6 +23,15 @@ add_library(
     EXCLUDE_FROM_ALL
     ${DECOF2_CLI_SRC}
 )
+target_include_directories(
+    decof2-cli
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
+)
 target_link_libraries(
     decof2-cli
     decof2-core
@@ -34,6 +42,15 @@ add_library(
     decof2-cli-gcov
     EXCLUDE_FROM_ALL
     ${DECOF2_CLI_SRC}
+)
+target_include_directories(
+    decof2-cli
+    PUBLIC
+        ${Boost_INCLUDE_DIR}
+        ../../include
+        ../../include/decof
+    PRIVATE
+        ../core
 )
 target_link_libraries(
     decof2-cli-gcov
