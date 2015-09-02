@@ -28,8 +28,8 @@
         type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, decof::userlevel_t writelevel = decof::Normal) : \
             decof::external_readwrite_parameter<value_type>(name, parent, readlevel, writelevel) {} \
         private:                                                              \
-            virtual bool set_external_value(const value_type &value) override;\
-            virtual value_type get_external_value() override;                 \
+            virtual bool external_value(const value_type &value) override;\
+            virtual value_type external_value() override;                 \
     }
 
 namespace decof
@@ -51,17 +51,17 @@ public:
     {}
 
     virtual T value() override final {
-        return get_external_value();
+        return external_value();
     }
 
 private:
     virtual void value(const T &value) override final {
-        if (set_external_value(value) == true)
+        if (external_value(value) == true)
             readable_parameter<T>::signal(value);
     }
 
-    virtual bool set_external_value(const T &value) = 0;
-    virtual T get_external_value() = 0;
+    virtual bool external_value(const T &value) = 0;
+    virtual T external_value() = 0;
 };
 
 } // namespace decof

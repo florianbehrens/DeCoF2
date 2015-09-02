@@ -30,7 +30,7 @@ private:
     struct sum_type : decof::external_readonly_parameter<decof::integer>
     {
         using decof::external_readonly_parameter<decof::integer>::external_readonly_parameter;
-        virtual decof::integer get_external_value();
+        virtual decof::integer external_value();
     };
 
     decof::managed_readwrite_parameter<decof::integer> summand1_;

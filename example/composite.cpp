@@ -23,7 +23,7 @@ composite::composite(std::string name, decof::node *parent, decof::userlevel_t r
     sum_("sum", this, readlevel)
 {}
 
-decof::integer composite::sum_type::get_external_value()
+decof::integer composite::sum_type::external_value()
 {
     composite *c = dynamic_cast<composite *>(parent());
     return c->summand1_.value() + c->summand2_.value();

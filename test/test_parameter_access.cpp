@@ -42,7 +42,7 @@ struct fixture
     {
         using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
 
-        decof::boolean get_external_value() override
+        decof::boolean external_value() override
         {
             return true;
         }
@@ -52,12 +52,12 @@ struct fixture
     {
         using decof::external_readwrite_parameter<decof::boolean>::external_readwrite_parameter;
 
-        bool set_external_value(const decof::boolean &value) override
+        bool external_value(const decof::boolean &value) override
         {
             return true;
         }
 
-        decof::boolean get_external_value() override
+        decof::boolean external_value() override
         {
             return true;
         }

@@ -53,7 +53,7 @@ struct fixture
     {
         using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
 
-        decof::boolean get_external_value() override
+        decof::boolean external_value() override
         {
             return m_value;
         }
@@ -65,13 +65,13 @@ struct fixture
     {
         using decof::external_readwrite_parameter<decof::boolean>::external_readwrite_parameter;
 
-        bool set_external_value(const decof::boolean &value) override
+        bool external_value(const decof::boolean &value) override
         {
             m_value = value;
             return true;
         }
 
-        decof::boolean get_external_value() override
+        decof::boolean external_value() override
         {
             return m_value;
         }
@@ -108,13 +108,13 @@ BOOST_FIXTURE_TEST_CASE(observe_managed_readonly_parameter, fixture)
 {
     my_context->observe("root:managed_readonly_parameter",
                         std::bind(&fixture::notify, this, std::placeholders::_1, std::placeholders::_2));
-    managed_readonly_parameter.set_value(true);
+    managed_readonly_parameter.value(true);
 
     BOOST_REQUIRE_EQUAL(notified_uri, "root:managed_readonly_parameter");
     BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(notified_value), true);
 
     my_context->unobserve("root:managed_readonly_parameter");
-    managed_readonly_parameter.set_value(false);
+    managed_readonly_parameter.value(false);
 
     BOOST_REQUIRE_NE(boost::any_cast<bool>(notified_value), false);
 }

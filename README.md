@@ -94,13 +94,14 @@ are children or successors of the root parameter.
 The server framework supports two distinct models for interaction between
 clients and server:
 
-* Client/server model
+* Request/response model
 * Publish/subscribe model
 
-#### Client/server model
+#### Request/response model
 
-In the 'classic' client/server model, the server framework allows the following
-abstract operations from clients on each parameter in the object dictionary:
+In the 'classic' request/response model, the server framework allows the
+following abstract operations from clients on each parameter in the object
+dictionary:
 
 * Get operation (parameters and nodes only)
 * Set operation (parameters only)
@@ -121,7 +122,7 @@ Subscribers can initiate subscribe und unsubscribe operations, whereas the
 notify operation is carried out on value changes by the publisher.
 
 All those mentioned operations can be realized by messages sent back and forth
-in any format. The framework provides some useful protocols and even allows to
+in any protocol. The framework provides some useful protocols and even allows to
 write your own.
 
 ### Discovery
@@ -133,6 +134,26 @@ means.
 
 Implementation
 --------------
+
+### Server side API
+
+#### Overridable handler functions
+
+The following table lists the overridable handler functions by parameter type.
+
+Parameter    | Readonly                 | Readwrite                | Writeonly
+-------------|--------------------------|--------------------------|----------
+**Managed**  | None                     | ```verify(T)```          | N/a
+**External** | ```T external_value()``` | ```T external_value()```<br>```external_value(T)``` | ```value(T)```
+
+#### Parameter value access functions
+
+The following table lists the value access functions by parameter type.
+
+Parameter    | Readonly                                 | Readwrite       | Writeonly
+-------------|------------------------------------------|-----------------|----------
+**Managed**  | ```T value()```<br>```value(T)```        | ```T value()``` | None
+**External** | ```T value()```<br>```value_changed()``` | ```T value()``` | None
 
 ### Protocols
 

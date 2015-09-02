@@ -27,7 +27,7 @@
     struct type_name : public decof::external_readonly_parameter<value_type> { \
         type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal) : \
             decof::external_readonly_parameter<value_type>(name, parent, readlevel) {} \
-        virtual value_type get_external_value() override;                     \
+        virtual value_type external_value() override;                     \
     }
 
 namespace decof
@@ -54,7 +54,7 @@ public:
     }
 
     virtual T value() override final {
-        return get_external_value();
+        return external_value();
     }
 
     /// @brief Call this member function to signal value changes.
@@ -65,7 +65,7 @@ public:
         notify();
     }
 
-    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
+    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override final {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    virtual T get_external_value() = 0;
+    virtual T external_value() = 0;
 
     /// Slot member function for regular tick.
     void notify() {

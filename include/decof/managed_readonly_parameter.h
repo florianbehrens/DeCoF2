@@ -54,7 +54,7 @@ public:
         return value_;
     }
 
-    void set_value(const T &value)
+    void value(const T &value)
     {
         if (value_ != value) {
             value_ = value;
