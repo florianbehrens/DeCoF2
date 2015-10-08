@@ -4,7 +4,7 @@ compiler:
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test # for gcc-4.9
   - sudo add-apt-repository -y ppa:boost-latest/ppa # for boost-1.54
-  - sudo add-apt-repository -y ppa:sschuberth/build-tools # for CMake > 2.8.7
+  - sudo add-apt-repository -y ppa:george-edison55/precise-backports # for CMake > 2.8.7
   - sudo apt-get update -qq
 install:
   - sudo apt-get install -qq gcc-4.9 g++-4.9 boost1.54 cmake-data cmake doxygen python-pip
