@@ -8,9 +8,13 @@ add_custom_target(
         conversion.h
         event.h
         exceptions.h
+        external_readonly_handler_parameter.h
         external_readonly_parameter.h
+        external_readwrite_handler_parameter.h
         external_readwrite_parameter.h
+        handler_event.h
         managed_readonly_parameter.h
+        managed_readwrite_handler_parameter.h
         managed_readwrite_parameter.h
         node.h
         object_dictionary.h
@@ -21,5 +25,6 @@ add_custom_target(
         typed_client_write_interface.h
         types.h
         userlevel.h
+        writeonly_handler_parameter.h
         writeonly_parameter.h
 )

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MANAGED_READWRITE_PARAMETER_H
-#define MANAGED_READWRITE_PARAMETER_H
+#ifndef DECOF_MANAGED_READWRITE_PARAMETER_H
+#define DECOF_MANAGED_READWRITE_PARAMETER_H
 
 #include <string>
 
@@ -44,12 +44,14 @@ template<typename T>
 class managed_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
 {
 public:
-    managed_readwrite_parameter(std::string name, node *parent, const T &value)
-     : readable_parameter<T>(name, parent, Normal, Normal), value_(value)
+    managed_readwrite_parameter(const std::string &name, node *parent, const T &value) :
+        readable_parameter<T>(name, parent, Normal, Normal), value_(value)
     {}
 
-    managed_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal, const T &value = T())
-     : readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
+    managed_readwrite_parameter(const std::string &name, node *parent,
+                                userlevel_t readlevel = Normal, userlevel_t writelevel = Normal,
+                                const T &value = T()) :
+        readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
     virtual T value() override final {
@@ -76,4 +78,4 @@ private:
 
 } // namespace decof
 
-#endif // MANAGED_READWRITE_PARAMETER_H
+#endif // DECOF_MANAGED_READWRITE_PARAMETER_H

@@ -19,14 +19,19 @@
 
 #include "decof/event.h"
 #include "decof/exceptions.h"
+#include "decof/external_readonly_handler_parameter.h"
 #include "decof/external_readonly_parameter.h"
+#include "decof/external_readwrite_handler_parameter.h"
 #include "decof/external_readwrite_parameter.h"
+#include "decof/handler_event.h"
 #include "decof/object.h"
 #include "decof/object_dictionary.h"
+#include "decof/managed_readwrite_handler_parameter.h"
 #include "decof/managed_readwrite_parameter.h"
 #include "decof/managed_readonly_parameter.h"
 #include "decof/types.h"
 #include "decof/userlevel.h"
+#include "decof/writeonly_handler_parameter.h"
 #include "decof/writeonly_parameter.h"
 
 #endif // DECOF_H

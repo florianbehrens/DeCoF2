@@ -16,15 +16,24 @@
 
 #include "composite.h"
 
-composite::composite(std::string name, decof::node *parent, decof::userlevel_t readlevel) :
-    node(name, parent, readlevel),
-    summand1_("summand1", this, readlevel, readlevel),
-    summand2_("summand2", this, readlevel, readlevel),
-    sum_("sum", this, readlevel)
-{}
-
-decof::integer composite::sum_type::external_value()
+composite::composite(std::string name, decof::node *parent) :
+    node(name, parent),
+    summand1_("summand1", this),
+    summand2_("summand2", this),
+    sum_("sum", this)
 {
-    composite *c = dynamic_cast<composite *>(parent());
-    return c->summand1_.value() + c->summand2_.value();
+    summand1_.verify_handler(std::bind(&composite::summand1_changing, this,
+                                       std::placeholders::_1));
+    summand2_.verify_handler(std::bind(&composite::summand2_changing, this,
+                                       std::placeholders::_1));
+}
+
+void composite::summand1_changing(const decof::integer &value)
+{
+    sum_.value(value + summand2_.value());
+}
+
+void composite::summand2_changing(const decof::integer &value)
+{
+    sum_.value(summand1_.value() + value);
 }

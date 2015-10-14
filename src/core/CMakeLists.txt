@@ -7,6 +7,7 @@ set(
     errors.h
     event.cpp
     exceptions.cpp
+    handler_event.cpp
     node.cpp
     object.cpp
     object_dictionary.cpp

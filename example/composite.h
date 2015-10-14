@@ -24,18 +24,15 @@ class composite final : public decof::node
     friend class sum_type;
 
 public:
-    explicit composite(std::string name, node *parent = nullptr, decof::userlevel_t readlevel = decof::Normal);
+    explicit composite(std::string name, node *parent = nullptr);
 
 private:
-    struct sum_type : decof::external_readonly_parameter<decof::integer>
-    {
-        using decof::external_readonly_parameter<decof::integer>::external_readonly_parameter;
-        virtual decof::integer external_value();
-    };
+    void summand1_changing(const decof::integer &value);
+    void summand2_changing(const decof::integer &value);
 
-    decof::managed_readwrite_parameter<decof::integer> summand1_;
-    decof::managed_readwrite_parameter<decof::integer> summand2_;
-    sum_type sum_;
+    decof::managed_readwrite_handler_parameter<decof::integer> summand1_;
+    decof::managed_readwrite_handler_parameter<decof::integer> summand2_;
+    decof::managed_readonly_parameter<decof::integer> sum_;
 };
 
 #endif // DECOF_EXAMPLE_COMPOSITE_H

@@ -167,11 +167,24 @@ int main()
 {
     // Output some diagnostics:
     std::cout << "sizeof(node) = " << sizeof(decof::node) << std::endl;
-    std::cout << "sizeof(managed_readonly_parameter<decof::integer>) = " << sizeof(decof::managed_readonly_parameter<decof::integer>) << std::endl;
-    std::cout << "sizeof(managed_readwrite_parameter<decof::integer>) = " << sizeof(decof::managed_readwrite_parameter<decof::integer>) << std::endl;
-    std::cout << "sizeof(external_readonly_parameter<decof::integer>) = " << sizeof(decof::external_readonly_parameter<decof::integer>) << std::endl;
-    std::cout << "sizeof(external_readwrite_parameter<decof::integer>) = " << sizeof(decof::external_readwrite_parameter<decof::integer>) << std::endl;
-    std::cout << "sizeof(writeonly_parameter<decof::integer>) = " << sizeof(decof::writeonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(managed_readonly_parameter<decof::integer>) = "
+              << sizeof(decof::managed_readonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_parameter<decof::integer>) = "
+              << sizeof(decof::managed_readwrite_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_handler_parameter<decof::integer>) = "
+              << sizeof(decof::managed_readwrite_handler_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readonly_parameter<decof::integer>) = "
+              << sizeof(decof::external_readonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readonly_handler_parameter<decof::integer>) = "
+              << sizeof(decof::external_readonly_handler_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readwrite_parameter<decof::integer>) = "
+              << sizeof(decof::external_readwrite_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(external_readwrite_handler_parameter<decof::integer>) = "
+              << sizeof(decof::external_readwrite_handler_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(writeonly_parameter<decof::integer>) = "
+              << sizeof(decof::writeonly_parameter<decof::integer>) << std::endl;
+    std::cout << "sizeof(writeonly_handler_parameter<decof::integer>) = "
+              << sizeof(decof::writeonly_handler_parameter<decof::integer>) << std::endl;
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
