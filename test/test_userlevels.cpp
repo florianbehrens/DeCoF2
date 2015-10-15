@@ -49,6 +49,12 @@ struct fixture
         {
             decof::client_context::signal_event(uri, separator);
         }
+
+        void observe(const std::string& uri, decof::client_read_interface::signal_type::slot_type slot,
+                     char separator = ':')
+        {
+            decof::client_context::observe(uri, slot, separator);
+        }
     };
 
     fixture() :
@@ -88,6 +94,39 @@ BOOST_FIXTURE_TEST_CASE(read_access_allowed, fixture)
         try {
             managed_readwrite_parameter.readlevel(ul);
             my_context->get_parameter("root:param");
+        } catch (decof::access_denied_error &ex) {
+            BOOST_FAIL(ex.what());
+        }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(observation_denied, fixture)
+{
+    managed_readwrite_parameter.readlevel(decof::Forbidden);
+
+    for (decof::userlevel_t ul = decof::Normal; ul <= decof::Internal;
+         ul = static_cast<decof::userlevel_t>(ul + 1)) {
+        bool observation_failed = false;
+        try {
+            my_context->userlevel(ul);
+            my_context->observe("root:param", [](const std::string&, const boost::any&) {});
+        } catch (decof::access_denied_error &) {
+            observation_failed = true;
+        }
+
+        BOOST_REQUIRE_EQUAL(observation_failed, true);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(observation_allowed, fixture)
+{
+    my_context->userlevel(decof::Internal);
+
+    for (decof::userlevel_t ul = decof::Internal; ul >= decof::Normal;
+         ul = static_cast<decof::userlevel_t>(ul - 1)) {
+        try {
+            managed_readwrite_parameter.readlevel(ul);
+            my_context->observe("root:param", [](const std::string&, const boost::any&) {});
         } catch (decof::access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
