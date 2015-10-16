@@ -36,10 +36,11 @@ not finally defined by DeCoF but some useful implementations are provided.
 ### Objects, parameters, events, and nodes
 
 Objects are organized in a hierarchic tree structure. Each object has a name
-and exactly one parent object except the 'root' object.
+and exactly one parent. The only exception is the 'root' object which does not
+have a parent.
 
 Only *node* objects can hold child objects. *Parameters* are associated a value 
-of a given, fixed value type. *Events* are objects without value but can be 
+of a predefined, fixed value type. *Events* are objects without value but can be
 used to signal some event.
 
 Parameter values can be of one of the following builtin value types:
@@ -65,21 +66,24 @@ should be the same if carried out once or multiple times.
 
 ### Access control
 
-Two *userlevel* are assigned to each object which are used for access control. 
-The *writelevel* is used for modifying operations (i.e., setting a parameter 
-value or signalling an event) and the *readlevel* is used for non-modifying 
+Two *userlevels* are assigned to each object which are used for access control.
+A *writelevel* is used for modifying operations (i.e., setting a parameter
+value or signalling an event) and a *readlevel* is used for non-modifying
 operations.
 
-Readonly parameters obviously only have a *readlevel*, while writeonly 
-parameters only have a *writelevel*.
+Readonly parameters only support a *readlevel*, while writeonly parameters only
+have a *writelevel*.
+
+Each client is assigned a userlevel as well. If a client wants to perform an
+operation on an object it must have a userlevel that is greater or equal to the
+objects respective userlevel.
 
 The following userlevels are supported:
 
-* Readonly
-* Normal
-* Service
-* Maintenance
-* Internal
+* Normal (0)
+* Service (1)
+* Maintenance (2)
+* Internal (3)
 
 The semantics of the various userlevels are project specific.
 
@@ -87,7 +91,8 @@ The semantics of the various userlevels are project specific.
 
 The *object dictionary* is the container of all parameter instances. The object
 dictionary itself is a node with an implementation specific name. All parameters 
-are children or successors of the root parameter.
+are children or successors of the object dictionary node (i.e., the 'root'
+object).
 
 ### Interaction models
 
@@ -103,16 +108,16 @@ In the 'classic' request/response model, the server framework allows the
 following abstract operations from clients on each parameter in the object
 dictionary:
 
-* Get operation (parameters and nodes only)
-* Set operation (parameters only)
+* Get operation (readable parameters and nodes only)
+* Set operation (modifiable parameters only)
 * Execute operation (events only)
 
 #### Publish/subscribe model
 
-In the publish/subscribe model, the clients take the role of a subscriber
-whereas the server have the role of the publisher. In this model the server
-framework allows the following abstract operations on each parameter in the
-object dictionary:
+In the publish/subscribe model, a client takes the role of a subscriber whereas
+the server has the role of a publisher. In this model the server framework
+allows the following abstract operations on each readable parameter and node in
+the object dictionary:
 
 * Subscribe operation
 * Unsubscribe operation
@@ -136,6 +141,49 @@ Implementation
 --------------
 
 ### Server side API
+
+The server side API strives to model the above described concepts in a simple
+and convenient way. The following classes represent mentioned basic concepts:
+
+* ```decof::object_dictionary``` represents the object dictionary
+* ```decof::node```represents a node object
+* ```decof::event```represents an event
+
+Parameters are represented by a bunch of classes depending on their properties.
+Firstly, parameters are distinguished by their value type which is determined
+by a template type argument. Secondly, they are disciminated by the access mode
+they provide, i.e., whether they are readonly, writeonly, or readwrite. Thirdly,
+readable parameters are divided into *managed* and *external* parameters: A
+managed parameter holds the associated value within the parameter object, i.e.,
+the value is 'managed' (or encapsulated) by the parameter object. An external
+parameter is only an empty wrapper with no value inside and provides getter and
+setter functions for access to the actual value. The obvious difference is, that
+managed parameters have full control over value accesses while external
+parameters don't. There are no managed writeonly parameters because writeonly
+parameters are considered useful for cases where the value representation
+differs significantly from the 'natural' representation of the respective type.
+
+Hence, the list of classes representing parameters is as follows:
+
+* ```decof::managed_readonly_parameter<T>```
+* ```decof::managed_readwrite_parameter<T>```
+* ```decof::external_readonly_parameter<T>```
+* ```decof::external_readwrite_parameter<T>```
+* ```decof::writeonly_parameter<T>```
+
+All these classes provide (runtime) polymorphic functions (i.e., virtual
+functions) for the user to (re)act on parameter value accesses by clients.
+There are cases, however, where it is more convenient to (re)act on parameter
+value accesses by means of a non-member handler function or delegate. This
+pattern is supported by the following specialized 'handler' classes:
+
+* ```decof::managed_readwrite_handler_parameter<T>```
+* ```decof::external_readonly_handler_parameter<T>```
+* ```decof::external_readwrite_handler_parameter<T>```
+* ```decof::writeonly_handler_parameter<T>```
+
+These classes provide a registration function for handlers of type
+```std::function<>``` for each virtual function of the respective base class.
 
 #### Overridable handler functions
 
