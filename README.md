@@ -214,7 +214,7 @@ The command line interface (CLI) protocol is around for historical reasons and
 for its simplicity and usability when it comes to manual (terminal) interaction
 with a server.
 
-The CLI protocol implements both the client/server and publish/subscribe
+The CLI protocol implements both the request/response and publish/subscribe
 interaction models as well as supports some simple discovery means.
 
 ##### Client/server model
@@ -222,7 +222,7 @@ interaction models as well as supports some simple discovery means.
 The client/server interaction model is supported typically via TCP port 1998.
 Operations are encoded in ASCII text in the following manner:
 
-`[(] <operation> [']<uri> [<value>] [)]`
+`[(] <operation> [']<path> [<value>] [)]`
 
 The paratheses and the `'` are for historical reasons and optional.
 
@@ -230,6 +230,7 @@ The paratheses and the `'` are for historical reasons and optional.
 
 * `param-ref` or `get` for a get operation
 * `param-set!` or `set` for a set operation
+* `exec` or `signal`for a execute operation
 
 The former keywords are for historical reasons.
 
@@ -248,9 +249,9 @@ client/server model.
 
 The former keywords again are for historical reasons.
 
-##### URI representation
+##### Path representation
 
-The `uri` represents an object within the object dictionary with its fully
+The `path` represents an object within the object dictionary with its fully
 qualified name, seperated with a colon (`:`), e.g., `root:node:my_parameter`.
 
 ##### Value encoding
@@ -287,7 +288,7 @@ similar to FastCGI but easier to implement as it is not a binary protocol.
 In conjunction with a webserver this protocol can be used with DeCoF2 servers
 to provide webservices for interaction with the object dictionary.
 
-Objects are identified by the HTTP URI within a HTTP GET, HTTP PUT, or HTTP 
+Objects are identified by the HTTP path within a HTTP GET, HTTP PUT, or HTTP 
 POST request (e.g., `/root/node/my_parameter`), respectively. This protocol 
 only supports the client/server model.
 
@@ -297,7 +298,7 @@ multiple invocations result in the same side effects as a single one) by the
 HTTP/1.1 spec (RFC2616, clause §9.1.2) a HTTP POST request is required to 
 invoke an event which likely modifies state in a non-idempotent way.
 
-For historical reasons, a HTTP GET request to the special URI /browse returns a
+For historical reasons, a HTTP GET request to the special path /browse returns a
 proprietary XML representation of the object tree.
 
 ##### Value encoding
