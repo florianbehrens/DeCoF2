@@ -39,9 +39,9 @@ Objects are organized in a hierarchic tree structure. Each object has a name
 and exactly one parent. The only exception is the 'root' object which does not
 have a parent.
 
-Only *node* objects can hold child objects. *Parameters* are associated a value 
-of a predefined, fixed value type. *Events* are objects without value but can be
-used to signal some event.
+There a various different object types: Only *node* objects can hold child objects.
+*Parameters* are associated a value of a predefined, fixed value type. *Events* are 
+objects without value but can be used to signal some event.
 
 Parameter values can be of one of the following builtin value types:
 
@@ -66,17 +66,15 @@ should be the same if carried out once or multiple times.
 
 ### Access control
 
-Two *userlevels* are assigned to each object which are used for access control.
-A *writelevel* is used for modifying operations (i.e., setting a parameter
-value or signalling an event) and a *readlevel* is used for non-modifying
-operations.
+Clients access to objects is controlled by *access control levels*. Each object
+is assigned a *writelevel* for modifying operations (i.e., setting a parameter
+value or signalling an event) and/or a *readlevel* for non-modifying operations.
+Readonly parameters obviously only support a readlevel while writeonly
+parameters only have a writelevel.
 
-Readonly parameters only support a *readlevel*, while writeonly parameters only
-have a *writelevel*.
-
-Each client is assigned a userlevel as well. If a client wants to perform an
-operation on an object it must have a userlevel that is greater or equal to the
-objects respective userlevel.
+Each client is assigned a *userlevel*. If a client wants to perform an operation
+on an object it must have a userlevel that is greater or equal to the objects
+respective access control level (i.e., readlevel or writelevel, respectively).
 
 The following userlevels are supported:
 
