@@ -20,7 +20,7 @@ if(NOT DEFINED DECOF2_LIBRARY_TYPE)
     set(DECOF2_LIBRARY_TYPE "SHARED")
 endif()
 
-add_definitions(-std=c++0x)
+add_definitions(-std=c++0x -DBOOST_ASIO_SEPARATE_COMPILATION)
 include_directories(include include/decof src/core)
 add_subdirectory(include)
 add_subdirectory(src)
