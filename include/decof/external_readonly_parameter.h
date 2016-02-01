@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include <boost/optional.hpp>
+
 #include "object_dictionary.h"
 #include "readable_parameter.h"
 
@@ -84,14 +86,14 @@ private:
     /// Slot member function for regular tick.
     void notify() {
         T cur_value = value();
-        if (last_value_ != cur_value) {
+        if (!last_value_ || *last_value_ != cur_value) {
             readable_parameter<T>::signal(cur_value);
             last_value_ = cur_value;
         }
     }
 
     boost::signals2::connection connection_;
-    T last_value_;
+    boost::optional<T> last_value_;
 };
 
 } // namespace decof
