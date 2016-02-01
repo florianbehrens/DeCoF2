@@ -880,18 +880,22 @@ BOOST_FIXTURE_TEST_CASE(browse, fixture)
 
     // Read response header
     asio::read_until(client_sock, buf, std::string("\r\n\r\n"));
-    std::getline(is, str, '\r');
-    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
+    std::getline(is, str, '\n');
+    BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK\r");
 
     // Read rest of header
     std::unordered_map<std::string, std::string> headers;
-    do {
+    while (true) {
         std::vector<std::string> header;
         std::getline(is, str, '\n');
         std::string trimmed_str = boost::trim_copy(str);
+
+        if (trimmed_str.empty())
+            break;
+
         boost::split(header, trimmed_str, boost::is_any_of(": "), boost::token_compress_on);
         headers[header[0]] = header[1];
-    } while (str != "\r");
+    }
 
     BOOST_REQUIRE_EQUAL(headers["Content-Type"], "text/xml");
     BOOST_REQUIRE_GT(std::stoi(headers["Content-Length"]), 0);
