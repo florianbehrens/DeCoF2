@@ -23,6 +23,8 @@
 
 #include <boost/any.hpp>
 
+#include "update_container.h"
+
 namespace decof
 {
 
@@ -40,8 +42,20 @@ public:
     virtual void preload() override final;
 
 private:
+    /// Callback for read operations.
     void read_handler(const std::string &cstr);
+
+    /// Callback for write operations.
+    void write_handler();
+
     void notify(const std::string &uri, const boost::any &any_value);
+
+    /** Initiate chain of write operations for pending updates.
+     * @note Does nothing in case of no pending updates. */
+    void preload_writing();
+
+    update_container pending_updates_;
+    bool writing_active_ = false;
 };
 
 } // namespace cli

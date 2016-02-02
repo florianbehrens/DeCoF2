@@ -32,6 +32,20 @@ DECOF_DECLARE_WRITEONLY_PARAMETER(cout_parameter, decof::string);
 typedef decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary> cout_tuple_parameter_type;
 DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_type);
 
+struct spin_count_parameter : public decof::managed_readonly_parameter<decof::integer>
+{
+    spin_count_parameter(decof::node *parent) :
+        decof::managed_readonly_parameter<decof::integer>("spin-count", parent, 0)
+    {
+        io_service->post(std::bind(&spin_count_parameter::increment, this));
+    }
+
+    void increment() {
+        value(value() + 1);
+        io_service->post(std::bind(&spin_count_parameter::increment, this));
+    }
+};
+
 void my_managed_readwrite_parameter::verify(const decof::string& value)
 {
     if (value != "true" && value != "false")
@@ -106,6 +120,7 @@ private:
 // Setup object dictionary
 // root
 //  |-- enabled: string (rw)
+//  |-- spin-count: int (r)
 //  |-- current-context: node (r)
 //  | |-- endpoint: string (r)
 //  |-- subnode: node (r)
@@ -136,6 +151,7 @@ private:
 
 decof::object_dictionary obj_dict("example");
 my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
+spin_count_parameter spin_count_param(&obj_dict);
 decof::node current_context_node("current-context", &obj_dict);
 current_context_endpoint_parameter endpoint_param("endpoint", &current_context_node);
 decof::node subnode("subnode", &obj_dict);

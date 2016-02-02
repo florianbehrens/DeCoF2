@@ -5,6 +5,7 @@ add_executable(
     test_main.cpp
     test_bencode_string_parser.cpp
     test_cli_access.cpp
+    test_cli_update_container.cpp
     test_object_dictionary.cpp
     test_parameter_access.cpp
     test_parameter_observation.cpp

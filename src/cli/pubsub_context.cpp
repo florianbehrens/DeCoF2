@@ -49,6 +49,7 @@ void pubsub_context::preload()
 {
     // Connect to signals of connection class
     connection_->read_signal.connect(std::bind(&pubsub_context::read_handler, this, std::placeholders::_1));
+    connection_->write_signal.connect(std::bind(&pubsub_context::write_handler, this));
     connection_->async_read_until('\n');
 }
 
@@ -87,19 +88,44 @@ void pubsub_context::read_handler(const std::string &cstr)
     connection_->async_read_until('\n');
 }
 
+void pubsub_context::write_handler()
+{
+    writing_active_ = false;
+    preload_writing();
+}
+
 void pubsub_context::notify(const std::string &uri, const boost::any &any_value)
 {
-    // Get current time in textual representation
-    const size_t max_length = 25;
-    char time_str[max_length];
-    std::time_t now = std::time(nullptr);
-    std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
+    pending_updates_.push(uri, any_value);
+    preload_writing();
+}
 
-    std::stringstream ss;
-    ss << "(" << time_str << " '" << uri << " ";
-    encoder().encode_any(ss, any_value);
-    ss << ")\n";
-    connection_->async_write(ss.str());
+void pubsub_context::preload_writing()
+{
+    if (!writing_active_ && !pending_updates_.empty()) {
+        std::ostringstream ostream;
+
+        do {
+            update_container::key_type uri;
+            update_container::time_point time;
+            boost::any any_value;
+
+            std::tie(uri, any_value, time) = pending_updates_.pop_front();
+
+            // Get current time in textual representation
+            const size_t max_length = 25;
+            char time_str[max_length];
+            auto now = std::chrono::system_clock::to_time_t(time);
+            std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
+
+            ostream << "(" << time_str << " '" << uri << " ";
+            encoder().encode_any(ostream, any_value);
+            ostream << ")\n";
+        } while (!pending_updates_.empty());
+
+        connection_->async_write(ostream.str());
+        writing_active_ = true;
+    }
 }
 
 } // namespace cli
