@@ -145,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
     time[0] = std::chrono::system_clock::now();
     updates_.push("parameter1", boost::any(1));
     time[1] = std::chrono::system_clock::now();
-    updates_.push("parameter2", boost::any("value"));
+    updates_.push("parameter2", boost::any(std::string("value")));
     time[2] = std::chrono::system_clock::now();
     updates_.push("parameter1", boost::any(2));
     time[3] = std::chrono::system_clock::now();
@@ -167,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
     BOOST_REQUIRE_EQUAL("parameter2", actual_uri);
-    BOOST_REQUIRE_EQUAL("value", boost::any_cast<const char*>(actual_value));
+    BOOST_REQUIRE_EQUAL(std::string("value"), boost::any_cast<std::string>(actual_value));
     BOOST_REQUIRE(time[1] <= actual_time && actual_time <= time[2]);
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
