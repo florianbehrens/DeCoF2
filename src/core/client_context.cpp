@@ -110,9 +110,10 @@ void client_context::observe(const std::string &uri, client_read_interface::sign
 
     auto obj = object_dictionary_.find_object(uri, separator);
 
-    if (userlevel_ < obj->readlevel())
-        throw access_denied_error();
     if (client_read_interface* param = dynamic_cast<client_read_interface*>(obj)) {
+        if (userlevel_ < obj->readlevel())
+            throw access_denied_error();
+
         if (observables_.count(uri) == 0) {
             boost::signals2::connection connection = param->observe(slot);
             observables_.emplace(uri, connection);
