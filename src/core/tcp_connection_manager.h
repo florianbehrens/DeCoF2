@@ -24,7 +24,6 @@
 
 #include "client_context.h"
 #include "object_dictionary.h"
-#include "tcp_connection.h"
 
 namespace decof
 {
@@ -65,7 +64,7 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            std::shared_ptr<client_context> cli_ctx(new CTX(object_dictionary_, tcp_connection::create(std::move(socket_)), userlevel_));
+            std::shared_ptr<client_context> cli_ctx(new CTX(std::move(socket_), object_dictionary_, userlevel_));
             object_dictionary_.add_context(cli_ctx);
             cli_ctx->preload();
         } else

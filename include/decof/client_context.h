@@ -29,7 +29,6 @@
 namespace decof
 {
 
-class connection;
 class object;
 class object_dictionary;
 class object_visitor;
@@ -37,7 +36,7 @@ class object_visitor;
 class client_context : public std::enable_shared_from_this<client_context>
 {
 public:
-    explicit client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel = Normal);
+    explicit client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel = Normal);
     virtual ~client_context();
 
     userlevel_t userlevel() const;
@@ -81,7 +80,6 @@ protected:
     void tick();
 
     object_dictionary& object_dictionary_;
-    std::shared_ptr<connection> connection_;
 
 private:
     void browse_object(object *te, object_visitor *visitor);

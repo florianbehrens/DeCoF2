@@ -17,7 +17,6 @@
 #include "client_context.h"
 
 #include "client_write_interface.h"
-#include "connection.h"
 #include "event.h"
 #include "exceptions.h"
 #include "object.h"
@@ -26,9 +25,8 @@
 namespace decof
 {
 
-client_context::client_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel)
+client_context::client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel)
   : object_dictionary_(a_object_dictionary),
-    connection_(connection),
     userlevel_(userlevel)
 {}
 

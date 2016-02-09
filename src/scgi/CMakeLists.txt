@@ -3,8 +3,8 @@ set(
     array_view.h
     bencode_string_parser.cpp
     bencode_string_parser.h
-    context.cpp
-    context.h
+    scgi_context.cpp
+    scgi_context.h
     endian.h
     js_value_encoder.cpp
     js_value_encoder.h

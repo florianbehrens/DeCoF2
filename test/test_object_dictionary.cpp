@@ -40,7 +40,7 @@ struct fixture
         node1("node1", &obj_dict),
         node2("node2", &node1),
         param("param", &node2, "Hello World"),
-        my_context(new my_context_t(obj_dict, std::shared_ptr<decof::connection>()))
+        my_context(new my_context_t(obj_dict))
     {}
 
     decof::object_dictionary obj_dict;

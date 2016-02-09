@@ -3,7 +3,6 @@ set(
     basic_value_encoder.cpp
     basic_value_encoder.h
     client_context.cpp
-    connection.h
     errors.h
     event.cpp
     exceptions.cpp
@@ -12,8 +11,6 @@ set(
     object.cpp
     object_dictionary.cpp
     object_visitor.cpp
-    tcp_connection.cpp
-    tcp_connection.h
     tcp_connection_manager.cpp
     tcp_connection_manager.h
 )

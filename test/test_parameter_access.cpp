@@ -77,7 +77,7 @@ struct fixture
         external_readwrite_parameter("external_readwrite_parameter", &obj_dict),
         external_readonly_parameter("external_readonly_parameter", &obj_dict),
         writeonly_parameter("writeonly_parameter", &obj_dict),
-        my_context(new my_context_t(obj_dict, std::shared_ptr<decof::connection>()))
+        my_context(new my_context_t(obj_dict))
     {}
 
     decof::object_dictionary obj_dict;

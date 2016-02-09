@@ -22,6 +22,7 @@
 #include <string>
 
 #include <boost/any.hpp>
+#include <boost/asio.hpp>
 
 #include "update_container.h"
 
@@ -34,25 +35,38 @@ namespace cli
 class pubsub_context : public client_context
 {
 public:
-    // We inherit base class constructors
-    using client_context::client_context;
+    /** Constructor.
+     * @param socket Rvalue reference socket.
+     * @param od Reference to the object dictionary.
+     * @param userlevel The contexts default userlevel. */
+    explicit pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
 
-    virtual std::string connection_type() const override final;
-    virtual std::string remote_endpoint() const override final;
-    virtual void preload() override final;
+    std::string connection_type() const final;
+    std::string remote_endpoint() const final;
+    void preload() final;
 
 private:
     /// Callback for read operations.
-    void read_handler(const std::string &cstr);
+    void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     /// Callback for write operations.
-    void write_handler();
+    void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     void notify(const std::string &uri, const boost::any &any_value);
 
     /** Initiate chain of write operations for pending updates.
-     * @note Does nothing in case of no pending updates. */
+     * @note Does nothing in case of no pending updates or in case a write
+     * operation is currently active. */
     void preload_writing();
+
+    /// Closes the socket and delists client context from object dictionary.
+    void disconnect();
+
+    boost::asio::ip::tcp::socket socket_;
+    boost::asio::streambuf inbuf_;
+    boost::asio::streambuf outbuf_;
+
+    size_t socket_send_buf_size_;
 
     update_container pending_updates_;
     bool writing_active_ = false;

@@ -14,7 +14,7 @@
 #include "asio_tick/asio_tick.h"
 #include "cli/clisrv_context.h"
 #include "cli/pubsub_context.h"
-#include "scgi/context.h"
+#include "scgi/scgi_context.h"
 
 #include "composite.h"
 

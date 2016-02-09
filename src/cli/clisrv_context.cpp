@@ -23,8 +23,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
+#include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 
-#include "connection.h"
 #include "exceptions.h"
 #include "object.h"
 #include "object_dictionary.h"
@@ -45,85 +46,120 @@ namespace decof
 namespace cli
 {
 
+clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+    client_context(od, userlevel),
+    socket_(std::move(socket))
+{}
+
 std::string clisrv_context::connection_type() const
 {
-    return connection_->type();
+    return std::string("tcp");
 }
 
 std::string clisrv_context::remote_endpoint() const
 {
-    return connection_->remote_endpoint();
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
 }
 
 void clisrv_context::preload()
 {
-    // Connect to signals of connection class
-    connection_->read_signal.connect(std::bind(&clisrv_context::read_handler, this, std::placeholders::_1));
-    connection_->disconnect_signal.connect(std::bind(&clisrv_context::disconnect_handler, this));
+    std::ostream out(&outbuf_);
+    out << "DeCoF command line\n" << prompt;
 
-    connection_->async_write("DeCoF command line\n" + prompt);
-    connection_->async_read_until('\n');
+    auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
+    boost::asio::async_write(socket_, outbuf_,
+                             std::bind(&clisrv_context::write_handler, self,
+                                       std::placeholders::_1, std::placeholders::_2));
 }
 
-void clisrv_context::read_handler(const std::string& cstr)
+void clisrv_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
-    // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-    std::string str(cstr);
-    boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
+    if (!error) {
+        auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
+        boost::asio::async_read_until(socket_, inbuf_, '\n',
+                                      std::bind(&clisrv_context::read_handler, self,
+                                                std::placeholders::_1, std::placeholders::_2));
+    } else
+        disconnect();
+}
 
-    // Read and lower-case operation and uri
-    std::string op, uri;
-    std::stringstream ss_in(str);
-    ss_in >> op >> uri;
-    std::transform(op.begin(), op.end(), op.begin(), ::tolower);
-    std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
+void clisrv_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+{
+    if (!error) {
+        // Copy received data to std::string
+        boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
+        std::string str(
+            boost::asio::buffers_begin(bufs),
+            boost::asio::buffers_begin(bufs) + bytes_transferred);
+        inbuf_.consume(bytes_transferred);
 
-    // Remove optional "'" from parameter name
-    if (!uri.empty() && uri[0] == '\'')
+        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+        boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
+
+        // Read and lower-case operation and uri
+        std::string op, uri;
+        std::stringstream ss_in(str);
+        ss_in >> op >> uri;
+        std::transform(op.begin(), op.end(), op.begin(), ::tolower);
+        std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
+
+        // Remove optional "'" from parameter name
+        if (!uri.empty() && uri[0] == '\'')
             uri.erase(0, 1);
 
-    // Parse optional value string using flexc++/bisonc++ parser
-    boost::any any_value;
-    if (ss_in.peek() != std::stringstream::traits_type::eof()) {
-        parser parser(ss_in);
-        parser.parse();
-        any_value = parser.result();
-    }
+        // Parse optional value string using flexc++/bisonc++ parser
+        boost::any any_value;
+        if (ss_in.peek() != std::stringstream::traits_type::eof()) {
+            parser parser(ss_in);
+            parser.parse();
+            any_value = parser.result();
+        }
 
-    std::stringstream ss_out;
-    try {
-        if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
-            boost::any any_value = get_parameter(uri);
-            encoder().encode_any(ss_out, any_value);
-            ss_out << std::endl;
-        } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
-            set_parameter(uri, any_value);
-            ss_out << "0\n";
-        } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
-            signal_event(uri);
-            ss_out << "()\n";
-        } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
-            // This command is for compatibility reasons with legacy DeCoF
-            std::string root_uri(object_dictionary_.name());
-            if (!uri.empty())
-                root_uri = uri;
-            std::stringstream temp_ss;
-            visitor visitor(temp_ss);
-            browse(&visitor, root_uri);
-            ss_out << temp_ss.str();
-        } else
-            throw parse_error();
-    } catch (runtime_error& ex) {
-        ss_out << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
-    }
+        std::ostream out(&outbuf_);
 
-    ss_out << prompt;
-    connection_->async_write(ss_out.str());
-    connection_->async_read_until('\n');
+        try {
+            if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
+                boost::any any_value = get_parameter(uri);
+                encoder().encode_any(out, any_value);
+                out << std::endl;
+            } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
+                set_parameter(uri, any_value);
+                out << "0\n";
+            } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
+                signal_event(uri);
+                out << "()\n";
+            } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
+                // This command is for compatibility reasons with legacy DeCoF
+                std::string root_uri(object_dictionary_.name());
+                if (!uri.empty())
+                    root_uri = uri;
+                std::stringstream temp_ss;
+                visitor visitor(temp_ss);
+                browse(&visitor, root_uri);
+                out << temp_ss.str();
+            } else
+                throw parse_error();
+        } catch (runtime_error& ex) {
+            out << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
+        }
+
+        out << prompt;
+
+        auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
+        boost::asio::async_write(socket_, outbuf_,
+                                 std::bind(&clisrv_context::write_handler, self,
+                                           std::placeholders::_1, std::placeholders::_2));
+    }
+    else
+        disconnect();
 }
 
-void clisrv_context::disconnect_handler()
+void clisrv_context::disconnect()
 {
+    boost::system::error_code ec;
+    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    socket_.close(ec);
+
     // Remove this client context from object dictionary. Because it is a
     // shared pointer, it gets deleted after leaving function scope.
     auto sptr = shared_from_this();

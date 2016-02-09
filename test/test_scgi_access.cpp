@@ -28,7 +28,7 @@
 #include "decof.h"
 #include "tcp_connection_manager.h"
 #include "scgi/bencode_string_parser.h"
-#include "scgi/context.h"
+#include "scgi/scgi_context.h"
 
 BOOST_AUTO_TEST_SUITE(scgi_access)
 

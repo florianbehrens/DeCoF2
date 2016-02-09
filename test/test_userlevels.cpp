@@ -60,7 +60,7 @@ struct fixture
     fixture() :
         managed_readwrite_parameter("param", &obj_dict, decof::Forbidden, decof::Internal),
         event("event", &obj_dict),
-        my_context(new my_context_t(obj_dict, std::shared_ptr<decof::connection>()))
+        my_context(new my_context_t(obj_dict))
     {}
 
     decof::object_dictionary obj_dict;

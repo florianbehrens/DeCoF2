@@ -25,7 +25,6 @@ namespace decof
 {
 
 class client_context;
-class connection;
 
 /// @brief Object dictionary for parameter tree objects.
 class object_dictionary : public node

@@ -23,7 +23,7 @@ namespace asio_tick
 {
 
 asio_tick_context::asio_tick_context(decof::object_dictionary &obj_dict, std::shared_ptr<boost::asio::io_service> io_service, std::chrono::milliseconds interval) :
-    client_context(obj_dict, std::shared_ptr<decof::connection>(nullptr)),
+    client_context(obj_dict),
     io_service_(io_service),
     timer_(*io_service),
     interval_(interval)

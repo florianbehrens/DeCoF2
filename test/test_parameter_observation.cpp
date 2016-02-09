@@ -85,7 +85,7 @@ struct fixture
         managed_readwrite_parameter("managed_readwrite_parameter", &obj_dict, false),
         external_readonly_parameter("external_readonly_parameter", &obj_dict),
         external_readwrite_parameter("external_readwrite_parameter", &obj_dict),
-        my_context(new my_context_t(obj_dict, std::shared_ptr<decof::connection>()))
+        my_context(new my_context_t(obj_dict))
     {}
 
     void notify(const std::string &uri, const boost::any &value) {

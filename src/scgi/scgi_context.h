@@ -17,11 +17,8 @@
 #ifndef DECOF_SCGI_CONTEXT_H
 #define DECOF_SCGI_CONTEXT_H
 
-#include <exception>
-#include <memory>
-#include <stdexcept>
+#include <array>
 #include <string>
-#include <vector>
 
 #include <boost/asio.hpp>
 
@@ -38,15 +35,21 @@ namespace scgi
 class scgi_context final : public client_context
 {
 public:
-    scgi_context(object_dictionary& a_object_dictionary, std::shared_ptr<connection> connection, userlevel_t userlevel = Normal);
+    /** Constructor.
+     * @param socket Rvalue reference socket.
+     * @param od Reference to the object dictionary.
+     * @param userlevel The contexts default userlevel. */
+    explicit scgi_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
 
-    virtual std::string connection_type() const override final;
-    virtual std::string remote_endpoint() const override final;
-    virtual void preload() override final;
+    std::string connection_type() const final;
+    std::string remote_endpoint() const final;
+    void preload() final;
 
 private:
-    /// SCGI request handler.
-    void read_handler(const std::string &cstr);
+    /** @brief Callback for boost::asio read operations.
+     *
+     * Parses and evaluates SCGI requests. */
+    void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
     /// Handle HTTP GET request.
     /// A GET request is used to read readable parameters.
@@ -66,6 +69,18 @@ private:
 
     /// Sends the given reply to the client.
     void send_response(const response &resp);
+
+    /// Callback for boost::asio write operations.
+    void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
+
+    /// Closes the socket and delists client context from object dictionary.
+    void disconnect();
+
+    boost::asio::ip::tcp::socket socket_;
+
+    static const size_t inbuf_size_ = 1500;
+    std::array<char, inbuf_size_> inbuf_;
+    boost::asio::streambuf outbuf_;
 
     /// The remote endpoint (HTTP client) as taken from the SCGI request.
     std::string remote_endpoint_;
