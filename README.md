@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/florianbehrens/DeCoF2.svg?branch=master)](https://travis-ci.org/florianbehrens/DeCoF2)
-[![Coverage Status](https://coveralls.io/repos/florianbehrens/DeCoF2/badge.svg?branch=master&service=github)](https://coveralls.io/github/florianbehrens/DeCoF2?branch=master) [![Documentation Status](https://codedocs.xyz/florianbehrens/DeCoF2.svg)](https://codedocs.xyz/florianbehrens/DeCoF2/)
+[![Travis CI Build Status](https://travis-ci.org/florianbehrens/DeCoF2.svg?branch=master)](https://travis-ci.org/florianbehrens/DeCoF2) [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/tc6w5v0uo3o6lele?svg=true)](https://ci.appveyor.com/project/florianbehrens/decof2) [![Coverage Status](https://coveralls.io/repos/florianbehrens/DeCoF2/badge.svg?branch=master&service=github)](https://coveralls.io/github/florianbehrens/DeCoF2?branch=master) [![Documentation Status](https://codedocs.xyz/florianbehrens/DeCoF2.svg)](https://codedocs.xyz/florianbehrens/DeCoF2/)
 
 DeCoF2
 ======
