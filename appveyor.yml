@@ -1,9 +1,6 @@
 # Build worker image (VM template)
 image: Visual Studio 2015
 
-platform: 
-  - x86
-
 before_build:
   - cd ..
   - mkdir build
