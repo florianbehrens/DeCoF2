@@ -1,0 +1,13 @@
+# Build worker image (VM template)
+image: Visual Studio 2015
+
+before_build:
+  - cd ..
+  - mkdir build
+  - cd build
+  - cmake %APPVEYOR_BUILD_FOLDER%
+
+build:
+  parallel: true                                        # enable MSBuild parallel builds
+  project: %APPVEYOR_BUILD_FOLDER%\..\build\DeCoF2.sln  # path to Visual Studio solution or project
+
