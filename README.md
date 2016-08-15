@@ -224,7 +224,7 @@ Operations are encoded in ASCII text in the following manner:
 
 `[(] <operation> [']<path> [<value>] [)]`
 
-The paratheses and the `'` are for historical reasons and optional.
+The parantheses and the `'` are for historical reasons and optional.
 
 `<operation>` can be one of:
 
