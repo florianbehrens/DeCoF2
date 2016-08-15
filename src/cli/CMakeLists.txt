@@ -1,3 +1,12 @@
+if(MSVC)
+    # Enable alternative boolean operators
+    set_source_files_properties(
+        lex.cpp parse.cpp
+        PROPERTIES
+            COMPILE_FLAGS "/Za"
+    )
+endif()
+
 set(
     DECOF2_CLI_SRC
     lex.cpp

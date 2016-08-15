@@ -20,10 +20,6 @@ if(NOT DEFINED DECOF2_LIBRARY_TYPE)
     set(DECOF2_LIBRARY_TYPE "SHARED")
 endif()
 
-if(WIN32)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Za")
-endif()
-
 add_definitions(-std=c++0x -DBOOST_ASIO_SEPARATE_COMPILATION)
 include_directories(include include/decof src/core)
 add_subdirectory(include)
