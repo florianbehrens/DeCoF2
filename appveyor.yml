@@ -8,6 +8,6 @@ before_build:
   - cmake %APPVEYOR_BUILD_FOLDER%
 
 build:
-  parallel: true                                        # enable MSBuild parallel builds
-  project: %APPVEYOR_BUILD_FOLDER%\..\build\DeCoF2.sln  # path to Visual Studio solution or project
+  parallel: true                # enable MSBuild parallel builds
+  project: ..\build\DeCoF2.sln  # path to Visual Studio solution or project
 
