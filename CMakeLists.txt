@@ -16,12 +16,6 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-# Use DECOF2_LIBRARY_TYPE to control library type, i.e., static or 
-# dynamic.
-if(NOT DEFINED DECOF2_LIBRARY_TYPE)
-    set(DECOF2_LIBRARY_TYPE "SHARED")
-endif()
-
 # Set C++11 as language standard
 set(CMAKE_CXX_STANDARD 11)
 

@@ -30,7 +30,7 @@ set(
 
 # Standard DeCoF2 CLI library
 add_library(
-    decof2-cli ${DECOF2_LIBRARY_TYPE}
+    decof2-cli
     EXCLUDE_FROM_ALL
     ${DECOF2_CLI_SRC}
 )
