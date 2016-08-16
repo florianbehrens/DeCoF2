@@ -23,6 +23,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
+
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include "decof.h"
@@ -654,9 +656,9 @@ BOOST_FIXTURE_TEST_CASE(put_real_seq, fixture)
     managed_readwrite_parameter<decof::real_seq> real_seq_rw("real_seq_rw", &od);
 
     double data[] = {
-        std::numeric_limits<decof::integer>::max(),
+        std::numeric_limits<decof::real>::max(),
         0,
-        std::numeric_limits<decof::integer>::lowest()
+        std::numeric_limits<decof::real>::lowest()
     };
 
     ss << scgi_request(

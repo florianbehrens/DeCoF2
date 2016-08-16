@@ -1,4 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
+
 add_executable(
     test_decof2
     EXCLUDE_FROM_ALL
@@ -14,13 +15,25 @@ add_executable(
     test_scgi_parser.cpp
     test_userlevels.cpp
 )
-target_link_libraries(
-    test_decof2
-    decof2-cli-gcov
-    decof2-core-gcov
-    decof2-scgi-gcov
-    ${Boost_SYSTEM_LIBRARY}
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    gcov
-    pthread
-)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    target_link_libraries(
+        test_decof2
+        decof2-cli-gcov
+        decof2-core-gcov
+        decof2-scgi-gcov
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        gcov
+        pthread
+    )
+else()
+    target_link_libraries(
+        test_decof2
+        decof2-cli
+        decof2-core
+        decof2-scgi
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    )
+endif()

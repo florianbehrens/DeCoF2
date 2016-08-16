@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include "scgi/bencode_string_parser.h"

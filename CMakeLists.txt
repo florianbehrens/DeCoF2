@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.12)
 project(decof2)
 
 find_package(Boost 1.49 REQUIRED COMPONENTS system unit_test_framework)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIR})
 
 # Doxygen API documentation generation
 find_package(Doxygen)
@@ -20,7 +22,14 @@ if(NOT DEFINED DECOF2_LIBRARY_TYPE)
     set(DECOF2_LIBRARY_TYPE "SHARED")
 endif()
 
-add_definitions(-std=c++0x -DBOOST_ASIO_SEPARATE_COMPILATION)
+# Set C++11 as language standard
+set(CMAKE_CXX_STANDARD 11)
+
+# Remove Visual Studio 'checked iterators' and 'runtime security' warnings
+if(MSVC)
+    add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 include_directories(include include/decof src/core)
 add_subdirectory(include)
 add_subdirectory(src)

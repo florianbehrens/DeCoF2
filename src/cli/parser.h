@@ -18,6 +18,14 @@
 #define DECOF_CLI_PARSER_H
 
 #include "scanner.h"
+
+#ifdef _MSC_VER
+// Undefine the preprocessor define ERROR defined within Windows header files
+#ifdef ERROR
+#undef ERROR
+#endif
+#endif
+
 #include "parserbase.h"
 
 // $insert namespace-open

@@ -1,5 +1,5 @@
 if(MSVC)
-    # Enable alternative boolean operators
+    # Enable alternative boolean operators with Visual Studio compiler
     set_source_files_properties(
         lex.cpp parse.cpp
         PROPERTIES
@@ -49,21 +49,23 @@ target_link_libraries(
 )
 
 # DeCoF2 CLI library with coverage information
-add_library(
-    decof2-cli-gcov
-    EXCLUDE_FROM_ALL
-    ${DECOF2_CLI_SRC}
-)
-target_include_directories(
-    decof2-cli
-    PUBLIC
-        ${Boost_INCLUDE_DIR}
-        ../../include
-        ../../include/decof
-    PRIVATE
-        ../core
-)
-target_link_libraries(
-    decof2-cli-gcov
-    decof2-core-gcov
-)
+if(CMAKE_COMPILER_IS_GNUCXX)
+	add_library(
+		decof2-cli-gcov
+		EXCLUDE_FROM_ALL
+		${DECOF2_CLI_SRC}
+	)
+	target_include_directories(
+		decof2-cli
+		PUBLIC
+			${Boost_INCLUDE_DIR}
+			../../include
+			../../include/decof
+		PRIVATE
+			../core
+	)
+	target_link_libraries(
+		decof2-cli-gcov
+		decof2-core-gcov
+	)
+endif()

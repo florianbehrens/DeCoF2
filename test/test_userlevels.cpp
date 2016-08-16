@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include "client_context.h"
