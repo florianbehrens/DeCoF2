@@ -1,4 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
+
 add_executable(
     example
     EXCLUDE_FROM_ALL
@@ -6,10 +7,17 @@ add_executable(
     composite.cpp
     composite.h
 )
+
 target_link_libraries(
     example
     decof2-asio-tick
     decof2-cli
     decof2-scgi
-    pthread
 )
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+	target_link_libraries(
+		example
+		pthread
+	)
+endif()

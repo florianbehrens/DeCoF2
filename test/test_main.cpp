@@ -18,5 +18,4 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_MODULE "decof2"
 
-#include <boost/asio/impl/src.hpp>
 #include <boost/test/unit_test.hpp>

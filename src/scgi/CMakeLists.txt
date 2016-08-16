@@ -18,7 +18,7 @@ set(
 
 # Standard DeCoF2 SCGI library
 add_library(
-    decof2-scgi ${DECOF2_LIBRARY_TYPE}
+    decof2-scgi
     EXCLUDE_FROM_ALL
     ${DECOF2_SCGI_SRC}
 )
@@ -37,21 +37,23 @@ target_link_libraries(
 )
 
 # DeCoF2 SCGI library with covergae information
-add_library(
-    decof2-scgi-gcov
-    EXCLUDE_FROM_ALL
-    ${DECOF2_SCGI_SRC}
-)
-target_include_directories(
-    decof2-scgi-gcov
-    PUBLIC
-        ${Boost_INCLUDE_DIR}
-        ../../include
-        ../../include/decof
-    PRIVATE
-        ../core
-)
-target_link_libraries(
-    decof2-scgi-gcov
-    decof2-core-gcov
-)
+if(CMAKE_COMPILER_IS_GNUCXX)
+	add_library(
+		decof2-scgi-gcov
+		EXCLUDE_FROM_ALL
+		${DECOF2_SCGI_SRC}
+	)
+	target_include_directories(
+		decof2-scgi-gcov
+		PUBLIC
+			${Boost_INCLUDE_DIR}
+			../../include
+			../../include/decof
+		PRIVATE
+			../core
+	)
+	target_link_libraries(
+		decof2-scgi-gcov
+		decof2-core-gcov
+	)
+endif()
