@@ -5,9 +5,8 @@ before_build:
   - cd ..
   - mkdir build
   - cd build
-  - cmake %APPVEYOR_BUILD_FOLDER% -DBOOST_ROOT=C:\Libraries\boost_1_60_0 -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_60_0\lib32-msvc-14.0
+  - cmake %APPVEYOR_BUILD_FOLDER% -DBoost_INCLUDE_DIR=C:\Libraries\boost_1_60_0 -DBoost_LIBRARY_DIR=C:\Libraries\boost_1_60_0\lib32-msvc-14.0
 
 build:
   parallel: true                # enable MSBuild parallel builds
   project: ..\build\DeCoF2.sln  # path to Visual Studio solution or project
-
