@@ -18,7 +18,6 @@
 #define DECOF_AUTOMATIC_PTR_H
 
 #include <memory>
-#include <stdexcept>
 
 namespace decof
 {
@@ -27,39 +26,34 @@ template<typename T>
 class automatic_ptr;
 
 template<typename T>
-struct control_block
-{
-    T* target;
-};
-
-template<typename T>
 class automatic_ptr_target
 {
     friend class automatic_ptr<T>;
 
+    template<typename U>
+    struct basic_null_deleter
+    {
+        void operator()(U*)
+        {}
+    };
+
+    using null_deleter = basic_null_deleter<T>;
+
 protected:
     automatic_ptr_target() :
-        cb_ptr_(new control_block<T>())
-    {
-        cb_ptr_->target = static_cast<T*>(this);
-    }
+        ptr_(static_cast<T*>(this), null_deleter())
+    {}
 
-    virtual ~automatic_ptr_target()
-    {
-        cb_ptr_->target = nullptr;
-    }
+    virtual ~automatic_ptr_target() = default;
 
     automatic_ptr_target(const automatic_ptr_target&) :
-        cb_ptr_(new control_block<T>())
-    {
-        cb_ptr_->target = static_cast<T*>(this);
-    }
+        ptr_(static_cast<T*>(this), null_deleter())
+    {}
 
     automatic_ptr_target(automatic_ptr_target&& rhs) :
-        cb_ptr_(new control_block<T>())
+        ptr_(static_cast<T*>(this), null_deleter())
     {
-        cb_ptr_->target = static_cast<T*>(this);
-        rhs.cb_ptr_->target = nullptr;
+        rhs.ptr_.reset();
     }
 
     automatic_ptr_target& operator=(const automatic_ptr_target&)
@@ -67,87 +61,64 @@ protected:
 
     automatic_ptr_target& operator=(automatic_ptr_target&& rhs)
     {
-        rhs.cb_ptr_->target = nullptr;
-        automatic_ptr_target();
+        rhs.ptr_.reset();
     }
 
 private:
-    std::shared_ptr<control_block<T>> cb_ptr_;
+    std::shared_ptr<T> ptr_;
 };
 
-/** @brief A smart pointer type that is reset automatically on target object
- * destruction.
+/** @brief An intrusive smart pointer type that is reset automatically on
+ * target object destruction.
  *
+ * This pointer requires the target type be derived from #automatic_ptr_target.
  */
 template<typename T>
 class automatic_ptr
 {
 public:
+    /// Default construction.
+    /// @post #get() returns nullptr, #operator bool returns false.
     automatic_ptr() noexcept = default;
-    automatic_ptr(const automatic_ptr& rhs) noexcept {
-        rhs.sanitize();
-        cb_ptr_ = rhs.cb_ptr_;
-    }
+    automatic_ptr(const automatic_ptr&) noexcept = default;
 
     explicit automatic_ptr(const automatic_ptr_target<T>* target) noexcept :
-        cb_ptr_(target->cb_ptr_)
+        ptr_(target->ptr_)
     {}
 
-    automatic_ptr& operator=(const automatic_ptr& rhs) noexcept {
-        rhs.sanitize();
-        cb_ptr_ = rhs.cb_ptr_;
-    }
-
+    automatic_ptr& operator=(const automatic_ptr& rhs) noexcept = default;
     automatic_ptr& operator=(const automatic_ptr_target<T>* target) noexcept {
-        cb_ptr_ = target->cb_ptr_;
+        ptr_ = target->ptr_;
     }
 
+    /// Returns whether the target object is alive.
     operator bool() const noexcept {
-        sanitize();
-        return cb_ptr_ && cb_ptr_->target != nullptr;
+        return !ptr_.expired();
     }
 
-    T* get() noexcept {
-        sanitize();
-        return cb_ptr_->target;
+    /// Returns the stored pointer.
+    T* get() const noexcept {
+        return ptr_.lock().get();
     }
 
-    const T* get() const noexcept {
-        sanitize();
-        return cb_ptr_->target;
+    /// Dereferences the stored pointer.
+    T* operator->() const noexcept {
+        return get();
     }
 
-    T* operator->() noexcept {
-        sanitize();
-        return cb_ptr_->target;
+    /// Dereferences the stored pointer.
+    T& operator*() const noexcept {
+        return *get();
     }
 
-    const T* operator->() const noexcept {
-        sanitize();
-        return cb_ptr_->target;
-    }
-
-    T& operator*() noexcept {
-        sanitize();
-        return *cb_ptr_->target;
-    }
-
-    const T& operator*() const noexcept {
-        sanitize();
-        return *cb_ptr_->target;
-    }
-
-    void reset() {
-        cb_ptr_.reset();
+    /// Resets the stored pointer.
+    /// @post #get() returns nullptr.
+    void reset() noexcept {
+        ptr_.reset();
     }
 
 private:
-    void sanitize() const noexcept {
-        if (cb_ptr_ && cb_ptr_->target == nullptr)
-            cb_ptr_.reset();
-    }
-
-    mutable std::shared_ptr<control_block<T>> cb_ptr_;
+    std::weak_ptr<T> ptr_;
 };
 
 } // namespace decof

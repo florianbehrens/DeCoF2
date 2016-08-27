@@ -37,10 +37,16 @@ struct fixture
     decof::automatic_ptr<target_t> tgt_aptr;
 };
 
-BOOST_AUTO_TEST_CASE(default_contructed_automatic_ptr)
+BOOST_AUTO_TEST_CASE(default_constructed_automatic_ptr)
 {
-    decof::automatic_ptr<target_t> tgt_aptr2;
-    BOOST_REQUIRE_EQUAL(tgt_aptr2, false);
+    decof::automatic_ptr<target_t> aptr;
+    BOOST_REQUIRE_EQUAL(aptr, false);
+    BOOST_REQUIRE(aptr.get() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(default_constructed_target_object)
+{
+    target_t tgt;
 }
 
 BOOST_FIXTURE_TEST_CASE(simple_automatic_ptr, fixture)
@@ -52,6 +58,7 @@ BOOST_FIXTURE_TEST_CASE(simple_automatic_ptr, fixture)
 
     tgt_uptr.reset();
     BOOST_REQUIRE_EQUAL(tgt_aptr, false);
+    BOOST_REQUIRE(tgt_aptr.get() == nullptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(copy_construction, fixture)
@@ -63,6 +70,7 @@ BOOST_FIXTURE_TEST_CASE(copy_construction, fixture)
 
     tgt_aptr.reset();
     BOOST_REQUIRE_EQUAL(tgt_aptr, false);
+    BOOST_REQUIRE(tgt_aptr.get() == nullptr);
     BOOST_REQUIRE_EQUAL(tgt_aptr2, true);
 }
 
@@ -76,19 +84,36 @@ BOOST_FIXTURE_TEST_CASE(assignment, fixture)
 
     tgt_aptr.reset();
     BOOST_REQUIRE_EQUAL(tgt_aptr, false);
+    BOOST_REQUIRE(tgt_aptr.get() == nullptr);
     BOOST_REQUIRE_EQUAL(tgt_aptr2, true);
 }
 
-BOOST_FIXTURE_TEST_CASE(target_copy, fixture)
+BOOST_FIXTURE_TEST_CASE(target_copy_construction, fixture)
 {
-    std::unique_ptr<target_t> tgt_uptr2(new target_t(*tgt_uptr));
+    target_t tgt2(*tgt_uptr);
     BOOST_REQUIRE_EQUAL(tgt_aptr.get(), tgt_uptr.get());
 }
 
-BOOST_FIXTURE_TEST_CASE(target_move, fixture)
+BOOST_FIXTURE_TEST_CASE(target_move_construction, fixture)
 {
-    std::unique_ptr<target_t> tgt_uptr2(new target_t(std::move(*tgt_uptr)));
+    target_t tgt2(std::move(*tgt_uptr));
     BOOST_REQUIRE_EQUAL(tgt_aptr, false);
+    BOOST_REQUIRE(tgt_aptr.get() == nullptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(target_assignment, fixture)
+{
+    target_t tgt2;
+    tgt2 = *tgt_uptr;
+    BOOST_REQUIRE_EQUAL(tgt_aptr.get(), tgt_uptr.get());
+}
+
+BOOST_FIXTURE_TEST_CASE(target_move_assignment, fixture)
+{
+    target_t tgt2;
+    tgt2 = std::move(*tgt_uptr);
+    BOOST_REQUIRE_EQUAL(tgt_aptr, false);
+    BOOST_REQUIRE(tgt_aptr.get() == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
