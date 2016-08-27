@@ -4,6 +4,7 @@ add_executable(
     test_decof2
     EXCLUDE_FROM_ALL
     test_main.cpp
+    test_automatic_ptr.cpp
     test_bencode_string_parser.cpp
     test_cli_access.cpp
     test_cli_update_container.cpp

@@ -1,6 +1,7 @@
 add_custom_target(
     decof2-core-headers
     SOURCES
+        automatic_ptr.h
         basic_parameter.h
         client_context.h
         client_read_interface.h
