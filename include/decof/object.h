@@ -21,6 +21,7 @@
 
 #include <boost/any.hpp>
 
+#include "automatic_ptr.h"
 #include "userlevel.h"
 
 namespace decof
@@ -52,12 +53,6 @@ public:
     node *parent() const;
     void set_parent(node *parent);
 
-    /// Generic parent getter function.
-    template<typename T>
-    T *parent() const {
-        return dynamic_cast<T *>(parent());
-    }
-
     userlevel_t readlevel() const;
     void readlevel(userlevel_t readlevel);
 
@@ -73,7 +68,7 @@ public:
 
 private:
     std::string name_;
-    node *parent_;
+    automatic_ptr<node> parent_;
     userlevel_t readlevel_;
     userlevel_t writelevel_;
 };

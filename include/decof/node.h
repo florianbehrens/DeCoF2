@@ -22,13 +22,14 @@
 #include <string>
 #include <vector>
 
+#include "automatic_ptr.h"
 #include "readable_parameter.h"
 #include "types.h"
 
 namespace decof
 {
 
-class node : public readable_parameter<string_seq>
+class node : public automatic_ptr_target<node>, public readable_parameter<string_seq>
 {
 public:
     typedef std::list<object*> children_t;

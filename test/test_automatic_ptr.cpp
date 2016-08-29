@@ -116,4 +116,9 @@ BOOST_FIXTURE_TEST_CASE(target_move_assignment, fixture)
     BOOST_REQUIRE(tgt_aptr.get() == nullptr);
 }
 
+BOOST_AUTO_TEST_CASE(initialize_automatic_ptr_with_nullptr)
+{
+    decof::automatic_ptr<target_t> tgt_aptr(nullptr);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

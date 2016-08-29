@@ -31,7 +31,7 @@ object::object(std::string name, node *parent, userlevel_t readlevel, userlevel_
 
 object::~object()
 {
-    if (parent_ != nullptr)
+    if (parent_)
         parent_->remove_child(this);
 }
 
@@ -47,7 +47,7 @@ void object::name(std::string name)
 
 std::string object::fq_name() const
 {
-    if (parent_ == nullptr)
+    if (!parent_)
         return name_;
 
     return parent_->fq_name() + std::string(":") + name_;
@@ -55,12 +55,12 @@ std::string object::fq_name() const
 
 node *object::parent() const
 {
-    return parent_;
+    return parent_.get();
 }
 
 void object::set_parent(node *parent)
 {
-    if (parent_ != nullptr)
+    if (parent_)
         parent->remove_child(this);
     parent_ = parent;
 }

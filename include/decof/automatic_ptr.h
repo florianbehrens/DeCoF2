@@ -25,6 +25,11 @@ namespace decof
 template<typename T>
 class automatic_ptr;
 
+/** @brief Base class for target objects used with #automatic_ptr.
+ *
+ * @tparam T The target object type, i.e., the class that derives from
+ * #automatic_ptr_target.
+ */
 template<typename T>
 class automatic_ptr_target
 {
@@ -83,12 +88,12 @@ public:
     automatic_ptr(const automatic_ptr&) noexcept = default;
 
     explicit automatic_ptr(const automatic_ptr_target<T>* target) noexcept :
-        ptr_(target->ptr_)
+        ptr_(target ? target->ptr_ : nullptr)
     {}
 
     automatic_ptr& operator=(const automatic_ptr& rhs) noexcept = default;
     automatic_ptr& operator=(const automatic_ptr_target<T>* target) noexcept {
-        ptr_ = target->ptr_;
+        ptr_ = target ? target->ptr_ : nullptr;
     }
 
     /// Returns whether the target object is alive.

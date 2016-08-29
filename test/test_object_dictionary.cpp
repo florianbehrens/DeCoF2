@@ -38,14 +38,14 @@ struct fixture
 
     fixture() :
         obj_dict("root"),
-        node1("node1", &obj_dict),
-        node2("node2", &node1),
-        param("param", &node2, "Hello World"),
+        node1(new decof::node("node1", &obj_dict)),
+        node2(new decof::node("node2", node1.get())),
+        param("param", node2.get(), "Hello World"),
         my_context(new my_context_t(obj_dict))
     {}
 
     decof::object_dictionary obj_dict;
-    decof::node node1, node2;
+    std::unique_ptr<decof::node> node1, node2;
     decof::managed_readonly_parameter<decof::string> param;
     std::shared_ptr<my_context_t> my_context;
 };
@@ -81,6 +81,12 @@ BOOST_FIXTURE_TEST_CASE(find_child_object_with_custom_separator, fixture)
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(delete_middle_node, fixture)
+{
+    node1.reset();
+    node2.reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
