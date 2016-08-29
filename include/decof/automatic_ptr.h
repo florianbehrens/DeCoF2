@@ -62,11 +62,14 @@ protected:
     }
 
     automatic_ptr_target& operator=(const automatic_ptr_target&)
-    {}
+    {
+        return *this;
+    }
 
     automatic_ptr_target& operator=(automatic_ptr_target&& rhs)
     {
         rhs.ptr_.reset();
+        return *this;
     }
 
 private:
@@ -79,7 +82,7 @@ private:
  * This pointer requires the target type be derived from #automatic_ptr_target.
  */
 template<typename T>
-class automatic_ptr
+class automatic_ptr final
 {
 public:
     /// Default construction.
@@ -94,6 +97,7 @@ public:
     automatic_ptr& operator=(const automatic_ptr& rhs) noexcept = default;
     automatic_ptr& operator=(const automatic_ptr_target<T>* target) noexcept {
         ptr_ = target ? target->ptr_ : nullptr;
+        return *this;
     }
 
     /// Returns whether the target object is alive.
