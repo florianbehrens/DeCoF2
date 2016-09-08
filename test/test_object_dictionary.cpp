@@ -105,4 +105,19 @@ BOOST_FIXTURE_TEST_CASE(move_parameter_value, fixture)
     BOOST_REQUIRE_NE(str2, param.value());
 }
 
+BOOST_FIXTURE_TEST_CASE(get_object_dictionary, fixture)
+{
+    auto od = param.get_object_dictionary();
+    BOOST_REQUIRE(od != nullptr);
+    BOOST_REQUIRE_EQUAL(od->name(), std::string("root"));
+}
+
+BOOST_FIXTURE_TEST_CASE(get_const_object_dictionary, fixture)
+{
+    const decof::managed_readonly_parameter<decof::string>& rparam = param;
+    auto od = rparam.get_object_dictionary();
+    BOOST_REQUIRE(od != nullptr);
+    BOOST_REQUIRE_EQUAL(od->name(), std::string("root"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
