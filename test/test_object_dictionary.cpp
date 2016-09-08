@@ -96,4 +96,13 @@ BOOST_FIXTURE_TEST_CASE(set_parameter_value, fixture)
     BOOST_REQUIRE_EQUAL(str, param.value());
 }
 
+BOOST_FIXTURE_TEST_CASE(move_parameter_value, fixture)
+{
+    std::string str("Hello");
+    std::string str2(str);
+    param.value(std::move(str2));
+    BOOST_REQUIRE_EQUAL(str, param.value());
+    BOOST_REQUIRE_NE(str2, param.value());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

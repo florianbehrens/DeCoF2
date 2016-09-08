@@ -54,11 +54,22 @@ public:
         return value_;
     }
 
-    void value(const T &value)
+    void value(const T& value)
     {
         if (value_ != value) {
             value_ = value;
-            readable_parameter<T>::signal(value);
+            readable_parameter<T>::signal(value_);
+        }
+    }
+
+    /** @brief Rvalue reference value setter.
+     *
+     * Moves from #value into the parameter value. */
+    void value(T&& value)
+    {
+        if (value_ != value) {
+            value_ = std::move(value);
+            readable_parameter<T>::signal(value_);
         }
     }
 
