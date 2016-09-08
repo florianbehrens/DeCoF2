@@ -62,9 +62,13 @@ public:
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) = 0;
 
-    /// Returns the object dictionary of this tree element or nullptr if not
-    /// defined.
+    /// Returns a pointer to the object dictionary of this tree element or
+    /// nullptr if not defined.
     object_dictionary* get_object_dictionary();
+
+    /// Returns a constant pointer to the object dictionary of this tree
+    /// element or nullptr if not defined.
+    const object_dictionary* get_object_dictionary() const;
 
 private:
     std::string name_;

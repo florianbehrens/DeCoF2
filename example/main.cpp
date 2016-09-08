@@ -53,7 +53,7 @@ void my_managed_readwrite_parameter::verify(const decof::string& value)
     std::cout << "my_managed_readwrite_parameter was changed to " << value << std::endl;
 }
 
-current_context_endpoint_parameter::value_type current_context_endpoint_parameter::external_value()
+current_context_endpoint_parameter::value_type current_context_endpoint_parameter::external_value() const
 {
     const std::shared_ptr<decof::client_context> cc = get_object_dictionary()->current_context();
     if (cc != nullptr)
@@ -62,7 +62,7 @@ current_context_endpoint_parameter::value_type current_context_endpoint_paramete
     return "Unknown";
 }
 
-decof::string time_parameter::external_value()
+decof::string time_parameter::external_value() const
 {
     const size_t max_length = 40;
     char str[max_length];
@@ -106,7 +106,7 @@ private:
         return true;
     }
 
-    decof::string external_value() override {
+    decof::string external_value() const override {
         decof::string str;
         std::fstream file_(filename_, std::ios_base::in);
         std::getline(file_, str);

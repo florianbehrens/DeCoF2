@@ -89,4 +89,11 @@ BOOST_FIXTURE_TEST_CASE(delete_middle_node, fixture)
     node2.reset();
 }
 
+BOOST_FIXTURE_TEST_CASE(set_parameter_value, fixture)
+{
+    std::string str("Hello");
+    param.value(str);
+    BOOST_REQUIRE_EQUAL(str, param.value());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

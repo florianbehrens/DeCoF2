@@ -27,7 +27,7 @@ template<typename T>
 class typed_client_read_interface : public client_read_interface
 {
 public:
-    virtual T value() = 0;
+    virtual T value() const = 0;
 
     /// @brief Return value as runtime dynamic type.
     /// Scalar and sequence types are wrapped in a boost::any as they are.

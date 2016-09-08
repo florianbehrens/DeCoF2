@@ -54,7 +54,7 @@ public:
         readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
     {}
 
-    virtual T value() override final {
+    virtual T value() const override final {
         return value_;
     }
 

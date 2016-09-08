@@ -50,7 +50,7 @@ public:
         readable_parameter<T>(name, parent, readlevel, writelevel)
     {}
 
-    virtual T value() override final {
+    virtual T value() const override final {
         return external_value();
     }
 
@@ -61,7 +61,7 @@ private:
     }
 
     virtual bool external_value(const T &value) = 0;
-    virtual T external_value() = 0;
+    virtual T external_value() const = 0;
 };
 
 } // namespace decof

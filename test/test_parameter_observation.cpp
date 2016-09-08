@@ -55,7 +55,7 @@ struct fixture
     {
         using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
 
-        decof::boolean external_value() override
+        decof::boolean external_value() const override
         {
             return m_value;
         }
@@ -73,7 +73,7 @@ struct fixture
             return true;
         }
 
-        decof::boolean external_value() override
+        decof::boolean external_value() const override
         {
             return m_value;
         }

@@ -29,7 +29,7 @@
     struct type_name : public decof::external_readonly_parameter<value_type> { \
         type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal) : \
             decof::external_readonly_parameter<value_type>(name, parent, readlevel) {} \
-        virtual value_type external_value() override;                     \
+        virtual value_type external_value() const override;                   \
     }
 
 namespace decof
@@ -55,7 +55,7 @@ public:
         connection_.disconnect();
     }
 
-    virtual T value() override final {
+    virtual T value() const override final {
         return external_value();
     }
 
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    virtual T external_value() = 0;
+    virtual T external_value() const = 0;
 
     /// Slot member function for regular tick.
     void notify() {

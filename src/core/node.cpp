@@ -32,7 +32,7 @@ node::node(std::string name, node *parent, userlevel_t readlevel)
 node::~node()
 {}
 
-string_seq node::value()
+string_seq node::value() const
 {
     return children();
 }
@@ -93,7 +93,7 @@ object *node::find_child(const std::string &uri, char separator)
     return te;
 }
 
-string_seq node::children()
+string_seq node::children() const
 {
     string_seq retval;
     retval.reserve(children_.size());

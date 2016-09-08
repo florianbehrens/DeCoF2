@@ -39,7 +39,7 @@ public:
     explicit node(std::string name, node *parent = nullptr, userlevel_t readlevel = Normal);
     virtual ~node();
 
-    virtual string_seq value() override;
+    virtual string_seq value() const override;
 
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) override final;
@@ -61,7 +61,7 @@ public:
     object *find_child(const std::string &uri, char separator = ':');
 
     /// The same as value().
-    string_seq children();
+    string_seq children() const;
 
     /// Returns an interator for the list of children
     iterator begin();

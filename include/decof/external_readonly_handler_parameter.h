@@ -44,7 +44,7 @@ public:
     }
 
 private:
-    virtual T external_value() override final
+    virtual T external_value() const override final
     {
         if (external_value_handler_) return external_value_handler_();
     }

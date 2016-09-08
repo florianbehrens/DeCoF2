@@ -94,4 +94,13 @@ object_dictionary *object::get_object_dictionary()
     return dynamic_cast<object_dictionary*>(te);
 }
 
+const object_dictionary *object::get_object_dictionary() const
+{
+    const object* te = this;
+    while (te->parent() != nullptr)
+        te = te->parent();
+
+    return dynamic_cast<const object_dictionary*>(te);
+}
+
 } // namespace decof
