@@ -102,7 +102,7 @@ void pubsub_context::read_handler(const boost::system::error_code &error, std::s
 
         preload();
     } else
-        disconnect();
+        close();
 }
 
 void pubsub_context::write_handler(const boost::system::error_code& error, std::size_t bytes_transferred)
@@ -111,7 +111,7 @@ void pubsub_context::write_handler(const boost::system::error_code& error, std::
         writing_active_ = false;
         preload_writing();
     } else
-        disconnect();
+        close();
 }
 
 void pubsub_context::notify(const std::string &uri, const boost::any &any_value)
@@ -155,11 +155,12 @@ void pubsub_context::preload_writing()
     writing_active_ = true;
 }
 
-void pubsub_context::disconnect()
+void pubsub_context::close()
 {
-    boost::system::error_code ec;
-    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    socket_.close(ec);
+    if (!socket_.is_open())
+        return;
+
+    socket_.close();
 
     // Remove this client context from object dictionary. Because it is a
     // shared pointer, it gets deleted after leaving function scope.

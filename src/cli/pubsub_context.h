@@ -60,7 +60,7 @@ private:
     void preload_writing();
 
     /// Closes the socket and delists client context from object dictionary.
-    void disconnect();
+    void close();
 
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf inbuf_;

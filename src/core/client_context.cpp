@@ -112,21 +112,15 @@ void client_context::observe(const std::string &uri, client_read_interface::sign
         if (userlevel_ < obj->readlevel())
             throw access_denied_error();
 
-        if (observables_.count(uri) == 0) {
-            boost::signals2::connection connection = param->observe(slot);
-            observables_.emplace(uri, connection);
-        }
+        if (observables_.count(uri) == 0)
+            observables_[uri] = param->observe(slot);
     } else
         throw invalid_parameter_error();
 }
 
 void client_context::unobserve(const std::string &uri)
 {
-    try {
-        observables_.at(uri).disconnect();
-        observables_.erase(uri);
-    } catch (std::out_of_range&) {
-    }
+    observables_.erase(uri);
 }
 
 void client_context::browse(object_visitor *visitor, const std::string &root_uri)

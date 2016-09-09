@@ -21,7 +21,7 @@
 #include <memory>
 
 #include <boost/any.hpp>
-#include <boost/signals2.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "client_read_interface.h"
 #include "userlevel.h"
@@ -85,7 +85,7 @@ private:
     void browse_object(object *te, object_visitor *visitor);
 
     userlevel_t userlevel_;
-    std::map<std::string, boost::signals2::connection> observables_;
+    std::map<std::string, boost::signals2::scoped_connection> observables_;
 };
 
 } // namespace decof

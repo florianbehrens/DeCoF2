@@ -17,6 +17,8 @@
 #ifndef DECOF_READABLE_PARAMETER_H
 #define DECOF_READABLE_PARAMETER_H
 
+#include <boost/signals2/connection.hpp>
+
 #include "basic_parameter.h"
 #include "conversion.h"
 #include "object_visitor.h"
@@ -29,8 +31,8 @@ template<typename T>
 class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
 {
 public:
-    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override {
-        boost::signals2::connection retval = signal_.connect(slot);
+    virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override {
+        boost::signals2::scoped_connection retval = signal_.connect(slot);
         signal(this->value());
         return retval;
     }

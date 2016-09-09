@@ -18,7 +18,8 @@
 #define DECOF_CLIENT_READ_INTERFACE_H
 
 #include <boost/any.hpp>
-#include <boost/signals2.hpp>
+#include <boost/signals2/connection.hpp>
+#include <boost/signals2/signal.hpp>
 
 namespace decof
 {
@@ -38,7 +39,7 @@ public:
     virtual boost::any any_value() = 0;
 
     // Observe parameter value.
-    virtual boost::signals2::connection observe(slot_type slot) = 0;
+    virtual boost::signals2::scoped_connection observe(slot_type slot) = 0;
 };
 
 } // namespace decof

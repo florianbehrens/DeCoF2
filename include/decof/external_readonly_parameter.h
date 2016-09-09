@@ -20,6 +20,7 @@
 #include <string>
 
 #include <boost/optional.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "object_dictionary.h"
 #include "readable_parameter.h"
@@ -67,11 +68,11 @@ public:
         notify();
     }
 
-    virtual boost::signals2::connection observe(client_read_interface::slot_type slot) override final {
+    virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override final {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
-            return boost::signals2::connection();
+            return boost::signals2::scoped_connection();
 
         // Connect to regular tick
         connection_ = obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T>::notify, this));
@@ -92,7 +93,7 @@ private:
         }
     }
 
-    boost::signals2::connection connection_;
+    boost::signals2::scoped_connection connection_;
     boost::optional<T> last_value_;
 };
 

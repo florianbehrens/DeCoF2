@@ -19,6 +19,9 @@
 
 #include <memory>
 
+#include <boost/signals2/connection.hpp>
+#include <boost/signals2/signal.hpp>
+
 #include "node.h"
 
 namespace decof
@@ -34,7 +37,7 @@ class object_dictionary : public node
 public:
     typedef boost::signals2::signal<void ()> tick_type;
     typedef tick_type::slot_type tick_slot_type;
-    typedef boost::signals2::connection tick_connection;
+    typedef boost::signals2::scoped_connection tick_connection;
 
     class context_guard
     {
