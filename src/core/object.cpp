@@ -58,11 +58,13 @@ node *object::parent() const
     return parent_.get();
 }
 
-void object::set_parent(node *parent)
+void object::reset_parent(node *parent)
 {
     if (parent_)
-        parent->remove_child(this);
-    parent_ = parent;
+        parent_->remove_child(this);
+
+    if (parent)
+        parent->add_child(this);
 }
 
 userlevel_t object::readlevel() const

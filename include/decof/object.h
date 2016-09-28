@@ -38,6 +38,8 @@ class object_visitor;
  * (#writelevel). */
 class object
 {
+    friend class node;
+
 public:
     object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
@@ -51,7 +53,7 @@ public:
     std::string fq_name() const;
 
     node *parent() const;
-    void set_parent(node *parent);
+    void reset_parent(node *parent = nullptr);
 
     userlevel_t readlevel() const;
     void readlevel(userlevel_t readlevel);

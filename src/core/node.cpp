@@ -44,17 +44,22 @@ void node::accept(object_visitor *visitor)
 
 void node::add_child(object *child)
 {
-    // Check whether child already is registered
-    assert(std::find_if(children_.cbegin(), children_.cend(), [child](const object *o) {
-        return o == child;
-    }) == children_.cend());
+    if (child->parent_)
+        child->parent()->remove_child(child);
 
     children_.push_back(child);
+    child->parent_ = this;
 }
 
 void node::remove_child(object *child)
 {
-    children_.remove(child);
+    children_.remove_if([child](object* obj) {
+        if (obj == child) {
+            child->parent_ = nullptr;
+            return true;
+        }
+        return false;
+    });
 }
 
 object *node::find_immediate_child(const std::string &name)

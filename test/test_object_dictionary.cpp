@@ -120,4 +120,36 @@ BOOST_FIXTURE_TEST_CASE(get_const_object_dictionary, fixture)
     BOOST_REQUIRE_EQUAL(od->name(), std::string("root"));
 }
 
+BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
+{
+    decof::node node("node");
+    decof::managed_readonly_parameter<decof::boolean> parameter("parameter", nullptr);
+
+    node.add_child(&parameter);
+
+    BOOST_REQUIRE_EQUAL(node.children().size(), 1);
+    BOOST_REQUIRE_EQUAL(parameter.parent(), &node);
+
+    node.remove_child(&parameter);
+
+    BOOST_REQUIRE_EQUAL(node.children().size(), 0);
+    BOOST_REQUIRE(parameter.parent() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(set_and_reset_parent)
+{
+    decof::node node("node");
+    decof::managed_readonly_parameter<decof::boolean> parameter("parameter", nullptr);
+
+    parameter.reset_parent(&node);
+
+    BOOST_REQUIRE_EQUAL(node.children().size(), 1);
+    BOOST_REQUIRE_EQUAL(parameter.parent(), &node);
+
+    parameter.reset_parent();
+
+    BOOST_REQUIRE_EQUAL(node.children().size(), 0);
+    BOOST_REQUIRE(parameter.parent() == nullptr);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
