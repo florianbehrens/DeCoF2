@@ -15,6 +15,7 @@ add_executable(
     test_scgi_response.cpp
     test_scgi_parser.cpp
     test_userlevels.cpp
+    test_visitor.cpp
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
