@@ -35,26 +35,26 @@ target_link_libraries(
 
 # DeCoF2 core library with gcov coverage information
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_library(
-		decof2-core-gcov
-		EXCLUDE_FROM_ALL
-		${DECOF2_CORE_SRC}
-	)
-	target_include_directories(
-		decof2-core-gcov
-		PUBLIC
-			${Boost_INCLUDE_DIR}
-			../../include
-			../../include/decof
-	)
-	target_link_libraries(
-		decof2-core-gcov
-		${Boost_SYSTEM_LIBRARY}
-	)
-	target_compile_options(
-		decof2-core-gcov
-		PUBLIC
-			-fprofile-arcs
-			-ftest-coverage
-	)
+    add_library(
+        decof2-core-gcov
+        EXCLUDE_FROM_ALL
+        ${DECOF2_CORE_SRC}
+    )
+    target_include_directories(
+        decof2-core-gcov
+        PUBLIC
+            ${Boost_INCLUDE_DIR}
+            ../../include
+            ../../include/decof
+    )
+    target_link_libraries(
+        decof2-core-gcov
+        ${Boost_SYSTEM_LIBRARY}
+    )
+    target_compile_options(
+        decof2-core-gcov
+        PUBLIC
+            -fprofile-arcs
+            -ftest-coverage
+    )
 endif()
