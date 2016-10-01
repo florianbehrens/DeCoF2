@@ -54,6 +54,16 @@ public:
         return value_;
     }
 
+    /** @brief Access parameter value by constant reference.
+     *
+     * @return Constant reference to parameter value.
+     *
+     * @note Make sure the returned reference does not outlive the parameter
+     * object itself. */
+    const T& value_ref() {
+        return value_;
+    }
+
     void value(const T& value)
     {
         if (value_ != value) {
