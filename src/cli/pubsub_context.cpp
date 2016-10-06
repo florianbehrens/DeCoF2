@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
@@ -80,18 +81,25 @@ void pubsub_context::read_handler(const boost::system::error_code &error, std::s
             if (tokens.size() <= 1)
                 throw parse_error();
 
+            std::string& command = tokens[0];
+            std::string& uri     = tokens[1];
+
             // Lower-case first substring
-            std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
             // Remove optional "'" from parameter name
-            if (tokens[1][0] == '\'')
-                tokens[1].erase(0, 1);
+            if (uri[0] == '\'')
+                uri.erase(0, 1);
 
-            if (tokens[0] == "subscribe" || tokens[0] == "add") {
-                //observe(tokens[1], boost::bind(&scheme_monitor_protocol::notify, this, _1, _2));
-                observe(tokens[1], std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
-            } else if (tokens[0] == "unsubscribe" || tokens[0] == "remove") {
-                unobserve(tokens[1]);
+            // Prepend root node name if not present (for compatibility reasons to
+            // 'classic' DeCoF)
+            if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
+                uri = object_dictionary_.name() + ":" + uri;
+
+            if (command == "subscribe" || command == "add") {
+                observe(uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+            } else if (command == "unsubscribe" || command == "remove") {
+                unobserve(uri);
             } else
                 throw unknown_operation_error();
         } catch (runtime_error& ex) {
@@ -114,8 +122,12 @@ void pubsub_context::write_handler(const boost::system::error_code& error, std::
         close();
 }
 
-void pubsub_context::notify(const std::string &uri, const boost::any &any_value)
+void pubsub_context::notify(std::string uri, const boost::any &any_value)
 {
+    // Cut root node name (for compatibility reasons to 'classic' DeCoF)
+    if (uri != object_dictionary_.name())
+        uri.erase(0, object_dictionary_.name().size() + 1);
+
     pending_updates_.push(uri, any_value);
     preload_writing();
 }

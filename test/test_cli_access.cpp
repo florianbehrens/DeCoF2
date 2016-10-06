@@ -64,6 +64,16 @@ struct fixture
     std::string str;
 };
 
+BOOST_FIXTURE_TEST_CASE(omit_root_node_name, fixture)
+{
+    managed_readonly_parameter<decof::boolean> dummy("dummy", &od, true);
+    client_sock.write_some(asio::buffer(std::string("get dummy\n")));
+    io_service->poll();
+    asio::read_until(client_sock, buf, std::string("\n"));
+    std::getline(is, str);
+    BOOST_REQUIRE_EQUAL(str, "#t");
+}
+
 BOOST_FIXTURE_TEST_CASE(boolean_readonly, fixture)
 {
     managed_readonly_parameter<decof::boolean> boolean_ro("boolean_ro", &od, true);
