@@ -3,6 +3,7 @@ project(decof2)
 
 if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
     find_package(Boost 1.56 REQUIRED COMPONENTS system unit_test_framework)
+    link_directories(${Boost_LIBRARY_DIR})
 endif()
 
 # Doxygen API documentation generation
