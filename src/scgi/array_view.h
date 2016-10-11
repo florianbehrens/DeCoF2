@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef DECOF_SCGI_ARRAY_VIEW_H
+#define DECOF_SCGI_ARRAY_VIEW_H
+
 #include <cstddef>
 
 namespace decof
@@ -126,3 +129,5 @@ private:
 } // namespace decof
 
 } // namespace scgi
+
+#endif // DECOF_SCGI_ARRAY_VIEW_H

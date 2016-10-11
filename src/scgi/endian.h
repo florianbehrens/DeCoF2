@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
+#ifndef DECOF_SCGI_ENDIAN_H
+#define DECOF_SCGI_ENDIAN_H
+
 #include <cstdint>
 #include <cstddef>
+
+namespace decof
+{
+
+namespace scgi
+{
 
 template<typename T>
 T little_endian_to_native(const T &value)
@@ -52,3 +61,9 @@ T native_to_little_endian(const T &value)
 
     return retval;
 }
+
+} // namespace decof
+
+} // namespace scgi
+
+#endif // DECOF_SCGI_ENDIAN_H

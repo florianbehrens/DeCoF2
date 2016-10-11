@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_SCGI_RESPONSE
-#define DECOF_SCGI_RESPONSE
+#ifndef DECOF_SCGI_RESPONSE_H
+#define DECOF_SCGI_RESPONSE_H
 
 #include <map>
 #include <ostream>
@@ -95,4 +95,4 @@ std::basic_ostream<char, Traits>& operator<<(std::basic_ostream<char, Traits> &o
     return os;
 }
 
-#endif // DECOF_SCGI_RESPONSE
+#endif // DECOF_SCGI_RESPONSE_H
