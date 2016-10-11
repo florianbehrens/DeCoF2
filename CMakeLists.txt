@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(decof2)
 
-find_package(Boost 1.49 REQUIRED COMPONENTS system unit_test_framework)
-include_directories(${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIR})
+if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
+    find_package(Boost 1.56 REQUIRED COMPONENTS system unit_test_framework)
+endif()
 
 # Doxygen API documentation generation
-find_package(Doxygen)
+if(NOT DOXYGEN_FOUND)
+    find_package(Doxygen)
+endif()
+
 if(DOXYGEN_FOUND)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile @ONLY)
     add_custom_target(
