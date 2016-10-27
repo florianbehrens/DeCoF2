@@ -121,7 +121,9 @@ void basic_value_encoder::encode(std::ostream &out, const integer &value)
 
 void basic_value_encoder::encode(std::ostream &out, const real &value)
 {
-    out << value;
+    // Use minimum value without loss of precision in conversion between binary
+    // and decimal number representation and vice versa.
+    out << std::setprecision(17) << value;
 }
 
 void basic_value_encoder::encode(std::ostream &out, const string &value)
