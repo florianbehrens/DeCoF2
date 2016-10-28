@@ -197,4 +197,22 @@ BOOST_FIXTURE_TEST_CASE(empty_and_push_element, fixture)
     BOOST_REQUIRE_EQUAL(2, boost::any_cast<int>(actual_value));
 }
 
+BOOST_FIXTURE_TEST_CASE(push_and_pop_interchangeably, fixture)
+{
+    BOOST_REQUIRE_EQUAL(updates_.empty(), true);
+    updates_.push("c", boost::any(1));
+    updates_.push("b", boost::any(2));
+    BOOST_REQUIRE_EQUAL(updates_.empty(), false);
+
+    updates_.pop_front();
+    BOOST_REQUIRE_EQUAL(updates_.empty(), false);
+
+    updates_.push("a", boost::any(3));
+    BOOST_REQUIRE_EQUAL(updates_.empty(), false);
+
+    updates_.pop_front();
+    updates_.pop_front();
+    BOOST_REQUIRE_EQUAL(updates_.empty(), true);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -68,8 +68,13 @@ std::tuple<update_container::key_type, boost::any, update_container::time_point>
 
     auto it = front_;
     front_ = it->second.next;
-    if (updates_.erase(it) == updates_.end())
+    updates_.erase(it);
+    if (front_ == updates_.end())
         back_ = updates_.end();
+
+    // Make sure iterators are either both invalid or both valid.
+    assert((front_ == updates_.end() && back_ == updates_.end()) ||
+           (front_ != updates_.end() && back_ != updates_.end()));
 
     return retval;
 }
