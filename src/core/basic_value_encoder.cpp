@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "basic_value_encoder.h"
+#include <client_context/basic_value_encoder.h>
 
 #include <iomanip>
 #include <sstream>

@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-#include "object_visitor.h"
+#include <decof/client_context/object_visitor.h>
 
 namespace decof
 {

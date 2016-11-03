@@ -22,7 +22,8 @@
 
 #include <boost/asio.hpp>
 
-#include "client_context.h"
+#include <decof/client_context/client_context.h>
+
 #include "request_parser.h"
 #include "response.h"
 

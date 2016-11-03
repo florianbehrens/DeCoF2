@@ -22,7 +22,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/steady_timer.hpp>
 
-#include "client_context.h"
+#include <decof/client_context/client_context.h>
 
 namespace decof
 {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "response.h"
+#include <decof/scgi/response.h>
 
 #include <map>
 #include <sstream>

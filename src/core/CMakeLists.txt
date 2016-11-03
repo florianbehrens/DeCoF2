@@ -1,7 +1,6 @@
 set(
     DECOF2_CORE_SRC
     basic_value_encoder.cpp
-    basic_value_encoder.h
     client_context.cpp
     errors.h
     event.cpp
@@ -12,7 +11,6 @@ set(
     object_dictionary.cpp
     object_visitor.cpp
     tcp_connection_manager.cpp
-    tcp_connection_manager.h
 )
 
 # Standard DeCoF2 core library
@@ -25,8 +23,9 @@ target_include_directories(
     decof2-core
     PUBLIC
         ${Boost_INCLUDE_DIR}
-        ../../include
-        ../../include/decof
+        ${PROJECT_SOURCE_DIR}/include/
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/include/decof/
 )
 target_link_libraries(
     decof2-core
@@ -44,8 +43,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         decof2-core-gcov
         PUBLIC
             ${Boost_INCLUDE_DIR}
-            ../../include
-            ../../include/decof
+            ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE
+            ${PROJECT_SOURCE_DIR}/include/decof/
     )
     target_link_libraries(
         decof2-core-gcov

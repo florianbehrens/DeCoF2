@@ -19,7 +19,7 @@
 #include <boost/archive/iterators/transform_width.hpp>
 #include <boost/archive/iterators/remove_whitespace.hpp>
 
-#include "exceptions.h"
+#include <decof/exceptions.h>
 
 // $insert class.h
 #include "parser.h"

@@ -17,8 +17,8 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "client_context.h"
-#include "decof.h"
+#include <decof/all.h>
+#include <decof/client_context/client_context.h>
 
 BOOST_AUTO_TEST_SUITE(parameter_access)
 

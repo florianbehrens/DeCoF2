@@ -16,7 +16,8 @@
 
 #include "visitor.h"
 
-#include "node.h"
+#include <decof/node.h>
+
 #include "encoder.h"
 
 namespace decof

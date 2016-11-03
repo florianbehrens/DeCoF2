@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "basic_value_encoder.h"
+#include <decof/client_context/basic_value_encoder.h>
 
 namespace decof
 {

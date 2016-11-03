@@ -17,7 +17,7 @@
 #ifndef DECOF_SCGI_JS_VALUE_ENCODER_H
 #define DECOF_SCGI_JS_VALUE_ENCODER_H
 
-#include "basic_value_encoder.h"
+#include <decof/client_context/basic_value_encoder.h>
 
 namespace decof
 {

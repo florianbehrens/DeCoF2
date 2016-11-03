@@ -22,8 +22,8 @@
 
 #include <boost/any.hpp>
 
-#include "conversion.h"
-#include "types.h"
+#include <decof/conversion.h>
+#include <decof/types.h>
 
 namespace decof
 {

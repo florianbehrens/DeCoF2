@@ -17,9 +17,9 @@
 #ifndef DECOF_CLI_CLISRV_CONTEXT_H
 #define DECOF_CLI_CLISRV_CONTEXT_H
 
-#include "client_context.h"
-
 #include <boost/asio.hpp>
+
+#include <decof/client_context/client_context.h>
 
 namespace decof
 {

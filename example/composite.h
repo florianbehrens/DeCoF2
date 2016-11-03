@@ -17,7 +17,7 @@
 #ifndef DECOF_EXAMPLE_COMPOSITE_H
 #define DECOF_EXAMPLE_COMPOSITE_H
 
-#include <decof.h>
+#include <decof/all.h>
 
 class composite final : public decof::node
 {

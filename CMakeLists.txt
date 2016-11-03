@@ -24,13 +24,18 @@ if(MSVC)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-include_directories(include include/decof src/core)
+add_custom_target(
+    decof2-other-files
+    SOURCES
+        README.md
+        doxyfile.in
+        LICENSE
+        appveyor.yml
+        .travis.yml
+        .gitignore
+)
+
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(example)
-add_custom_target(
-    decof2-readme
-    SOURCES
-        README.md
-)

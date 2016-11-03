@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "scgi_context.h"
+#include <decof/scgi/scgi_context.h>
 
 #include <ostream>
 
@@ -22,12 +22,13 @@
 #include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <decof/exceptions.h>
+#include <decof/object_dictionary.h>
+
 #include "array_view.h"
 #include "bencode_string_parser.h"
 #include "endian.h"
-#include "exceptions.h"
 #include "js_value_encoder.h"
-#include "object_dictionary.h"
 #include "xml_visitor.h"
 
 namespace decof

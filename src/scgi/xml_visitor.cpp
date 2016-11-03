@@ -16,9 +16,9 @@
 
 #include "xml_visitor.h"
 
-#include "client_write_interface.h"
-#include "event.h"
-#include "node.h"
+#include <decof/client_write_interface.h>
+#include <decof/event.h>
+#include <decof/node.h>
 
 namespace
 {

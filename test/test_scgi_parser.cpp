@@ -17,7 +17,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "scgi/request_parser.h"
+#include <decof/scgi/request_parser.h>
 
 BOOST_AUTO_TEST_SUITE(scgi_parser)
 

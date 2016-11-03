@@ -8,12 +8,12 @@
 #include <boost/asio/steady_timer.hpp>
 #include <boost/bind.hpp>
 
-#include "decof.h"
-#include "tcp_connection_manager.h"
-#include "asio_tick/asio_tick.h"
-#include "cli/clisrv_context.h"
-#include "cli/pubsub_context.h"
-#include "scgi/scgi_context.h"
+#include <decof/all.h>
+#include <decof/asio_tick/asio_tick.h>
+#include <decof/cli/clisrv_context.h>
+#include <decof/cli/pubsub_context.h>
+#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/scgi/scgi_context.h>
 
 #include "composite.h"
 

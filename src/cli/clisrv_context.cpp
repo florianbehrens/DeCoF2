@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "clisrv_context.h"
+#include <decof/cli/clisrv_context.h>
 
 #include <sstream>
 #include <string>
@@ -26,9 +26,10 @@
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "exceptions.h"
-#include "object.h"
-#include "object_dictionary.h"
+#include <decof/exceptions.h>
+#include <decof/object.h>
+#include <decof/object_dictionary.h>
+
 #include "parser.h"
 #include "encoder.h"
 #include "visitor.h"

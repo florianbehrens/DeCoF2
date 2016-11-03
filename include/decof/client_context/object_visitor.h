@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-#include "types.h"
+#include <decof/types.h>
 
 namespace decof
 {

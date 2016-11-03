@@ -20,8 +20,8 @@
 #include <stack>
 #include <ostream>
 
-#include "object_visitor.h"
-#include "userlevel.h"
+#include <decof/client_context/object_visitor.h>
+#include <decof/userlevel.h>
 
 namespace decof
 {

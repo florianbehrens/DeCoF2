@@ -17,8 +17,9 @@
 #ifndef DECOF_WRITEONLY_PARAMETER_H
 #define DECOF_WRITEONLY_PARAMETER_H
 
+#include <decof/client_context/object_visitor.h>
+
 #include "basic_parameter.h"
-#include "object_visitor.h"
 #include "typed_client_write_interface.h"
 
 /// Convenience macro for parameter declaration

@@ -17,12 +17,12 @@
 #ifndef DECOF_CLI_PUBSUB_CONTEXT_H
 #define DECOF_CLI_PUBSUB_CONTEXT_H
 
-#include "client_context.h"
-
 #include <string>
 
 #include <boost/any.hpp>
 #include <boost/asio.hpp>
+
+#include <decof/client_context/client_context.h>
 
 #include "update_container.h"
 

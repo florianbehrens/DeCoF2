@@ -19,9 +19,10 @@
 
 #include <boost/signals2/connection.hpp>
 
+#include <decof/client_context/object_visitor.h>
+
 #include "basic_parameter.h"
 #include "conversion.h"
-#include "object_visitor.h"
 #include "typed_client_read_interface.h"
 
 namespace decof

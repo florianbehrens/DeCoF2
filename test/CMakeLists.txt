@@ -1,7 +1,7 @@
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/src)
 
 add_executable(
-    test_decof2
+    decof2-test
     EXCLUDE_FROM_ALL
     test_main.cpp
     test_automatic_ptr.cpp
@@ -20,7 +20,7 @@ add_executable(
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(
-        test_decof2
+        decof2-test
         decof2-cli-gcov
         decof2-core-gcov
         decof2-scgi-gcov
@@ -31,7 +31,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     )
 else()
     target_link_libraries(
-        test_decof2
+        decof2-test
         decof2-cli
         decof2-core
         decof2-scgi

@@ -23,8 +23,8 @@
 #include <boost/any.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "client_read_interface.h"
-#include "userlevel.h"
+#include <decof/client_read_interface.h>
+#include <decof/userlevel.h>
 
 namespace decof
 {

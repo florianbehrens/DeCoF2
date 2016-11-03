@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "pubsub_context.h"
+#include <decof/cli/pubsub_context.h>
 
 #include <string>
 #include <vector>
@@ -24,9 +24,10 @@
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "exceptions.h"
+#include <decof/exceptions.h>
+#include <decof/object_dictionary.h>
+
 #include "encoder.h"
-#include "object_dictionary.h"
 
 namespace decof
 {

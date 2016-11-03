@@ -27,10 +27,11 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "decof.h"
-#include "tcp_connection_manager.h"
-#include "scgi/bencode_string_parser.h"
-#include "scgi/scgi_context.h"
+#include <decof/all.h>
+#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/scgi/scgi_context.h>
+
+#include <scgi/bencode_string_parser.h>
 
 BOOST_AUTO_TEST_SUITE(scgi_access)
 

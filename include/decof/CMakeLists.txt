@@ -1,9 +1,9 @@
 add_custom_target(
     decof2-core-headers
     SOURCES
+        all.h
         automatic_ptr.h
         basic_parameter.h
-        client_context.h
         client_read_interface.h
         client_write_interface.h
         conversion.h
@@ -19,7 +19,6 @@ add_custom_target(
         managed_readwrite_parameter.h
         node.h
         object_dictionary.h
-        object_visitor.h
         object.h
         readable_parameter.h
         typed_client_read_interface.h
@@ -29,3 +28,8 @@ add_custom_target(
         writeonly_handler_parameter.h
         writeonly_parameter.h
 )
+
+add_subdirectory(asio_tick)
+add_subdirectory(cli)
+add_subdirectory(client_context)
+add_subdirectory(scgi)

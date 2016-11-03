@@ -22,8 +22,9 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+#include <decof/object_dictionary.h>
+
 #include "client_context.h"
-#include "object_dictionary.h"
 
 namespace decof
 {

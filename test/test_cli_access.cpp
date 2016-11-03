@@ -19,9 +19,9 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "decof.h"
-#include "tcp_connection_manager.h"
-#include "cli/clisrv_context.h"
+#include <decof/all.h>
+#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/cli/clisrv_context.h>
 
 BOOST_AUTO_TEST_SUITE(cli_access)
 

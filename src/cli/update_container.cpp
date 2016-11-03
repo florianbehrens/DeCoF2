@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "update_container.h"
+#include <decof/cli/update_container.h>
 
 #include <cassert>
 

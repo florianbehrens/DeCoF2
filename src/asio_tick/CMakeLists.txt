@@ -1,7 +1,6 @@
 set(
     DECOF2_ASIO_TICK_SRC
     asio_tick.cpp
-    asio_tick.h
 )
 
 # Standard DeCoF2 ASIO Tick library
@@ -14,10 +13,9 @@ target_include_directories(
     decof2-asio-tick
     PUBLIC
         ${Boost_INCLUDE_DIR}
-        ../../include
-        ../../include/decof
+        ${PROJECT_SOURCE_DIR}/include/
     PRIVATE
-        ../core
+        ${PROJECT_SOURCE_DIR}/include/decof/asio_tick
 )
 target_link_libraries(
     decof2-asio-tick
@@ -35,11 +33,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		decof2-asio-tick-gcov
 		PUBLIC
 			${Boost_INCLUDE_DIR}
-			../../include
-			../../include/decof
-		PRIVATE
-			../core
-	)
+            ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE
+            ${PROJECT_SOURCE_DIR}/include/decof/asio_tick
+    )
 	target_link_libraries(
 		decof2-asio-tick-gcov
 		decof2-core-gcov
