@@ -108,6 +108,11 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
         if (!uri.empty() && uri[0] == '\'')
             uri.erase(0, 1);
 
+        // Prepend root node name if not present (for compatibility reasons to
+        // 'classic' DeCoF)
+        if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
+            uri = object_dictionary_.name() + ":" + uri;
+
         // Parse optional value string using flexc++/bisonc++ parser
         boost::any any_value;
         if (ss_in.peek() != std::stringstream::traits_type::eof()) {

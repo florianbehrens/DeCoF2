@@ -1,9 +1,16 @@
 if(MSVC)
     # Enable alternative boolean operators with Visual Studio compiler
     set_source_files_properties(
-        lex.cpp parse.cpp
+        parse.cpp
         PROPERTIES
             COMPILE_FLAGS "/Za"
+    )
+    # Enable alternative boolean operators with Visual Studio compiler
+    # Disable C4267: 'argument': conversion from 'size_t' to 'const unsigned char', possible loss of data
+    set_source_files_properties(
+        lex.cpp
+        PROPERTIES
+            COMPILE_FLAGS "/Za /wd4267"
     )
 endif()
 

@@ -22,4 +22,3 @@ script:
 after_success:
   - cd ..
   - coveralls --include src --include include --gcov-options '\-lp'
-

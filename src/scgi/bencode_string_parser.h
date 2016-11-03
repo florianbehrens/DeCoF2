@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_SCGI_BENCODE_PARSER_H
-#define DECOF_SCGI_BENCODE_PARSER_H
+#ifndef DECOF_SCGI_BENCODE_STRING_PARSER_H
+#define DECOF_SCGI_BENCODE_STRING_PARSER_H
 
 #include <string>
 #include <tuple>
@@ -75,4 +75,4 @@ private:
 
 } // namespace decof
 
-#endif // DECOF_SCGI_BENCODE_PARSER_H
+#endif // DECOF_SCGI_BENCODE_STRING_PARSER_H

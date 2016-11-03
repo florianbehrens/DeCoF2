@@ -14,8 +14,8 @@ target_link_libraries(
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	target_link_libraries(
+    target_link_libraries(
         decof2-example
-		pthread
-	)
+        pthread
+    )
 endif()
