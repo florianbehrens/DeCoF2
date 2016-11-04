@@ -47,6 +47,9 @@ namespace decof
 namespace cli
 {
 
+clisrv_context::userlevel_cb_t clisrv_context::userlevel_cb_ =
+    [](const clisrv_context&, userlevel_t, const std::string&) { return false; };
+
 clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
     client_context(od, userlevel),
     socket_(std::move(socket))
@@ -73,6 +76,11 @@ void clisrv_context::preload()
                                        std::placeholders::_1, std::placeholders::_2));
 }
 
+void clisrv_context::install_userlevel_callback(const clisrv_context::userlevel_cb_t &userlevel_cb)
+{
+    userlevel_cb_ = userlevel_cb;
+}
+
 void clisrv_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
@@ -87,69 +95,10 @@ void clisrv_context::write_handler(const boost::system::error_code &error, std::
 void clisrv_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
-        // Copy received data to std::string
-        boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
-        std::string str(
-            boost::asio::buffers_begin(bufs),
-            boost::asio::buffers_begin(bufs) + bytes_transferred);
+        auto bufs = inbuf_.data();
+        process_request(std::string(boost::asio::buffers_begin(bufs),
+                                    boost::asio::buffers_begin(bufs) + bytes_transferred));
         inbuf_.consume(bytes_transferred);
-
-        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-        boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
-
-        // Read and lower-case operation and uri
-        std::string op, uri;
-        std::stringstream ss_in(str);
-        ss_in >> op >> uri;
-        std::transform(op.begin(), op.end(), op.begin(), ::tolower);
-        std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
-
-        // Remove optional "'" from parameter name
-        if (!uri.empty() && uri[0] == '\'')
-            uri.erase(0, 1);
-
-        // Prepend root node name if not present (for compatibility reasons to
-        // 'classic' DeCoF)
-        if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
-            uri = object_dictionary_.name() + ":" + uri;
-
-        // Parse optional value string using flexc++/bisonc++ parser
-        boost::any any_value;
-        if (ss_in.peek() != std::stringstream::traits_type::eof()) {
-            parser parser(ss_in);
-            parser.parse();
-            any_value = parser.result();
-        }
-
-        std::ostream out(&outbuf_);
-
-        try {
-            if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
-                boost::any any_value = get_parameter(uri);
-                encoder().encode_any(out, any_value);
-                out << std::endl;
-            } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
-                set_parameter(uri, any_value);
-                out << "0\n";
-            } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
-                signal_event(uri);
-                out << "()\n";
-            } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
-                // This command is for compatibility reasons with legacy DeCoF
-                std::string root_uri(object_dictionary_.name());
-                if (!uri.empty())
-                    root_uri = uri;
-                std::stringstream temp_ss;
-                visitor visitor(temp_ss);
-                browse(&visitor, root_uri);
-                out << temp_ss.str();
-            } else
-                throw parse_error();
-        } catch (runtime_error& ex) {
-            out << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
-        }
-
-        out << prompt;
 
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
         boost::asio::async_write(socket_, outbuf_,
@@ -170,6 +119,92 @@ void clisrv_context::disconnect()
     // shared pointer, it gets deleted after leaving function scope.
     auto sptr = shared_from_this();
     object_dictionary_.remove_context(sptr);
+}
+
+void clisrv_context::process_request(std::string request)
+{
+    // Trim (whitespace as in std::is_space() and parantheses)
+    boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+
+    // Read and lower-case operation and uri
+    std::string op, uri;
+    std::stringstream ss_in(request);
+    ss_in >> op >> uri;
+    std::transform(op.begin(), op.end(), op.begin(), ::tolower);
+    std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
+
+    // Remove optional "'" from parameter name
+    if (!uri.empty() && uri[0] == '\'')
+        uri.erase(0, 1);
+
+    // Prepend root node name if not present (for compatibility reasons to
+    // 'classic' DeCoF)
+    if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
+        uri = object_dictionary_.name() + ":" + uri;
+
+    std::ostream out(&outbuf_);
+
+    try {
+        // Apply special handling for the 'change-ul' command
+        // (exec 'change-ul <userlevel> "<passwd>")
+        if (op == "exec" && uri == object_dictionary_.name() + ":change-ul") {
+            int userlevel;
+            std::string password;
+
+            ss_in >> userlevel >> std::ws;
+            std::getline(ss_in, password);
+            boost::algorithm::trim_if(password, boost::is_any_of("\""));
+
+            if (!userlevel_cb_(*this, static_cast<userlevel_t>(userlevel), password))
+                throw access_denied_error();
+
+            client_context::userlevel(static_cast<userlevel_t>(userlevel));
+            out << "0\n";
+        } else {
+            // Parse optional value string using flexc++/bisonc++ parser
+            boost::any any_value;
+            if (ss_in.peek() != std::stringstream::traits_type::eof()) {
+                parser parser(ss_in);
+                parser.parse();
+                any_value = parser.result();
+            }
+
+            if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
+
+                // Apply special handling for 'ul' parameter
+                if (uri == object_dictionary_.name() + ":ul") {
+                    encoder().encode_integer(out, userlevel());
+                } else {
+                    boost::any any_value = get_parameter(uri);
+                    encoder().encode_any(out, any_value);
+                }
+
+                out << std::endl;
+            } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
+                set_parameter(uri, any_value);
+                out << "0\n";
+            } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
+                signal_event(uri);
+                out << "()\n";
+            } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
+                // This command is for compatibility reasons with legacy DeCoF
+                std::string root_uri(object_dictionary_.name());
+                if (!uri.empty())
+                    root_uri = uri;
+                std::stringstream temp_ss;
+                visitor visitor(temp_ss);
+                browse(&visitor, root_uri);
+                out << temp_ss.str();
+            } else
+                throw parse_error();
+        }
+    } catch (runtime_error& ex) {
+        out << "ERROR " << ex.code() << ": " << ex.what() << "\n";
+    } catch (...) {
+        out << "ERROR " << UNKNOWN_ERROR << ": " << "Unknown error\n";
+    }
+
+    out << prompt;
 }
 
 } // namespace cli

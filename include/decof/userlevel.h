@@ -24,10 +24,13 @@ namespace decof
 
 enum userlevel_t
 {
-    Normal,
-    Service,
-    Maintenance,
-    Internal,
+    Minimum     = 0,
+    Internal    = Minimum,
+    Service     = 1,
+    Maintenance = 2,
+    Normal      = 3,
+    Readonly    = 4,
+    Maximum     = Readonly,
 
     // Only for internal use
     Forbidden = std::numeric_limits<int>::max()

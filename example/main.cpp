@@ -205,6 +205,20 @@ int main()
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
 
+    // Install userlevel change callback
+    using decof::cli::clisrv_context;
+    clisrv_context::install_userlevel_callback([](const clisrv_context&, decof::userlevel_t userlevel, const std::string& passwd) {
+        if (userlevel == decof::Normal || userlevel == decof::Readonly)
+            return true;
+        else if (userlevel == decof::Maintenance && passwd == "maintenance")
+            return true;
+        else if (userlevel == decof::Service && passwd == "service")
+            return true;
+        else if (userlevel == decof::Internal && passwd == "internal")
+            return true;
+        return false;
+    });
+
     // Setup request/respone CLI context
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
     decof::tcp_connection_manager conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);

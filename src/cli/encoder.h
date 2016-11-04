@@ -29,9 +29,9 @@ namespace cli
 
 struct encoder : public basic_value_encoder
 {
-    virtual void encode(std::ostream &out, const boolean &value);
-    virtual void encode(std::ostream &out, const string &value);
-    virtual void encode(std::ostream &out, const binary &value);
+    virtual void encode_boolean(std::ostream &out, const boolean &value) override;
+    virtual void encode_string(std::ostream &out, const string &value) override;
+    virtual void encode_binary(std::ostream &out, const binary &value) override;
 };
 
 } // namespace cli

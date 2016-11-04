@@ -27,13 +27,13 @@ namespace scgi
 
 struct js_value_encoder : public decof::basic_value_encoder
 {
-    void encode(std::ostream &out, const boolean &value) override;
-    void encode(std::ostream &out, const boolean_seq &value) override;
-    void encode(std::ostream &out, const integer_seq &value) override;
-    void encode(std::ostream &out, const real_seq &value) override;
-    void encode(std::ostream &out, const string_seq &value) override;
-    void encode(std::ostream &out, const binary_seq &value) override;
-    void encode(std::ostream &out, const dynamic_tuple &value) override;
+    void encode_boolean(std::ostream &out, const boolean &value) override;
+    void encode_boolean_seq(std::ostream &out, const boolean_seq &value) override;
+    void encode_integer_seq(std::ostream &out, const integer_seq &value) override;
+    void encode_real_seq(std::ostream &out, const real_seq &value) override;
+    void encode_string_seq(std::ostream &out, const string_seq &value) override;
+    void encode_binary_seq(std::ostream &out, const binary_seq &value) override;
+    void encode_tuple(std::ostream &out, const dynamic_tuple &value) override;
 };
 
 } // namespace scgi

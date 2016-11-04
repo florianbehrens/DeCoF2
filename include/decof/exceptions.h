@@ -22,6 +22,20 @@
 namespace decof
 {
 
+enum error_codes {
+    SUCCESS = 0,
+    UNKNOWN_ERROR,
+    PARSE_ERROR,
+    ACCESS_DENIED_ERROR,
+    INVALID_PARAMETER_ERROR,
+    WRONG_TYPE_ERROR,
+    INVALID_VALUE_ERROR,
+    UNKNOWN_OPERATION_ERROR,
+    INVALID_USERLEVEL,
+    NOT_IMPLEMENTED_ERROR,
+    PROTOCOL_SPECIFIC_ERRORS
+};
+
 class runtime_error : public std::runtime_error
 {
 protected:
@@ -62,6 +76,11 @@ struct unknown_operation_error : public runtime_error
 struct parse_error : public runtime_error
 {
     parse_error();
+};
+
+struct invalid_userlevel_error : public runtime_error
+{
+    invalid_userlevel_error();
 };
 
 struct not_implemented_error : public runtime_error

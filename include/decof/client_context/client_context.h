@@ -40,6 +40,10 @@ public:
     virtual ~client_context();
 
     userlevel_t userlevel() const;
+
+    /** @brief Set current userlevel.
+     * @param ul New userlevel.
+     * @throw #invalid_userlevel_error if given userlevel is invalid. */
     void userlevel(userlevel_t ul);
 
     /// Returns the connection type, e.g., "tcp", "serial".

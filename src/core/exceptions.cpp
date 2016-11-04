@@ -16,8 +16,6 @@
 
 #include "exceptions.h"
 
-#include "errors.h"
-
 namespace decof
 {
 
@@ -56,7 +54,11 @@ parse_error::parse_error()
 {}
 
 not_implemented_error::not_implemented_error()
-  : runtime_error(NOT_IMPLEMENTED_ERROR, "Not implemented")
+    : runtime_error(NOT_IMPLEMENTED_ERROR, "Not implemented")
+{}
+
+invalid_userlevel_error::invalid_userlevel_error()
+    : runtime_error(INVALID_USERLEVEL, "Invalid userlevel")
 {}
 
 } // namespace decof

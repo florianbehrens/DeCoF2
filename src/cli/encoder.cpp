@@ -28,7 +28,7 @@ namespace decof
 namespace cli
 {
 
-void encoder::encode(std::ostream &out, const boolean &value)
+void encoder::encode_boolean(std::ostream &out, const boolean &value)
 {
     if (value == true)
         out << "#t";
@@ -36,12 +36,12 @@ void encoder::encode(std::ostream &out, const boolean &value)
         out << "#f";
 }
 
-void encoder::encode(std::ostream &out, const string &value)
+void encoder::encode_string(std::ostream &out, const string &value)
 {
     out << "\"" << html_string_escape(value) << "\"";
 }
 
-void encoder::encode(std::ostream &out, const binary &value)
+void encoder::encode_binary(std::ostream &out, const binary &value)
 {
     out << "&" << base64_encode(value);
 }

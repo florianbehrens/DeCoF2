@@ -71,6 +71,18 @@ xml_visitor::~xml_visitor()
         increment_indentation();
         out_ << indentation() << "<description> </description>\n";
 
+        // Generate artificial 'ul' parameter and 'change-ul' command
+        if (node->parent() == nullptr) {
+            out_ << indentation() << "<param name=\"ul\" type=\"INTEGER\" mode=\"readonly\"><description> </description></param>\n";
+            out_ << indentation() <<
+                    "<cmd name=\"change-ul\">"
+                        "<description> </description>"
+                        "<ret type=\"INTEGER\" />"
+                        "<arg name=\"ul\" type=\"INTEGER\" />"
+                        "<arg name=\"passwd\" type=\"STRING\" />"
+                    "</cmd>\n";
+        }
+
         // Iterate child parameters
         for (auto &child : *node)
             child->accept(this);

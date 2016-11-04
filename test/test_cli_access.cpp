@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <sstream>
+#include <string>
+
 #include <boost/algorithm/string.hpp>
 
 #define BOOST_TEST_DYN_LINK
@@ -63,6 +66,56 @@ struct fixture
     std::istream is;
     std::string str;
 };
+
+BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
+{
+    int userlevel = decof::Forbidden;
+    managed_readonly_parameter<decof::boolean> dummy("dummy", &od, true);
+
+    cli::clisrv_context::install_userlevel_callback([](const cli::clisrv_context&, userlevel_t, const std::string&) {
+        return true;
+    });
+
+    {
+        // Read initial userlevel
+        client_sock.write_some(asio::buffer(std::string("(param-ref 'ul)\n")));
+        io_service->poll();
+
+        asio::streambuf buf;
+        buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
+        std::istream(&buf) >> userlevel;
+
+        BOOST_REQUIRE_EQUAL(userlevel, decof::Normal);
+    }
+
+    {
+        // Change userlevel to Internal
+        int retval;
+        std::stringstream out;
+        out << "(exec 'change-ul " << decof::Internal << " \"passwd\")\n";
+
+        client_sock.write_some(asio::buffer(out.str()));
+        io_service->poll();
+
+        asio::streambuf buf;
+        buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
+        std::istream(&buf) >> retval;
+
+        BOOST_REQUIRE_EQUAL(retval, 0);
+    }
+
+    {
+        // Read userlevel after change
+        client_sock.write_some(asio::buffer(std::string("(param-ref 'ul)\n")));
+        io_service->poll();
+
+        asio::streambuf buf;
+        buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
+        std::istream(&buf) >> userlevel;
+
+        BOOST_REQUIRE_EQUAL(userlevel, decof::Internal);
+    }
+}
 
 BOOST_FIXTURE_TEST_CASE(omit_root_node_name, fixture)
 {

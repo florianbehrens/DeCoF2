@@ -56,19 +56,19 @@ struct basic_value_encoder
     /// Calls the type-specific encoding functions.
     void encode_any(std::ostream &out, const boost::any &any_value);
 
-    virtual void encode(std::ostream &out, const boolean &value);
-    virtual void encode(std::ostream &out, const integer &value);
-    virtual void encode(std::ostream &out, const real &value);
-    virtual void encode(std::ostream &out, const string &value);
-    virtual void encode(std::ostream &out, const binary &value);
+    virtual void encode_boolean(std::ostream &out, const boolean &value);
+    virtual void encode_integer(std::ostream &out, const integer &value);
+    virtual void encode_real(std::ostream &out, const real &value);
+    virtual void encode_string(std::ostream &out, const string &value);
+    virtual void encode_binary(std::ostream &out, const binary &value);
 
-    virtual void encode(std::ostream &out, const boolean_seq &value);
-    virtual void encode(std::ostream &out, const integer_seq &value);
-    virtual void encode(std::ostream &out, const real_seq &value);
-    virtual void encode(std::ostream &out, const string_seq &value);
-    virtual void encode(std::ostream &out, const binary_seq &value);
+    virtual void encode_boolean_seq(std::ostream &out, const boolean_seq &value);
+    virtual void encode_integer_seq(std::ostream &out, const integer_seq &value);
+    virtual void encode_real_seq(std::ostream &out, const real_seq &value);
+    virtual void encode_string_seq(std::ostream &out, const string_seq &value);
+    virtual void encode_binary_seq(std::ostream &out, const binary_seq &value);
 
-    virtual void encode(std::ostream &out, const dynamic_tuple &value);
+    virtual void encode_tuple(std::ostream &out, const dynamic_tuple &value);
 };
 
 } // namespace decof

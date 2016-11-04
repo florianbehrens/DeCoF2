@@ -23,7 +23,7 @@ namespace decof
 namespace scgi
 {
 
-void js_value_encoder::encode(std::ostream &out, const boolean &value)
+void js_value_encoder::encode_boolean(std::ostream &out, const boolean &value)
 {
     if (value == false)
         out << "false";
@@ -31,13 +31,13 @@ void js_value_encoder::encode(std::ostream &out, const boolean &value)
         out << "true";
 }
 
-void js_value_encoder::encode(std::ostream &out, const boolean_seq &value)
+void js_value_encoder::encode_boolean_seq(std::ostream &out, const boolean_seq &value)
 {
     for (const auto &elem : value)
         out.put(static_cast<unsigned char>(elem));
 }
 
-void js_value_encoder::encode(std::ostream &out, const integer_seq &value)
+void js_value_encoder::encode_integer_seq(std::ostream &out, const integer_seq &value)
 {
     for (const auto &elem : value) {
         int32_t elem_le = native_to_little_endian(elem);
@@ -45,7 +45,7 @@ void js_value_encoder::encode(std::ostream &out, const integer_seq &value)
     }
 }
 
-void js_value_encoder::encode(std::ostream &out, const real_seq &value)
+void js_value_encoder::encode_real_seq(std::ostream &out, const real_seq &value)
 {
     for (const auto &elem : value) {
         double elem_le = native_to_little_endian(elem);
@@ -53,21 +53,21 @@ void js_value_encoder::encode(std::ostream &out, const real_seq &value)
     }
 }
 
-void js_value_encoder::encode(std::ostream &out, const string_seq &value)
+void js_value_encoder::encode_string_seq(std::ostream &out, const string_seq &value)
 {
     // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
     for (const auto &elem : value)
         out << elem.size() << ":" << elem << "\r\n";
 }
 
-void js_value_encoder::encode(std::ostream &out, const binary_seq &value)
+void js_value_encoder::encode_binary_seq(std::ostream &out, const binary_seq &value)
 {
     // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
     for (const auto &elem : value)
         out << elem.size() << ":" << elem << "\r\n";
 }
 
-void js_value_encoder::encode(std::ostream &out, const dynamic_tuple &value)
+void js_value_encoder::encode_tuple(std::ostream &out, const dynamic_tuple &value)
 {
     for (const auto &elem : value) {
         if (elem.type() == typeid(decof::string)) {

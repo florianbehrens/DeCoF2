@@ -40,6 +40,9 @@ userlevel_t client_context::userlevel() const
 
 void client_context::userlevel(userlevel_t ul)
 {
+    if (ul < Minimum || ul > Maximum)
+        throw invalid_userlevel_error();
+
     userlevel_ = ul;
 }
 

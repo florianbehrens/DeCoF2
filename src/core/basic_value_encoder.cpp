@@ -84,119 +84,119 @@ void basic_value_encoder::encode_any(std::string &str, const boost::any &any_val
 void basic_value_encoder::encode_any(std::ostream &out, const boost::any &any_value)
 {
     if (any_value.type() == typeid(boolean))
-        encode(out, boost::any_cast<boolean>(any_value));
+        encode_boolean(out, boost::any_cast<boolean>(any_value));
     else if (any_value.type() == typeid(integer))
-        encode(out, boost::any_cast<integer>(any_value));
+        encode_integer(out, boost::any_cast<integer>(any_value));
     else if (any_value.type() == typeid(real))
-        encode(out, boost::any_cast<real>(any_value));
+        encode_real(out, boost::any_cast<real>(any_value));
     else if (any_value.type() == typeid(string))
-        encode(out, boost::any_cast<string>(any_value));
+        encode_string(out, boost::any_cast<string>(any_value));
     else if (any_value.type() == typeid(binary))
-        encode(out, boost::any_cast<binary>(any_value));
+        encode_binary(out, boost::any_cast<binary>(any_value));
     else if (any_value.type() == typeid(boolean_seq))
-        encode(out, boost::any_cast<boolean_seq>(any_value));
+        encode_boolean_seq(out, boost::any_cast<boolean_seq>(any_value));
     else if (any_value.type() == typeid(integer_seq))
-        encode(out, boost::any_cast<integer_seq>(any_value));
+        encode_integer_seq(out, boost::any_cast<integer_seq>(any_value));
     else if (any_value.type() == typeid(real_seq))
-        encode(out, boost::any_cast<real_seq>(any_value));
+        encode_real_seq(out, boost::any_cast<real_seq>(any_value));
     else if (any_value.type() == typeid(string_seq))
-        encode(out, boost::any_cast<string_seq>(any_value));
+        encode_string_seq(out, boost::any_cast<string_seq>(any_value));
     else if (any_value.type() == typeid(binary_seq))
-        encode(out, boost::any_cast<binary_seq>(any_value));
+        encode_binary_seq(out, boost::any_cast<binary_seq>(any_value));
     else if (any_value.type() == typeid(dynamic_tuple))
-        encode(out, boost::any_cast<dynamic_tuple>(any_value));
+        encode_tuple(out, boost::any_cast<dynamic_tuple>(any_value));
     else
         throw wrong_type_error();
 }
 
-void basic_value_encoder::encode(std::ostream &out, const boolean &value)
+void basic_value_encoder::encode_boolean(std::ostream &out, const boolean &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::ostream &out, const integer &value)
+void basic_value_encoder::encode_integer(std::ostream &out, const integer &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::ostream &out, const real &value)
+void basic_value_encoder::encode_real(std::ostream &out, const real &value)
 {
     // Use minimum value without loss of precision in conversion between binary
     // and decimal number representation and vice versa.
     out << std::setprecision(17) << value;
 }
 
-void basic_value_encoder::encode(std::ostream &out, const string &value)
+void basic_value_encoder::encode_string(std::ostream &out, const string &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::ostream &out, const binary &value)
+void basic_value_encoder::encode_binary(std::ostream &out, const binary &value)
 {
     out << value;
 }
 
-void basic_value_encoder::encode(std::ostream &out, const boolean_seq &value)
+void basic_value_encoder::encode_boolean_seq(std::ostream &out, const boolean_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
     for (; it != value.cend(); ++it) {
         if (it != value.cbegin())
             out << ",";
-        encode(out, *it);
+        encode_boolean(out, *it);
     }
     out << "]";
 }
 
-void basic_value_encoder::encode(std::ostream &out, const integer_seq &value)
+void basic_value_encoder::encode_integer_seq(std::ostream &out, const integer_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
     for (; it != value.cend(); ++it) {
         if (it != value.cbegin())
             out << ",";
-        encode(out, *it);
+        encode_integer(out, *it);
     }
     out << "]";
 }
 
-void basic_value_encoder::encode(std::ostream &out, const real_seq &value)
+void basic_value_encoder::encode_real_seq(std::ostream &out, const real_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
     for (; it != value.cend(); ++it) {
         if (it != value.cbegin())
             out << ",";
-        encode(out, *it);
+        encode_real(out, *it);
     }
     out << "]";
 }
 
-void basic_value_encoder::encode(std::ostream &out, const string_seq &value)
+void basic_value_encoder::encode_string_seq(std::ostream &out, const string_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
     for (; it != value.cend(); ++it) {
         if (it != value.cbegin())
             out << ",";
-        encode(out, *it);
+        encode_string(out, *it);
     }
     out << "]";
 }
 
-void basic_value_encoder::encode(std::ostream &out, const binary_seq &value)
+void basic_value_encoder::encode_binary_seq(std::ostream &out, const binary_seq &value)
 {
     out << "[";
     auto it = value.cbegin();
     for (; it != value.cend(); ++it) {
         if (it != value.cbegin())
             out << ",";
-        encode(out, *it);
+        encode_binary(out, *it);
     }
     out << "]";
 }
 
-void basic_value_encoder::encode(std::ostream &out, const dynamic_tuple &value)
+void basic_value_encoder::encode_tuple(std::ostream &out, const dynamic_tuple &value)
 {
     out << "{";
     auto it = value.cbegin();
