@@ -25,6 +25,9 @@ namespace decof
 object::object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
  : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
+    assert(readlevel != Readonly);
+    assert(writelevel != Readonly);
+
     if (parent != nullptr)
         parent->add_child(this);
 }

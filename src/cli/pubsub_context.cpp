@@ -16,8 +16,11 @@
 
 #include <decof/cli/pubsub_context.h>
 
+#include <chrono>
+#include <iomanip>
 #include <limits>
 #include <string>
+#include <sstream>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -28,6 +31,22 @@
 #include <decof/object_dictionary.h>
 
 #include "encoder.h"
+
+namespace {
+
+struct iso8601_time
+{
+    std::chrono::time_point<std::chrono::system_clock> time_point;
+};
+
+std::ostream& operator<<(std::ostream& out, const iso8601_time& arg)
+{
+    std::time_t t = std::chrono::system_clock::to_time_t(arg.time_point);
+    out << std::put_time(std::localtime(&t), "%FT%T.000Z");
+    return out;
+}
+
+} // Anonymous namespace
 
 namespace decof
 {
@@ -110,13 +129,7 @@ void pubsub_context::preload_writing()
 
         std::tie(uri, any_value, time) = pending_updates_.pop_front();
 
-        // Get current time in textual representation
-        const size_t max_length = 25;
-        char time_str[max_length];
-        auto now = std::chrono::system_clock::to_time_t(time);
-        std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
-
-        out << "(" << time_str << " '" << uri << " ";
+        out << "(" << iso8601_time{ time } << " '" << uri << " ";
         encoder().encode_any(out, any_value);
         out << ")\n";
     }
@@ -146,6 +159,8 @@ void pubsub_context::close()
 
 void pubsub_context::process_request(std::string request)
 {
+    std::string uri;
+
     try {
         // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
         boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
@@ -156,20 +171,19 @@ void pubsub_context::process_request(std::string request)
         in >> command;
 
         if (command == "change-ul") {
-            int userlevel = std::numeric_limits<int>::max();
+            int ul = std::numeric_limits<int>::max();
             std::string password;
 
-            in >> userlevel >> std::ws;
+            in >> ul >> std::ws;
             std::getline(in, password);
             boost::algorithm::trim_if(password, boost::is_any_of("\""));
 
-            if (!userlevel_cb_(*this, static_cast<userlevel_t>(userlevel), password))
+            if (!userlevel_cb_(*this, static_cast<userlevel_t>(ul), password))
                 throw access_denied_error();
 
-            client_context::userlevel(static_cast<userlevel_t>(userlevel));
+            client_context::userlevel(static_cast<userlevel_t>(ul));
+            notify(object_dictionary_.name() + ":ul", boost::any(static_cast<decof::integer>(userlevel())));
         } else {
-            std::string uri;
-
             in >> uri;
 
             // Lower-case first substring
@@ -181,23 +195,35 @@ void pubsub_context::process_request(std::string request)
 
             // Prepend root node name if not present (for compatibility reasons to
             // 'classic' DeCoF)
+            std::string full_uri = uri;
             if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
-                uri = object_dictionary_.name() + ":" + uri;
+                full_uri = object_dictionary_.name() + ":" + uri;
 
             if (command == "subscribe" || command == "add") {
-                observe(uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+                // Apply special handling for 'ul' parameter
+                if (full_uri == object_dictionary_.name() + ":ul")
+                    notify(full_uri, boost::any(static_cast<decof::integer>(userlevel())));
+                else
+                    observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {
-                unobserve(uri);
+                unobserve(full_uri);
             } else
                 throw unknown_operation_error();
         }
+    } catch (invalid_parameter_error& ex) {
+        std::ostream out(&outbuf_);
+        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
+            << " 'COMMAND_ERROR) Parameter '" << uri << " not found)\n";
+        preload_writing();
     } catch (runtime_error& ex) {
         std::ostream out(&outbuf_);
-        out << "ERROR " << ex.code() << ": " << ex.what() << "\n";
+        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
+            << " 'COMMAND_ERROR) " << ex.what() << "\n";
         preload_writing();
     } catch (...) {
         std::ostream out(&outbuf_);
-        out << "ERROR " << UNKNOWN_ERROR << ": " << "Unknown error\n";
+        out << "(Error: " << UNKNOWN_ERROR << " (" << iso8601_time{ std::chrono::system_clock::now() }
+            << " 'COMMAND_ERROR) Unknown error\n";
         preload_writing();
     }
 }

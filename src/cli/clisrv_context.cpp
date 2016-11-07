@@ -119,6 +119,10 @@ void clisrv_context::process_request(std::string request)
     // Trim (whitespace as in std::is_space() and parantheses)
     boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
+    // Ignore empty request
+    if (request.empty())
+        return;
+
     // Read and lower-case operation and uri
     std::string op, uri;
     std::stringstream ss_in(request);
@@ -141,18 +145,20 @@ void clisrv_context::process_request(std::string request)
         // Apply special handling for the 'change-ul' command
         // (exec 'change-ul <userlevel> "<passwd>")
         if (op == "exec" && uri == object_dictionary_.name() + ":change-ul") {
-            int userlevel = std::numeric_limits<int>::max();
+            int ul = std::numeric_limits<int>::max();
             std::string password;
 
-            ss_in >> userlevel >> std::ws;
+            ss_in >> ul >> std::ws;
             std::getline(ss_in, password);
             boost::algorithm::trim_if(password, boost::is_any_of("\""));
 
-            if (!userlevel_cb_(*this, static_cast<userlevel_t>(userlevel), password))
+            if (!userlevel_cb_(*this, static_cast<userlevel_t>(ul), password))
                 throw access_denied_error();
 
-            client_context::userlevel(static_cast<userlevel_t>(userlevel));
-            out << "0\n";
+            client_context::userlevel(static_cast<userlevel_t>(ul));
+
+            encoder().encode_integer(out, userlevel());
+            out << "\n";
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
             boost::any any_value;
@@ -172,7 +178,7 @@ void clisrv_context::process_request(std::string request)
                     encoder().encode_any(out, any_value);
                 }
 
-                out << std::endl;
+                out << "\n";
             } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
                 set_parameter(uri, any_value);
                 out << "0\n";

@@ -38,6 +38,11 @@ userlevel_t client_context::userlevel() const
     return userlevel_;
 }
 
+userlevel_t client_context::effective_userlevel() const
+{
+    return (userlevel_ == decof::Readonly ? decof::Normal : userlevel_);
+}
+
 void client_context::userlevel(userlevel_t ul)
 {
     if (ul < Minimum || ul > Maximum)
@@ -63,12 +68,15 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
+    if (userlevel_ == decof::Readonly)
+        throw access_denied_error();
+
     object *te = object_dictionary_.find_object(uri, separator);
     client_write_interface* param = dynamic_cast<client_write_interface*>(te);
 
     if (param == nullptr)
         throw invalid_parameter_error();
-    if (userlevel_ < te->writelevel())
+    if (userlevel_ > te->writelevel())
         throw access_denied_error();
 
     param->value(any_value);
@@ -84,7 +92,7 @@ boost::any client_context::get_parameter(const std::string &uri, char separator)
 
     if (param == nullptr)
         throw invalid_parameter_error();
-    if (userlevel_ < obj->readlevel())
+    if (effective_userlevel() > obj->readlevel())
         throw access_denied_error();
 
     return param->any_value();
@@ -94,12 +102,15 @@ void client_context::signal_event(const std::string &uri, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
+    if (userlevel_ == decof::Readonly)
+        throw access_denied_error();
+
     object *te = object_dictionary_.find_object(uri, separator);
     event* ev = dynamic_cast<event*>(te);
 
     if (ev == nullptr)
         throw invalid_parameter_error();
-    if (userlevel_ < te->writelevel())
+    if (userlevel_ > te->writelevel())
         throw access_denied_error();
 
     ev->signal();
@@ -112,7 +123,7 @@ void client_context::observe(const std::string &uri, client_read_interface::sign
     auto obj = object_dictionary_.find_object(uri, separator);
 
     if (client_read_interface* param = dynamic_cast<client_read_interface*>(obj)) {
-        if (userlevel_ < obj->readlevel())
+        if (effective_userlevel() > obj->readlevel())
             throw access_denied_error();
 
         if (observables_.count(uri) == 0)
@@ -152,8 +163,10 @@ void client_context::browse_object(object *te, object_visitor *visitor)
 
     // If node browse children
     if (node *n = dynamic_cast<node*>(te)) {
-        for (auto &child : *n)
-            browse_object(child, visitor);
+        for (auto &child : *n) {
+            if (effective_userlevel() > child->readlevel())
+                browse_object(child, visitor);
+        }
     }
 }
 

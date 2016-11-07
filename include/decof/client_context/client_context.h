@@ -39,7 +39,14 @@ public:
     explicit client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel = Normal);
     virtual ~client_context();
 
+    /// Get current client contexts userlevel.
     userlevel_t userlevel() const;
+
+    /** @brief Get current client contexts effective userlevel.
+     *
+     * @return #decof::Normal if current userlevel is #decof::Readonly,
+     * otherwise #userlevel(). */
+    userlevel_t effective_userlevel() const;
 
     /** @brief Set current userlevel.
      * @param ul New userlevel.
