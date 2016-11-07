@@ -42,7 +42,14 @@ struct iso8601_time
 std::ostream& operator<<(std::ostream& out, const iso8601_time& arg)
 {
     std::time_t t = std::chrono::system_clock::to_time_t(arg.time_point);
+#if defined(__GNUC__) && (__GNUC__ < 5)
+    const size_t max_length = 25;
+    char time_str[max_length];
+    std::strftime(time_str, sizeof(time_str), "%FT%T.000Z", std::localtime(&now));
+    out << time_str;
+#else
     out << std::put_time(std::localtime(&t), "%FT%T.000Z");
+#endif
     return out;
 }
 
