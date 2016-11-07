@@ -206,8 +206,8 @@ int main()
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;
 
     // Install userlevel change callback
-    using decof::cli::clisrv_context;
-    clisrv_context::install_userlevel_callback([](const clisrv_context&, decof::userlevel_t userlevel, const std::string& passwd) {
+    using decof::cli::cli_context_base;
+    cli_context_base::install_userlevel_callback([](const decof::client_context&, decof::userlevel_t userlevel, const std::string& passwd) {
         if (userlevel == decof::Normal || userlevel == decof::Readonly)
             return true;
         else if (userlevel == decof::Maintenance && passwd == "maintenance")

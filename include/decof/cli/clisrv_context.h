@@ -22,7 +22,7 @@
 
 #include <boost/asio.hpp>
 
-#include <decof/client_context/client_context.h>
+#include <decof/cli/cli_context_base.h>
 
 namespace decof
 {
@@ -30,7 +30,7 @@ namespace decof
 namespace cli
 {
 
-class clisrv_context : public client_context
+class clisrv_context : public cli_context_base
 {
 public:
     using userlevel_cb_t = std::function<bool(const clisrv_context&, userlevel_t, const std::string&)>;
@@ -44,14 +44,6 @@ public:
     virtual std::string connection_type() const final;
     virtual std::string remote_endpoint() const final;
     virtual void preload() final;
-
-    /** @brief Call to install a userlevel change callback.
-     *
-     * The given callable is invoked each time the userlevel is changed. You
-     * can deny this operation by returning #false.
-     *
-     * @param userlevel_cb The callable to be invoked on userlevel changes. */
-    static void install_userlevel_callback(const userlevel_cb_t& userlevel_cb);
 
 private:
     /// Callback for boost::asio write operations.
@@ -74,8 +66,6 @@ private:
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
-
-    static userlevel_cb_t userlevel_cb_;
 };
 
 } // namespace cli

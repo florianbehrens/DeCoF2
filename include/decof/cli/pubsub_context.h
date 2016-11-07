@@ -22,17 +22,22 @@
 #include <boost/any.hpp>
 #include <boost/asio.hpp>
 
-#include <decof/client_context/client_context.h>
+#include <decof/userlevel.h>
+
+#include <decof/cli/cli_context_base.h>
 
 #include "update_container.h"
 
 namespace decof
 {
 
+// Forward declaration(s)
+class object_dictionary;
+
 namespace cli
 {
 
-class pubsub_context : public client_context
+class pubsub_context : public cli_context_base
 {
 public:
     /** Constructor.
@@ -65,6 +70,9 @@ private:
 
     /// Closes the socket and delists client context from object dictionary.
     void close();
+
+    /// Processes CLI requests.
+    void process_request(std::string request);
 
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf inbuf_;

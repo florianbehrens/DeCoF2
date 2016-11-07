@@ -16,11 +16,10 @@
 
 #include <decof/cli/pubsub_context.h>
 
+#include <limits>
 #include <string>
-#include <vector>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
@@ -37,7 +36,7 @@ namespace cli
 {
 
 pubsub_context::pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
-    client_context(od, userlevel),
+    cli_context_base(od, userlevel),
     socket_(std::move(socket))
 {
     boost::asio::socket_base::send_buffer_size option;
@@ -66,48 +65,12 @@ void pubsub_context::preload()
 void pubsub_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
-        // Copy received data to std::string
         boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
-        std::string str(
+
+        process_request(std::string(
             boost::asio::buffers_begin(bufs),
-            boost::asio::buffers_begin(bufs) + bytes_transferred);
+            boost::asio::buffers_begin(bufs) + bytes_transferred));
         inbuf_.consume(bytes_transferred);
-
-        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-        boost::algorithm::trim_if(str, boost::is_any_of(" \f\n\r\t\v()"));
-        std::vector<std::string> tokens;
-        boost::algorithm::split(tokens, str, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
-
-        try {
-            if (tokens.size() <= 1)
-                throw parse_error();
-
-            std::string& command = tokens[0];
-            std::string& uri     = tokens[1];
-
-            // Lower-case first substring
-            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-
-            // Remove optional "'" from parameter name
-            if (uri[0] == '\'')
-                uri.erase(0, 1);
-
-            // Prepend root node name if not present (for compatibility reasons to
-            // 'classic' DeCoF)
-            if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
-                uri = object_dictionary_.name() + ":" + uri;
-
-            if (command == "subscribe" || command == "add") {
-                observe(uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
-            } else if (command == "unsubscribe" || command == "remove") {
-                unobserve(uri);
-            } else
-                throw unknown_operation_error();
-        } catch (runtime_error& ex) {
-            std::ostream out(&outbuf_);
-            out << "ERROR " << ex.code() << ": " << ex.what() << std::endl;
-            preload_writing();
-        }
 
         preload();
     } else
@@ -179,6 +142,64 @@ void pubsub_context::close()
     // shared pointer, it gets deleted after leaving function scope.
     auto sptr = shared_from_this();
     object_dictionary_.remove_context(sptr);
+}
+
+void pubsub_context::process_request(std::string request)
+{
+    try {
+        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
+        boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+
+        std::stringstream in(request);
+        std::string command;
+
+        in >> command;
+
+        if (command == "change-ul") {
+            int userlevel = std::numeric_limits<int>::max();
+            std::string password;
+
+            in >> userlevel >> std::ws;
+            std::getline(in, password);
+            boost::algorithm::trim_if(password, boost::is_any_of("\""));
+
+            if (!userlevel_cb_(*this, static_cast<userlevel_t>(userlevel), password))
+                throw access_denied_error();
+
+            client_context::userlevel(static_cast<userlevel_t>(userlevel));
+        } else {
+            std::string uri;
+
+            in >> uri;
+
+            // Lower-case first substring
+            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+            // Remove optional "'" from parameter name
+            if (uri[0] == '\'')
+                uri.erase(0, 1);
+
+            // Prepend root node name if not present (for compatibility reasons to
+            // 'classic' DeCoF)
+            if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
+                uri = object_dictionary_.name() + ":" + uri;
+
+            if (command == "subscribe" || command == "add") {
+                observe(uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+            } else if (command == "unsubscribe" || command == "remove") {
+                unobserve(uri);
+            } else
+                throw unknown_operation_error();
+        }
+    } catch (runtime_error& ex) {
+        std::ostream out(&outbuf_);
+        out << "ERROR " << ex.code() << ": " << ex.what() << "\n";
+        preload_writing();
+    } catch (...) {
+        std::ostream out(&outbuf_);
+        out << "ERROR " << UNKNOWN_ERROR << ": " << "Unknown error\n";
+        preload_writing();
+    }
 }
 
 } // namespace cli

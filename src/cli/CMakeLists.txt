@@ -16,6 +16,7 @@ endif()
 
 set(
     DECOF2_CLI_SRC
+    cli_context_base.cpp
     lex.cpp
     parse.cpp
     parser.h

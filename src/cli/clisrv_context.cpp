@@ -16,6 +16,7 @@
 
 #include <decof/cli/clisrv_context.h>
 
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -47,11 +48,8 @@ namespace decof
 namespace cli
 {
 
-clisrv_context::userlevel_cb_t clisrv_context::userlevel_cb_ =
-    [](const clisrv_context&, userlevel_t, const std::string&) { return false; };
-
 clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
-    client_context(od, userlevel),
+    cli_context_base(od, userlevel),
     socket_(std::move(socket))
 {}
 
@@ -74,11 +72,6 @@ void clisrv_context::preload()
     boost::asio::async_write(socket_, outbuf_,
                              std::bind(&clisrv_context::write_handler, self,
                                        std::placeholders::_1, std::placeholders::_2));
-}
-
-void clisrv_context::install_userlevel_callback(const clisrv_context::userlevel_cb_t &userlevel_cb)
-{
-    userlevel_cb_ = userlevel_cb;
 }
 
 void clisrv_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
@@ -148,7 +141,7 @@ void clisrv_context::process_request(std::string request)
         // Apply special handling for the 'change-ul' command
         // (exec 'change-ul <userlevel> "<passwd>")
         if (op == "exec" && uri == object_dictionary_.name() + ":change-ul") {
-            int userlevel;
+            int userlevel = std::numeric_limits<int>::max();
             std::string password;
 
             ss_in >> userlevel >> std::ws;

@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
     int userlevel = decof::Forbidden;
     managed_readonly_parameter<decof::boolean> dummy("dummy", &od, true);
 
-    cli::clisrv_context::install_userlevel_callback([](const cli::clisrv_context&, userlevel_t, const std::string&) {
+    cli::cli_context_base::install_userlevel_callback([](const decof::client_context&, userlevel_t, const std::string&) {
         return true;
     });
 
