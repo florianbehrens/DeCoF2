@@ -164,7 +164,7 @@ void client_context::browse_object(object *te, object_visitor *visitor)
     // If node browse children
     if (node *n = dynamic_cast<node*>(te)) {
         for (auto &child : *n) {
-            if (effective_userlevel() > child->readlevel())
+            if (effective_userlevel() <= child->readlevel())
                 browse_object(child, visitor);
         }
     }
