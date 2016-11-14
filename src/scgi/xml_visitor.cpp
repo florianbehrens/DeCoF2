@@ -16,20 +16,14 @@
 
 #include "xml_visitor.h"
 
+#include <map>
+
 #include <decof/client_write_interface.h>
 #include <decof/event.h>
 #include <decof/node.h>
 
 namespace
 {
-
-static std::string userlevel_names[] = {
-    "readonly",
-    "normal",
-    "service",
-    "maintenance",
-    "internal"
-};
 
 std::string node_type_str(decof::node *node)
 {
@@ -102,7 +96,7 @@ void xml_visitor::visit(event *ev)
 {
     if (!first_pass_) {
         out_ << indentation() << "<cmd name=\"" << ev->name() << "\""
-            << " execlevel=\"" << userlevel_names[ev->writelevel()] << "\">"
+            << " execlevel=\"" << userlevel_name(ev->writelevel()) << "\">"
             << "<description> </description></cmd>\n";
     }
 }
@@ -195,9 +189,19 @@ void xml_visitor::write_param(const object *obj, const std::string &type_str)
 
 std::string xml_visitor::userlevel_name(userlevel_t ul) const
 {
-    if (ul < sizeof(userlevel_names) / sizeof(std::string))
-        return userlevel_names[ul];
-    return "Invalid";
+    static const std::map<userlevel_t, const char*> userlevel_names = {
+        { Internal,    "internal" },
+        { Service,     "service" },
+        { Maintenance, "maintenance" },
+        { Normal,      "normal" },
+        { Readonly,    "readonly" }
+    };
+
+    try {
+        return userlevel_names.at(ul);
+    } catch (std::out_of_range&) {}
+
+    return "invalid";
 }
 
 } // namespace scgi
