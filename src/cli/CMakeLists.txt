@@ -16,7 +16,11 @@ endif()
 
 set(
     DECOF2_CLI_SRC
+    scanner.flexc++
+    grammar.bisonc++
     cli_context_base.cpp
+    decoder.cpp
+    decoder.h
     lex.cpp
     parse.cpp
     parser.h

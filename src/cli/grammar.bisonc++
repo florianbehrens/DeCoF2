@@ -79,9 +79,10 @@ scalar:
     }
     | STRING
     {
-        // Trim "" from matched string
-        const std::string &str = d_scanner.matched();
-        $$ = static_cast<decof::string>(str.substr(1, str.size() - 2));
+        // Trim "" and unescape matched string
+        decof::string res = d_scanner.matched();
+        res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
+        $$ = res;
     }
     | BINARY
     {

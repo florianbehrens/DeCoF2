@@ -14,34 +14,16 @@
  * limitations under the License.
  */
 
-#include <boost/archive/iterators/base64_from_binary.hpp>
-#include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
-#include <boost/archive/iterators/remove_whitespace.hpp>
+#ifndef DECOF_CLI_PARSER_IH
+#define DECOF_CLI_PARSER_IH
+
+#include <iterator>
 
 #include <decof/exceptions.h>
 
 // $insert class.h
+#include "decoder.h"
 #include "parser.h"
-
-namespace {
-
-// This function is based on code from
-// http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
-inline decof::binary base64decode(std::string base64)
-{
-    using namespace boost::archive::iterators;
-
-    typedef transform_width<binary_from_base64<remove_whitespace<std::string::const_iterator>>, 8, 6> it_binary_t;
-
-    unsigned int paddChars = count(base64.begin(), base64.end(), '=');
-    std::replace(base64.begin(), base64.end(), '=', 'A');
-    decof::binary result(it_binary_t(base64.begin()), it_binary_t(base64.end()));
-    result.erase(result.end() - paddChars, result.end());
-    return result;
-}
-
-}
 
 // $insert namespace-open
 namespace decof
@@ -84,3 +66,5 @@ inline void parser::exceptionHandler__(std::exception const &)
 }
 
 }
+
+#endif // DECOF_CLI_PARSER_IH

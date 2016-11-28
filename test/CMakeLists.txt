@@ -7,6 +7,7 @@ add_executable(
     test_automatic_ptr.cpp
     test_bencode_string_parser.cpp
     test_cli_access.cpp
+    test_cli_codec.cpp
     test_cli_update_container.cpp
     test_object_dictionary.cpp
     test_parameter_access.cpp

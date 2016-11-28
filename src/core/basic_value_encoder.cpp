@@ -54,26 +54,6 @@ namespace decof
 basic_value_encoder::~basic_value_encoder()
 {}
 
-std::string basic_value_encoder::html_string_escape(const std::string &str)
-{
-    return boost::find_format_all_copy(str, boost::token_finder(!boost::is_print() || boost::is_any_of("\"")), string_escaper());
-}
-
-std::string basic_value_encoder::base64_encode(const binary &bin)
-{
-    // The following is based on code from
-    // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
-    using namespace boost::archive::iterators;
-
-    typedef base64_from_binary<transform_width<std::string::const_iterator, 6, 8>> it_base64_t;
-
-    unsigned int writePaddChars = (3 - bin.length() % 3) % 3;
-    std::string base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
-    base64.append(writePaddChars, '=');
-
-    return base64;
-}
-
 void basic_value_encoder::encode_any(std::string &str, const boost::any &any_value)
 {
     std::stringstream out;

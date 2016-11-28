@@ -33,8 +33,9 @@
 // Floating point literal
 -?[0-9]*\.[0-9]*((e|E)-?[0-9]+)? return parser::REAL;
 
-// String literal
-\"[^"]*\"       return parser::STRING;
+// String literal, regex based on the 'ridgerunners' answer:
+// http://stackoverflow.com/questions/5695240/php-regex-to-ignore-escaped-quotes-within-quotes
+\"([^"\\]|(\\.))*\" return parser::STRING;
 
 // Binary literal starting with a '&'
 &[A-Za-z0-9+/=]* return parser::BINARY;

@@ -38,16 +38,6 @@ struct basic_value_encoder
 {
     virtual ~basic_value_encoder();
 
-    /// HTML string escape function.
-    /// Performs HTML string escaping for non-printable characters
-    /// identified by std::isprint() and '"'.
-    /// @param str A const reference to the string to be escaped.
-    /// @returns The escaped string.
-    static std::string html_string_escape(const std::string &str);
-
-    /// Base64 string encoder function.
-    static std::string base64_encode(const decof::binary &bin);
-
     /// Encoding entry function overload.
     /// Calls the type-specific encoding functions.
     void encode_any(std::string &str, const boost::any &any_value);

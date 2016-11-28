@@ -16,11 +16,34 @@
 
 #include "encoder.h"
 
-#include <boost/any.hpp>
+#include <map>
+
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
 
 #include <decof/conversion.h>
 #include <decof/exceptions.h>
 #include <decof/types.h>
+
+namespace {
+
+/// Base64 string encoder function.
+std::string base64_encode(const decof::binary &bin)
+{
+    // The following is based on code from
+    // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
+    using namespace boost::archive::iterators;
+
+    typedef base64_from_binary<transform_width<std::string::const_iterator, 6, 8>> it_base64_t;
+
+    unsigned int writePaddChars = (3 - bin.length() % 3) % 3;
+    std::string base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
+    base64.append(writePaddChars, '=');
+
+    return base64;
+}
+
+} // Anonymous namespace
 
 namespace decof
 {
@@ -38,7 +61,35 @@ void encoder::encode_boolean(std::ostream &out, const boolean &value)
 
 void encoder::encode_string(std::ostream &out, const string &value)
 {
-    out << "\"" << html_string_escape(value) << "\"";
+    static const std::map<char, char> escape_characters = {
+        { '\a', 'a' },
+        { '\b', 'b' },
+        { '\f', 'f' },
+        { '\n', 'n' },
+        { '\r', 'r' },
+        { '\t', 't' },
+        { '\v', 'v' },
+        { '\\', '\\' },
+        { '\'', '\'' },
+        { '\"', '"' },
+        { '\?', '?' }
+    };
+
+    out << "\"";
+
+    for (const auto& ch : value) {
+        auto it = escape_characters.cbegin();
+
+        if (ch >= 0x20 && ch <= 0x7F && ch != '\\' && ch != '\'' && ch != '\"' && ch != '\?') {
+            out << ch;
+        } else if ((it = escape_characters.find(ch)) != escape_characters.cend()) {
+            out << "\\" << it->second;
+        } else {
+            out << "\\x" << std::hex << ch;
+        }
+    }
+
+    out << "\"";
 }
 
 void encoder::encode_binary(std::ostream &out, const binary &value)
