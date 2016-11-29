@@ -17,6 +17,7 @@
 #ifndef DECOF_CLI_DECODER_H
 #define DECOF_CLI_DECODER_H
 
+#include <cctype>
 #include <map>
 #include <sstream>
 #include <string>
