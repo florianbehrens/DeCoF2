@@ -1,3 +1,5 @@
+version: '{build}'
+
 # Build worker image (VM template)
 image: Visual Studio 2015
 
