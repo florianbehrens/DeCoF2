@@ -29,12 +29,14 @@ set(
     parser.ih
     parser_includes.h
     pubsub_context.cpp
+    round_robin.hpp
     scanner.flexc++
     scanner.h
     scanner.ih
     update_container.cpp
     visitor.cpp
     visitor.h
+    yield.hpp
 )
 
 # Standard DeCoF2 CLI library

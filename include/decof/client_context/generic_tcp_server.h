@@ -29,33 +29,39 @@
 namespace decof
 {
 
+template<typename Context>
 class generic_tcp_server
 {
 public:
     /// Note that the callback function takes ownership of the provided socket object.
     generic_tcp_server(object_dictionary& obj_dict,
-                           std::shared_ptr<boost::asio::io_service> io_service,
-                           const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
+                       std::shared_ptr<boost::asio::io_service> io_service,
+                       const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal) :
+        object_dictionary_(obj_dict),
+        acceptor_(*io_service.get(), endpoint),
+        socket_(*io_service.get()),
+        userlevel_(userlevel)
+    {}
 
     /// Returns the listening port.
     /// This is identical to the port given in constructor if non-zero.
-    unsigned short port() const;
+    unsigned short port() const
+    {
+        return acceptor_.local_endpoint().port();
+    }
 
-    template<typename CTX>
     void preload()
     {
         acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-        async_accept<CTX>();
+        async_accept();
     }
 
-    template<typename CTX>
     void async_accept()
     {
-        acceptor_.async_accept(socket_, std::bind(&generic_tcp_server::accept_handler<CTX>, this, std::placeholders::_1));
+        acceptor_.async_accept(socket_, std::bind(&generic_tcp_server::accept_handler, this, std::placeholders::_1));
     }
 
 private:
-    template<typename CTX>
     void accept_handler(boost::system::error_code error)
     {
         // Check whether the server was stopped by a signal before this completion
@@ -65,13 +71,13 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            std::shared_ptr<client_context> cli_ctx(new CTX(std::move(socket_), object_dictionary_, userlevel_));
-            object_dictionary_.add_context(cli_ctx);
-            cli_ctx->preload();
+            auto context = std::make_shared<Context>(std::move(socket_), object_dictionary_, userlevel_);
+            object_dictionary_.add_context(context);
+            context->preload();
         } else
             throw std::runtime_error(std::string(__FUNCTION__) + " received error: " + error.message());
 
-        async_accept<CTX>();
+        async_accept();
     }
 
     object_dictionary& object_dictionary_;

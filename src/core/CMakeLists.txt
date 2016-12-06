@@ -9,7 +9,6 @@ set(
     object.cpp
     object_dictionary.cpp
     object_visitor.cpp
-    generic_tcp_server.cpp
 )
 
 # Standard DeCoF2 core library

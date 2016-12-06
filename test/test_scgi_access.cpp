@@ -48,7 +48,7 @@ struct fixture
         is(&buf)
     {
         // Setup server
-        conn_mgr.preload<scgi::scgi_context>();
+        conn_mgr.preload();
 
         // Connect with server
         client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), conn_mgr.port()));
@@ -64,7 +64,7 @@ struct fixture
     asio::ip::tcp::socket client_sock;
 
     object_dictionary od;
-    generic_tcp_server conn_mgr;
+    generic_tcp_server<scgi::scgi_context> conn_mgr;
 
     asio::streambuf buf;
     std::istream is;
