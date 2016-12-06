@@ -4,5 +4,5 @@ add_custom_target(
         basic_value_encoder.h
         client_context.h
         object_visitor.h
-        tcp_connection_manager.h
+        generic_tcp_server.h
 )

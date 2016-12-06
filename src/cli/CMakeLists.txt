@@ -16,25 +16,27 @@ endif()
 
 set(
     DECOF2_CLI_SRC
-    scanner.flexc++
-    grammar.bisonc++
     cli_context_base.cpp
+    clisrv_context.cpp
     decoder.cpp
     decoder.h
+    encoder.cpp
+    encoder.h
+    grammar.bisonc++
     lex.cpp
     parse.cpp
     parser.h
     parser.ih
     parser_includes.h
-    clisrv_context.cpp
-    encoder.cpp
-    encoder.h
     pubsub_context.cpp
+    round_robin.hpp
+    scanner.flexc++
+    scanner.h
+    scanner.ih
     update_container.cpp
     visitor.cpp
     visitor.h
-    scanner.h
-    scanner.ih
+    yield.hpp
 )
 
 # Standard DeCoF2 CLI library

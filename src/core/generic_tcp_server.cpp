@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#include <client_context/tcp_connection_manager.h>
+#include <client_context/generic_tcp_server.h>
 
 using boost::asio::ip::tcp;
 
 namespace decof
 {
 
-tcp_connection_manager::tcp_connection_manager(object_dictionary& obj_dict, std::shared_ptr<boost::asio::io_service> io_service, const tcp::endpoint& endpoint, userlevel_t userlevel)
+generic_tcp_server::generic_tcp_server(object_dictionary& obj_dict, std::shared_ptr<boost::asio::io_service> io_service, const tcp::endpoint& endpoint, userlevel_t userlevel)
   : object_dictionary_(obj_dict),
     acceptor_(*io_service.get(), endpoint),
     socket_(*io_service.get()),
     userlevel_(userlevel)
 {}
 
-unsigned short tcp_connection_manager::port() const
+unsigned short generic_tcp_server::port() const
 {
     return acceptor_.local_endpoint().port();
 }

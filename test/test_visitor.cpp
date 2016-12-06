@@ -20,7 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <decof/all.h>
-#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/client_context/generic_tcp_server.h>
 
 BOOST_AUTO_TEST_SUITE(visitor_pattern)
 

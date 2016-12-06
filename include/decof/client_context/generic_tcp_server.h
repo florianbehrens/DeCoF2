@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_TCP_CONNECTION_MANAGER_H
-#define DECOF_TCP_CONNECTION_MANAGER_H
+#ifndef DECOF_GENERIC_TCP_SERVER_H
+#define DECOF_GENERIC_TCP_SERVER_H
 
 #include <memory>
 
@@ -29,11 +29,11 @@
 namespace decof
 {
 
-class tcp_connection_manager
+class generic_tcp_server
 {
 public:
     /// Note that the callback function takes ownership of the provided socket object.
-    tcp_connection_manager(object_dictionary& obj_dict,
+    generic_tcp_server(object_dictionary& obj_dict,
                            std::shared_ptr<boost::asio::io_service> io_service,
                            const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal);
 
@@ -51,7 +51,7 @@ public:
     template<typename CTX>
     void async_accept()
     {
-        acceptor_.async_accept(socket_, std::bind(&tcp_connection_manager::accept_handler<CTX>, this, std::placeholders::_1));
+        acceptor_.async_accept(socket_, std::bind(&generic_tcp_server::accept_handler<CTX>, this, std::placeholders::_1));
     }
 
 private:
@@ -82,4 +82,4 @@ private:
 
 } // namespace decof
 
-#endif // DECOF_TCP_CONNECTION_MANAGER_H
+#endif // DECOF_GENERIC_TCP_SERVER_H

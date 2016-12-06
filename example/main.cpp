@@ -12,7 +12,7 @@
 #include <decof/asio_tick/asio_tick.h>
 #include <decof/cli/clisrv_context.h>
 #include <decof/cli/pubsub_context.h>
-#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/client_context/generic_tcp_server.h>
 #include <decof/scgi/scgi_context.h>
 
 #include "composite.h"
@@ -221,17 +221,17 @@ int main()
 
     // Setup request/respone CLI context
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    decof::tcp_connection_manager conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);
+    decof::generic_tcp_server conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);
     conn_mgr_cmd.preload<decof::cli::clisrv_context>();
 
     // Setup publish/subscribe CLI context
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    decof::tcp_connection_manager conn_mgr_mon(obj_dict, io_service, mon_endpoint);
+    decof::generic_tcp_server conn_mgr_mon(obj_dict, io_service, mon_endpoint);
     conn_mgr_mon.preload<decof::cli::pubsub_context>();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
-    decof::tcp_connection_manager scgi_conn_mgr(obj_dict, io_service, scgi_endpoint);
+    decof::generic_tcp_server scgi_conn_mgr(obj_dict, io_service, scgi_endpoint);
     scgi_conn_mgr.preload<decof::scgi::scgi_context>();
 
     // Setup asio_tick context

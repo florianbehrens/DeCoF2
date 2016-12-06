@@ -23,7 +23,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <decof/all.h>
-#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/client_context/generic_tcp_server.h>
 #include <decof/cli/clisrv_context.h>
 
 BOOST_AUTO_TEST_SUITE(cli_access)
@@ -60,7 +60,7 @@ struct fixture
     boost::asio::ip::tcp::socket client_sock;
 
     object_dictionary od;
-    tcp_connection_manager conn_mgr;
+    generic_tcp_server conn_mgr;
 
     asio::streambuf buf;
     std::istream is;

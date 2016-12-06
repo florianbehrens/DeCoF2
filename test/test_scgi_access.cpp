@@ -28,7 +28,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <decof/all.h>
-#include <decof/client_context/tcp_connection_manager.h>
+#include <decof/client_context/generic_tcp_server.h>
 #include <decof/scgi/scgi_context.h>
 
 #include <scgi/bencode_string_parser.h>
@@ -64,7 +64,7 @@ struct fixture
     asio::ip::tcp::socket client_sock;
 
     object_dictionary od;
-    tcp_connection_manager conn_mgr;
+    generic_tcp_server conn_mgr;
 
     asio::streambuf buf;
     std::istream is;
