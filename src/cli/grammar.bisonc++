@@ -33,7 +33,7 @@
 %token                  BOOLEAN INTEGER REAL STRING BINARY
 
 // Set polymorphic rules, i.e. rules return different types
-%polymorphic            ANY: boost::any; SEQ: decof::sequence<boost::any>;
+%polymorphic            ANY: boost::any; SEQ: std::vector<boost::any>;
 
 // Define rule return types
 %type                   <ANY> expression scalar
