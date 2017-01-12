@@ -287,8 +287,11 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readwrite, fixture)
 
 BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
 {
-    managed_readonly_parameter<decof::integer_seq> integer_seq_ro("integer_seq_ro", &od, integer_seq({
-        std::numeric_limits<decof::integer>::min(), std::numeric_limits<decof::integer>::max()
+    using integer_t = int32_t;
+    using sequence_t = std::vector<integer_t>;
+
+    managed_readonly_parameter<sequence_t> integer_seq_ro("integer_seq_ro", &od, sequence_t({
+        std::numeric_limits<integer_t>::min(), std::numeric_limits<integer_t>::max()
     }));
     client_sock.write_some(asio::buffer(std::string("get test:integer_seq_ro\n")));
     io_service->poll();
@@ -300,9 +303,9 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const integer_seq current = integer_seq_ro.value();
-    const integer_seq expected = {
-        std::numeric_limits<decof::integer>::min(), std::numeric_limits<decof::integer>::max()
+    const sequence_t current = integer_seq_ro.value();
+    const sequence_t expected = {
+        std::numeric_limits<integer_t>::min(), std::numeric_limits<integer_t>::max()
     };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
@@ -313,14 +316,17 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
 
 BOOST_FIXTURE_TEST_CASE(integer_seq_readwrite, fixture)
 {
-    managed_readwrite_parameter<decof::integer_seq> integer_seq_rw("integer_seq_rw", &od);
+    using integer_t = int32_t;
+    using sequence_t = std::vector<integer_t>;
+
+    managed_readwrite_parameter<sequence_t> integer_seq_rw("integer_seq_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:integer_seq_rw [-2147483648,2147483647]\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const integer_seq current = integer_seq_rw.value();
-    const integer_seq expected = {
-        std::numeric_limits<decof::integer>::min(), std::numeric_limits<decof::integer>::max()
+    const sequence_t current = integer_seq_rw.value();
+    const sequence_t expected = {
+        std::numeric_limits<integer_t>::min(), std::numeric_limits<integer_t>::max()
     };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),

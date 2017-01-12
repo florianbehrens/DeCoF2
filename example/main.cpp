@@ -1,3 +1,4 @@
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -159,7 +160,7 @@ decof::string_seq sl = { "value1", "value2", "value3" };
 decof::managed_readwrite_parameter<decof::string_seq> leaf2_param("leaf2", &subnode, decof::Normal, decof::Normal, sl);
 ip_address_parameter ipo_address_param("ip-address", &subnode);
 decof::managed_readwrite_parameter<decof::boolean> boolean_param("boolean", &subnode);
-decof::managed_readwrite_parameter<decof::integer> integer_param("integer", &subnode);
+decof::managed_readwrite_parameter<std::uint16_t> integer_param("integer", &subnode);
 decof::managed_readwrite_parameter<decof::real> real_param("real", &subnode);
 decof::managed_readwrite_parameter<decof::string> string_param("string", &subnode);
 decof::managed_readwrite_parameter<decof::binary> binary_param("binary", &subnode);

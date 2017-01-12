@@ -525,10 +525,13 @@ BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_integer_seq, fixture)
 {
-    managed_readonly_parameter<decof::integer_seq> integer_seq_ro("integer_seq_ro", &od, decof::integer_seq{
-        std::numeric_limits<decof::integer>::max(),
+    using integer_t = int32_t;
+    using sequence_t = std::vector<integer_t>;
+
+    managed_readonly_parameter<sequence_t> integer_seq_ro("integer_seq_ro", &od, sequence_t{
+        std::numeric_limits<integer_t>::max(),
         0,
-        std::numeric_limits<decof::integer>::min()
+        std::numeric_limits<integer_t>::min()
     });
 
     ss << scgi_request({
@@ -572,7 +575,7 @@ BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
 {
     managed_readwrite_parameter<decof::integer_seq> integer_seq_rw("integer_seq_rw", &od);
 
-    std::int32_t data[] = {
+    decof::integer data[] = {
         std::numeric_limits<decof::integer>::max(),
         0,
         std::numeric_limits<decof::integer>::min()

@@ -17,15 +17,19 @@
 #ifndef DECOF_TYPES_H
 #define DECOF_TYPES_H
 
+#include <cctype>
 #include <string>
 #include <vector>
+
+#include <boost/any.hpp>
+#include <boost/variant.hpp>
 
 namespace decof
 {
 
 // Scalar parameter types
 typedef bool boolean;
-typedef int32_t integer;
+typedef std::intmax_t integer;
 typedef double real;
 typedef std::string string;
 
@@ -34,25 +38,46 @@ struct binary : public std::string
     using std::string::string;
 };
 
-// Sequence parameter types
-template<typename T>
-struct sequence : public std::vector<T>
-{
-    using std::vector<T>::vector;
-};
 
-typedef sequence<bool> boolean_seq;
-typedef sequence<int> integer_seq;
-typedef sequence<double> real_seq;
-typedef sequence<std::string> string_seq;
-typedef sequence<binary> binary_seq;
+
+
+
+typedef std::vector<boolean> boolean_seq;
+typedef std::vector<integer> integer_seq;
+typedef std::vector<real> real_seq;
+typedef std::vector<string> string_seq;
+typedef std::vector<binary> binary_seq;
+
+typedef boost::any tuple;
+
+/// Variant type capable of holding any DeCoF value type.
+typedef boost::variant<
+    boolean, integer, real, string, binary,                     // scalar types
+    boolean_seq, integer_seq, real_seq, string_seq, binary_seq, // sequence types
+    tuple> value_t;
+
+
+
+
+// Sequence parameter types
+//template<typename T>
+//struct sequence : public std::vector<T>
+//{
+//    using std::vector<T>::vector;
+//};
+
+//typedef sequence<bool> boolean_seq;
+//typedef sequence<std::intmax_t> integer_seq;
+//typedef sequence<double> real_seq;
+//typedef sequence<std::string> string_seq;
+//typedef sequence<binary> binary_seq;
 
 // Tuple parameter type
-template<typename... Args>
-struct tuple : public std::tuple<Args...>
-{
-    using std::tuple<Args...>::tuple;
-};
+//template<typename... Args>
+//struct tuple : public std::tuple<Args...>
+//{
+//    using std::tuple<Args...>::tuple;
+//};
 
 } // namespace decof
 

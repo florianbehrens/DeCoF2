@@ -18,10 +18,12 @@
 #define DECOF_CONVERSION_H
 
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include <boost/any.hpp>
 
+#include "exceptions.h"
 #include "types.h"
 
 namespace decof
@@ -77,24 +79,86 @@ void dynamic_to_tuple(std::tuple<Elems...> &t, const dynamic_tuple &a)
     TupleConversionImpl<std::tuple<Elems...>, sizeof...(Elems)>::dynamic_to_tuple(t, a);
 }
 
-// Generic conversions class for scalar and sequence types.
+/**
+ * @brief Helper class for conversion between generic and native value
+ * representations.
+ *
+ * This class provides the two static methods #to_any and #from_any that
+ * convert value types from their generic representation (@a boost::any) used
+ * by a @a client_context and their native representation used by the parameter
+ * classes.
+ *
+ * @tparam T The native value type to convert to/from.
+ *
+ * @note There is a partial template specialization for tuple types.
+ */
 template<typename T>
 struct Conversion
 {
+    /**
+     * @brief Converts a native parameter value type #T to the generic value
+     * representation (e.g., @c decof::...).
+     *
+     * A #decof::integer type is converted to any integral type (except @c
+     * bool) if the conversion is lossless. Otherwise a
+     * #decof::invalid_value_error is thrown.
+     *
+     * @param any_value The generic type value to be converted.
+     * @return The native type value.
+     *
+     * @throw @c boost::bad_any_cast, #decof::invalid_value_error.
+     */
     inline static boost::any to_any(const T &value) {
-        return boost::any(value);
+        // If T is an integral type but noot bool convert to std::intmax_t
+        return boost::any(
+            static_cast<
+                typename std::conditional<
+                    std::is_integral<T>::value && !std::is_same<T, bool>::value,
+                    std::intmax_t,
+                    T
+                >::type
+            >(value));
     }
 
+    /**
+     * @brief Converts a generic type (@c decof::...) to the native parameter
+     * value type #T.
+     *
+     * A #decof::integer type is converted to any integral type (except @c
+     * bool) if the conversion is lossless. Otherwise a
+     * #decof::invalid_value_error is thrown.
+     *
+     * @param any_value The generic type value to be converted.
+     * @return The native type value.
+     *
+     * @throw @c boost::bad_any_cast, #decof::invalid_value_error.
+     */
     inline static T from_any(const boost::any &any_value) {
-        return boost::any_cast<T>(any_value);
+        auto value = boost::any_cast<
+                typename std::conditional<
+                    std::is_integral<T>::value && !std::is_same<T, bool>::value,
+                    std::intmax_t,
+                    T
+                >::type
+        >(any_value);
+
+        // Take care in case of narrowing conversions:
+        if (std::is_integral<decltype(value)>::value) {
+            if (value > std::numeric_limits<T>::max() ||
+                value < std::numeric_limits<T>::min()) {
+                throw invalid_value_error();
+            }
+        }
+
+        return value;
     }
 };
 
-// Partial template specialization for conversion of tuple types.
+/// Partial template specialization for conversion of tuple types.
 template<typename... Args>
-struct Conversion<decof::tuple<Args...>>
+struct Conversion<std::tuple<Args...>>
 {
-    typedef decof::tuple<Args...> tuple_type;
+    typedef std::tuple<Args...> tuple_type;
 
     inline static boost::any to_any(const tuple_type &value) {
         dynamic_tuple any_value(sizeof...(Args));
