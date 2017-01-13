@@ -32,10 +32,20 @@ template<typename T>
 class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
 {
 public:
-    virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override {
+    /// Override #client_read_interface::observe.
+    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
-        signal(this->value());
+        emit(this->value());
         return retval;
+    }
+
+    /** @brief  Override #client_read_interface::unobserve.
+     *
+     * @note The implementation of this function can check whether there are
+     * still other client contexts connected by calling @code
+     * signal_.num_slots() @endcode.
+     */
+    virtual void unobserve() override {
     }
 
     /// Visitor pattern accept method
@@ -47,12 +57,21 @@ protected:
     // We inherit base class constructors
     using basic_parameter<T>::basic_parameter;
 
-    void signal(const T& value) {
+    /** @brief Emit parameter value observation signal.
+     *
+     * @param value The value to be reported to the connected slot(s).
+     */
+    void emit(const T& value) {
         signal_(this->fq_name(), boost::any(value));
     }
 
+    /// Get readonly access to the parameter value observation signal.
+    const client_read_interface::value_change_signal_t& signal() const {
+        return signal_;
+    }
+
 private:
-    client_read_interface::signal_type signal_;
+    client_read_interface::value_change_signal_t signal_;
 };
 
 } // namespace decof

@@ -30,23 +30,23 @@ int runtime_error::code()
 }
 
 access_denied_error::access_denied_error()
-  : runtime_error(ACCESS_DENIED_ERROR, "Access denied error")
+  : runtime_error(ACCESS_DENIED, "Access denied")
 {}
 
 invalid_parameter_error::invalid_parameter_error()
-  : runtime_error(INVALID_PARAMETER_ERROR, "Invalid parameter error")
+  : runtime_error(INVALID_PARAMETER, "Invalid parameter")
 {}
 
 wrong_type_error::wrong_type_error()
-  : runtime_error(WRONG_TYPE_ERROR, "Wrong type error")
+  : runtime_error(WRONG_TYPE, "Wrong type")
 {}
 
 invalid_value_error::invalid_value_error()
-  : runtime_error(INVALID_VALUE_ERROR, "Invalid value error")
+  : runtime_error(INVALID_VALUE, "Invalid value")
 {}
 
 unknown_operation_error::unknown_operation_error()
-  : runtime_error(UNKNOWN_OPERATION_ERROR, "Unknown operation error")
+  : runtime_error(UNKNOWN_OPERATION, "Unknown operation")
 {}
 
 parse_error::parse_error()
@@ -54,11 +54,15 @@ parse_error::parse_error()
 {}
 
 not_implemented_error::not_implemented_error()
-    : runtime_error(NOT_IMPLEMENTED_ERROR, "Not implemented")
+    : runtime_error(NOT_IMPLEMENTED, "Not implemented")
 {}
 
 invalid_userlevel_error::invalid_userlevel_error()
     : runtime_error(INVALID_USERLEVEL, "Invalid userlevel")
+{}
+
+not_subscribed_error::not_subscribed_error()
+    : runtime_error(NOT_SUBSCRIBED, "Not subscribed")
 {}
 
 } // namespace decof

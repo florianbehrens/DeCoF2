@@ -57,7 +57,7 @@ public:
 private:
     virtual void value(const T &value) override final {
         if (external_value(value) == true)
-            readable_parameter<T>::signal(value);
+            readable_parameter<T>::emit(value);
     }
 
     virtual bool external_value(const T &value) = 0;

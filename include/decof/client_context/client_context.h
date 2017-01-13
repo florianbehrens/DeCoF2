@@ -71,13 +71,20 @@ protected:
     /// @param separator Hierachy level separator charater used in URI.
     void signal_event(const std::string &uri, char separator = ':');
 
-    /// Observe object.
-    /// @param uri The object URI to be observed.
-    /// @param slot The slot to be called on object updates.
-    /// @param separator The separator character.
-    void observe(const std::string& uri, client_read_interface::signal_type::slot_type slot, char separator = ':');
+    /** @brief Observe object.
+     *
+     * @param uri The object URI to be observed.
+     * @param slot The slot to be called on object updates.
+     * @param separator The separator character.
+     */
+    void observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator = ':');
 
-    void unobserve(const std::string& uri);
+    /** @brief Terminate object observation.
+     *
+     * @param uri The object URI to be observed.
+     * @param separator The separator character.
+     */
+    void unobserve(const std::string& uri, char separator = ':');
 
     /** @brief Traverse object tree using visitor pattern.
      * @param visitor Pointer to visitor object.

@@ -68,7 +68,7 @@ public:
     {
         if (value_ != value) {
             value_ = value;
-            readable_parameter<T>::signal(value_);
+            readable_parameter<T>::emit(value_);
         }
     }
 
@@ -79,7 +79,7 @@ public:
     {
         if (value_ != value) {
             value_ = std::move(value);
-            readable_parameter<T>::signal(value_);
+            readable_parameter<T>::emit(value_);
         }
     }
 

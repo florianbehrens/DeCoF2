@@ -80,7 +80,7 @@ private:
 
         verify(value);
         value_ = value;
-        readable_parameter<T>::signal(value);
+        readable_parameter<T>::emit(value);
     }
 
     T value_;

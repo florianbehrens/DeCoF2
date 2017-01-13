@@ -51,7 +51,7 @@ struct fixture
             decof::client_context::signal_event(uri, separator);
         }
 
-        void observe(const std::string& uri, decof::client_read_interface::signal_type::slot_type slot,
+        void observe(const std::string& uri, decof::client_read_interface::value_change_slot_t slot,
                      char separator = ':')
         {
             decof::client_context::observe(uri, slot, separator);

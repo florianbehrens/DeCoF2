@@ -68,7 +68,7 @@ public:
         notify();
     }
 
-    virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override final {
+    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override final {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
@@ -88,7 +88,7 @@ private:
     void notify() {
         T cur_value = value();
         if (!last_value_ || *last_value_ != cur_value) {
-            readable_parameter<T>::signal(cur_value);
+            readable_parameter<T>::emit(cur_value);
             last_value_ = cur_value;
         }
     }
