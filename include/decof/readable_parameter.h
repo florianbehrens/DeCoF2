@@ -32,18 +32,18 @@ template<typename T>
 class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
 {
 public:
-    /// Override #client_read_interface::observe.
+    /// Override client_read_interface::observe.
     virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
         emit(this->value());
         return retval;
     }
 
-    /** @brief  Override #client_read_interface::unobserve.
+    /** @brief  Override client_read_interface::unobserve.
      *
      * @note The implementation of this function can check whether there are
      * still other client contexts connected by calling @code
-     * signal_.num_slots() @endcode.
+     * signal().num_slots() @endcode.
      */
     virtual void unobserve() override {
     }
