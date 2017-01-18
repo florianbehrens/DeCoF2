@@ -70,7 +70,7 @@ protected:
         return signal_;
     }
 
-private:
+protected:
     client_read_interface::value_change_signal_t signal_;
 };
 
