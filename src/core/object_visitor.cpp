@@ -83,11 +83,11 @@ void object_visitor::visit(basic_parameter<binary_seq> *param)
     visit(static_cast<object*>(param));
 }
 
-void object_visitor::write_indentation(std::stringstream& ss, const object *te)
+void object_visitor::write_indentation(std::ostream &out, const object *te)
 {
-    ss << indentation();
+    out << indentation();
     for (object *it = te->parent(); it != nullptr; it = it->parent())
-        ss << "  ";
+        out << "  ";
 }
 
 std::string object_visitor::indentation()

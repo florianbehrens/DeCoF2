@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "visitor.h"
+#include "browse_visitor.h"
 
 #include <decof/node.h>
 
@@ -26,31 +26,31 @@ namespace decof
 namespace cli
 {
 
-visitor::visitor(std::stringstream &ss) :
-    ss_(ss)
+browse_visitor::browse_visitor(std::ostream &out) :
+    out_(out)
 {}
 
-void visitor::visit(decof::node *node)
+void browse_visitor::visit(decof::node *node)
 {
-    write_indentation(ss_, node);
+    write_indentation(out_, node);
     if (node->parent() != nullptr)
-        ss_ << ":";
-    ss_ << node->name() << std::endl;
+        out_ << ":";
+    out_ << node->name() << std::endl;
 }
 
-void visitor::visit(decof::object *obj)
+void browse_visitor::visit(decof::object *obj)
 {
     client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
 
-    write_indentation(ss_, obj);
+    write_indentation(out_, obj);
 
-    ss_ << (obj->parent() != nullptr ? ":" : "" )
+    out_ << (obj->parent() != nullptr ? ":" : "" )
         << obj->name();
     if (read_if != nullptr) {
-        ss_ << " = ";
-        encoder().encode_any(ss_, read_if->any_value());
+        out_ << " = ";
+        encoder().encode_any(out_, read_if->any_value());
     }
-    ss_ << std::endl;
+    out_ << std::endl;
 }
 
 } // namespace cli

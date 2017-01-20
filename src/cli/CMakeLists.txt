@@ -16,6 +16,8 @@ endif()
 
 set(
     DECOF2_CLI_SRC
+    browse_visitor.cpp
+    browse_visitor.h
     cli_context_base.cpp
     clisrv_context.cpp
     decoder.cpp
@@ -32,9 +34,9 @@ set(
     scanner.flexc++
     scanner.h
     scanner.ih
+    tree_visitor.cpp
+    tree_visitor.h
     update_container.cpp
-    visitor.cpp
-    visitor.h
 )
 
 # Standard DeCoF2 CLI library

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLI_VISITOR_H
-#define DECOF_CLI_VISITOR_H
+#ifndef DECOF_CLI_BROWSE_VISITOR_H
+#define DECOF_CLI_BROWSE_VISITOR_H
 
-#include <sstream>
+#include <ostream>
 
 #include <decof/client_context/object_visitor.h>
 
@@ -29,20 +29,20 @@ namespace cli
 
 class object;
 
-class visitor : public decof::object_visitor
+class browse_visitor : public decof::object_visitor
 {
 public:
-    explicit visitor(std::stringstream &ss);
+    explicit browse_visitor(std::ostream &out);
 
     virtual void visit(decof::node *node) override;
     virtual void visit(decof::object *obj) override;
 
 private:
-    std::stringstream &ss_;
+    std::ostream &out_;
 };
 
 } // namespace cli
 
 } // namespace decof
 
-#endif // DECOF_CLI_VISITOR_H
+#endif // DECOF_CLI_BROWSE_VISITOR_H

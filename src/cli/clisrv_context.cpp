@@ -31,9 +31,10 @@
 #include <decof/object.h>
 #include <decof/object_dictionary.h>
 
+#include "browse_visitor.h"
 #include "parser.h"
 #include "encoder.h"
-#include "visitor.h"
+#include "tree_visitor.h"
 
 namespace
 {
@@ -190,8 +191,16 @@ void clisrv_context::process_request(std::string request)
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())
                     root_uri = uri;
-                std::stringstream temp_ss;
-                visitor visitor(temp_ss);
+                std::ostringstream temp_ss;
+                browse_visitor visitor(temp_ss);
+                browse(&visitor, root_uri);
+                out << temp_ss.str();
+            } else if (op == "tree" && any_value.empty()) {
+                std::string root_uri(object_dictionary_.name());
+                if (!uri.empty())
+                    root_uri = uri;
+                std::ostringstream temp_ss;
+                tree_visitor visitor(temp_ss);
                 browse(&visitor, root_uri);
                 out << temp_ss.str();
             } else

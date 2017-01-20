@@ -53,7 +53,7 @@ public:
     virtual void visit(basic_parameter<binary_seq> *param);
 
 protected:
-    void write_indentation(std::stringstream &ss, const object *te);
+    void write_indentation(std::ostream &out, const object *te);
     std::string indentation();
 
     void increment_indentation(size_t levels = 1u);
