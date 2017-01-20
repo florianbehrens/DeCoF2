@@ -61,7 +61,7 @@ struct fixture
         }
 
         size_t num_slots() {
-            return signal().num_slots();
+            return signal_.num_slots();
         }
 
         bool m_value = false;
