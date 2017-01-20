@@ -65,12 +65,6 @@ protected:
         signal_(this->fq_name(), boost::any(value));
     }
 
-    /// Get readonly access to the parameter value observation signal.
-    const client_read_interface::value_change_signal_t& signal() const {
-        return signal_;
-    }
-
-protected:
     client_read_interface::value_change_signal_t signal_;
 };
 
