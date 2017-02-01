@@ -58,19 +58,19 @@ target_link_libraries(
 
 # DeCoF2 CLI library with coverage information
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_library(
-		decof2-cli-gcov
-		EXCLUDE_FROM_ALL
-		${DECOF2_CLI_SRC}
-	)
-	target_include_directories(
-		decof2-cli
-		PUBLIC
-			${Boost_INCLUDE_DIR}
+    add_library(
+        decof2-cli-gcov
+        EXCLUDE_FROM_ALL
+        ${DECOF2_CLI_SRC}
+    )
+    target_include_directories(
+        decof2-cli
+        PUBLIC
+            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
-	)
-	target_link_libraries(
-		decof2-cli-gcov
-		decof2-core-gcov
-	)
+    )
+    target_link_libraries(
+        decof2-cli-gcov
+        decof2-core-gcov
+    )
 endif()
