@@ -42,9 +42,7 @@ boost::any parser::result() const
 }
 
 inline void parser::error(char const *msg)
-{
-    std::cerr << msg << '\n';
-}
+{}
 
 // $insert lex
 inline int parser::lex()

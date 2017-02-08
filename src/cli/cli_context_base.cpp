@@ -25,9 +25,23 @@ namespace cli
 cli_context_base::userlevel_cb_t cli_context_base::userlevel_cb_ =
     [](const client_context&, userlevel_t, const std::string&) { return false; };
 
+cli_context_base::connect_event_cb_t cli_context_base::connect_event_cb_;
+
+cli_context_base::request_cb_t cli_context_base::request_cb_;
+
 void cli_context_base::install_userlevel_callback(const cli_context_base::userlevel_cb_t &userlevel_cb) noexcept
 {
     userlevel_cb_ = userlevel_cb;
+}
+
+void cli_context_base::install_connection_event_callback(const cli_context_base::connect_event_cb_t &connect_event_cb) noexcept
+{
+    connect_event_cb_ = connect_event_cb;
+}
+
+void cli_context_base::install_request_callback(const cli_context_base::request_cb_t &request_cb) noexcept
+{
+    request_cb_ = request_cb;
 }
 
 } // namespace cli

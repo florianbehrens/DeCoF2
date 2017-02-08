@@ -65,6 +65,9 @@ pubsub_context::pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dic
     cli_context_base(od, userlevel),
     socket_(std::move(socket))
 {
+    if (connect_event_cb_)
+        connect_event_cb_(true, true, socket_.remote_endpoint().address().to_string());
+
     boost::asio::socket_base::send_buffer_size option;
     socket_.get_option(option);
     socket_send_buf_size_ = option.value();
@@ -153,6 +156,9 @@ void pubsub_context::preload_writing()
 
 void pubsub_context::close()
 {
+    if (connect_event_cb_)
+        connect_event_cb_(true, false, socket_.remote_endpoint().address().to_string());
+
     if (!socket_.is_open())
         return;
 
@@ -169,10 +175,10 @@ void pubsub_context::process_request(std::string request)
     std::string uri;
 
     try {
-        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-        boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+        // Trim whitespace and parantheses
+        std::string trimmed_request = boost::algorithm::trim_copy_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
-        std::stringstream in(request);
+        std::stringstream in(trimmed_request);
         std::string command;
 
         in >> command;
@@ -207,12 +213,18 @@ void pubsub_context::process_request(std::string request)
                 full_uri = object_dictionary_.name() + ":" + uri;
 
             if (command == "subscribe" || command == "add") {
+                if (request_cb_)
+                    request_cb_(request_t::subscribe, request, socket_.remote_endpoint().address().to_string());
+
                 // Apply special handling for 'ul' parameter
                 if (full_uri == object_dictionary_.name() + ":ul")
                     notify(full_uri, boost::any(static_cast<decof::integer>(userlevel())));
                 else
                     observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {
+                if (request_cb_)
+                    request_cb_(request_t::unsubscribe, request, socket_.remote_endpoint().address().to_string());
+
                 unobserve(full_uri);
             } else
                 throw unknown_operation_error();

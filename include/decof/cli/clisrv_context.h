@@ -33,8 +33,6 @@ namespace cli
 class clisrv_context : public cli_context_base
 {
 public:
-    using userlevel_cb_t = std::function<bool(const clisrv_context&, userlevel_t, const std::string&)>;
-
     /** Constructor.
      * @param socket Rvalue reference socket.
      * @param od Reference to the object dictionary.

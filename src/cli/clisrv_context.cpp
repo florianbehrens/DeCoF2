@@ -52,7 +52,10 @@ namespace cli
 clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
     cli_context_base(od, userlevel),
     socket_(std::move(socket))
-{}
+{
+    if (connect_event_cb_)
+        connect_event_cb_(false, true, socket_.remote_endpoint().address().to_string());
+}
 
 std::string clisrv_context::connection_type() const
 {
@@ -105,6 +108,9 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
 
 void clisrv_context::disconnect()
 {
+    if (connect_event_cb_)
+        connect_event_cb_(false, false, socket_.remote_endpoint().address().to_string());
+
     boost::system::error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
@@ -117,16 +123,16 @@ void clisrv_context::disconnect()
 
 void clisrv_context::process_request(std::string request)
 {
-    // Trim (whitespace as in std::is_space() and parantheses)
-    boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+    // Trim whitespace and parantheses
+    std::string trimmed_request = boost::algorithm::trim_copy_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
     // Ignore empty request
-    if (request.empty())
+    if (trimmed_request.empty())
         return;
 
     // Read and lower-case operation and uri
     std::string op, uri;
-    std::stringstream ss_in(request);
+    std::stringstream ss_in(trimmed_request);
     ss_in >> op >> uri;
     std::transform(op.begin(), op.end(), op.begin(), ::tolower);
     std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
@@ -170,6 +176,8 @@ void clisrv_context::process_request(std::string request)
             }
 
             if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
+                if (request_cb_)
+                    request_cb_(request_t::get, request, socket_.remote_endpoint().address().to_string());
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
@@ -181,27 +189,45 @@ void clisrv_context::process_request(std::string request)
 
                 out << "\n";
             } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
+                if (request_cb_)
+                    request_cb_(request_t::set, request, socket_.remote_endpoint().address().to_string());
+
                 set_parameter(uri, any_value);
+
                 out << "0\n";
             } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
+                if (request_cb_)
+                    request_cb_(request_t::signal, request, socket_.remote_endpoint().address().to_string());
+
                 signal_event(uri);
+
                 out << "()\n";
             } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
+                if (request_cb_)
+                    request_cb_(request_t::browse, request, socket_.remote_endpoint().address().to_string());
+
                 // This command is for compatibility reasons with legacy DeCoF
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())
                     root_uri = uri;
+
                 std::ostringstream temp_ss;
                 browse_visitor visitor(temp_ss);
                 browse(&visitor, root_uri);
+
                 out << temp_ss.str();
             } else if (op == "tree" && any_value.empty()) {
+                if (request_cb_)
+                    request_cb_(request_t::tree, request, socket_.remote_endpoint().address().to_string());
+
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())
                     root_uri = uri;
+
                 std::ostringstream temp_ss;
                 tree_visitor visitor(temp_ss);
                 browse(&visitor, root_uri);
+
                 out << temp_ss.str();
             } else
                 throw parse_error();
