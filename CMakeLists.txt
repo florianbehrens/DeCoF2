@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(decof2)
 
+option(DECOF2_WEBSOCKET "Enable Websocket support" ON)
+
 if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
     find_package(Boost 1.56 REQUIRED COMPONENTS system unit_test_framework)
     link_directories(${Boost_LIBRARY_DIR})

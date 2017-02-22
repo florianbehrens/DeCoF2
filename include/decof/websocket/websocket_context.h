@@ -19,7 +19,11 @@
 
 #include <array>
 #include <string>
+#include <system_error>
 
+#include <beast/core/error.hpp>
+#include <beast/core/streambuf.hpp>
+#include <beast/websocket/stream.hpp>
 #include <boost/asio.hpp>
 
 #include <decof/client_context/client_context.h>
@@ -33,57 +37,36 @@ namespace websocket
 class websocket_context final : public client_context
 {
 public:
+    using socket_type = boost::asio::ip::tcp::socket;
+
     /** Constructor.
+     *
      * @param socket Rvalue reference socket.
      * @param od Reference to the object dictionary.
-     * @param userlevel The contexts default userlevel. */
-    explicit websocket_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
+     * @param userlevel The contexts default userlevel.
+     */
+    explicit websocket_context(socket_type&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
     void preload() final;
 
 private:
-    /** @brief Callback for boost::asio read operations.
+    /// @brief Read Websocket message from stream.
+    void read_message();
+
+    /** @brief Read handler.
      *
-     * Parses and evaluates SCGI requests. */
-    void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
+     * This handler is called whenever a Websocket message was received.
+     *
+     * @param error Error code.
+     */
+    void read_handler(const beast::error_code& error);
 
-    /// Handle HTTP GET request.
-    /// A GET request is used to read readable parameters.
-    void handle_get_request();
+    beast::websocket::stream<socket_type> stream_;
+    beast::streambuf inbuf_;
 
-    /// Handle HTTP PUT request.
-    /// A PUT request is used to modify readwrite parameters. According to the
-    /// HTTP/1.1 specification (RFC2616, clause §9.2.1), PUT requests shall be
-    /// idempotent (i.e., multiple invocations result in the same side effects
-    /// as a single invocation).
-    void handle_put_request();
-
-    /// Handle HTTP POST request.
-    /// POST requests must be used to modify writeonly parameters or to execute
-    /// events.
-    void handle_post_request();
-
-    /// Sends the given reply to the client.
-    void send_response(const response &resp);
-
-    /// Callback for boost::asio write operations.
-    void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
-
-    /// Closes the socket and delists client context from object dictionary.
-    void disconnect();
-
-    boost::asio::ip::tcp::socket socket_;
-
-    static const size_t inbuf_size_ = 1500;
-    std::array<char, inbuf_size_> inbuf_;
-    boost::asio::streambuf outbuf_;
-
-    /// The remote endpoint (HTTP client) as taken from the SCGI request.
     std::string remote_endpoint_;
-
-    request_parser parser_;
 };
 
 } // namespace websocket

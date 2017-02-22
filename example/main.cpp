@@ -14,6 +14,7 @@
 #include <decof/cli/pubsub_context.h>
 #include <decof/client_context/generic_tcp_server.h>
 #include <decof/scgi/scgi_context.h>
+#include <decof/websocket/websocket_context.h>
 
 #include "composite.h"
 
@@ -221,18 +222,23 @@ int main()
 
     // Setup request/respone CLI context
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    decof::generic_tcp_server<decof::cli::clisrv_context> conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);
-    conn_mgr_cmd.preload();
+    decof::generic_tcp_server<decof::cli::clisrv_context> cl_server(obj_dict, io_service, cmd_endpoint);
+    cl_server.preload();
 
     // Setup publish/subscribe CLI context
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    decof::generic_tcp_server<decof::cli::pubsub_context> conn_mgr_mon(obj_dict, io_service, mon_endpoint);
-    conn_mgr_mon.preload();
+    decof::generic_tcp_server<decof::cli::pubsub_context> ml_server(obj_dict, io_service, mon_endpoint);
+    ml_server.preload();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
-    decof::generic_tcp_server<decof::scgi::scgi_context> scgi_conn_mgr(obj_dict, io_service, scgi_endpoint);
-    scgi_conn_mgr.preload();
+    decof::generic_tcp_server<decof::scgi::scgi_context> scgi_server(obj_dict, io_service, scgi_endpoint);
+    scgi_server.preload();
+
+    // Setup Websocket context
+    boost::asio::ip::tcp::endpoint ws_endpoint(boost::asio::ip::tcp::v4(), 8082);
+    decof::generic_tcp_server<decof::websocket::websocket_context> ws_server(obj_dict, io_service, ws_endpoint);
+    ws_server.preload();
 
     // Setup asio_tick context
     decof::asio_tick::asio_tick_context tick_ctx(obj_dict, io_service);

@@ -11,6 +11,7 @@ target_link_libraries(
     decof2-asio-tick
     decof2-cli
     decof2-scgi
+    decof2-websocket
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)

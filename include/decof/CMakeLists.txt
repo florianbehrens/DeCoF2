@@ -33,4 +33,7 @@ add_subdirectory(asio_tick)
 add_subdirectory(cli)
 add_subdirectory(client_context)
 add_subdirectory(scgi)
-add_subdirectory(websocket)
+
+if (DECOF2_WEBSOCKET)
+    add_subdirectory(websocket)
+endif()
