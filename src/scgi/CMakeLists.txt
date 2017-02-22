@@ -30,21 +30,21 @@ target_link_libraries(
     decof2-core
 )
 
-# DeCoF2 SCGI library with covergae information
+# DeCoF2 SCGI library with coverage information
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_library(
-		decof2-scgi-gcov
-		EXCLUDE_FROM_ALL
-		${DECOF2_SCGI_SRC}
-	)
-	target_include_directories(
-		decof2-scgi-gcov
-		PUBLIC
-			${Boost_INCLUDE_DIR}
+    add_library(
+        decof2-scgi-gcov
+        EXCLUDE_FROM_ALL
+        ${DECOF2_SCGI_SRC}
+    )
+    target_include_directories(
+        decof2-scgi-gcov
+        PUBLIC
+            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
-	)
-	target_link_libraries(
-		decof2-scgi-gcov
-		decof2-core-gcov
-	)
+    )
+    target_link_libraries(
+        decof2-scgi-gcov
+        decof2-core-gcov
+    )
 endif()

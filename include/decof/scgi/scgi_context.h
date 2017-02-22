@@ -89,8 +89,8 @@ private:
     request_parser parser_;
 };
 
-} // namespace decof
-
 } // namespace scgi
+
+} // namespace decof
 
 #endif // DECOF_SCGI_CONTEXT_H
