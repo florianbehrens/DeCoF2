@@ -66,7 +66,7 @@ pubsub_context::pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dic
     socket_(std::move(socket))
 {
     if (connect_event_cb_)
-        connect_event_cb_(true, true, socket_.remote_endpoint().address().to_string());
+        connect_event_cb_(true, true, remote_endpoint());
 
     boost::asio::socket_base::send_buffer_size option;
     socket_.get_option(option);
@@ -80,7 +80,8 @@ std::string pubsub_context::connection_type() const
 
 std::string pubsub_context::remote_endpoint() const
 {
-    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
+    boost::system::error_code ec;
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
 void pubsub_context::preload()
@@ -214,7 +215,7 @@ void pubsub_context::process_request(std::string request)
 
             if (command == "subscribe" || command == "add") {
                 if (request_cb_)
-                    request_cb_(request_t::subscribe, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::subscribe, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
                 if (full_uri == object_dictionary_.name() + ":ul")
@@ -223,7 +224,7 @@ void pubsub_context::process_request(std::string request)
                     observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {
                 if (request_cb_)
-                    request_cb_(request_t::unsubscribe, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::unsubscribe, request, remote_endpoint());
 
                 unobserve(full_uri);
             } else

@@ -54,7 +54,7 @@ clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dic
     socket_(std::move(socket))
 {
     if (connect_event_cb_)
-        connect_event_cb_(false, true, socket_.remote_endpoint().address().to_string());
+        connect_event_cb_(false, true, remote_endpoint());
 }
 
 std::string clisrv_context::connection_type() const
@@ -64,7 +64,8 @@ std::string clisrv_context::connection_type() const
 
 std::string clisrv_context::remote_endpoint() const
 {
-    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
+    boost::system::error_code ec;
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
 void clisrv_context::preload()
@@ -109,7 +110,7 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
 void clisrv_context::disconnect()
 {
     if (connect_event_cb_)
-        connect_event_cb_(false, false, socket_.remote_endpoint().address().to_string());
+        connect_event_cb_(false, false, remote_endpoint());
 
     boost::system::error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
@@ -177,7 +178,7 @@ void clisrv_context::process_request(std::string request)
 
             if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
                 if (request_cb_)
-                    request_cb_(request_t::get, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::get, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
@@ -190,21 +191,21 @@ void clisrv_context::process_request(std::string request)
                 out << "\n";
             } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
                 if (request_cb_)
-                    request_cb_(request_t::set, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::set, request, remote_endpoint());
 
                 set_parameter(uri, any_value);
 
                 out << "0\n";
             } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
                 if (request_cb_)
-                    request_cb_(request_t::signal, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::signal, request, remote_endpoint());
 
                 signal_event(uri);
 
                 out << "()\n";
             } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
                 if (request_cb_)
-                    request_cb_(request_t::browse, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::browse, request, remote_endpoint());
 
                 // This command is for compatibility reasons with legacy DeCoF
                 std::string root_uri(object_dictionary_.name());
@@ -218,7 +219,7 @@ void clisrv_context::process_request(std::string request)
                 out << temp_ss.str();
             } else if (op == "tree" && any_value.empty()) {
                 if (request_cb_)
-                    request_cb_(request_t::tree, request, socket_.remote_endpoint().address().to_string());
+                    request_cb_(request_t::tree, request, remote_endpoint());
 
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())

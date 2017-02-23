@@ -56,8 +56,9 @@ public:
     /// Returns the connection type, e.g., "tcp", "serial".
     virtual std::string connection_type() const;
 
-    /// @brief Returns the connections' remote endpoint.
-    /// For a TCP connection this results in a string such as "10.0.0.1:1234".
+    /** @brief Returns the connections' remote endpoint.
+     * @return The remote endpoint as string (such as "10.0.0.1:1234" for a
+     * TCP connection) or an empty string on error. */
     virtual std::string remote_endpoint() const;
 
     virtual void preload();
