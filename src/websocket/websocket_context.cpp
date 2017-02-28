@@ -20,7 +20,12 @@
 #include <beast/core/to_string.hpp>
 #include <beast/websocket/option.hpp>
 
+#include <boost/asio/buffers_iterator.hpp>
+
+#include <decof/exceptions.h>
 #include <decof/websocket/websocket_context.h>
+
+#include "request.h"
 
 namespace decof
 {
@@ -67,23 +72,28 @@ void websocket_context::read_message()
 
 void websocket_context::read_handler(const beast::error_code &error)
 {
+    using boost::asio::buffers_begin;
+    using boost::asio::buffers_end;
+
     if (error)
         // disconnect()?
         return;
 
-    /* Parse a JSON request like the following:
-     * {
-     *     request: "get", // or set, sub[scribe], unsub[scribe]
-     *     path: "laser1:enable",
-     *     value: true  // Only when method == set
-     * }
-     */
+    auto begin = buffers_begin(inbuf_.data());
+    auto end = buffers_end(inbuf_.data());
 
-    /* And send a JSON response like the following:
+    request r;
+    r.parse(begin, end);
+
+    /* And send a JSON-RPC response like the following:
      * {
-     *     response: "",
-     *     uri: "laser1:enable",
-     *     value: true
+     *     result: true,        (value in case of a successful get method)
+     *     result: {},          (empty result on successful request)
+     *     error: {             (only in error case)
+     *         code: -32601,
+     *         message: "Method not found",
+     *     },
+     *     id: 123
      * }
      */
 

@@ -25,7 +25,7 @@ namespace decof
 
 // Scalar parameter types
 typedef bool boolean;
-typedef int32_t integer;
+typedef std::intmax_t integer;
 typedef double real;
 typedef std::string string;
 
@@ -42,7 +42,7 @@ struct sequence : public std::vector<T>
 };
 
 typedef sequence<bool> boolean_seq;
-typedef sequence<int> integer_seq;
+typedef sequence<std::intmax_t> integer_seq;
 typedef sequence<double> real_seq;
 typedef sequence<std::string> string_seq;
 typedef sequence<binary> binary_seq;

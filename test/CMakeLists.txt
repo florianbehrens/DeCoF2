@@ -17,6 +17,7 @@ add_executable(
     test_scgi_parser.cpp
     test_userlevels.cpp
     test_visitor.cpp
+    test_websocket_request.cpp
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -25,6 +26,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         decof2-cli-gcov
         decof2-core-gcov
         decof2-scgi-gcov
+        decof2-websocket-gcov
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
         gcov
@@ -36,6 +38,7 @@ else()
         decof2-cli
         decof2-core
         decof2-scgi
+        decof2-websocket
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
