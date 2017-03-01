@@ -24,21 +24,27 @@ target_link_libraries(
 
 # DeCoF2 ASIO Tick library with coverage information
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_library(
-		decof2-asio-tick-gcov
-		EXCLUDE_FROM_ALL
-		${DECOF2_ASIO_TICK_SRC}
-	)
-	target_include_directories(
-		decof2-asio-tick-gcov
-		PUBLIC
-			${Boost_INCLUDE_DIR}
+    add_library(
+        decof2-asio-tick-gcov
+        EXCLUDE_FROM_ALL
+        ${DECOF2_ASIO_TICK_SRC}
+    )
+    target_include_directories(
+        decof2-asio-tick-gcov
+        PUBLIC
+            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
         PRIVATE
             ${PROJECT_SOURCE_DIR}/include/decof/asio_tick
     )
-	target_link_libraries(
-		decof2-asio-tick-gcov
-		decof2-core-gcov
-	)
+    target_link_libraries(
+        decof2-asio-tick-gcov
+        decof2-core-gcov
+    )
+    target_compile_options(
+        decof2-asio-tick-gcov
+        PUBLIC
+            -fprofile-arcs
+            -ftest-coverage
+    )
 endif()

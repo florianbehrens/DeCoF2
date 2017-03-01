@@ -47,4 +47,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         decof2-scgi-gcov
         decof2-core-gcov
     )
+    target_compile_options(
+        decof2-scgi-gcov
+        PUBLIC
+            -fprofile-arcs
+            -ftest-coverage
+    )
 endif()

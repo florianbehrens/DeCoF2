@@ -82,4 +82,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         decof2-libbeast
         decof2-rapidjson
     )
+    target_compile_options(
+        decof2-websocket-gcov
+        PUBLIC
+            -fprofile-arcs
+            -ftest-coverage
+    )
 endif()
