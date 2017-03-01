@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_min)
     "method": "set",
     "params": [
         "path.to.parameter.object",
-        -9223372036854775808
+        -2147483648
     ],
     "id": 1
 }
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_min)
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
     BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int64_t>::min());
+    BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int32_t>::min());
 }
 
 BOOST_AUTO_TEST_CASE(integer_set_request_max)
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_max)
     "method": "set",
     "params": [
         "path.to.parameter.object",
-        9223372036854775807
+        2147483647
     ],
     "id": 1
 }
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_max)
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
     BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int64_t>::max());
+    BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int32_t>::max());
 }
 
 BOOST_AUTO_TEST_CASE(real_set_request)

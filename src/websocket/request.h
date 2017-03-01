@@ -115,8 +115,8 @@ class request
         case rapidjson::kTrueType:
             return json_value.GetBool();
         case rapidjson::kNumberType:
-            if (json_value.IsInt64()) {
-                return json_value.GetInt64();
+            if (json_value.IsInt()) {
+                return json_value.GetInt();
             } else if (json_value.IsLosslessDouble()) {
                 return json_value.GetDouble();
             }

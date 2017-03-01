@@ -572,7 +572,7 @@ BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
 {
     managed_readwrite_parameter<decof::integer_seq> integer_seq_rw("integer_seq_rw", &od);
 
-    std::intmax_t data[] = {
+    std::int32_t data[] = {
         std::numeric_limits<decof::integer>::max(),
         0,
         std::numeric_limits<decof::integer>::min()
