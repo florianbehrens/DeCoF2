@@ -131,12 +131,11 @@ void clisrv_context::process_request(std::string request)
     if (trimmed_request.empty())
         return;
 
-    // Read and lower-case operation and uri
+    // Read operation and uri
     std::string op, uri;
     std::stringstream ss_in(trimmed_request);
     ss_in >> op >> uri;
     std::transform(op.begin(), op.end(), op.begin(), ::tolower);
-    std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
 
     // Remove optional "'" from parameter name
     if (!uri.empty() && uri[0] == '\'')
