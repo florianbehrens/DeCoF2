@@ -91,7 +91,7 @@ void basic_value_encoder::encode_any(std::ostream &out, const boost::any &any_va
 
 void basic_value_encoder::encode_boolean(std::ostream &out, const boolean &value)
 {
-    out << value;
+    out << std::boolalpha << value;
 }
 
 void basic_value_encoder::encode_integer(std::ostream &out, const integer &value)

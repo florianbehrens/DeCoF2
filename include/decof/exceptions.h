@@ -26,6 +26,7 @@ enum error_codes {
     SUCCESS = 0,
     UNKNOWN_ERROR,
     PARSE_ERROR,
+    BAD_REQUEST,
     ACCESS_DENIED,
     INVALID_PARAMETER,
     WRONG_TYPE,
@@ -49,6 +50,27 @@ private:
     int code_;
 };
 
+/**
+ * @brief Parse error exception.
+ *
+ * A parse error is thrown when the request cannot be parsed at all.
+ */
+struct parse_error : public runtime_error
+{
+    parse_error();
+};
+
+/**
+ * @brief Bad request error exception.
+ *
+ * A bad request error is thrown when the request can be parsed but is not
+ * consistent or errorneous.
+ */
+struct bad_request_error : public runtime_error
+{
+    bad_request_error();
+};
+
 struct access_denied_error : public runtime_error
 {
     access_denied_error();
@@ -69,14 +91,15 @@ struct invalid_value_error : public runtime_error
     invalid_value_error();
 };
 
+/**
+ * @brief Unknown operation error exception.
+ *
+ * A unknown operation error is thrown when a legal request contains an unknown
+ * or undefined operation.
+ */
 struct unknown_operation_error : public runtime_error
 {
     unknown_operation_error();
-};
-
-struct parse_error : public runtime_error
-{
-    parse_error();
 };
 
 struct invalid_userlevel_error : public runtime_error

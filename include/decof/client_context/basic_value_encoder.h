@@ -28,7 +28,8 @@
 namespace decof
 {
 
-/** General-pupose value encoder.
+/**
+ * @brief General-purpose value encoder.
  *
  * This class provides a standard iostreams-based encoding for all types in the
  * DeCoF type system. Client contexts may choose to use the provided encodings

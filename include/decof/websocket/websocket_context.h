@@ -52,10 +52,14 @@ public:
     void preload() final;
 
 private:
-    /// @brief Read Websocket message from stream.
-    void read_message();
+    /// Read Websocket message from stream.
+    void async_read_message();
 
-    /** @brief Read handler.
+    /// Write pending response to stream.
+    void async_write_message();
+
+    /**
+     * @brief Read handler.
      *
      * This handler is called whenever a Websocket message was received.
      *
@@ -63,10 +67,55 @@ private:
      */
     void read_handler(const beast::error_code& error);
 
-    beast::websocket::stream<socket_type> stream_;
-    beast::streambuf inbuf_;
+    /**
+     * @brief Write handler.
+     *
+     * This handler is called whenever a Websocket message was sent.
+     *
+     * @param error Error code.
+     */
+    void write_handler(const beast::error_code& error);
 
-    std::string remote_endpoint_;
+    /// Processes request message in inbuf_.
+    void process_request();
+
+    /**
+     * @brief Slot for parameter change notifications.
+     *
+     * @param uri The fully qualified name of the parameter which value is
+     * updated.
+     * @param any_value The new value wrapped in a @a boost::any type.
+     */
+    void notify(const std::string& uri, const boost::any& any_value);
+
+    /// Shutdown client context.
+    void shutdown();
+
+    beast::websocket::stream<socket_type> stream_;
+    boost::asio::streambuf inbuf_;
+    boost::asio::streambuf outbuf_;
+
+    /**
+     * @brief Indicates a read operation in progress.
+     *
+     * @note Don't read anything from the stream_ if this member is true!
+     */
+    bool reading_active_ = false;
+
+    /**
+     * @brief Indicates a write operation in progress.
+     *
+     * @note Don't write anything on the stream_ if this member is true!
+     */
+    bool writing_active_ = false;
+
+    /**
+     * @brief Indicates a pending response message in outbuf_.
+     *
+     * @note Don't read anything from the stream_ into outbuf_ if this member
+     * is true!
+     */
+    bool response_pending_ = false;
 };
 
 } // namespace websocket

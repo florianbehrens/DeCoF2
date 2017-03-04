@@ -30,7 +30,14 @@ set(RapidJSON_INCLUDE_DIR ${SOURCE_DIR}/include)
 
 set(
     DECOF2_WEBSOCKET_SRC
+    errors.cpp
+    errors.h
+    json_value_encoder.cpp
+    json_value_encoder.h
+    request.cpp
     request.h
+    response.cpp
+    response.h
     websocket_context.cpp
 )
 

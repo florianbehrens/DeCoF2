@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(boolean_set_request)
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(boost::any_cast<decof::boolean>(r.value), true);
 }
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(boolean_sequence_set_request)
     auto actual = boost::any_cast<std::vector<boost::any>>(r.value);
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(actual.size(), nominal.size());
 
     for (size_t i = 0; i < nominal.size(); ++i)
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_min)
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int32_t>::min());
 }
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_max)
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(boost::any_cast<decof::integer>(r.value), std::numeric_limits<int32_t>::max());
 }
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(real_set_request)
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(boost::any_cast<decof::real>(r.value), 123.456);
 }
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(string_set_request)
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
-    BOOST_REQUIRE_EQUAL(r.path, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
     BOOST_REQUIRE_EQUAL(boost::any_cast<decof::string>(r.value), "\"string\" value");
 }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(invalid_jsonrpc_version)
 
     decof::websocket::request r;
 
-    BOOST_REQUIRE_THROW(r.parse(input, input + sizeof(input)), decof::parse_error);
+    BOOST_REQUIRE_THROW(r.parse(input, input + sizeof(input)), decof::bad_request_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

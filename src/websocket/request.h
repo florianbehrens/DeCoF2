@@ -18,22 +18,29 @@
 #define DECOF_WEBSOCKET_REQUEST_H
 
 #include <iostream> // TODO
+#include <ostream>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 #include <boost/any.hpp>
+#include <boost/blank.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h> // TODO
 
 #include <decof/exceptions.h>
 
+#include "errors.h"
+
 namespace decof
 {
 
 namespace websocket
 {
+
+using id_type = boost::variant<boost::blank, bool, uint64_t, double, std::string>;
 
 /**
  * @brief A custom RapidJSON stream for use with a pair of (non-contiguous)
@@ -121,11 +128,11 @@ class request
                 return json_value.GetDouble();
             }
 
-            throw invalid_value_error();
+            throw invalid_params_error();
         case rapidjson::kStringType:
             return std::string(json_value.GetString());
         default:
-            throw invalid_value_error();
+            throw invalid_params_error();
         }
     }
 
@@ -140,15 +147,6 @@ public:
          * - Windows & Linux support
          */
 
-        /* Parse a JSON-RPC request like the following:
-         * {
-         *     jsonrpc: "2.0",                      (optional)
-         *     method: "set",                       (or get, sub[scribe], unsub[scribe]
-         *     params: [ "laser1:enable", true ],   (only when method == set)
-         *     id: 123                              (any datatype possible)
-         * }
-         */
-
         iterator_stream_wrapper<Begin, End> input(begin, end);
 
         rapidjson::Document document;
@@ -157,7 +155,7 @@ public:
             rapidjson::Document::ConstMemberIterator it;
             if ((it = document.FindMember("jsonrpc")) != document.MemberEnd()) {
                 if (it->value != "2.0")
-                    throw parse_error(); // Something like 'bad_request' would fit better
+                    throw bad_request_error();
             }
 
             if ((it = document.FindMember("method")) != document.MemberEnd()) {
@@ -169,13 +167,13 @@ public:
 
                 if (params.IsArray()) {
                     if (params.Size() > 0) {
-                        path = params[0].GetString();
+                        uri = params[0].GetString();
                     } else
-                        throw parse_error(); // Something like 'bad_request' would fit better
+                        throw bad_request_error();
 
                     if (method == "set") {
                         if (params.Size() != 2)
-                            throw parse_error(); // Something like 'bad_request' would fit better
+                            throw invalid_params_error();
 
                         const auto& json_value = params[1];
 
@@ -194,13 +192,13 @@ public:
                 } else if (params.IsObject()) {
                     // TODO
                 } else
-                    throw parse_error();
+                    throw bad_request_error();
             }
 
             if ((it = document.FindMember("id")) != document.MemberEnd() && it->value.IsUint64()) {
                 id = it->value.GetUint64();
             } else
-                throw parse_error();
+                throw bad_request_error();
         } else {
             // TODO
             rapidjson::ParseResult ok = document;
@@ -209,11 +207,30 @@ public:
         }
     }
 
-    uint64_t id;
+    bool has_id() const;
+
     std::string method;
-    std::string path;
+    std::string uri;
     boost::any value;
+    id_type id;
 };
+
+/**
+ * @brief Insertion operator for JSON-RPC request.
+ *
+ * The following is an example of a (pretty printed) serialized JSON request
+ * object:
+ *
+ * @code
+ * {
+ *     jsonrpc: "2.0",                      (optional)
+ *     method: "set",                       (or get, subscribe, unsubscribe, publish)
+ *     params: [ "laser1:enable", true ],   (only when method == set)
+ *     id: 123                              (any datatype possible)
+ * }
+ * @endcode
+ */
+std::ostream& operator<<(std::ostream& out, const request& r);
 
 } // namespace websocket
 

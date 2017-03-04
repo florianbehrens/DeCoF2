@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_SCGI_JS_VALUE_ENCODER_H
-#define DECOF_SCGI_JS_VALUE_ENCODER_H
+#ifndef DECOF_SCGI_TYPED_ARRAY_VALUE_ENCODER_H
+#define DECOF_SCGI_TYPED_ARRAY_VALUE_ENCODER_H
 
 #include <decof/client_context/basic_value_encoder.h>
 
@@ -25,9 +25,15 @@ namespace decof
 namespace scgi
 {
 
-struct js_value_encoder : public decof::basic_value_encoder
+/**
+ * @brief Javascript value encoder with array encoding for use with Javascript
+ * @a Typed Arrays.
+ *
+ * See https://developer.mozilla.org/de/docs/Web/JavaScript/Typed_arrays for
+ * more information on Javascript Typed Arrays.
+ */
+struct typed_array_value_encoder : public decof::basic_value_encoder
 {
-    void encode_boolean(std::ostream &out, const boolean &value) override;
     void encode_boolean_seq(std::ostream &out, const boolean_seq &value) override;
     void encode_integer_seq(std::ostream &out, const integer_seq &value) override;
     void encode_real_seq(std::ostream &out, const real_seq &value) override;
@@ -40,4 +46,4 @@ struct js_value_encoder : public decof::basic_value_encoder
 
 } // namespace decof
 
-#endif // DECOF_SCGI_JS_VALUE_ENCODER_H
+#endif // DECOF_SCGI_TYPED_ARRAY_VALUE_ENCODER_H

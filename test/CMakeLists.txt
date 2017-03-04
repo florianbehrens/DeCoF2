@@ -18,6 +18,7 @@ add_executable(
     test_userlevels.cpp
     test_visitor.cpp
     test_websocket_request.cpp
+    test_websocket_response.cpp
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)

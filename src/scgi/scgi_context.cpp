@@ -28,7 +28,7 @@
 #include "array_view.h"
 #include "bencode_string_parser.h"
 #include "endian.h"
-#include "js_value_encoder.h"
+#include "typed_array_value_encoder.h"
 #include "xml_visitor.h"
 
 namespace decof
@@ -107,7 +107,7 @@ void scgi_context::handle_get_request()
         browse(&visitor);
     } else {
         resp.headers["Content-Type"] = "text/plain";
-        scgi::js_value_encoder().encode_any(body_oss, get_parameter(parser_.uri, '/'));
+        scgi::typed_array_value_encoder().encode_any(body_oss, get_parameter(parser_.uri, '/'));
     }
 
     resp.body = std::move(body_oss.str());

@@ -29,6 +29,10 @@ int runtime_error::code()
     return code_;
 }
 
+bad_request_error::bad_request_error()
+  : runtime_error(ACCESS_DENIED, "Bad request")
+{}
+
 access_denied_error::access_denied_error()
   : runtime_error(ACCESS_DENIED, "Access denied")
 {}

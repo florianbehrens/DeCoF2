@@ -5,8 +5,8 @@ set(
     bencode_string_parser.h
     scgi_context.cpp
     endian.h
-    js_value_encoder.cpp
-    js_value_encoder.h
+    typed_array_value_encoder.cpp
+    typed_array_value_encoder.h
     response.cpp
     request_parser.cpp
     xml_visitor.cpp
