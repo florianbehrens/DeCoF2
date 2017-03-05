@@ -40,7 +40,7 @@ namespace decof
 namespace websocket
 {
 
-using id_type = boost::variant<boost::blank, bool, uint64_t, double, std::string>;
+using id_type = boost::variant<boost::blank, bool, int64_t, double, std::string>;
 
 /**
  * @brief A custom RapidJSON stream for use with a pair of (non-contiguous)
@@ -196,7 +196,7 @@ public:
             }
 
             if ((it = document.FindMember("id")) != document.MemberEnd() && it->value.IsUint64()) {
-                id = it->value.GetUint64();
+                id = int64_t(it->value.GetInt());
             } else
                 throw bad_request_error();
         } else {

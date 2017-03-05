@@ -40,7 +40,7 @@ websocket_context::websocket_context(websocket_context::socket_type&& socket, de
     client_context(od, userlevel),
     stream_(std::move(socket))
 {
-    stream_.set_option(beast::websocket::read_message_max(1e6));
+    stream_.set_option(beast::websocket::read_message_max(1024*1024));
 }
 
 std::string websocket_context::connection_type() const
