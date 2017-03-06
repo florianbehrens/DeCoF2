@@ -3,8 +3,8 @@ include(ExternalProject)
 # Download and install the Beast library
 ExternalProject_Add(
     decof2-libbeast
-    URL "https://github.com/vinniefalco/Beast/archive/9f10b11eff58aeb793b673c8a8cb6e2bee3db621.tar.gz"
-    URL_MD5 "d8ddbf540e60b346eb3a02881ddbf6cb"
+    URL "https://github.com/vinniefalco/Beast/archive/v1.0.0-b30.tar.gz"
+    URL_MD5 "b0d8d38d534490281bc967721d54d8ae"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
