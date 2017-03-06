@@ -18,6 +18,7 @@
 #include <ostream>
 
 #include <beast/core/to_string.hpp>
+#include <beast/websocket/error.hpp>
 #include <beast/websocket/option.hpp>
 
 #include <boost/asio/buffers_iterator.hpp>
@@ -59,7 +60,7 @@ void websocket_context::preload()
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
     stream_.async_accept([self](const beast::error_code& error) {
         if (error) {
-            self->shutdown();
+            self->shutdown(error);
             return;
         }
 
@@ -104,7 +105,7 @@ void websocket_context::read_handler(const beast::error_code& error)
     reading_active_ = false;
 
     if (error) {
-        shutdown();
+        shutdown(error);
         return;
     }
 
@@ -124,7 +125,7 @@ void websocket_context::write_handler(const beast::error_code &error)
     outbuf_.consume(outbuf_.size());
 
     if (error) {
-        shutdown();
+        shutdown(error);
         return;
     }
 
@@ -196,14 +197,10 @@ void websocket_context::notify(const std::string& uri, const boost::any& any_val
     }
 }
 
-void websocket_context::shutdown()
+void websocket_context::shutdown(const beast::error_code& error)
 {
-    // Close underlying socket gracefully (if still open) in order to terminate
-    // pending asynchronous operations.
-//    auto& sock = stream_.next_layer();
-//    boost::system::error_code ec;
-//    sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-//    sock.close(ec);
+    if (error != beast::websocket::error::closed)
+        stream_.async_close(beast::websocket::close_code::none, [](const beast::error_code&) {});
 
     // Remove this client context from object dictionary. Because it is a
     // shared pointer, it gets deleted after leaving function scope.

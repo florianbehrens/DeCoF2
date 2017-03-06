@@ -140,13 +140,6 @@ public:
     template<typename Begin, typename End>
     void parse(const Begin& begin, const End& end)
     {
-        /*
-         * JSON parser requirements:
-         * - Commercial use allowed
-         * - Non-contiguous iterator interface (RapidJSON with custom stream, no insitu parsing)
-         * - Windows & Linux support
-         */
-
         iterator_stream_wrapper<Begin, End> input(begin, end);
 
         rapidjson::Document document;

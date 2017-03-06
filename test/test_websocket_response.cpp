@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_SUITE(websocket_response)
 BOOST_AUTO_TEST_CASE(response_with_value)
 {
     const char nominal[] = "{result:true,id:123}";
-    decof::websocket::response r{ 123, boost::any(true) };
+    decof::websocket::response r{ int64_t(123), boost::any(true) };
 
     std::stringstream out;
     out << r;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(response_with_value)
 BOOST_AUTO_TEST_CASE(response_without_value)
 {
     const char nominal[] = "{result:null,id:123}";
-    decof::websocket::response r{ 123 };
+    decof::websocket::response r{ int64_t(123) };
 
     std::stringstream out;
     out << r;
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(response_without_value)
 BOOST_AUTO_TEST_CASE(errorneous_response)
 {
     const char nominal[] = "{error:{code:-32700,message:\"Parse error\"},id:123}";
-    decof::websocket::response r{ 123, boost::any(), std::error_code(test_error) };
+    decof::websocket::response r{ int64_t(123), boost::any(), std::error_code(test_error) };
 
     std::stringstream out;
     out << r;

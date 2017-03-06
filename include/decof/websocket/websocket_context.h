@@ -88,8 +88,12 @@ private:
      */
     void notify(const std::string& uri, const boost::any& any_value);
 
-    /// Shutdown client context.
-    void shutdown();
+    /**
+     * @brief Shutdown client context.
+     *
+     * @param error The error as reason for the close.
+     */
+    void shutdown(const beast::error_code& error);
 
     beast::websocket::stream<socket_type> stream_;
     boost::asio::streambuf inbuf_;
