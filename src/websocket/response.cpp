@@ -38,10 +38,10 @@ std::ostream& operator<<(std::ostream& out, const response& r)
 {
     json_value_encoder enc;
 
-    out << '{';
+    out << "{\"jsonrpc\":\"2.0\",";
 
     if (! r.error_code) {
-        out << "result:";
+        out << "\"result\":";
 
         if (! r.result.empty())
             enc.encode_any(out, r.result);
@@ -50,21 +50,27 @@ std::ostream& operator<<(std::ostream& out, const response& r)
 
         out  << ',';
     } else {
-        out << "error:{"
-            << "code:";
+        out << "\"error\":{"
+            << "\"code\":";
 
         enc.encode_integer(out, r.error_code.value());
 
         out << ","
-            << "message:";
+            << "\"message\":";
 
         enc.encode_string(out, r.error_code.message());
 
         out << "},";
     }
 
-    out << "id:" << r.id
-        << "}";
+    out << "\"id\":";
+
+    if (r.has_id())
+        out << r.id;
+    else
+        out << "null";
+
+    out << "}";
 
     return out;
 }

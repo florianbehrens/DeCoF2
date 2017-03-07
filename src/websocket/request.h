@@ -17,7 +17,6 @@
 #ifndef DECOF_WEBSOCKET_REQUEST_H
 #define DECOF_WEBSOCKET_REQUEST_H
 
-#include <iostream> // TODO
 #include <ostream>
 #include <string>
 #include <type_traits>
@@ -192,12 +191,8 @@ public:
                 id = int64_t(it->value.GetInt());
             } else
                 throw bad_request_error();
-        } else {
-            // TODO
-            rapidjson::ParseResult ok = document;
-            std::cerr << rapidjson::GetParseError_En(ok.Code()) << "(" << ok.Offset() << ")" << std::endl;
+        } else
             throw parse_error();
-        }
     }
 
     bool has_id() const;
