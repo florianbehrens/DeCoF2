@@ -201,6 +201,7 @@ void websocket_context::preload_writing()
 
         std::tie(uri, any_value, time) = pending_updates_.pop_front();
 
+        std::replace(uri.begin(), uri.end(), ':', '.');
         request req{ "publish", uri, any_value };
         std::ostream(&outbuf_) << req;
 
