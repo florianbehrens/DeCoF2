@@ -113,6 +113,7 @@ private:
     void shutdown(const beast::error_code& error);
 
     beast::websocket::stream<socket_type> stream_;
+    beast::websocket::opcode opcode_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
     update_container pending_updates_;

@@ -73,13 +73,10 @@ void websocket_context::async_read_message()
     assert(reading_active_ == false);
     assert(response_pending_ == false);
 
-    // TODO
-    beast::websocket::opcode opcode;
-    auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
-
     reading_active_ = true;
 
-    stream_.async_read(opcode, inbuf_, [self](const beast::error_code& error) {
+    auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
+    stream_.async_read(opcode_, inbuf_, [self](const beast::error_code& error) {
         self->read_handler(error);
     });
 }
@@ -146,6 +143,9 @@ void websocket_context::process_request()
         using std::placeholders::_2;
         using boost::asio::buffers_begin;
         using boost::asio::buffers_end;
+
+        if (opcode_ == beast::websocket::opcode::binary)
+            throw bad_request_error();
 
         req.parse(buffers_begin(inbuf_.data()), buffers_end(inbuf_.data()));
 
