@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-#include <decof/cli/update_container.h>
+#include <decof/client_context/update_container.h>
 
 #include <cassert>
 
 namespace decof
-{
-
-namespace cli
 {
 
 update_container::update_container() :
@@ -83,7 +80,5 @@ bool update_container::empty() const noexcept
 {
     return updates_.empty();
 }
-
-} // namespace cli
 
 } // namespace decof

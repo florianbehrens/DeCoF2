@@ -5,4 +5,5 @@ add_custom_target(
         client_context.h
         object_visitor.h
         generic_tcp_server.h
+        update_container.h
 )

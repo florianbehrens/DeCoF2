@@ -27,6 +27,7 @@
 #include <boost/asio.hpp>
 
 #include <decof/client_context/client_context.h>
+#include <decof/client_context/update_container.h>
 
 namespace decof
 {
@@ -52,10 +53,19 @@ public:
     void preload() final;
 
 private:
-    /// Read Websocket message from stream.
+    /**
+     * @brief Read a Websocket message from the stream in the input buffer.
+     *
+     * Does nothing if a read operation is already in progress or an incoming
+     * request is pending in the input buffer.
+     */
     void async_read_message();
 
-    /// Write pending response to stream.
+    /**
+     * @brief Write a Websocket message from the output buffer to the stream.
+     *
+     * Does nothing if a write operation is already in progress.
+     */
     void async_write_message();
 
     /**
@@ -76,8 +86,15 @@ private:
      */
     void write_handler(const beast::error_code& error);
 
-    /// Processes request message in inbuf_.
+    /**
+     * @brief Processes request message in inbuf_.
+     */
     void process_request();
+
+    /**
+     * @brief Writes a response/indication for sending in the output buffer.
+     */
+    void preload_writing();
 
     /**
      * @brief Slot for parameter change notifications.
@@ -98,6 +115,7 @@ private:
     beast::websocket::stream<socket_type> stream_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
+    update_container pending_updates_;
 
     /**
      * @brief Indicates a read operation in progress.
@@ -114,9 +132,9 @@ private:
     bool writing_active_ = false;
 
     /**
-     * @brief Indicates a pending response message in outbuf_.
+     * @brief Indicates a pending response message in inbuf_.
      *
-     * @note Don't read anything from the stream_ into outbuf_ if this member
+     * @note Don't read anything from the stream_ into inbuf_ if this member
      * is true!
      */
     bool response_pending_ = false;

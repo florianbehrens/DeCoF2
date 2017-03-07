@@ -9,6 +9,7 @@ set(
     object.cpp
     object_dictionary.cpp
     object_visitor.cpp
+    update_container.cpp
 )
 
 # Standard DeCoF2 core library

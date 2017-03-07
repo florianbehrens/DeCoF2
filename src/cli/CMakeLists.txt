@@ -36,7 +36,6 @@ set(
     scanner.ih
     tree_visitor.cpp
     tree_visitor.h
-    update_container.cpp
 )
 
 # Standard DeCoF2 CLI library

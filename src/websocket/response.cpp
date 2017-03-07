@@ -63,10 +63,8 @@ std::ostream& operator<<(std::ostream& out, const response& r)
         out << "},";
     }
 
-    if (r.has_id())
-        out << "id:" << r.id;
-
-    out << "}";
+    out << "id:" << r.id
+        << "}";
 
     return out;
 }

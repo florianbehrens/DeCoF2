@@ -4,5 +4,4 @@ add_custom_target(
         cli_context_base.h
         clisrv_context.h
         pubsub_context.h
-        update_container.h
 )

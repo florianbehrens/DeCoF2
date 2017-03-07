@@ -42,10 +42,10 @@ std::ostream& operator<<(std::ostream& out, const request& r)
 
     enc.encode_any(out, r.value);
 
-    out << "],";
+    out << "]";
 
     if (r.has_id())
-        out << "id:" << r.id;
+        out << ",id:" << r.id;
 
     out << "}";
 

@@ -22,11 +22,9 @@
 #include <boost/any.hpp>
 #include <boost/asio.hpp>
 
-#include <decof/userlevel.h>
-
 #include <decof/cli/cli_context_base.h>
-
-#include "update_container.h"
+#include <decof/client_context/update_container.h>
+#include <decof/userlevel.h>
 
 namespace decof
 {

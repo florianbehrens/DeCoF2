@@ -70,8 +70,8 @@ void websocket_context::preload()
 
 void websocket_context::async_read_message()
 {
-    if (reading_active_ || response_pending_)
-        return;
+    assert(reading_active_ == false);
+    assert(response_pending_ == false);
 
     // TODO
     beast::websocket::opcode opcode;
@@ -86,8 +86,7 @@ void websocket_context::async_read_message()
 
 void websocket_context::async_write_message()
 {
-    if (writing_active_)
-        return;
+    assert(writing_active_ == false);
 
     writing_active_ = true;
 
@@ -129,12 +128,10 @@ void websocket_context::write_handler(const beast::error_code &error)
         return;
     }
 
-    if (response_pending_) {
-        process_request();
-        return;
-    }
+    preload_writing();
 
-    async_read_message();
+    if (! reading_active_)
+        async_read_message();
 }
 
 void websocket_context::process_request()
@@ -184,17 +181,39 @@ void websocket_context::process_request()
 
     std::ostream(&outbuf_) << resp;
 
-    async_write_message();
+    if (! writing_active_)
+        async_write_message();
+}
+
+void websocket_context::preload_writing()
+{
+    assert(writing_active_ == false);
+
+    if (response_pending_) {
+        process_request();
+        return;
+    }
+
+    if (! pending_updates_.empty()) {
+        update_container::key_type uri;
+        update_container::time_point time;
+        boost::any any_value;
+
+        std::tie(uri, any_value, time) = pending_updates_.pop_front();
+
+        request req{ "publish", uri, any_value };
+        std::ostream(&outbuf_) << req;
+
+        async_write_message();
+    }
 }
 
 void websocket_context::notify(const std::string& uri, const boost::any& any_value)
 {
-    // TODO: Update container
-    if (! writing_active_) {
-        request req{ "publish", uri, any_value };
-        std::ostream(&outbuf_) << req;
-        async_write_message();
-    }
+    pending_updates_.push(uri, any_value);
+
+    if (! writing_active_)
+        preload_writing();
 }
 
 void websocket_context::shutdown(const beast::error_code& error)

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLI_UPDATE_CONTAINER_H
-#define DECOF_CLI_UPDATE_CONTAINER_H
+#ifndef DECOF_UPDATE_CONTAINER_H
+#define DECOF_UPDATE_CONTAINER_H
 
 #include <chrono>
 #include <string>
@@ -25,9 +25,6 @@
 #include <boost/any.hpp>
 
 namespace decof
-{
-
-namespace cli
 {
 
 /** Container for ordered storage of publish updates of pubsub pattern.
@@ -88,8 +85,6 @@ private:
     container_type::iterator back_;
 };
 
-} // namespace cli
-
 } // namespace decof
 
-#endif // DECOF_CLI_UPDATE_CONTAINER_H
+#endif // DECOF_UPDATE_CONTAINER_H
