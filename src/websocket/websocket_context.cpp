@@ -83,8 +83,6 @@ void websocket_context::async_read_message()
 
 void websocket_context::async_write_message()
 {
-    assert(writing_active_ == false);
-
     writing_active_ = true;
 
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
@@ -133,9 +131,12 @@ void websocket_context::write_handler(const beast::error_code &error)
 
 void websocket_context::process_request()
 {
+    assert(writing_active_ == false);
+
     request req;
     response resp;
 
+    writing_active_ = true;
     response_pending_ = false;
 
     try {
@@ -181,8 +182,7 @@ void websocket_context::process_request()
 
     std::ostream(&outbuf_) << resp;
 
-    if (! writing_active_)
-        async_write_message();
+    async_write_message();
 }
 
 void websocket_context::preload_writing()
