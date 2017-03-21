@@ -158,7 +158,7 @@ void pubsub_context::preload_writing()
 void pubsub_context::close()
 {
     if (connect_event_cb_)
-        connect_event_cb_(true, false, socket_.remote_endpoint().address().to_string());
+        connect_event_cb_(true, false, remote_endpoint());
 
     if (!socket_.is_open())
         return;
