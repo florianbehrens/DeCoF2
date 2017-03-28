@@ -197,7 +197,7 @@ The following table lists the value access functions by parameter type.
 
 Parameter    | Readonly                                 | Readwrite       | Writeonly
 -------------|------------------------------------------|-----------------|----------
-**Managed**  | ```T value()```<br>```value(T)```        | ```T value()``` | None
+**Managed**  | ```T value()```<br>```const T& value_ref()```<br>```value(T)``` | ```T value()```<br>```const T& value_ref()``` | None
 **External** | ```T value()```<br>```value_changed()``` | ```T value()``` | None
 
 ### Protocols
