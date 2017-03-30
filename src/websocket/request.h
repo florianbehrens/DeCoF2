@@ -182,7 +182,34 @@ public:
                         }
                     }
                 } else if (params.IsObject()) {
-                    // TODO
+                    if (params.HasMember("uri")) {
+                        const auto& json_value = params["uri"];
+                        if (json_value.GetType() == rapidjson::kStringType)
+                            uri = json_value.GetString();
+                        else
+                            throw bad_request_error();
+                    } else
+                        throw bad_request_error();
+
+                    if (method == "set") {
+                        if (params.HasMember("value")) {
+                            const auto& json_value = params["value"];
+
+                            if (json_value.GetType() == rapidjson::kArrayType) {
+                                std::vector<boost::any> tmp_value;
+                                tmp_value.reserve(json_value.Size());
+
+                                for (const auto& elem : json_value.GetArray())
+                                    tmp_value.emplace_back(extract_scalar(elem));
+
+                                value = std::move(tmp_value);
+                            } else if (json_value.GetType() == rapidjson::kObjectType) {
+                                // TODO: tuples
+                                throw not_implemented_error();
+                            } else
+                                value = extract_scalar(json_value);
+                        }
+                    }
                 } else
                     throw bad_request_error();
             }
