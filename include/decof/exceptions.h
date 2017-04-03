@@ -22,32 +22,17 @@
 namespace decof
 {
 
-enum error_codes {
-    SUCCESS = 0,
-    UNKNOWN_ERROR,
-    PARSE_ERROR,
-    BAD_REQUEST,
-    ACCESS_DENIED,
-    INVALID_PARAMETER,
-    WRONG_TYPE,
-    INVALID_VALUE,
-    UNKNOWN_OPERATION,
-    INVALID_USERLEVEL,
-    NOT_SUBSCRIBED,
-    NOT_IMPLEMENTED,
-    PROTOCOL_SPECIFIC_ERRORS
-};
-
-class runtime_error : public std::runtime_error
+/**
+ * @brief The base class for all DeCoF specific errors.
+ *
+ * This class is designed to be used as base class for all DeCoF specific
+ * exception classes. It cannot be instantiated as its constructor is
+ * protected.
+ */
+class decof_error : public std::runtime_error
 {
 protected:
-    explicit runtime_error(int code, const std::string& what);
-
-public:
-    int code();
-
-private:
-    int code_;
+    using std::runtime_error::runtime_error;
 };
 
 /**
@@ -55,7 +40,7 @@ private:
  *
  * A parse error is thrown when the request cannot be parsed at all.
  */
-struct parse_error : public runtime_error
+struct parse_error : public decof_error
 {
     parse_error();
 };
@@ -66,27 +51,53 @@ struct parse_error : public runtime_error
  * A bad request error is thrown when the request can be parsed but is not
  * consistent or errorneous.
  */
-struct bad_request_error : public runtime_error
+struct bad_request_error : public decof_error
 {
     bad_request_error();
 };
 
-struct access_denied_error : public runtime_error
+/**
+ * @brief Access denied error exception.
+ *
+ * An access denied error is thrown when a client tries to modify a readonly
+ * parameter or to read a writeonly parameter. Additionally, this error occurs
+ * when the client's userlevel is not sufficient for the desired operation.
+ */
+struct access_denied_error : public decof_error
 {
     access_denied_error();
 };
 
-struct invalid_parameter_error : public runtime_error
+/**
+ * @brief Invalid parameter path error exception.
+ *
+ * This exception is thrown in case of an invalid/not available parameter path
+ * given.
+ */
+struct invalid_parameter_error : public decof_error
 {
     invalid_parameter_error();
 };
 
-struct wrong_type_error : public runtime_error
+/**
+ * @brief Wrong parameter value type error exception.
+ *
+ * This exception is thrown in case the given parameter value type does not
+ * match.
+ */
+struct wrong_type_error : public decof_error
 {
     wrong_type_error();
 };
 
-struct invalid_value_error : public runtime_error
+/**
+ * @brief Invalid parameter value error exception.
+ *
+ * An invalid value error is thrown when a parameter value has a matching type
+ * but its value is illegal, i.e., it exceeds any bounds or is not accepted
+ * otherwise.
+ */
+struct invalid_value_error : public decof_error
 {
     invalid_value_error();
 };
@@ -97,22 +108,40 @@ struct invalid_value_error : public runtime_error
  * A unknown operation error is thrown when a legal request contains an unknown
  * or undefined operation.
  */
-struct unknown_operation_error : public runtime_error
+struct unknown_operation_error : public decof_error
 {
     unknown_operation_error();
 };
 
-struct invalid_userlevel_error : public runtime_error
+/**
+ * @brief Invalid userlevel error exception.
+ *
+ * This exception is thrown on attempts to change the userlevel if the desired
+ * userlevel is invalid.
+ */
+struct invalid_userlevel_error : public decof_error
 {
     invalid_userlevel_error();
 };
 
-struct not_subscribed_error : public runtime_error
+/**
+ * @brief Not subscribed error exception.
+ *
+ * This exception is thrown on unsubscribe operations on parameters that have
+ * not been subscribed before.
+ */
+struct not_subscribed_error : public decof_error
 {
     not_subscribed_error();
 };
 
-struct not_implemented_error : public runtime_error
+/**
+ * @brief Not implemented error exception.
+ *
+ * The not implemented error exception is thrown for yet not implemented
+ * features.
+ */
+struct not_implemented_error : public decof_error
 {
     not_implemented_error();
 };

@@ -24,6 +24,8 @@ set(
     decoder.h
     encoder.cpp
     encoder.h
+    error.cpp
+    error.h
     grammar.bisonc++
     lex.cpp
     parse.cpp

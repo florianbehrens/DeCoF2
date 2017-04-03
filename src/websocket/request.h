@@ -31,7 +31,7 @@
 
 #include <decof/exceptions.h>
 
-#include "errors.h"
+#include "error.h"
 
 namespace decof
 {

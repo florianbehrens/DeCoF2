@@ -188,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE(read_writeonly_parameter, fixture)
 
     try {
         my_context->get_parameter("root:writeonly_parameter");
-    } catch (decof::invalid_parameter_error &) {
+    } catch (decof::access_denied_error &) {
         read_failed = true;
     }
 

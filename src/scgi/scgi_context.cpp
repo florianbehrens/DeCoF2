@@ -85,7 +85,7 @@ void scgi_context::read_handler(const boost::system::error_code& error, std::siz
             send_response(response::stock_response(response::status_code::unauthorized));
         } catch (invalid_parameter_error&) {
             send_response(response::stock_response(response::status_code::not_found));
-        } catch (runtime_error&) {
+        } catch (decof_error&) {
             send_response(response::stock_response(response::status_code::bad_request));
         } catch (std::out_of_range&) {
             send_response(response::stock_response(response::status_code::bad_request));

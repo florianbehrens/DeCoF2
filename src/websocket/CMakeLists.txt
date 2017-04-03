@@ -3,8 +3,8 @@ include(ExternalProject)
 # Download and install the Beast library
 ExternalProject_Add(
     decof2-libbeast
-    URL "https://github.com/vinniefalco/Beast/archive/v1.0.0-b30.tar.gz"
-    URL_MD5 "b0d8d38d534490281bc967721d54d8ae"
+    URL "https://github.com/vinniefalco/Beast/archive/eba05a76e76fa75572806f7f76e1ea7de70cb514.tar.gz"
+    URL_MD5 "2752ade80a76ea94f50087b18fafffd5"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
@@ -30,8 +30,8 @@ set(RapidJSON_INCLUDE_DIR ${SOURCE_DIR}/include)
 
 set(
     DECOF2_WEBSOCKET_SRC
-    errors.cpp
-    errors.h
+    error.cpp
+    error.h
     json_value_encoder.cpp
     json_value_encoder.h
     request.cpp

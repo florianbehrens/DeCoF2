@@ -19,54 +19,44 @@
 namespace decof
 {
 
-runtime_error::runtime_error(int code, const std::string& what)
-  : std::runtime_error(what),
-    code_(code)
+parse_error::parse_error()
+  : decof_error("Parse error")
 {}
 
-int runtime_error::code()
-{
-    return code_;
-}
-
 bad_request_error::bad_request_error()
-  : runtime_error(ACCESS_DENIED, "Bad request")
+  : decof_error("Bad request")
 {}
 
 access_denied_error::access_denied_error()
-  : runtime_error(ACCESS_DENIED, "Access denied")
+  : decof_error("Access denied")
 {}
 
 invalid_parameter_error::invalid_parameter_error()
-  : runtime_error(INVALID_PARAMETER, "Invalid parameter")
+  : decof_error("Invalid parameter")
 {}
 
 wrong_type_error::wrong_type_error()
-  : runtime_error(WRONG_TYPE, "Wrong type")
+  : decof_error("Wrong type")
 {}
 
 invalid_value_error::invalid_value_error()
-  : runtime_error(INVALID_VALUE, "Invalid value")
+  : decof_error("Invalid value")
 {}
 
 unknown_operation_error::unknown_operation_error()
-  : runtime_error(UNKNOWN_OPERATION, "Unknown operation")
-{}
-
-parse_error::parse_error()
-  : runtime_error(PARSE_ERROR, "Parse error")
-{}
-
-not_implemented_error::not_implemented_error()
-    : runtime_error(NOT_IMPLEMENTED, "Not implemented")
+  : decof_error("Unknown operation")
 {}
 
 invalid_userlevel_error::invalid_userlevel_error()
-    : runtime_error(INVALID_USERLEVEL, "Invalid userlevel")
+    : decof_error("Invalid userlevel")
 {}
 
 not_subscribed_error::not_subscribed_error()
-    : runtime_error(NOT_SUBSCRIBED, "Not subscribed")
+    : decof_error("Not subscribed")
+{}
+
+not_implemented_error::not_implemented_error()
+    : decof_error("Not implemented")
 {}
 
 } // namespace decof

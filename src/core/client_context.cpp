@@ -87,12 +87,13 @@ boost::any client_context::get_parameter(const std::string &uri, char separator)
     boost::any retval;
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object *obj = object_dictionary_.find_object(uri, separator);
-    client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
-
-    if (param == nullptr)
+    object *obj;
+    if ((obj = object_dictionary_.find_object(uri, separator)) == nullptr)
         throw invalid_parameter_error();
-    if (effective_userlevel() > obj->readlevel())
+
+    client_read_interface* param;
+    if ((param = dynamic_cast<client_read_interface*>(obj)) == nullptr ||
+        effective_userlevel() > obj->readlevel())
         throw access_denied_error();
 
     return param->any_value();

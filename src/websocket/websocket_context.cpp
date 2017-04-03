@@ -27,7 +27,7 @@
 #include <decof/object_dictionary.h>
 #include <decof/websocket/websocket_context.h>
 
-#include "errors.h"
+#include "error.h"
 #include "request.h"
 #include "response.h"
 
@@ -162,20 +162,10 @@ void websocket_context::process_request()
             resp.result = get_parameter(req.uri, '.');
         } else
             throw unknown_operation_error();
-
-    } catch (parse_error&) {
-        resp.error_code = make_error_code(error_codes::parse_error);
-    } catch (bad_request_error&) {
-        resp.error_code = make_error_code(error_codes::invalid_request);
-    } catch (unknown_operation_error&) {
-        resp.error_code = make_error_code(error_codes::method_not_found);
-    } catch (invalid_params_error&) {
-        resp.error_code = make_error_code(error_codes::invalid_params);
-    } catch (access_denied_error&) {
-        resp.error_code = make_error_code(error_codes::access_denied_error);
+    } catch (decof_error& ex) {
+        resp.error_code = make_error_code(error_code_from_exception(ex));
     } catch (...) {
-        // TODO: Rework exception design.
-        resp.error_code = make_error_code(error_codes::internal_error);
+        resp.error_code = make_error_code(error::internal_error);
     }
 
     inbuf_.consume(inbuf_.size());

@@ -32,6 +32,7 @@
 #include <decof/object_dictionary.h>
 
 #include "browse_visitor.h"
+#include "error.h"
 #include "parser.h"
 #include "encoder.h"
 #include "tree_visitor.h"
@@ -230,10 +231,10 @@ void clisrv_context::process_request(std::string request)
 
                 out << temp_ss.str();
             } else
-                throw parse_error();
+                throw unknown_operation_error();
         }
-    } catch (runtime_error& ex) {
-        out << "ERROR " << ex.code() << ": " << ex.what() << "\n";
+    } catch (decof_error& ex) {
+        out << "ERROR " << error_code_from_exception(ex) << ": " << ex.what() << "\n";
     } catch (...) {
         out << "ERROR " << UNKNOWN_ERROR << ": " << "Unknown error\n";
     }

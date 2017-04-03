@@ -31,6 +31,7 @@
 #include <decof/object_dictionary.h>
 
 #include "encoder.h"
+#include "error.h"
 
 namespace {
 
@@ -231,12 +232,12 @@ void pubsub_context::process_request(std::string request)
         }
     } catch (invalid_parameter_error& ex) {
         std::ostream out(&outbuf_);
-        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
+        out << "(Error: " << error_code_from_exception(ex) << " (" << iso8601_time{ std::chrono::system_clock::now() }
             << " 'COMMAND_ERROR) Parameter '" << uri << " not found)\n";
         preload_writing();
-    } catch (runtime_error& ex) {
+    } catch (decof_error& ex) {
         std::ostream out(&outbuf_);
-        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
+        out << "(Error: " << error_code_from_exception(ex) << " (" << iso8601_time{ std::chrono::system_clock::now() }
             << " 'COMMAND_ERROR) " << ex.what() << "\n";
         preload_writing();
     } catch (...) {
