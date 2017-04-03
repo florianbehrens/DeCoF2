@@ -21,9 +21,12 @@
 
 #include <decof/types.h>
 
+#include <websocket/error.h>
 #include <websocket/request.h>
 
 BOOST_AUTO_TEST_SUITE(websocket_request)
+
+using decof::websocket::request;
 
 BOOST_AUTO_TEST_CASE(boolean_set_request)
 {
@@ -37,7 +40,7 @@ BOOST_AUTO_TEST_CASE(boolean_set_request)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
@@ -57,7 +60,7 @@ BOOST_AUTO_TEST_CASE(boolean_sequence_set_request)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     std::vector<boost::any> nominal{ boost::any(true), boost::any(false), boost::any(true), boost::any(false) };
@@ -83,7 +86,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_min)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
@@ -103,7 +106,7 @@ BOOST_AUTO_TEST_CASE(integer_set_request_max)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
@@ -123,7 +126,7 @@ BOOST_AUTO_TEST_CASE(real_set_request)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
@@ -143,7 +146,7 @@ BOOST_AUTO_TEST_CASE(string_set_request)
 }
 )lit";
 
-    decof::websocket::request r;
+    request r;
     r.parse(input, input + sizeof(input));
 
     BOOST_REQUIRE_EQUAL(r.method, "set");
@@ -161,9 +164,87 @@ BOOST_AUTO_TEST_CASE(invalid_jsonrpc_version)
 }
 )lit";
 
-    decof::websocket::request r;
+    BOOST_REQUIRE_THROW(request().parse(input, input + sizeof(input)), decof::bad_request_error);
+}
 
-    BOOST_REQUIRE_THROW(r.parse(input, input + sizeof(input)), decof::bad_request_error);
+BOOST_AUTO_TEST_CASE(null_value_type)
+{
+    const char input[] = R"lit({
+    "method": "set",
+    "params": [ "path.to.parameter.object", null ],
+    "id": 1
+}
+)lit";
+
+    BOOST_REQUIRE_THROW(request().parse(input, input + sizeof(input)), decof::websocket::invalid_params_error);
+}
+
+BOOST_AUTO_TEST_CASE(empty_params_array)
+{
+    const char input[] = R"lit({
+    "method": "set",
+    "params": [],
+    "id": 1
+}
+)lit";
+
+    BOOST_REQUIRE_THROW(request().parse(input, input + sizeof(input)), decof::bad_request_error);
+}
+
+BOOST_AUTO_TEST_CASE(params_array_too_long)
+{
+    const char input[] = R"lit({
+    "method": "set",
+    "params": [ "path.to.parameter.object", 0, 1 ],
+    "id": 1
+}
+)lit";
+
+    BOOST_REQUIRE_THROW(request().parse(input, input + sizeof(input)), decof::websocket::invalid_params_error);
+}
+
+BOOST_AUTO_TEST_CASE(params_object)
+{
+    const char input[] = R"lit({
+    "method": "set",
+    "params": {
+        "uri": "path.to.parameter.object",
+        "value": true
+    },
+    "id": 1
+}
+)lit";
+
+    request r;
+    r.parse(input, input + sizeof(input));
+
+    BOOST_REQUIRE_EQUAL(r.method, "set");
+    BOOST_REQUIRE_EQUAL(r.uri, "path.to.parameter.object");
+    BOOST_REQUIRE_EQUAL(boost::any_cast<decof::boolean>(r.value), true);
+}
+
+BOOST_AUTO_TEST_CASE(params_object_array)
+{
+    const char input[] = R"lit({
+    "method": "set",
+    "params": {
+        "uri": "path.to.parameter.object",
+        "value": [ true, false ]
+    },
+    "id": 1
+}
+)lit";
+
+    request r;
+    r.parse(input, input + sizeof(input));
+
+    std::vector<boost::any> nominal{ boost::any(true), boost::any(false) };
+    auto actual = boost::any_cast<std::vector<boost::any>>(r.value);
+
+    BOOST_REQUIRE_EQUAL(actual.size(), nominal.size());
+
+    for (auto i = 0; i < nominal.size(); ++i)
+        BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(nominal[i]), boost::any_cast<bool>(actual[i]));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
