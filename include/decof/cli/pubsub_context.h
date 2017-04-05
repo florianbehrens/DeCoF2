@@ -20,7 +20,9 @@
 #include <string>
 
 #include <boost/any.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/strand.hpp>
+#include <boost/asio/streambuf.hpp>
 
 #include <decof/userlevel.h>
 
@@ -40,11 +42,18 @@ namespace cli
 class pubsub_context : public cli_context_base
 {
 public:
-    /** Constructor.
+    using strand_t = boost::asio::io_service::strand;
+    using socket_t = boost::asio::ip::tcp::socket;
+
+    /** @brief Constructor.
+     *
+     * @param strand Reference to a Boost.Asio strand object used to dispatch
+     * the handlers.
      * @param socket Rvalue reference socket.
      * @param od Reference to the object dictionary.
-     * @param userlevel The contexts default userlevel. */
-    explicit pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
+     * @param userlevel The contexts default userlevel.
+     */
+    explicit pubsub_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
@@ -74,7 +83,8 @@ private:
     /// Processes CLI requests.
     void process_request(std::string request);
 
-    boost::asio::ip::tcp::socket socket_;
+    strand_t& strand_;
+    socket_t socket_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
 

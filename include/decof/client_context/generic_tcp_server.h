@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 #include <decof/object_dictionary.h>
@@ -35,12 +35,13 @@ class generic_tcp_server
 public:
     /// Note that the callback function takes ownership of the provided socket object.
     generic_tcp_server(object_dictionary& obj_dict,
-                       std::shared_ptr<boost::asio::io_service> io_service,
+                       boost::asio::io_service::strand& strand,
                        const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal) :
         object_dictionary_(obj_dict),
-        acceptor_(*io_service.get(), endpoint),
-        socket_(*io_service.get()),
-        userlevel_(userlevel)
+        userlevel_(userlevel),
+        strand_(strand),
+        acceptor_(strand.get_io_service(), endpoint),
+        socket_(strand.get_io_service())
     {}
 
     /// Returns the listening port.
@@ -58,7 +59,9 @@ public:
 
     void async_accept()
     {
-        acceptor_.async_accept(socket_, std::bind(&generic_tcp_server::accept_handler, this, std::placeholders::_1));
+        acceptor_.async_accept(
+            socket_,
+            strand_.wrap(std::bind(&generic_tcp_server::accept_handler, this, std::placeholders::_1)));
     }
 
 private:
@@ -71,7 +74,7 @@ private:
 
         if (!error) {
             // Create and preload new client context
-            auto context = std::make_shared<Context>(std::move(socket_), object_dictionary_, userlevel_);
+            auto context = std::make_shared<Context>(strand_, std::move(socket_), object_dictionary_, userlevel_);
             object_dictionary_.add_context(context);
             context->preload();
         } else
@@ -81,9 +84,11 @@ private:
     }
 
     object_dictionary& object_dictionary_;
+    userlevel_t userlevel_;
+
+    boost::asio::strand& strand_;
     boost::asio::ip::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::socket socket_;
-    userlevel_t userlevel_;
 };
 
 } // namespace decof

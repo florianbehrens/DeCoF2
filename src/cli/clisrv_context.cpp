@@ -24,7 +24,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <decof/exceptions.h>
@@ -35,6 +37,8 @@
 #include "parser.h"
 #include "encoder.h"
 #include "tree_visitor.h"
+
+using boost::system::error_code;
 
 namespace
 {
@@ -49,8 +53,9 @@ namespace decof
 namespace cli
 {
 
-clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+clisrv_context::clisrv_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
     cli_context_base(od, userlevel),
+    strand_(strand),
     socket_(std::move(socket))
 {
     if (connect_event_cb_)
@@ -64,7 +69,7 @@ std::string clisrv_context::connection_type() const
 
 std::string clisrv_context::remote_endpoint() const
 {
-    boost::system::error_code ec;
+    error_code ec;
     return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
@@ -74,23 +79,28 @@ void clisrv_context::preload()
     out << "DeCoF command line\n" << prompt;
 
     auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-    boost::asio::async_write(socket_, outbuf_,
-                             std::bind(&clisrv_context::write_handler, self,
-                                       std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_write(
+        socket_,
+        outbuf_,
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
 }
 
-void clisrv_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void clisrv_context::write_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-        boost::asio::async_read_until(socket_, inbuf_, '\n',
-                                      std::bind(&clisrv_context::read_handler, self,
-                                                std::placeholders::_1, std::placeholders::_2));
+
+        boost::asio::async_read_until(
+            socket_,
+            inbuf_,
+            '\n',
+            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
     } else
         disconnect();
 }
 
-void clisrv_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void clisrv_context::read_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto bufs = inbuf_.data();
@@ -99,9 +109,11 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
         inbuf_.consume(bytes_transferred);
 
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-        boost::asio::async_write(socket_, outbuf_,
-                                 std::bind(&clisrv_context::write_handler, self,
-                                           std::placeholders::_1, std::placeholders::_2));
+
+        boost::asio::async_write(
+            socket_,
+            outbuf_,
+            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
     }
     else
         disconnect();
@@ -112,7 +124,7 @@ void clisrv_context::disconnect()
     if (connect_event_cb_)
         connect_event_cb_(false, false, remote_endpoint());
 
-    boost::system::error_code ec;
+    error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
 

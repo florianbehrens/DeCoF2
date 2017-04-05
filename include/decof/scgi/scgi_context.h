@@ -20,7 +20,9 @@
 #include <array>
 #include <string>
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/strand.hpp>
+#include <boost/asio/streambuf.hpp>
 
 #include <decof/client_context/client_context.h>
 
@@ -36,11 +38,18 @@ namespace scgi
 class scgi_context final : public client_context
 {
 public:
-    /** Constructor.
+    using strand_t = boost::asio::io_service::strand;
+    using socket_t = boost::asio::ip::tcp::socket;
+
+    /** @brief Constructor.
+     *
+     * @param strand Reference to a Boost.Asio strand object used to dispatch
+     * the handlers.
      * @param socket Rvalue reference socket.
      * @param od Reference to the object dictionary.
-     * @param userlevel The contexts default userlevel. */
-    explicit scgi_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
+     * @param userlevel The contexts default userlevel.
+     */
+    explicit scgi_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
@@ -77,7 +86,8 @@ private:
     /// Closes the socket and delists client context from object dictionary.
     void disconnect();
 
-    boost::asio::ip::tcp::socket socket_;
+    strand_t& strand_;
+    socket_t socket_;
 
     static const size_t inbuf_size_ = 1500;
     std::array<char, inbuf_size_> inbuf_;

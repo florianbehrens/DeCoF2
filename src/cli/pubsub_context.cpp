@@ -32,6 +32,8 @@
 
 #include "encoder.h"
 
+using boost::system::error_code;
+
 namespace {
 
 struct iso8601_time
@@ -61,8 +63,9 @@ namespace decof
 namespace cli
 {
 
-pubsub_context::pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+pubsub_context::pubsub_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
     cli_context_base(od, userlevel),
+    strand_(strand),
     socket_(std::move(socket))
 {
     if (connect_event_cb_)
@@ -80,19 +83,22 @@ std::string pubsub_context::connection_type() const
 
 std::string pubsub_context::remote_endpoint() const
 {
-    boost::system::error_code ec;
+    error_code ec;
     return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
 void pubsub_context::preload()
 {
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-    boost::asio::async_read_until(socket_, inbuf_, '\n',
-                                  std::bind(&pubsub_context::read_handler, self,
-                                            std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_read_until(
+        socket_,
+        inbuf_,
+        '\n',
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
 }
 
-void pubsub_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void pubsub_context::read_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
@@ -107,7 +113,7 @@ void pubsub_context::read_handler(const boost::system::error_code &error, std::s
         close();
 }
 
-void pubsub_context::write_handler(const boost::system::error_code& error, std::size_t bytes_transferred)
+void pubsub_context::write_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         writing_active_ = false;
@@ -149,9 +155,12 @@ void pubsub_context::preload_writing()
         return;
 
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-    boost::asio::async_write(socket_, outbuf_,
-                             std::bind(&pubsub_context::write_handler, self,
-                                       std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_write(
+        socket_,
+        outbuf_,
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
+
     writing_active_ = true;
 }
 

@@ -3,9 +3,10 @@
 #include <iomanip>
 #include <memory>
 #include <string>
+#include <thread>
 
-#include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/bind.hpp>
 
 #include <decof/all.h>
@@ -20,7 +21,8 @@
 namespace
 {
 
-std::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service());
+boost::asio::io_service io_service;
+boost::asio::io_service::strand strand(io_service);
 
 DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(my_managed_readwrite_parameter, decof::string);
 DECOF_DECLARE_MANAGED_READONLY_PARAMETER(my_managed_readonly_parameter, decof::string);
@@ -36,12 +38,12 @@ struct spin_count_parameter : public decof::managed_readonly_parameter<decof::in
     spin_count_parameter(decof::node *parent) :
         decof::managed_readonly_parameter<decof::integer>("spin-count", parent, 0)
     {
-        io_service->post(std::bind(&spin_count_parameter::increment, this));
+        strand.post(std::bind(&spin_count_parameter::increment, this));
     }
 
     void increment() {
         value(value() + 1);
-        io_service->post(std::bind(&spin_count_parameter::increment, this));
+        strand.post(std::bind(&spin_count_parameter::increment, this));
     }
 };
 
@@ -73,7 +75,7 @@ decof::string time_parameter::external_value() const
 
 void exit_event::signal()
 {
-    io_service->stop();
+    strand.get_io_service().stop();
 }
 
 void cout_parameter::value(const decof::string &value)
@@ -221,25 +223,28 @@ int main()
 
     // Setup request/respone CLI context
     boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
-    decof::generic_tcp_server<decof::cli::clisrv_context> conn_mgr_cmd(obj_dict, io_service, cmd_endpoint);
+    decof::generic_tcp_server<decof::cli::clisrv_context> conn_mgr_cmd(obj_dict, strand, cmd_endpoint);
     conn_mgr_cmd.preload();
 
     // Setup publish/subscribe CLI context
     boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
-    decof::generic_tcp_server<decof::cli::pubsub_context> conn_mgr_mon(obj_dict, io_service, mon_endpoint);
+    decof::generic_tcp_server<decof::cli::pubsub_context> conn_mgr_mon(obj_dict, strand, mon_endpoint);
     conn_mgr_mon.preload();
 
     // Setup SCGI context
     boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
-    decof::generic_tcp_server<decof::scgi::scgi_context> scgi_conn_mgr(obj_dict, io_service, scgi_endpoint);
+    decof::generic_tcp_server<decof::scgi::scgi_context> scgi_conn_mgr(obj_dict, strand, scgi_endpoint);
     scgi_conn_mgr.preload();
 
     // Setup asio_tick context
-    decof::asio_tick::asio_tick_context tick_ctx(obj_dict, io_service);
+    decof::asio_tick::asio_tick_context tick_ctx(obj_dict, strand);
     tick_ctx.preload();
 
-    // Start blocking main loop
-    io_service->run();
+    // Start two threads to show that handlers are serialized by strands
+    std::thread t([]() { strand.get_io_service().run(); });
+    strand.get_io_service().run();
+
+    t.join();
 
     return 0;
 }
