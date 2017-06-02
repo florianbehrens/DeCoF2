@@ -29,6 +29,7 @@ add_custom_target(
         writeonly_parameter.h
 )
 
+add_subdirectory(asio_executor)
 add_subdirectory(asio_tick)
 add_subdirectory(cli)
 add_subdirectory(client_context)
