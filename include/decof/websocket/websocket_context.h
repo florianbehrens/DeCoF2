@@ -21,10 +21,11 @@
 #include <string>
 #include <system_error>
 
-#include <beast/core/error.hpp>
-#include <beast/core/streambuf.hpp>
-#include <beast/websocket/stream.hpp>
 #include <boost/asio.hpp>
+
+#include <beast/core/error.hpp>
+#include <beast/core/multi_buffer.hpp>
+#include <beast/websocket/stream.hpp>
 
 #include <decof/client_context/client_context.h>
 #include <decof/client_context/update_container.h>
@@ -35,6 +36,9 @@ namespace decof
 namespace websocket
 {
 
+/**
+ * @brief WebSocket client context.
+ */
 class websocket_context final : public client_context
 {
 public:
@@ -42,15 +46,33 @@ public:
 
     /** Constructor.
      *
+     * @tparam MAX_MSG_SIZE The permitted maximum size of a WebSocket message.
+     *
      * @param socket Rvalue reference socket.
      * @param od Reference to the object dictionary.
      * @param userlevel The contexts default userlevel.
      */
-    explicit websocket_context(socket_type&& socket, object_dictionary& od, userlevel_t userlevel = Normal);
+    template<size_t MAX_MSG_SIZE = 1048576>
+    explicit websocket_context(socket_type&& socket, object_dictionary& od, userlevel_t userlevel = Normal) :
+        client_context(od, userlevel),
+        stream_(std::move(socket)),
+        inbuf_(MAX_MSG_SIZE),
+        outbuf_(MAX_MSG_SIZE)
+    {
+        stream_.read_message_max(MAX_MSG_SIZE);
+    }
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
     void preload() final;
+
+    /**
+     * @brief Overload that preloads an already upgraded stream.
+     *
+     * @note Calling this function on a not yet upgraded connection results in
+     * undefined behavior!
+     */
+    void preload_upgraded();
 
 private:
     /**
@@ -113,9 +135,8 @@ private:
     void shutdown(const beast::error_code& error);
 
     beast::websocket::stream<socket_type> stream_;
-    beast::websocket::opcode opcode_;
-    boost::asio::streambuf inbuf_;
-    boost::asio::streambuf outbuf_;
+    beast::multi_buffer inbuf_;
+    beast::multi_buffer outbuf_;
     update_container pending_updates_;
 
     /**

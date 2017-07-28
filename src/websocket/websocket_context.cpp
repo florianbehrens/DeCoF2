@@ -17,11 +17,11 @@
 #include <cassert>
 #include <ostream>
 
-#include <beast/core/to_string.hpp>
+#include <boost/asio/buffers_iterator.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <beast/websocket/error.hpp>
 #include <beast/websocket/option.hpp>
-
-#include <boost/asio/buffers_iterator.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
@@ -37,27 +37,22 @@ namespace decof
 namespace websocket
 {
 
-websocket_context::websocket_context(websocket_context::socket_type&& socket, decof::object_dictionary& od, decof::userlevel_t userlevel) :
-    client_context(od, userlevel),
-    stream_(std::move(socket))
-{
-    stream_.set_option(beast::websocket::read_message_max(1024*1024));
-}
-
 std::string websocket_context::connection_type() const
 {
-    return "websocket";
+    return "ws";
 }
 
 std::string websocket_context::remote_endpoint() const
 {
-    // TODO: Needs a fix in Beast (PR#277).
-    return "";
+    boost::system::error_code ec;
+    return boost::lexical_cast<std::string>(stream_.next_layer().remote_endpoint(ec));
 }
 
 void websocket_context::preload()
 {
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
+
+    // Receive and perform WebSocket Upgrade request
     stream_.async_accept([self](const beast::error_code& error) {
         if (error) {
             self->shutdown(error);
@@ -68,6 +63,11 @@ void websocket_context::preload()
     });
 }
 
+void websocket_context::preload_upgraded()
+{
+    async_read_message();
+}
+
 void websocket_context::async_read_message()
 {
     assert(reading_active_ == false);
@@ -76,7 +76,7 @@ void websocket_context::async_read_message()
     reading_active_ = true;
 
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
-    stream_.async_read(opcode_, inbuf_, [self](const beast::error_code& error) {
+    stream_.async_read(inbuf_, [self](const beast::error_code& error) {
         self->read_handler(error);
     });
 }
@@ -145,7 +145,7 @@ void websocket_context::process_request()
         using boost::asio::buffers_begin;
         using boost::asio::buffers_end;
 
-        if (opcode_ == beast::websocket::opcode::binary)
+        if (stream_.got_binary())
             throw bad_request_error();
 
         req.parse(buffers_begin(inbuf_.data()), buffers_end(inbuf_.data()));
@@ -170,7 +170,7 @@ void websocket_context::process_request()
 
     inbuf_.consume(inbuf_.size());
 
-    std::ostream(&outbuf_) << resp;
+    beast::ostream(outbuf_) << resp;
 
     async_write_message();
 }
@@ -193,7 +193,7 @@ void websocket_context::preload_writing()
 
         std::replace(uri.begin(), uri.end(), ':', '.');
         request req{ "publish", uri, any_value };
-        std::ostream(&outbuf_) << req;
+        beast::ostream(outbuf_) << req;
 
         async_write_message();
     }
