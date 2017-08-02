@@ -341,4 +341,4 @@ and separated by CR+LF.
 ### Dependencies
 
 DeCoF2 has the following link-time dependencies:
-* Boost 1.54 (system unit_test_framework)
+* Boost 1.56 (required: system, optional: thread, unit_test_framework)
