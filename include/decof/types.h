@@ -29,7 +29,7 @@ namespace decof
 
 // Scalar parameter types
 typedef bool boolean;
-typedef std::intmax_t integer;
+typedef long long integer;
 typedef double real;
 typedef std::string string;
 
@@ -38,46 +38,21 @@ struct binary : public std::string
     using std::string::string;
 };
 
+template<typename T>
+using sequence = std::vector<T>;
 
-
-
-
-typedef std::vector<boolean> boolean_seq;
-typedef std::vector<integer> integer_seq;
-typedef std::vector<real> real_seq;
-typedef std::vector<string> string_seq;
-typedef std::vector<binary> binary_seq;
-
-typedef boost::any tuple;
-
-/// Variant type capable of holding any DeCoF value type.
-typedef boost::variant<
-    boolean, integer, real, string, binary,                     // scalar types
-    boolean_seq, integer_seq, real_seq, string_seq, binary_seq, // sequence types
-    tuple> value_t;
-
-
-
-
-// Sequence parameter types
-//template<typename T>
-//struct sequence : public std::vector<T>
-//{
-//    using std::vector<T>::vector;
-//};
-
-//typedef sequence<bool> boolean_seq;
-//typedef sequence<std::intmax_t> integer_seq;
-//typedef sequence<double> real_seq;
-//typedef sequence<std::string> string_seq;
-//typedef sequence<binary> binary_seq;
+typedef sequence<bool> boolean_seq;
+typedef sequence<std::intmax_t> integer_seq;
+typedef sequence<double> real_seq;
+typedef sequence<std::string> string_seq;
+typedef sequence<binary> binary_seq;
 
 // Tuple parameter type
-//template<typename... Args>
-//struct tuple : public std::tuple<Args...>
-//{
-//    using std::tuple<Args...>::tuple;
-//};
+template<typename... Args>
+struct tuple : public std::tuple<Args...>
+{
+    using std::tuple<Args...>::tuple;
+};
 
 } // namespace decof
 
