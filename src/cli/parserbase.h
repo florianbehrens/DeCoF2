@@ -26,8 +26,9 @@ namespace cli
 // $insert polymorphic
 enum class Tag__
 {
+    SCL,
     SEQ,
-    ANY,
+    GEN,
 };
 
 namespace Meta__
@@ -40,27 +41,39 @@ namespace Meta__
 
 // $insert polymorphicSpecializations
     template <>
-    struct TagOf<std::vector<boost::any>>
+    struct TagOf<generic_scalar>
+    {
+        static Tag__ const tag = Tag__::SCL;
+    };
+
+    template <>
+    struct TagOf<sequence<generic_scalar>>
     {
         static Tag__ const tag = Tag__::SEQ;
     };
 
     template <>
-    struct TagOf<boost::any>
+    struct TagOf<generic_value>
     {
-        static Tag__ const tag = Tag__::ANY;
+        static Tag__ const tag = Tag__::GEN;
+    };
+
+    template <>
+    struct TypeOf<Tag__::SCL>
+    {
+        typedef generic_scalar type;
     };
 
     template <>
     struct TypeOf<Tag__::SEQ>
     {
-        typedef std::vector<boost::any> type;
+        typedef sequence<generic_scalar> type;
     };
 
     template <>
-    struct TypeOf<Tag__::ANY>
+    struct TypeOf<Tag__::GEN>
     {
-        typedef boost::any type;
+        typedef generic_value type;
     };
 
 

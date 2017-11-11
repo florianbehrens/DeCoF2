@@ -17,9 +17,13 @@
 #include "encoder.h"
 
 #include <map>
+#include <ostream>
+#include <iomanip>
 
+#include <boost/algorithm/string/join.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <decof/conversion.h>
 #include <decof/exceptions.h>
@@ -51,15 +55,64 @@ namespace decof
 namespace cli
 {
 
-void encoder::encode_boolean(std::ostream &out, const boolean &value)
+//void encoder::encode_binary(std::ostream &out, const binary &value)
+//{
+//    out << "&" << base64_encode(value);
+//}
+
+encoder::encoder(std::ostream& out) :
+    m_out(out)
+{}
+
+void encoder::operator()(const generic_scalar& arg) const
 {
-    if (value == true)
-        out << "#t";
-    else
-        out << "#f";
+    boost::apply_visitor(*this, arg);
 }
 
-void encoder::encode_string(std::ostream &out, const string &value)
+void encoder::operator()(const sequence_t& arg) const
+{
+    m_out << '[';
+
+    auto it = std::cbegin(arg.value);
+    for (; it != std::cend(arg.value); ++it) {
+        if (it != std::cbegin(arg.value)) m_out.put(',');
+        boost::apply_visitor(*this, *it);
+    }
+
+    m_out << ']';
+}
+
+void encoder::operator()(const tuple_t& arg) const
+{
+    m_out << '{';
+
+    auto it = std::cbegin(arg.value);
+    for (; it != std::cend(arg.value); ++it) {
+        if (it != std::cbegin(arg.value)) m_out.put(',');
+        boost::apply_visitor(*this, *it);
+    }
+
+    m_out << '}';
+}
+
+void encoder::operator()(const boolean& arg) const
+{
+    m_out << (arg ? "#t" : "#f");
+}
+
+void encoder::operator()(const integer& arg) const
+{
+    m_out << arg;
+}
+
+void encoder::operator()(const real& arg) const
+{
+    // Use minimum value without loss of precision in conversion between binary
+    // and decimal number representation and vice versa.
+    m_out << std::setprecision(17) << arg;
+}
+
+void encoder::operator()(const string& arg) const
 {
     static const std::map<char, char> escape_characters = {
         { '\a', 'a' },
@@ -75,27 +128,61 @@ void encoder::encode_string(std::ostream &out, const string &value)
         { '\?', '?' }
     };
 
-    out << "\"";
+    m_out << '"';
 
-    for (const auto& ch : value) {
+    for (const auto& ch : arg) {
         auto it = escape_characters.cbegin();
 
         if (ch >= 0x20 && ch <= 0x7F && ch != '\\' && ch != '\'' && ch != '\"' && ch != '\?') {
-            out << ch;
+            m_out << ch;
         } else if ((it = escape_characters.find(ch)) != escape_characters.cend()) {
-            out << "\\" << it->second;
+            m_out << "\\" << it->second;
         } else {
-            out << "\\x" << std::hex << ch;
+            m_out << "\\x" << std::hex << ch;
         }
     }
 
-    out << "\"";
+    m_out << '"';
 }
 
-void encoder::encode_binary(std::ostream &out, const binary &value)
-{
-    out << "&" << base64_encode(value);
-}
+//void encoder::operator()(const sequence<integer>& val) const
+//{
+//    m_out << '[';
+
+//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
+//        if (it != val.cbegin())
+//            m_out << ",";
+//        this->operator()(*it);
+//    }
+
+//    m_out << '[';
+//}
+
+//void encoder::operator()(const sequence<real>& val) const
+//{
+//    m_out << '[';
+
+//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
+//        if (it != val.cbegin())
+//            m_out << ",";
+//        this->operator()(*it);
+//    }
+
+//    m_out << '[';
+//}
+
+//void encoder::operator()(const sequence<string>& val) const
+//{
+//    m_out << '[';
+
+//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
+//        if (it != val.cbegin())
+//            m_out << ",";
+//        this->operator()(*it);
+//    }
+
+//    m_out << '[';
+//}
 
 } // namespace cli
 

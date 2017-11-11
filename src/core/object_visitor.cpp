@@ -23,65 +23,75 @@
 namespace decof
 {
 
-void object_visitor::visit(event *event)
+void object_visitor::visit(event* event)
 {
-    visit(static_cast<object*>(event));
+//    visit(static_cast<object*>(event));
 }
 
-void object_visitor::visit(node *node)
+void object_visitor::visit(node* node)
 {
-    visit(static_cast<object*>(node));
+//    visit(static_cast<object*>(node));
 }
 
-void object_visitor::visit(basic_parameter<boolean> *param)
+void object_visitor::visit(client_write_interface* param)
 {
-    visit(static_cast<object*>(param));
+//    visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(basic_parameter<integer> *param)
+void object_visitor::visit(client_read_interface* param)
 {
-    visit(static_cast<object*>(param));
+//    visit(static_cast<object*>(param));
 }
 
-void object_visitor::visit(basic_parameter<real> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<boolean> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<string> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<integer> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<binary> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<real> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<boolean_seq> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<string> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<integer_seq> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<binary> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<real_seq> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<boolean_seq> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<string_seq> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<integer_seq> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
-void object_visitor::visit(basic_parameter<binary_seq> *param)
-{
-    visit(static_cast<object*>(param));
-}
+//void object_visitor::visit(basic_parameter<real_seq> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
+
+//void object_visitor::visit(basic_parameter<string_seq> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
+
+//void object_visitor::visit(basic_parameter<binary_seq> *param)
+//{
+//    visit(static_cast<object*>(param));
+//}
 
 void object_visitor::write_indentation(std::stringstream& ss, const object *te)
 {

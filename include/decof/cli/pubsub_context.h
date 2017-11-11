@@ -19,9 +19,9 @@
 
 #include <string>
 
-#include <boost/any.hpp>
 #include <boost/asio.hpp>
 
+#include <decof/types.h>
 #include <decof/userlevel.h>
 
 #include <decof/cli/cli_context_base.h>
@@ -60,8 +60,8 @@ private:
     /** Boost.Signals2 slot function for parameter change notifications.
      * @param uri The fully qualified name of the parameter which value is
      * updated.
-     * @param any_value The new value wrapped in a @a boost::any type. */
-    void notify(std::string uri, const boost::any &any_value);
+     * @param any_value The new value wrapped in a boost::any type. */
+    void notify(std::string uri, const generic_value& any_value);
 
     /** Initiate chain of write operations for pending updates.
      * @note Does nothing in case of no pending updates or in case a write

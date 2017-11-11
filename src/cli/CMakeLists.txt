@@ -28,6 +28,7 @@ set(
     parser.h
     parser.ih
     parser_includes.h
+    parserbase.h
     pubsub_context.cpp
     scanner.flexc++
     scanner.h

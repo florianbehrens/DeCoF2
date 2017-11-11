@@ -19,9 +19,6 @@
 
 #include <tuple>
 #include <type_traits>
-#include <vector>
-
-#include <boost/any.hpp>
 
 #include "exceptions.h"
 #include "types.h"
@@ -29,147 +26,277 @@
 namespace decof
 {
 
-typedef std::vector<boost::any> dynamic_tuple;
-
-template<typename Tuple>
-struct TupleConversion
+/**
+ * @brief Helper class for conversion from/to generic_scalar.
+ *
+ * @tparam T The target type for the conversion.
+ *
+ * A helper class for conversions between a generic scalar type and
+ * the corresponding concrete type and vice versa is needed in order to make
+ * use of partial template specialization which is not possible with function
+ * templates.
+ */
+template<typename T, typename Enable = void>
+struct scalar_conversion_helper
 {
-    static const size_t tuple_size = std::tuple_size<Tuple>::value;
-};
-
-template<typename Tuple, std::size_t N>
-struct TupleConversionImpl : public TupleConversion<Tuple>
-{
-    static void tuple_to_dynamic(dynamic_tuple &arr, const Tuple &t)
-    {
-        TupleConversionImpl<Tuple, N-1>::tuple_to_dynamic(arr, t);
-        arr[N-1] = boost::any(std::get<N-1>(t));
+    /**
+     * @brief Conversion from value of type generic_scalar to concrete type.
+     *
+     * @throws wrong_type_error in case of a type mismatch.
+     */
+    static T from_generic(const generic_scalar& arg) try {
+        return boost::get<T>(arg);
+    } catch (boost::bad_get&) {
+        throw wrong_type_error();
     }
 
-    static void dynamic_to_tuple(Tuple &t, const dynamic_tuple &arr)
-    {
-        TupleConversionImpl<Tuple, N-1>::dynamic_to_tuple(t, arr);
-        std::get<N-1>(t) = boost::any_cast<typename std::tuple_element<N-1, Tuple>::type>(arr[N-1]);
-    }
-};
-
-template<typename Tuple>
-struct TupleConversionImpl<Tuple, 1> : public TupleConversion<Tuple>
-{
-    static void tuple_to_dynamic(dynamic_tuple &arr, const Tuple &t)
-    {
-        arr[0] = boost::any(std::get<0>(t));
-    }
-
-    static void dynamic_to_tuple(Tuple &t, const dynamic_tuple &arr)
-    {
-        std::get<0>(t) = boost::any_cast<typename std::tuple_element<0, Tuple>::type>(arr[0]);
+    /**
+     * @brief Conversion from concrete to value of type generic_scalar.
+     *
+     * @throws invalid_value_error if the conversion is not possible without
+     * loss of precision.
+     */
+    static generic_scalar to_generic(const T& arg) {
+        return generic_scalar{ arg };
     }
 };
-
-template<typename... Elems>
-void tuple_to_dynamic(dynamic_tuple &arr, const std::tuple<Elems...> &t)
-{
-    TupleConversionImpl<typename std::remove_reference<decltype(t)>::type, sizeof...(Elems)>::tuple_to_dynamic(arr, t);
-}
-
-template<typename... Elems>
-void dynamic_to_tuple(std::tuple<Elems...> &t, const dynamic_tuple &a)
-{
-    TupleConversionImpl<std::tuple<Elems...>, sizeof...(Elems)>::dynamic_to_tuple(t, a);
-}
 
 /**
- * @brief Helper class for conversion between generic and native value
- * representations.
- *
- * This class provides the two static methods #to_any and #from_any that
- * convert value types from their generic representation (@a boost::any) used
- * by a @a client_context and their native representation used by the parameter
- * classes.
- *
- * @tparam T The native value type to convert to/from.
- *
- * @note There is a partial template specialization for tuple types.
+ * @brief Partial template specialization for integral types except bool.
  */
 template<typename T>
-struct Conversion
+struct scalar_conversion_helper<
+    T,
+    typename std::enable_if<
+        std::is_integral<typename std::remove_reference<T>::type>::value &&
+        !std::is_same<typename std::remove_reference<T>::type, bool>::value
+    >::type
+>
 {
-    /**
-     * @brief Converts a native parameter value type #T to the generic value
-     * representation (e.g., @c decof::...).
-     *
-     * A #decof::integer type is converted to any integral type (except @c
-     * bool) if the conversion is lossless. Otherwise a
-     * #decof::invalid_value_error is thrown.
-     *
-     * @param any_value The generic type value to be converted.
-     * @return The native type value.
-     *
-     * @throw @c boost::bad_any_cast, #decof::invalid_value_error.
-     */
-    inline static boost::any to_any(const T &value) {
-        // If T is an integral type but noot bool convert to std::intmax_t
-        return boost::any(
-            static_cast<
-                typename std::conditional<
-                    std::is_integral<T>::value && !std::is_same<T, bool>::value,
-                    std::intmax_t,
-                    T
-                >::type
-            >(value));
-    }
-
-    /**
-     * @brief Converts a generic type (@c decof::...) to the native parameter
-     * value type #T.
-     *
-     * A #decof::integer type is converted to any integral type (except @c
-     * bool) if the conversion is lossless. Otherwise a
-     * #decof::invalid_value_error is thrown.
-     *
-     * @param any_value The generic type value to be converted.
-     * @return The native type value.
-     *
-     * @throw @c boost::bad_any_cast, #decof::invalid_value_error.
-     */
-    inline static T from_any(const boost::any &any_value) {
-        auto value = boost::any_cast<
-                typename std::conditional<
-                    std::is_integral<T>::value && !std::is_same<T, bool>::value,
-                    std::intmax_t,
-                    T
-                >::type
-        >(any_value);
-
-        // Take care in case of narrowing conversions:
-        if (std::is_integral<decltype(value)>::value) {
-            if (value > std::numeric_limits<T>::max() ||
-                value < std::numeric_limits<T>::min()) {
-                throw invalid_value_error();
-            }
+    static T from_generic(const generic_scalar& var) {
+        if (var.type() == typeid(real)) {
+            return convert_lossless_to_integral<T>(boost::get<real>(var));
+        } else if (var.type() == typeid(integer)) {
+            return convert_lossless<T>(boost::get<integer>(var));
         }
 
-        return value;
+        throw wrong_type_error();
+    }
+
+    static generic_scalar to_generic(const T& arg) {
+        return generic_scalar{ convert_lossless<integer>(arg) };
     }
 };
 
-/// Partial template specialization for conversion of tuple types.
-template<typename... Args>
-struct Conversion<std::tuple<Args...>>
+/**
+ * @brief Partial template specialization for floating point types.
+ */
+template<typename T>
+struct scalar_conversion_helper<
+    T,
+    typename std::enable_if<
+        std::is_floating_point<typename std::remove_reference<T>::type>::value
+    >::type
+>
 {
-    typedef std::tuple<Args...> tuple_type;
+    static T from_generic(const generic_scalar& var) {
+        if (var.type() == typeid(integer)) {
+            return convert_lossless_to_floating_point<T>(boost::get<integer>(var));
+        } else if (var.type() == typeid(real)) {
+            return convert_lossless<T>(boost::get<real>(var));
+        }
 
-    inline static boost::any to_any(const tuple_type &value) {
-        dynamic_tuple any_value(sizeof...(Args));
-        tuple_to_dynamic(any_value, value);
-        return boost::any(any_value);
+        throw wrong_type_error();
     }
 
-    inline static tuple_type from_any(const boost::any &any_value) {
-        tuple_type value;
-        dynamic_to_tuple(value, boost::any_cast<dynamic_tuple>(any_value));
-        return value;
+    static generic_scalar to_generic(const T& arg) {
+        return generic_scalar{ convert_lossless<real>(arg) };
+    }
+};
+
+/**
+ * @brief Partial template specialization for sequence of char types.
+ */
+template<typename T>
+struct scalar_conversion_helper<
+    T,
+    typename std::enable_if<
+        std::is_same<decltype(std::declval<const T>().data()), typename T::value_type const*>::value && // has T::data() method?
+        std::is_same<decltype(std::declval<T>().size()), typename T::size_type>::value && // has T::size() method?
+        std::is_constructible<T, typename T::value_type const*, typename T::value_type const*>::value // has T(It, It) constructor
+    >::type
+>
+{
+    static T from_generic(const generic_scalar& arg) {
+        if (arg.type() != typeid(std::string)) {
+            throw wrong_type_error();
+        }
+
+        auto const& str = boost::get<std::string>(arg);
+
+        if (str.size() % sizeof(typename T::value_type)) {
+            throw invalid_value_error();
+        }
+
+        return T(
+            reinterpret_cast<typename T::value_type const*>(&str[0]),
+            reinterpret_cast<typename T::value_type const*>(&str[str.size()])
+        );
+    }
+
+    static generic_scalar to_generic(const T& arg) {
+        std::string tmp(
+            reinterpret_cast<const char*>(arg.data()),
+            reinterpret_cast<const char*>(arg.data() + arg.size()));
+        return generic_scalar{ std::move(tmp) };
+    }
+};
+
+/**
+ * @brief Helper class for conversion from/to generic_value.
+ *
+ * @tparam T The target type for the conversion.
+ *
+ * A helper class for conversions between generic (e.g., decof::variant) and
+ * the corresponding concrete type and vice versa is needed in order to make
+ * use of partial template specialization which is not possible with function
+ * templates.
+ */
+template<typename T, typename Enable = void>
+struct conversion_helper
+{
+    /**
+     * @brief Conversion from generic (e.g., decof::variant) to concrete type.
+     *
+     * @throws wrong_type_error in case of a type mismatch.
+     */
+    static T from_generic(const generic_value& arg) {
+        if (arg.type() != typeid(generic_scalar))
+            throw wrong_type_error();
+
+        return scalar_conversion_helper<T>::from_generic(boost::get<generic_scalar>(arg));
+    }
+
+    /**
+     * @brief Conversion from concrete to generic (e.g., decof::variant) type.
+     *
+     * @throws invalid_value_error if the conversion is not possible without
+     * loss of precision.
+     */
+    static generic_value to_generic(const T& arg) {
+        return generic_value{ scalar_conversion_helper<T>::to_generic(arg) };
+    }
+};
+
+/**
+ * @brief Partial template specialization for sequence types.
+ */
+template<typename T>
+struct conversion_helper<sequence<T>>
+{
+    using value_type = sequence<T>;
+
+    static value_type from_generic(const generic_value& arg) {
+        if (arg.type() != typeid(sequence_t))
+            throw wrong_type_error();
+
+        value_type retval;
+        for (auto const& elem : boost::get<sequence_t>(arg).value) {
+            retval.push_back(scalar_conversion_helper<T>::from_generic(elem));
+        }
+
+        return retval;
+    }
+
+    static generic_value to_generic(const value_type& arg) {
+        sequence_t tmp;
+        for (auto const& elem : arg) {
+            tmp.value.push_back(scalar_conversion_helper<T>::to_generic(elem));
+        }
+
+        return generic_value{ std::move(tmp) };
+    }
+};
+
+/**
+ * @brief Partial template specialization for tuple types.
+ */
+template<typename... Args>
+struct conversion_helper<std::tuple<Args...>>
+{
+    using value_type = std::tuple<Args...>;
+
+    template<typename Tuple>
+    struct basic_tuple_conversion_helper
+    {
+        static const size_t tuple_size = std::tuple_size<Tuple>::value;
+    };
+
+    template<typename Tuple, std::size_t N>
+    struct tuple_conversion_helper : public basic_tuple_conversion_helper<Tuple>
+    {
+        static void from_generic(Tuple &to, const tuple_t& from)
+        {
+            tuple_conversion_helper<Tuple, N-1>::from_generic(to, from);
+            std::get<N-1>(to) =
+                scalar_conversion_helper<
+                    typename std::tuple_element<N-1, Tuple>::type
+                >::from_generic(from.value[N-1]);
+        }
+
+        static void to_generic(tuple_t& to, const Tuple& from)
+        {
+            tuple_conversion_helper<Tuple, N-1>::to_generic(to, from);
+            to.value.push_back(
+                scalar_conversion_helper<
+                    typename std::tuple_element<N-1, Tuple>::type
+                >::to_generic(std::get<N-1>(from)));
+        }
+    };
+
+    template<typename Tuple>
+    struct tuple_conversion_helper<Tuple, 1> : public basic_tuple_conversion_helper<Tuple>
+    {
+        static void from_generic(Tuple &to, const tuple_t& from)
+        {
+            std::get<0>(to) = scalar_conversion_helper<
+                typename std::tuple_element<0, Tuple>::type
+            >::from_generic(from.value[0]);
+        }
+
+        static void to_generic(tuple_t& to, const Tuple& from)
+        {
+            to.value.push_back(
+                scalar_conversion_helper<
+                    typename std::tuple_element<0, Tuple>::type
+                >::to_generic(std::get<0>(from)));
+        }
+    };
+
+    template<typename... Elems>
+    static void from_generic(std::tuple<Elems...>& to, const tuple_t& from)
+    {
+        tuple_conversion_helper<std::tuple<Elems...>, sizeof...(Elems)>::from_generic(to, from);
+    }
+
+    template<typename... Elems>
+    static void to_generic(tuple_t& to, const std::tuple<Elems...>& from)
+    {
+        tuple_conversion_helper<std::tuple<Elems...>, sizeof...(Elems)>::to_generic(to, from);
+    }
+
+    static value_type from_generic(const generic_value& arg) try {
+        value_type retval;
+        from_generic(retval, boost::get<tuple_t>(arg));
+        return retval;
+    } catch (boost::bad_get&) {
+        throw wrong_type_error();
+    }
+
+    static generic_value to_generic(const value_type& arg) {
+        tuple_t retval;
+        to_generic(retval, arg);
+        return generic_value{ retval };
     }
 };
 

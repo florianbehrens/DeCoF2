@@ -14,263 +14,192 @@
  * limitations under the License.
  */
 
+// TODO
+//#include "value.h"
+#include <decof/types.h>
+#include <decof/conversion.h>
+
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-
-// TODO
-#include "value.h"
+#include <boost/mpl/list.hpp>
 
 #include <iostream>
 
+#include "test_helpers.h"
+
 using namespace decof;
-
-BOOST_AUTO_TEST_SUITE(binary)
-
-//BOOST_AUTO_TEST_CASE(bin1)
-//{
-//    decof::binary2 b{ new uint8_t[4] };
-//}
-
-BOOST_AUTO_TEST_SUITE_END()
-
 
 BOOST_AUTO_TEST_SUITE(type_conversion)
 
-using decof::variant_cast;
+///**
+// * @brief Convenience function for conversion from generic to concrete type.
+// */
+//template<typename T>
+//T generic_value_cast(const generic_value& var)
+//{
+//    return conversion_helper<T>::from_generic(var);
+//}
 
-BOOST_AUTO_TEST_CASE(sizeof_variant)
+///**
+// * @brief Convenience function for conversion from generic to concrete type.
+// */
+//template<typename T>
+//T generic_value_cast(const generic_scalar& var)
+//{
+//    return conversion_helper<T>::from_generic(var);
+//}
+
+using decof_types = boost::mpl::list<boolean, integer, real, string, sequence<boolean>, sequence<integer>, sequence<real>, sequence<string>>;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(round_trip_conversion, T, decof_types)
 {
-    std::cout << "sizeof(decof::variant) / sizeof(double) = " << sizeof(variant) / sizeof(double) << std::endl;
-    std::cout << "sizeof(string) = " << sizeof(string) << std::endl;
-    std::cout << "sizeof(sequence<string>) = " << sizeof(sequence<string>) << std::endl;
+    auto nominal = T();
+    auto actual  = conversion_helper<T>::from_generic(conversion_helper<T>::to_generic(nominal));
+
+    BOOST_REQUIRE(actual == nominal);
 }
 
-BOOST_AUTO_TEST_CASE(boolean_type)
+#if 0
+using integral_types = boost::mpl::list<char, unsigned char, short, unsigned short, int, unsigned int, long, unsigned long, long long, unsigned long long>;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(integer_type_within_bounds, T, integral_types)
 {
-    decof::variant var{ true };
-
-    BOOST_REQUIRE_EQUAL(variant_cast<bool>(var), true);
-
-    std::ostringstream out;
-    boost::apply_visitor(decof::encoding_visitor(out), var);
-
-    BOOST_REQUIRE_EQUAL(out.str(), "true");
-
-    BOOST_REQUIRE_THROW(variant_cast<integer>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<double>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<long long>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<double>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-}
-
-BOOST_AUTO_TEST_CASE(integer_type_within_bounds)
-{
-    decof::variant var{ 0 };
-
-    BOOST_REQUIRE_EQUAL(variant_cast<short>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned short>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<int>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned int>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<long int>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned long int>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<long long int>(var), 0);
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned long long int>(var), 0);
+    generic_value var{ 0 };
+    BOOST_REQUIRE_EQUAL(generic_value_cast<T>(var), 0);
 }
 
 BOOST_AUTO_TEST_CASE(integral_type)
 {
-    decof::variant var{ 0ll };
-    decof::variant var_under{ std::numeric_limits<int>::min() - 1ll };
-    decof::variant var_min{ std::numeric_limits<int>::min() };
-    decof::variant var_max{ std::numeric_limits<int>::max() };
-    decof::variant var_over{ std::numeric_limits<int>::max() + 1ll };
+    generic_value var{ integer(0ll) };
+    generic_value var_under{ integer(std::numeric_limits<int>::min() - 1ll) };
+    generic_value var_min{ integer(std::numeric_limits<int>::min()) };
+    generic_value var_max{ integer(std::numeric_limits<int>::max()) };
+    generic_value var_over{ integer(std::numeric_limits<int>::max() + 1ll) };
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_EQUAL(variant_cast<double>(var), 0.0);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<long long>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<double>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    BOOST_REQUIRE_THROW(variant_cast<int>(var_under), decof::invalid_value_error);
-    BOOST_REQUIRE_EQUAL(variant_cast<int>(var_min), std::numeric_limits<int>::min());
-    BOOST_REQUIRE_EQUAL(variant_cast<int>(var_max), std::numeric_limits<int>::max());
-    BOOST_REQUIRE_THROW(variant_cast<int>(var_over), decof::invalid_value_error);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<double>(var), 0.0);
+    BOOST_REQUIRE_THROW(generic_value_cast<int>(var_under), decof::invalid_value_error);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<int>(var_min), std::numeric_limits<int>::min());
+    BOOST_REQUIRE_EQUAL(generic_value_cast<int>(var_max), std::numeric_limits<int>::max());
+    BOOST_REQUIRE_THROW(generic_value_cast<int>(var_over), decof::invalid_value_error);
 }
 
 BOOST_AUTO_TEST_CASE(unsigned_integral_type)
 {
-    decof::variant var_min{ 0 };
-    decof::variant var_max{ static_cast<long long>(std::numeric_limits<unsigned int>::max()) };
-    decof::variant var_over{ static_cast<long long>(std::numeric_limits<unsigned int>::max() + 1ll) };
+    generic_value var_min{ integer(0) };
+    generic_value var_max{ integer(static_cast<long long>(std::numeric_limits<unsigned int>::max())) };
+    generic_value var_over{ integer(static_cast<long long>(std::numeric_limits<unsigned int>::max() + 1ll)) };
 
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned int>(var_min), std::numeric_limits<unsigned int>::min());
-    BOOST_REQUIRE_EQUAL(variant_cast<unsigned int>(var_max), std::numeric_limits<unsigned int>::max());
-    BOOST_REQUIRE_THROW(variant_cast<unsigned int>(var_over), decof::invalid_value_error);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<unsigned int>(var_min), std::numeric_limits<unsigned int>::min());
+    BOOST_REQUIRE_EQUAL(generic_value_cast<unsigned int>(var_max), std::numeric_limits<unsigned int>::max());
+    BOOST_REQUIRE_THROW(generic_value_cast<unsigned int>(var_over), decof::invalid_value_error);
 }
 
 BOOST_AUTO_TEST_CASE(floating_point_type)
 {
-    decof::variant var{ 1.23 };
-    decof::variant var_under{ std::numeric_limits<float>::lowest() - 1e23 };
-    decof::variant var_min{ std::numeric_limits<float>::lowest() };
-    decof::variant var_max{ std::numeric_limits<float>::max() };
-    decof::variant var_over{ std::numeric_limits<float>::max() + 1e23 };
-    decof::variant var_integer{ 0ll };
+    generic_value var{ 1.23 };
+    generic_value var_under{ std::numeric_limits<float>::lowest() - 1e23 };
+    generic_value var_min{ std::numeric_limits<float>::lowest() };
+    generic_value var_max{ std::numeric_limits<float>::max() };
+    generic_value var_over{ std::numeric_limits<float>::max() + 1e23 };
+    generic_value var_integer{ 0ll };
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<integer>(var), decof::invalid_value_error);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<integer>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<real>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    BOOST_REQUIRE_THROW(variant_cast<float>(var_under), decof::invalid_value_error);
-    BOOST_REQUIRE_EQUAL(variant_cast<float>(var_min), std::numeric_limits<float>::lowest());
-    BOOST_REQUIRE_EQUAL(variant_cast<float>(var_max), std::numeric_limits<float>::max());
-    BOOST_REQUIRE_THROW(variant_cast<float>(var_over), decof::invalid_value_error);
-
-    BOOST_REQUIRE_EQUAL(variant_cast<double>(var_integer), 0.0);
+    BOOST_REQUIRE_THROW(generic_value_cast<integer>(var), decof::invalid_value_error);
+    BOOST_REQUIRE_THROW(generic_value_cast<float>(var_under), decof::invalid_value_error);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<float>(var_min), std::numeric_limits<float>::lowest());
+    BOOST_REQUIRE_EQUAL(generic_value_cast<float>(var_max), std::numeric_limits<float>::max());
+    BOOST_REQUIRE_THROW(generic_value_cast<float>(var_over), decof::invalid_value_error);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<double>(var_integer), 0.0);
 }
 
 BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integer)
 {
     const auto nominal = (1ll << std::numeric_limits<real>::digits) - 1;
 
-    decof::variant var{ 1.0 };
-    decof::variant var_min{ static_cast<real>(-nominal) };
-    decof::variant var_max{ static_cast<real>(nominal) };
+    generic_value var{ 1.0 };
+    generic_value var_min{ static_cast<real>(-nominal) };
+    generic_value var_max{ static_cast<real>(nominal) };
 
-    BOOST_REQUIRE_EQUAL(variant_cast<integer>(var), 1);
-    BOOST_REQUIRE_EQUAL(variant_cast<integer>(var_min), -nominal);
-    BOOST_REQUIRE_EQUAL(variant_cast<integer>(var_max), nominal);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<integer>(var), 1);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<integer>(var_min), -nominal);
+    BOOST_REQUIRE_EQUAL(generic_value_cast<integer>(var_max), nominal);
 }
 
 BOOST_AUTO_TEST_CASE(string_type)
 {
-    decof::variant var{ "Hello world" };
-    decof::variant var2{ std::string("Hello world") };
+    std::string nominal("Hellp World");
+    generic_value var{ decof::conversion_helper<decltype(nominal)>::to_generic(nominal) };
+    BOOST_REQUIRE_EQUAL(generic_value_cast<std::string>(var), nominal);
+}
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<long long>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<double>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<long long>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<double>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
+BOOST_AUTO_TEST_CASE(vector_of_floats)
+{
+    std::vector<float> nominal{
+        std::numeric_limits<float>::lowest(),
+        0.0,
+        std::numeric_limits<float>::max() };
 
-    BOOST_REQUIRE_EQUAL(variant_cast<std::string>(var), variant_cast<std::string>(var2));
+    generic_value var{ decof::conversion_helper<decltype(nominal)>::to_generic(nominal) };
+    BOOST_REQUIRE(generic_value_cast<std::vector<float>>(var) == nominal);
 }
 
 BOOST_AUTO_TEST_CASE(boolean_sequence)
 {
     sequence<bool> bool_sequence{ false, true };
-    decof::variant var{ bool_sequence };
+    generic_value var = conversion_helper<sequence<bool>>::to_generic(bool_sequence);
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<long long>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<double>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<long long>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<double>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    auto actual_var = variant_cast<sequence<bool>>(var);
+    auto actual_var = conversion_helper<sequence<bool>>::from_generic(var);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var.cbegin(), actual_var.cend(), bool_sequence.cbegin(), bool_sequence.cend());
 
-    decof::variant var_moved{ std::move(bool_sequence) };
+    auto var_moved = conversion_helper<sequence<bool>>::to_generic(std::move(bool_sequence));
     BOOST_REQUIRE_EQUAL(bool_sequence.size(), 0);
 
-    auto actual_var_moved = variant_cast<sequence<bool>>(var_moved);
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var_moved.cbegin(), actual_var_moved.cend(), actual_var.cbegin(), actual_var.cend());
+    actual_var = conversion_helper<sequence<bool>>::from_generic(var_moved);
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var.cbegin(), actual_var.cend(), bool_sequence.cbegin(), bool_sequence.cend());
 }
 
 BOOST_AUTO_TEST_CASE(integer_sequence_convertible_to_real_sequence)
 {
-    std::cout << "digits<double> = " << std::numeric_limits<double>::digits << std::endl;
-    std::cout << "digits<long long int> = " << std::numeric_limits<long long int>::digits << std::endl;
-
     const auto digits = std::min(std::numeric_limits<double>::digits, std::numeric_limits<long long int>::digits);
 
-    const variant var{ sequence<integer>{
+    const generic_value var{ sequence_t{ std::deque<generic_scalar>{
         integer(1ll << (digits - 1)),
-        0ll,
-        -integer(1ll << (digits - 1)) }};
+        integer(0),
+        -integer(1ll << (digits - 1))
+    } } };
 
-    auto const actual = variant_cast<sequence<real>>(var);
-    auto const nominal = variant_cast<sequence<integer>>(var);
+    auto const actual = generic_value_cast<sequence<real>>(var);
+    auto const nominal = generic_value_cast<sequence<integer>>(var);
 
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual.cbegin(), actual.cend(), nominal.cbegin(), nominal.cend());
 }
 
 BOOST_AUTO_TEST_CASE(integer_sequence)
 {
-    sequence<long long> integer_sequence{ 0ll, 1ll };
-    decof::variant var{ integer_sequence };
+    sequence<integer> integer_sequence{ 0ll, 1ll };
+    generic_value var{ sequence_t{ integer_sequence } };
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<long long>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<double>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    auto actual_var = variant_cast<sequence<long long>>(var);
+    auto actual_var = generic_value_cast<sequence<long long>>(var);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var.cbegin(), actual_var.cend(), integer_sequence.cbegin(), integer_sequence.cend());
 
-    decof::variant var_moved{ std::move(integer_sequence) };
+    generic_value var_moved{ std::move(integer_sequence) };
     BOOST_REQUIRE_EQUAL(integer_sequence.size(), 0);
 
-    auto actual_var_moved = variant_cast<sequence<long long>>(var_moved);
+    auto actual_var_moved = generic_value_cast<sequence<long long>>(var_moved);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var_moved.cbegin(), actual_var_moved.cend(), actual_var.cbegin(), actual_var.cend());
 }
 
 BOOST_AUTO_TEST_CASE(real_sequence)
 {
     sequence<real> real_sequence{ std::numeric_limits<real>::min(), 0.0, std::numeric_limits<real>::max() };
-    decof::variant var{ real_sequence };
+    generic_value var{ real_sequence };
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<integer>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<real>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<std::string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<integer>>(var), decof::invalid_value_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<std::string>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    auto actual_var = variant_cast<sequence<real>>(var);
+    auto actual_var = generic_value_cast<sequence<real>>(var);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var.cbegin(), actual_var.cend(), real_sequence.cbegin(), real_sequence.cend());
 
-    decof::variant var_moved{ std::move(real_sequence) };
+    generic_value var_moved{ std::move(real_sequence) };
     BOOST_REQUIRE_EQUAL(real_sequence.size(), 0);
 
-    auto actual_var_moved = variant_cast<sequence<double>>(var_moved);
+    auto actual_var_moved = generic_value_cast<sequence<double>>(var_moved);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var_moved.cbegin(), actual_var_moved.cend(), actual_var.cbegin(), actual_var.cend());
 }
 
@@ -282,10 +211,10 @@ BOOST_AUTO_TEST_CASE(real_sequence_convertible_to_integer_sequence)
         static_cast<real>(-real_max),
         0.0,
         static_cast<real>(real_max) };
-    decof::variant var{ real_sequence };
+    generic_value var{ real_sequence };
 
-    auto const actual = variant_cast<sequence<integer>>(var);
-    auto const nominal = variant_cast<sequence<real>>(var);
+    auto const actual = generic_value_cast<sequence<integer>>(var);
+    auto const nominal = generic_value_cast<sequence<real>>(var);
 
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual.cbegin(), actual.cend(), nominal.cbegin(), nominal.cend());
 }
@@ -293,51 +222,24 @@ BOOST_AUTO_TEST_CASE(real_sequence_convertible_to_integer_sequence)
 BOOST_AUTO_TEST_CASE(string_sequence)
 {
     sequence<string> string_sequence{ "", "Hello World" };
-    decof::variant var{ string_sequence };
+    generic_value var{ string_sequence };
 
-    BOOST_REQUIRE_THROW(variant_cast<bool>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<integer>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<real>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<string>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<binary>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<bool>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<integer>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<real>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<sequence<binary>>(var), decof::wrong_type_error);
-//    BOOST_REQUIRE_THROW(variant_cast<tuple>(var), decof::wrong_type_error);
-
-    auto actual_var = variant_cast<sequence<string>>(var);
+    auto actual_var = generic_value_cast<sequence<string>>(var);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var.cbegin(), actual_var.cend(), string_sequence.cbegin(), string_sequence.cend());
 
-    decof::variant var_moved{ std::move(string_sequence) };
+    generic_value var_moved{ std::move(string_sequence) };
     BOOST_REQUIRE_EQUAL(string_sequence.size(), 0);
 
-    auto actual_var_moved = variant_cast<sequence<string>>(var_moved);
+    auto actual_var_moved = generic_value_cast<sequence<string>>(var_moved);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(actual_var_moved.cbegin(), actual_var_moved.cend(), actual_var.cbegin(), actual_var.cend());
 }
 
-BOOST_AUTO_TEST_CASE(legal_tuple)
+BOOST_AUTO_TEST_CASE(tuple)
 {
-//    using tuple_t = std::tuple<boolean, integer, real, string>;
-
     auto nominal = std::make_tuple(false, 0ll, 0.0, std::string("abc"));
-    decof::variant var{ sequence<scalar_variant> {
-        std::get<0>(nominal),
-        std::get<1>(nominal),
-        std::get<2>(nominal),
-        std::get<3>(nominal)
-    } };
+    generic_value var{ decof::conversion_helper<decltype(nominal)>::to_generic(nominal) };
 
-    BOOST_REQUIRE_THROW(variant_cast<boolean>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<integer>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<real>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<string>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<boolean>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<integer>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<real>>(var), decof::wrong_type_error);
-    BOOST_REQUIRE_THROW(variant_cast<sequence<string>>(var), decof::wrong_type_error);
-
-    BOOST_REQUIRE(variant_cast<decltype(nominal)>(var) == nominal);
+    BOOST_REQUIRE(generic_value_cast<decltype(nominal)>(var) == nominal);
 }
-
+#endif
 BOOST_AUTO_TEST_SUITE_END()

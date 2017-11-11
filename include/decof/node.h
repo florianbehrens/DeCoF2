@@ -17,10 +17,11 @@
 #ifndef DECOF_NODE_H
 #define DECOF_NODE_H
 
+#include <deque>
 #include <list>
 #include <memory>
 #include <string>
-#include <vector>
+//#include <vector>
 
 #include "automatic_ptr.h"
 #include "readable_parameter.h"
@@ -29,7 +30,7 @@
 namespace decof
 {
 
-class node : public automatic_ptr_target<node>, public readable_parameter<string_seq>
+class node : public automatic_ptr_target<node>, public readable_parameter<sequence<std::string>>
 {
 public:
     typedef std::list<object*> children_t;
@@ -39,7 +40,7 @@ public:
     explicit node(std::string name, node *parent = nullptr, userlevel_t readlevel = Normal);
     virtual ~node();
 
-    virtual string_seq value() const override;
+    virtual sequence<std::string> value() const override;
 
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) override final;
@@ -61,7 +62,7 @@ public:
     object *find_child(const std::string &uri, char separator = ':');
 
     /// The same as value().
-    string_seq children() const;
+    sequence<std::string> children() const;
 
     /// Returns an interator for the list of children
     iterator begin();

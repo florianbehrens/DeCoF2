@@ -29,16 +29,14 @@ class typed_client_write_interface : public client_write_interface
 {
 private:
     virtual void value(const T &value) = 0;
-    virtual void value(const boost::any& any_value) override final
+    virtual void value(const generic_value& any_value) override final
     {
-        try {
-            value(Conversion<T>::from_any(any_value));
-        } catch(boost::bad_any_cast&) {
-            throw wrong_type_error();
-        }
+        value(conversion_helper<T>::from_generic(any_value));
     }
 };
 
+// TODO: Can't this simply be removed?
+#if 0
 // Partial template specialization for sequence types.
 template<typename T>
 class typed_client_write_interface<decof::sequence<T>> : public client_write_interface
@@ -47,12 +45,12 @@ class typed_client_write_interface<decof::sequence<T>> : public client_write_int
 
 private:
     virtual void value(const decof::sequence<T> &value) = 0;
-    virtual void value(const boost::any& any_value) override final
+    virtual void value(const generic_value& any_value) override final
     {
         try {
-            const std::vector<boost::any> &any_vector = boost::any_cast<const std::vector<boost::any> &>(any_value);
+            const std::vector<generic_value> &any_vector = boost::any_cast<const std::vector<generic_value> &>(any_value);
             decof::sequence<T> new_value;
-            new_value.reserve(any_vector.size());
+//            new_value.reserve(any_vector.size());
             for (auto elem : any_vector)
                 new_value.push_back(boost::any_cast<T>(elem));
             value(new_value);
@@ -61,7 +59,7 @@ private:
         }
     }
 };
-
+#endif
 } // namespace decof
 
 #endif // DECOF_TYPED_CLIENT_WRITE_INTERFACE_H

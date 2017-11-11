@@ -404,41 +404,41 @@ try
         case 1:
         {
          
-         result_.swap(d_vsp__[0].data<Tag__::ANY>());
+         result_ = std::move(d_vsp__[0].data<Tag__::SCL>());
          }
         break;
 
         case 2:
         {
          
-         result_ = d_vsp__[0].data<Tag__::SEQ>();
+         result_ = sequence_t{ std::move(d_vsp__[0].data<Tag__::SEQ>()) };
          }
         break;
 
         case 3:
         {
          
-         result_ = d_vsp__[0].data<Tag__::SEQ>();
+         result_ = tuple_t{ std::move(d_vsp__[0].data<Tag__::SEQ>()) };
          }
         break;
 
         case 4:
         {
-         if (d_scanner.matched() == "#t") d_val__.get<Tag__::ANY>() = true; else d_val__.get<Tag__::ANY>() = false;
+         if (d_scanner.matched() == "#t") d_val__.get<Tag__::SCL>() = true; else d_val__.get<Tag__::SCL>() = false;
          }
         break;
 
         case 5:
         {
          
-         d_val__.get<Tag__::ANY>() = static_cast<decof::integer>(std::stoi(d_scanner.matched()));
+         d_val__.get<Tag__::SCL>() = static_cast<decof::integer>(std::stoi(d_scanner.matched()));
          }
         break;
 
         case 6:
         {
          
-         d_val__.get<Tag__::ANY>() = static_cast<decof::real>(std::stod(d_scanner.matched()));
+         d_val__.get<Tag__::SCL>() = static_cast<decof::real>(std::stod(d_scanner.matched()));
          }
         break;
 
@@ -447,14 +447,14 @@ try
          
          decof::string res = d_scanner.matched();
          res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
-         d_val__.get<Tag__::ANY>() = res;
+         d_val__.get<Tag__::SCL>() = res;
          }
         break;
 
         case 8:
         {
          
-         d_val__.get<Tag__::ANY>() = base64decode(d_scanner.matched().substr(1));
+         d_val__.get<Tag__::SCL>() = base64decode(d_scanner.matched().substr(1));
          }
         break;
 
@@ -475,14 +475,14 @@ try
         case 11:
         {
          
-         d_val__.get<Tag__::SEQ>().push_back(d_vsp__[0].data<Tag__::ANY>());
+         d_val__.get<Tag__::SEQ>().push_back(d_vsp__[0].data<Tag__::SCL>());
          }
         break;
 
         case 12:
         {
          
-         d_vsp__[-2].data<Tag__::SEQ>().push_back(d_vsp__[0].data<Tag__::ANY>());
+         d_vsp__[-2].data<Tag__::SEQ>().push_back(d_vsp__[0].data<Tag__::SCL>());
          d_val__.get<Tag__::SEQ>().swap(d_vsp__[-2].data<Tag__::SEQ>());
          }
         break;

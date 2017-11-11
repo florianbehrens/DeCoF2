@@ -20,10 +20,10 @@
 #include <map>
 #include <memory>
 
-#include <boost/any.hpp>
 #include <boost/signals2/connection.hpp>
 
 #include <decof/client_read_interface.h>
+#include <decof/types.h>
 #include <decof/userlevel.h>
 
 namespace decof
@@ -63,8 +63,8 @@ public:
     virtual void preload();
 
 protected:
-    void set_parameter(const std::string& uri, const boost::any& any_value, char separator = ':');
-    boost::any get_parameter(const std::string& uri, char separator = ':');
+    void set_parameter(const std::string& uri, const generic_value& any_value, char separator = ':');
+    generic_value get_parameter(const std::string& uri, char separator = ':');
 
     /// Signal event.
     /// @param uri The event URI.

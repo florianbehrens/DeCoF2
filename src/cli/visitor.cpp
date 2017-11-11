@@ -16,6 +16,9 @@
 
 #include "visitor.h"
 
+#include <boost/variant/apply_visitor.hpp>
+
+#include <decof/client_read_interface.h>
 #include <decof/node.h>
 
 #include "encoder.h"
@@ -30,7 +33,7 @@ visitor::visitor(std::stringstream &ss) :
     ss_(ss)
 {}
 
-void visitor::visit(decof::node *node)
+void visitor::visit(node* node)
 {
     write_indentation(ss_, node);
     if (node->parent() != nullptr)
@@ -38,18 +41,20 @@ void visitor::visit(decof::node *node)
     ss_ << node->name() << std::endl;
 }
 
-void visitor::visit(decof::object *obj)
+void visitor::visit(client_read_interface* param)
 {
-    client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
+    encoder enc(ss_);
+    auto obj = dynamic_cast<object*>(param);
+
+    if (!obj) return;
 
     write_indentation(ss_, obj);
-
     ss_ << (obj->parent() != nullptr ? ":" : "" )
         << obj->name();
-    if (read_if != nullptr) {
-        ss_ << " = ";
-        encoder().encode_any(ss_, read_if->any_value());
-    }
+
+    ss_ << " = ";
+    boost::apply_visitor(enc, static_cast<const generic_value>(param->any_value()));
+
     ss_ << std::endl;
 }
 

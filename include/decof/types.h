@@ -18,11 +18,18 @@
 #define DECOF_TYPES_H
 
 #include <cctype>
+#include <cmath>
+#include <deque>
+#include <limits>
+#include <ostream>
 #include <string>
-#include <vector>
+#include <tuple>
+#include <type_traits>
 
-#include <boost/any.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/variant.hpp>
+
+#include "exceptions.h"
 
 namespace decof
 {
@@ -33,26 +40,78 @@ typedef long long integer;
 typedef double real;
 typedef std::string string;
 
+// TODO:
 struct binary : public std::string
 {
     using std::string::string;
 };
 
 template<typename T>
-using sequence = std::vector<T>;
+using sequence = std::deque<T>;
 
+// TODO: Remove?
 typedef sequence<bool> boolean_seq;
 typedef sequence<std::intmax_t> integer_seq;
 typedef sequence<double> real_seq;
 typedef sequence<std::string> string_seq;
-typedef sequence<binary> binary_seq;
 
-// Tuple parameter type
-template<typename... Args>
-struct tuple : public std::tuple<Args...>
+using generic_scalar = boost::variant<boolean, integer, real, string>;
+
+template<typename T>
+T convert_lossless_to_floating_point(integer i)
 {
-    using std::tuple<Args...>::tuple;
+    auto const limit = (int64_t(1) << (std::numeric_limits<T>::digits - 1));
+
+    if (i > limit || i < -limit)
+        throw invalid_value_error();
+
+    return static_cast<T>(i);
+}
+
+template<typename To, typename From>
+inline To convert_lossless(const From& from)
+{
+    try {
+        return boost::numeric_cast<To>(from);
+    } catch (boost::bad_numeric_cast&) {
+        throw invalid_value_error();
+    }
+}
+
+template<typename T>
+inline T convert_lossless_to_integral(real r)
+{
+    if (std::floor(r) == r) {
+        return static_cast<T>(r);
+    } else {
+        throw invalid_value_error();
+    }
+}
+
+template<typename T, size_t Id>
+struct tagged_type
+{
+    T value;
 };
+
+enum {
+    sequence_tag,
+    tuple_tag
+};
+
+using sequence_t = tagged_type<sequence<generic_scalar>, sequence_tag>;
+using tuple_t = tagged_type<sequence<generic_scalar>, tuple_tag>;
+
+using generic_value = boost::variant<generic_scalar, sequence_t, tuple_t>;
+
+/**
+ * @brief Generic equality operator for tagged_type instances.
+ */
+template<typename T, size_t Id>
+bool operator==(const tagged_type<T, Id>& lhs, const tagged_type<T, Id>& rhs)
+{
+    return lhs == rhs;
+}
 
 } // namespace decof
 

@@ -24,18 +24,19 @@
 namespace decof
 {
 
+class node;
+class client_read_interface;
+
 namespace cli
 {
 
-class object;
-
-class visitor : public decof::object_visitor
+class visitor : public object_visitor
 {
 public:
     explicit visitor(std::stringstream &ss);
 
-    virtual void visit(decof::node *node) override;
-    virtual void visit(decof::object *obj) override;
+    virtual void visit(node *node) override;
+    virtual void visit(client_read_interface* param) override;
 
 private:
     std::stringstream &ss_;

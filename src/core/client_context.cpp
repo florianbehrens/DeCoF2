@@ -64,7 +64,7 @@ std::string client_context::remote_endpoint() const
 void client_context::preload()
 {}
 
-void client_context::set_parameter(const std::string &uri, const boost::any &any_value, char separator)
+void client_context::set_parameter(const std::string &uri, const generic_value &any_value, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -82,9 +82,8 @@ void client_context::set_parameter(const std::string &uri, const boost::any &any
     param->value(any_value);
 }
 
-boost::any client_context::get_parameter(const std::string &uri, char separator)
+generic_value client_context::get_parameter(const std::string &uri, char separator)
 {
-    boost::any retval;
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     object *obj = object_dictionary_.find_object(uri, separator);

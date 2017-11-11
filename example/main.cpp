@@ -29,7 +29,7 @@ DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(current_context_endpoint_parameter, de
 DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(time_parameter, decof::string);
 DECOF_DECLARE_EVENT(exit_event);
 DECOF_DECLARE_WRITEONLY_PARAMETER(cout_parameter, decof::string);
-typedef decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary> cout_tuple_parameter_type;
+typedef std::tuple<decof::boolean, decof::integer, decof::real, decof::string/*, decof::binary*/> cout_tuple_parameter_type;
 DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_type);
 
 struct spin_count_parameter : public decof::managed_readonly_parameter<decof::integer>
@@ -88,7 +88,7 @@ void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
               << "Integer value: " << std::get<1>(value) << std::endl
               << "Real value: " << std::get<2>(value) << std::endl
               << "String value: " << std::get<3>(value) << std::endl
-              << "Binary value: " << std::get<4>(value) << std::endl;
+              /*<< "Binary value: " << std::get<4>(value) << std::endl*/;
 }
 
 struct ip_address_parameter : public decof::external_readwrite_parameter<decof::string>
@@ -168,9 +168,9 @@ decof::managed_readwrite_parameter<decof::boolean_seq> boolean_seq_param("boolea
 decof::managed_readwrite_parameter<decof::integer_seq> integer_seq_param("integer_seq", &subnode);
 decof::managed_readwrite_parameter<decof::real_seq> real_seq_param("real_seq", &subnode);
 decof::managed_readwrite_parameter<decof::string_seq> string_seq_param("string_seq", &subnode);
-decof::managed_readwrite_parameter<decof::binary_seq> binary_seq_param("binary_seq", &subnode);
+//decof::managed_readwrite_parameter<decof::binary_seq> binary_seq_param("binary_seq", &subnode);
 decof::node tuples_node("tuples", &obj_dict);
-decof::managed_readwrite_parameter<decof::tuple<decof::boolean, decof::integer, decof::real, decof::string, decof::binary>> scalar_tuple("scalar_tuple", &tuples_node);
+decof::managed_readwrite_parameter<std::tuple<decof::boolean, decof::integer, decof::real, decof::string/*, decof::binary*/>> scalar_tuple("scalar_tuple", &tuples_node);
 decof::node events_node("events", &obj_dict);
 exit_event exit_ev("exit", &events_node);
 decof::node writeonly_node("writeonly", &obj_dict);

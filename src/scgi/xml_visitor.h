@@ -35,19 +35,21 @@ public:
     explicit xml_visitor(std::ostream &out);
     virtual ~xml_visitor();
 
-    void visit(event *ev) override;
-    void visit(node *node) override;
-    void visit(object*) override;
-    void visit(basic_parameter<boolean> *param) override;
-    void visit(basic_parameter<integer> *param) override;
-    void visit(basic_parameter<real> *param) override;
-    void visit(basic_parameter<string> *param) override;
-    void visit(basic_parameter<binary> *param) override;
-    void visit(basic_parameter<boolean_seq> *param) override;
-    void visit(basic_parameter<integer_seq> *param) override;
-    void visit(basic_parameter<real_seq> *param) override;
-    void visit(basic_parameter<string_seq> *param) override;
-    void visit(basic_parameter<binary_seq> *param) override;
+    void visit(event* event) override;
+    void visit(node* node) override;
+    void visit(client_read_interface* param) override;
+    void visit(client_write_interface* param) override;
+//    void visit(object*) override;
+//    void visit(basic_parameter<boolean> *param) override;
+//    void visit(basic_parameter<integer> *param) override;
+//    void visit(basic_parameter<real> *param) override;
+//    void visit(basic_parameter<string> *param) override;
+//    void visit(basic_parameter<binary> *param) override;
+//    void visit(basic_parameter<boolean_seq> *param) override;
+//    void visit(basic_parameter<integer_seq> *param) override;
+//    void visit(basic_parameter<real_seq> *param) override;
+//    void visit(basic_parameter<string_seq> *param) override;
+//    void visit(basic_parameter<binary_seq> *param) override;
 
 private:
     void write_param(const object *obj, const std::string &type_str);

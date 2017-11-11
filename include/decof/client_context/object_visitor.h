@@ -26,6 +26,7 @@ namespace decof
 
 // Forward declarations
 class client_read_interface;
+class client_write_interface;
 class event;
 class node;
 template<typename T>
@@ -40,17 +41,20 @@ class object_visitor
 public:
     virtual void visit(event *event);
     virtual void visit(node *node);
-    virtual void visit(object*) = 0;
-    virtual void visit(basic_parameter<boolean> *param);
-    virtual void visit(basic_parameter<integer> *param);
-    virtual void visit(basic_parameter<real> *param);
-    virtual void visit(basic_parameter<string> *param);
-    virtual void visit(basic_parameter<binary> *param);
-    virtual void visit(basic_parameter<boolean_seq> *param);
-    virtual void visit(basic_parameter<integer_seq> *param);
-    virtual void visit(basic_parameter<real_seq> *param);
-    virtual void visit(basic_parameter<string_seq> *param);
-    virtual void visit(basic_parameter<binary_seq> *param);
+//    virtual void visit(object*) = 0;
+    virtual void visit(client_read_interface* param);
+    virtual void visit(client_write_interface* param);
+
+//    virtual void visit(basic_parameter<boolean> *param);
+//    virtual void visit(basic_parameter<integer> *param);
+//    virtual void visit(basic_parameter<real> *param);
+//    virtual void visit(basic_parameter<string> *param);
+//    virtual void visit(basic_parameter<binary> *param);
+//    virtual void visit(basic_parameter<boolean_seq> *param);
+//    virtual void visit(basic_parameter<integer_seq> *param);
+//    virtual void visit(basic_parameter<real_seq> *param);
+//    virtual void visit(basic_parameter<string_seq> *param);
+//    virtual void visit(basic_parameter<binary_seq> *param);
 
 protected:
     void write_indentation(std::stringstream &ss, const object *te);

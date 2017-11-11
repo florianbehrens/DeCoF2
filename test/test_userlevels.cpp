@@ -22,9 +22,11 @@
 
 BOOST_AUTO_TEST_SUITE(userlevels)
 
+using namespace decof;
+
 struct fixture
 {
-    struct my_event_t : public decof::event
+    struct my_event_t : public event
     {
         using event::event;
 
@@ -32,54 +34,54 @@ struct fixture
         {}
     };
 
-    struct my_context_t : public decof::client_context
+    struct my_context_t : public client_context
     {
-        using decof::client_context::client_context;
+        using client_context::client_context;
 
         void get_parameter(const std::string &uri, char separator = ':')
         {
-            decof::client_context::get_parameter(uri, separator);
+            client_context::get_parameter(uri, separator);
         }
 
-        void set_parameter(const std::string &uri, const boost::any &any_value, char separator = ':')
+        void set_parameter(const std::string &uri, const generic_value &any_value, char separator = ':')
         {
-            decof::client_context::set_parameter(uri, any_value, separator);
+            client_context::set_parameter(uri, any_value, separator);
         }
 
         void signal_event(const std::string &uri, char separator = ':')
         {
-            decof::client_context::signal_event(uri, separator);
+            client_context::signal_event(uri, separator);
         }
 
-        void observe(const std::string& uri, decof::client_read_interface::signal_type::slot_type slot,
+        void observe(const std::string& uri, client_read_interface::signal_type::slot_type slot,
                      char separator = ':')
         {
-            decof::client_context::observe(uri, slot, separator);
+            client_context::observe(uri, slot, separator);
         }
     };
 
     fixture() :
-        managed_readwrite_parameter("param", &obj_dict, decof::Forbidden, decof::Internal),
+        managed_readwrite_param("param", &obj_dict, Forbidden, Internal),
         event("event", &obj_dict),
         my_context(new my_context_t(obj_dict))
     {}
 
-    decof::object_dictionary obj_dict;
-    decof::managed_readwrite_parameter<decof::boolean> managed_readwrite_parameter;
+    object_dictionary obj_dict;
+    managed_readwrite_parameter<boolean> managed_readwrite_param;
     my_event_t event;
     std::shared_ptr<my_context_t> my_context;
 };
 
 BOOST_FIXTURE_TEST_CASE(read_access_denied, fixture)
 {
-    managed_readwrite_parameter.readlevel(decof::Forbidden);
+    managed_readwrite_param.readlevel(Forbidden);
 
-    for (decof::userlevel_t ul = decof::Normal; ul <= decof::Internal; ul = static_cast<decof::userlevel_t>(ul + 1)) {
+    for (userlevel_t ul = Normal; ul <= Internal; ul = static_cast<userlevel_t>(ul + 1)) {
         bool read_failed = false;
         try {
             my_context->userlevel(ul);
             my_context->get_parameter("root:param");
-        } catch (decof::access_denied_error &) {
+        } catch (access_denied_error &) {
             read_failed = true;
         }
 
@@ -89,13 +91,13 @@ BOOST_FIXTURE_TEST_CASE(read_access_denied, fixture)
 
 BOOST_FIXTURE_TEST_CASE(read_access_allowed, fixture)
 {
-    my_context->userlevel(decof::Internal);
+    my_context->userlevel(Internal);
 
-    for (decof::userlevel_t ul = decof::Internal; ul >= decof::Normal; ul = static_cast<decof::userlevel_t>(ul - 1)) {
+    for (userlevel_t ul = Internal; ul >= Normal; ul = static_cast<userlevel_t>(ul - 1)) {
         try {
-            managed_readwrite_parameter.readlevel(ul);
+            managed_readwrite_param.readlevel(ul);
             my_context->get_parameter("root:param");
-        } catch (decof::access_denied_error &ex) {
+        } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -103,15 +105,15 @@ BOOST_FIXTURE_TEST_CASE(read_access_allowed, fixture)
 
 BOOST_FIXTURE_TEST_CASE(observation_denied, fixture)
 {
-    managed_readwrite_parameter.readlevel(decof::Forbidden);
+    managed_readwrite_param.readlevel(Forbidden);
 
-    for (decof::userlevel_t ul = decof::Normal; ul <= decof::Internal;
-         ul = static_cast<decof::userlevel_t>(ul + 1)) {
+    for (userlevel_t ul = Normal; ul <= Internal;
+         ul = static_cast<userlevel_t>(ul + 1)) {
         bool observation_failed = false;
         try {
             my_context->userlevel(ul);
-            my_context->observe("root:param", [](const std::string&, const boost::any&) {});
-        } catch (decof::access_denied_error &) {
+            my_context->observe("root:param", [](const std::string&, const generic_value&) {});
+        } catch (access_denied_error &) {
             observation_failed = true;
         }
 
@@ -121,14 +123,14 @@ BOOST_FIXTURE_TEST_CASE(observation_denied, fixture)
 
 BOOST_FIXTURE_TEST_CASE(observation_allowed, fixture)
 {
-    my_context->userlevel(decof::Internal);
+    my_context->userlevel(Internal);
 
-    for (decof::userlevel_t ul = decof::Internal; ul >= decof::Normal;
-         ul = static_cast<decof::userlevel_t>(ul - 1)) {
+    for (userlevel_t ul = Internal; ul >= Normal;
+         ul = static_cast<userlevel_t>(ul - 1)) {
         try {
-            managed_readwrite_parameter.readlevel(ul);
-            my_context->observe("root:param", [](const std::string&, const boost::any&) {});
-        } catch (decof::access_denied_error &ex) {
+            managed_readwrite_param.readlevel(ul);
+            my_context->observe("root:param", [](const std::string&, const generic_value&) {});
+        } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -136,14 +138,14 @@ BOOST_FIXTURE_TEST_CASE(observation_allowed, fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_access_denied, fixture)
 {
-    managed_readwrite_parameter.writelevel(decof::Forbidden);
+    managed_readwrite_param.writelevel(Forbidden);
 
-    for (decof::userlevel_t ul = decof::Normal; ul <= decof::Internal; ul = static_cast<decof::userlevel_t>(ul + 1)) {
+    for (userlevel_t ul = Normal; ul <= Internal; ul = static_cast<userlevel_t>(ul + 1)) {
         bool write_failed = false;
         try {
             my_context->userlevel(ul);
-            my_context->set_parameter("root:param", boost::any(true));
-        } catch (decof::access_denied_error &) {
+            my_context->set_parameter("root:param", generic_value(true));
+        } catch (access_denied_error &) {
             write_failed = true;
         }
 
@@ -153,13 +155,13 @@ BOOST_FIXTURE_TEST_CASE(write_access_denied, fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_access_allowed, fixture)
 {
-    my_context->userlevel(decof::Internal);
+    my_context->userlevel(Internal);
 
-    for (decof::userlevel_t ul = decof::Internal; ul >= decof::Normal; ul = static_cast<decof::userlevel_t>(ul - 1)) {
+    for (userlevel_t ul = Internal; ul >= Normal; ul = static_cast<userlevel_t>(ul - 1)) {
         try {
-            managed_readwrite_parameter.writelevel(ul);
-            my_context->set_parameter("root:param", boost::any(true));
-        } catch (decof::access_denied_error &ex) {
+            managed_readwrite_param.writelevel(ul);
+            my_context->set_parameter("root:param", generic_value(true));
+        } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -167,14 +169,14 @@ BOOST_FIXTURE_TEST_CASE(write_access_allowed, fixture)
 
 BOOST_FIXTURE_TEST_CASE(signal_access_denied, fixture)
 {
-    event.writelevel(decof::Forbidden);
+    event.writelevel(Forbidden);
 
-    for (decof::userlevel_t ul = decof::Normal; ul <= decof::Internal; ul = static_cast<decof::userlevel_t>(ul + 1)) {
+    for (userlevel_t ul = Normal; ul <= Internal; ul = static_cast<userlevel_t>(ul + 1)) {
         bool write_failed = false;
         try {
             my_context->userlevel(ul);
             my_context->signal_event("root:event");
-        } catch (decof::access_denied_error &) {
+        } catch (access_denied_error &) {
             write_failed = true;
         }
 
@@ -184,13 +186,13 @@ BOOST_FIXTURE_TEST_CASE(signal_access_denied, fixture)
 
 BOOST_FIXTURE_TEST_CASE(signal_access_allowed, fixture)
 {
-    my_context->userlevel(decof::Internal);
+    my_context->userlevel(Internal);
 
-    for (decof::userlevel_t ul = decof::Internal; ul >= decof::Normal; ul = static_cast<decof::userlevel_t>(ul - 1)) {
+    for (userlevel_t ul = Internal; ul >= Normal; ul = static_cast<userlevel_t>(ul - 1)) {
         try {
             event.writelevel(ul);
             my_context->signal_event("root:event");
-        } catch (decof::access_denied_error &ex) {
+        } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
     }

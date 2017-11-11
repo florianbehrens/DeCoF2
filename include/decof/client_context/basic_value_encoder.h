@@ -20,14 +20,15 @@
 #include <string>
 #include <ostream>
 
-#include <boost/any.hpp>
-
 #include <decof/conversion.h>
 #include <decof/types.h>
 
 namespace decof
 {
 
+// TODO: Remove?
+
+#if 0
 /** General-pupose value encoder.
  *
  * This class provides a standard iostreams-based encoding for all types in the
@@ -60,6 +61,7 @@ struct basic_value_encoder
 
     virtual void encode_tuple(std::ostream &out, const dynamic_tuple &value);
 };
+#endif
 
 } // namespace decof
 

@@ -17,7 +17,7 @@
 #ifndef DECOF_CLIENT_WRITE_INTERFACE_H
 #define DECOF_CLIENT_WRITE_INTERFACE_H
 
-#include <boost/any.hpp>
+#include "types.h"
 
 namespace decof {
 
@@ -36,11 +36,13 @@ public:
 private:
     /** @brief Set value wrapped in a runtime dynamic type.
      *
-     * Scalar and sequence types must be wrapped in a @c boost::any as they
+     * TODO
+     *
+     * Scalar and sequence types must be wrapped in a generic_value as they
      * are. Tuple types must be dismantled and the individual elements wrapped
-     * in a @c std::vector of @c boost::anys which is, in turn, again wrapped
-     * in a @c boost::any. */
-    virtual void value(const boost::any& any_value) = 0;
+     * in a std::vector of generic_values which is, in turn, again wrapped
+     * in a generic_value. */
+    virtual void value(const generic_value& any_value) = 0;
 };
 
 } // namespace decof

@@ -29,7 +29,7 @@ update_container::update_container() :
     back_(updates_.end())
 {}
 
-void update_container::push(const key_type &uri, const boost::any &any_value)
+void update_container::push(const key_type &uri, const generic_value &any_value)
 {
     // Make sure iterators are either both invalid or both valid.
     assert((front_ == updates_.end() && back_ == updates_.end()) ||
@@ -59,7 +59,7 @@ void update_container::push(const key_type &uri, const boost::any &any_value)
     }
 }
 
-std::tuple<update_container::key_type, boost::any, update_container::time_point> update_container::pop_front()
+std::tuple<update_container::key_type, generic_value, update_container::time_point> update_container::pop_front()
 {
     if (front_ == updates_.end())
         throw std::out_of_range("Container empty");

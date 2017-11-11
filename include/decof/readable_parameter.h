@@ -48,7 +48,7 @@ protected:
     using basic_parameter<T>::basic_parameter;
 
     void signal(const T& value) {
-        signal_(this->fq_name(), boost::any(value));
+        signal_(this->fq_name(), conversion_helper<T>::to_generic(value));
     }
 
 private:

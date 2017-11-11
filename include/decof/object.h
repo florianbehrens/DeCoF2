@@ -19,8 +19,6 @@
 
 #include <string>
 
-#include <boost/any.hpp>
-
 #include "automatic_ptr.h"
 #include "userlevel.h"
 

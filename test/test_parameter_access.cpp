@@ -22,6 +22,8 @@
 
 BOOST_AUTO_TEST_SUITE(parameter_access)
 
+using decof::generic_value;
+
 struct fixture
 {
     struct my_context_t : public decof::client_context
@@ -33,7 +35,7 @@ struct fixture
             decof::client_context::get_parameter(uri, separator);
         }
 
-        void set_parameter(const std::string &uri, const boost::any &any_value, char separator = ':')
+        void set_parameter(const std::string &uri, const generic_value &any_value, char separator = ':')
         {
             decof::client_context::set_parameter(uri, any_value, separator);
         }
@@ -128,7 +130,7 @@ BOOST_FIXTURE_TEST_CASE(write_managed_readonly_parameter, fixture)
     bool write_failed = false;
 
     try {
-        my_context->set_parameter("root:managed_readonly_parameter", boost::any(false));
+        my_context->set_parameter("root:managed_readonly_parameter", generic_value(false));
     } catch (decof::invalid_parameter_error &) {
         write_failed = true;
     }
@@ -174,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE(write_external_readonly_parameter, fixture)
     bool write_failed = false;
 
     try {
-        my_context->set_parameter("root:external_readonly_parameter", boost::any(false));
+        my_context->set_parameter("root:external_readonly_parameter", generic_value(false));
     } catch (decof::invalid_parameter_error &) {
         write_failed = true;
     }
@@ -198,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(read_writeonly_parameter, fixture)
 BOOST_FIXTURE_TEST_CASE(write_writeonly_parameter, fixture)
 {
     try {
-        my_context->set_parameter("root:writeonly_parameter", boost::any(false));
+        my_context->set_parameter("root:writeonly_parameter", generic_value(false));
     } catch (std::exception &ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {

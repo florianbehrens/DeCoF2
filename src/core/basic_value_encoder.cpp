@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if 0
+
 #include <client_context/basic_value_encoder.h>
 
 #include <iomanip>
@@ -189,3 +191,4 @@ void basic_value_encoder::encode_tuple(std::ostream &out, const dynamic_tuple &v
 }
 
 } // namespace decof
+#endif

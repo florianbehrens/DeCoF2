@@ -23,13 +23,14 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/any.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object.h>
 #include <decof/object_dictionary.h>
+#include <decof/types.h>
 
 #include "parser.h"
 #include "encoder.h"
@@ -140,6 +141,7 @@ void clisrv_context::process_request(std::string request)
         uri = object_dictionary_.name() + ":" + uri;
 
     std::ostream out(&outbuf_);
+    encoder encoder(out);
 
     try {
         // Apply special handling for the 'change-ul' command
@@ -157,35 +159,38 @@ void clisrv_context::process_request(std::string request)
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
 
-            encoder().encode_integer(out, userlevel());
+            encoder(static_cast<integer>(userlevel()));
             out << "\n";
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
-            boost::any any_value;
+            bool value_available = false;
+            generic_value any_value;
+
             if (ss_in.peek() != std::stringstream::traits_type::eof()) {
                 parser parser(ss_in);
                 parser.parse();
                 any_value = parser.result();
+                value_available = true;
             }
 
-            if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
+            if ((op == "get" || op == "param-ref") && !uri.empty() && !value_available) {
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
-                    encoder().encode_integer(out, userlevel());
+                    encoder(static_cast<integer>(userlevel()));
                 } else {
-                    boost::any any_value = get_parameter(uri);
-                    encoder().encode_any(out, any_value);
+                    generic_value any_value = get_parameter(uri);
+                    boost::apply_visitor(encoder, any_value);
                 }
 
                 out << "\n";
-            } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
+            } else if ((op == "set" || op == "param-set!") && !uri.empty() && value_available) {
                 set_parameter(uri, any_value);
                 out << "0\n";
-            } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
+            } else if ((op == "signal" || op == "exec") && !uri.empty() && !value_available) {
                 signal_event(uri);
                 out << "()\n";
-            } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
+            } else if ((op == "browse" || op == "param-disp") && !value_available) {
                 // This command is for compatibility reasons with legacy DeCoF
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())

@@ -26,13 +26,13 @@ namespace decof
 {
 
 node::node(std::string name, node *parent, userlevel_t readlevel)
- : readable_parameter<string_seq>(name, parent, readlevel, Forbidden)
+ : readable_parameter<sequence<std::string>>(name, parent, readlevel, Forbidden)
 {}
 
 node::~node()
 {}
 
-string_seq node::value() const
+sequence<std::string> node::value() const
 {
     return children();
 }
@@ -98,10 +98,10 @@ object *node::find_child(const std::string &uri, char separator)
     return te;
 }
 
-string_seq node::children() const
+sequence<std::string> node::children() const
 {
-    string_seq retval;
-    retval.reserve(children_.size());
+    sequence<std::string> retval;
+//    retval.reserve(children_.size());
     for (const auto c : children_)
         retval.push_back(c->name());
     return retval;

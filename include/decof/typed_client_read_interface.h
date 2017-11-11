@@ -19,6 +19,7 @@
 
 #include "client_read_interface.h"
 #include "conversion.h"
+#include "types.h"
 
 namespace decof
 {
@@ -30,11 +31,14 @@ public:
     virtual T value() const = 0;
 
     /// @brief Return value as runtime dynamic type.
+    ///
+    /// TODO:
     /// Scalar and sequence types are wrapped in a boost::any as they are.
     /// Tuple types are dismantled and the individual elements wrapped in a
     /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
-    virtual boost::any any_value() override final {
-        return Conversion<T>::to_any(value());
+    virtual generic_value any_value() const override final {
+//        return Conversion<T>::to_any(value());
+        return conversion_helper<T>::to_generic(value());
     }
 };
 
