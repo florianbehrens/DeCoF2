@@ -44,10 +44,11 @@ struct scalar_conversion_helper
      *
      * @throws wrong_type_error in case of a type mismatch.
      */
-    static T from_generic(const generic_scalar& arg) try {
+    static T from_generic(const generic_scalar& arg) {
+        if (arg.type() != typeid(T))
+            throw wrong_type_error();
+
         return boost::get<T>(arg);
-    } catch (boost::bad_get&) {
-        throw wrong_type_error();
     }
 
     /**
@@ -286,18 +287,19 @@ struct conversion_helper<std::tuple<Args...>>
         tuple_conversion_helper<std::tuple<Elems...>, sizeof...(Elems)>::to_generic(to, from);
     }
 
-    static value_type from_generic(const value_t& arg) try {
+    static value_type from_generic(const value_t& arg) {
+        if (arg.type() != typeid(tuple_t))
+            throw wrong_type_error();
+
         value_type retval;
         from_generic(retval, boost::get<tuple_t>(arg));
         return retval;
-    } catch (boost::bad_get&) {
-        throw wrong_type_error();
     }
 
     static value_t to_generic(const value_type& arg) {
         tuple_t retval;
         to_generic(retval, arg);
-        return value_t{ retval };
+        return retval;
     }
 };
 

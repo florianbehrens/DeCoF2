@@ -60,7 +60,7 @@ using generic_scalar = boost::variant<boolean, integer, real, string>;
 template<typename T>
 T convert_lossless_to_floating_point(integer i)
 {
-    auto const limit = (int64_t(1) << (std::numeric_limits<T>::digits - 1));
+    auto const limit = (1ll << std::numeric_limits<T>::digits);
 
     if (i > limit || i < -limit)
         throw invalid_value_error();
@@ -82,7 +82,11 @@ template<typename T>
 inline T convert_lossless_to_integral(real r)
 {
     if (std::floor(r) == r) {
-        return static_cast<T>(r);
+        try {
+            return boost::numeric_cast<T>(r);
+        } catch(boost::bad_numeric_cast&) {
+            throw invalid_value_error();
+        }
     } else {
         throw invalid_value_error();
     }
