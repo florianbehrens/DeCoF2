@@ -19,7 +19,6 @@
 #include <ostream>
 
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
@@ -120,7 +119,7 @@ void scgi_context::handle_get_request()
 void scgi_context::handle_put_request()
 {
     std::string str;
-    generic_value val;
+    value_t val;
     sequence_t seq;
 
     boost::algorithm::trim_if(parser_.body, boost::is_space());

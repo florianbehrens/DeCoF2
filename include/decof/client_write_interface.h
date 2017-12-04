@@ -34,15 +34,8 @@ public:
     virtual ~client_write_interface() {}
 
 private:
-    /** @brief Set value wrapped in a runtime dynamic type.
-     *
-     * TODO
-     *
-     * Scalar and sequence types must be wrapped in a generic_value as they
-     * are. Tuple types must be dismantled and the individual elements wrapped
-     * in a std::vector of generic_values which is, in turn, again wrapped
-     * in a generic_value. */
-    virtual void value(const generic_value& any_value) = 0;
+    /// @brief Generic parameter value setter.
+    virtual void generic_value(const value_t& value) = 0;
 };
 
 } // namespace decof

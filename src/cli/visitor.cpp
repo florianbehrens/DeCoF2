@@ -53,7 +53,7 @@ void visitor::visit(client_read_interface* param)
         << obj->name();
 
     ss_ << " = ";
-    boost::apply_visitor(enc, static_cast<const generic_value>(param->any_value()));
+    boost::apply_visitor(enc, static_cast<const value_t>(param->generic_value()));
 
     ss_ << std::endl;
 }

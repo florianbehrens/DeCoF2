@@ -63,8 +63,8 @@ public:
     virtual void preload();
 
 protected:
-    void set_parameter(const std::string& uri, const generic_value& any_value, char separator = ':');
-    generic_value get_parameter(const std::string& uri, char separator = ':');
+    void set_parameter(const std::string& uri, const value_t& value, char separator = ':');
+    value_t get_parameter(const std::string& uri, char separator = ':');
 
     /// Signal event.
     /// @param uri The event URI.

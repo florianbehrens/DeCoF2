@@ -101,8 +101,7 @@ enum {
 
 using sequence_t = tagged_type<sequence<generic_scalar>, sequence_tag>;
 using tuple_t = tagged_type<sequence<generic_scalar>, tuple_tag>;
-
-using generic_value = boost::variant<generic_scalar, sequence_t, tuple_t>;
+using value_t = boost::variant<generic_scalar, sequence_t, tuple_t>;
 
 /**
  * @brief Generic equality operator for tagged_type instances.

@@ -43,9 +43,9 @@ struct fixture
             client_context::get_parameter(uri, separator);
         }
 
-        void set_parameter(const std::string &uri, const generic_value &any_value, char separator = ':')
+        void set_parameter(const std::string &uri, const value_t &value, char separator = ':')
         {
-            client_context::set_parameter(uri, any_value, separator);
+            client_context::set_parameter(uri, value, separator);
         }
 
         void signal_event(const std::string &uri, char separator = ':')
@@ -112,7 +112,7 @@ BOOST_FIXTURE_TEST_CASE(observation_denied, fixture)
         bool observation_failed = false;
         try {
             my_context->userlevel(ul);
-            my_context->observe("root:param", [](const std::string&, const generic_value&) {});
+            my_context->observe("root:param", [](const std::string&, const value_t&) {});
         } catch (access_denied_error &) {
             observation_failed = true;
         }
@@ -129,7 +129,7 @@ BOOST_FIXTURE_TEST_CASE(observation_allowed, fixture)
          ul = static_cast<userlevel_t>(ul - 1)) {
         try {
             managed_readwrite_param.readlevel(ul);
-            my_context->observe("root:param", [](const std::string&, const generic_value&) {});
+            my_context->observe("root:param", [](const std::string&, const value_t&) {});
         } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(write_access_denied, fixture)
         bool write_failed = false;
         try {
             my_context->userlevel(ul);
-            my_context->set_parameter("root:param", generic_value(true));
+            my_context->set_parameter("root:param", value_t(true));
         } catch (access_denied_error &) {
             write_failed = true;
         }
@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE(write_access_allowed, fixture)
     for (userlevel_t ul = Internal; ul >= Normal; ul = static_cast<userlevel_t>(ul - 1)) {
         try {
             managed_readwrite_param.writelevel(ul);
-            my_context->set_parameter("root:param", generic_value(true));
+            my_context->set_parameter("root:param", value_t(true));
         } catch (access_denied_error &ex) {
             BOOST_FAIL(ex.what());
         }

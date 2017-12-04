@@ -57,11 +57,13 @@ private:
     /// Callback for write operations.
     void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
-    /** Boost.Signals2 slot function for parameter change notifications.
+    /**
+     * @brief Boost.Signals2 slot function for parameter change notifications.
+     *
      * @param uri The fully qualified name of the parameter which value is
      * updated.
-     * @param any_value The new value wrapped in a boost::any type. */
-    void notify(std::string uri, const generic_value& any_value);
+     * @param value The new value. */
+    void notify(std::string uri, const value_t& value);
 
     /** Initiate chain of write operations for pending updates.
      * @note Does nothing in case of no pending updates or in case a write

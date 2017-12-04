@@ -28,38 +28,15 @@ template<typename T>
 class typed_client_write_interface : public client_write_interface
 {
 private:
-    virtual void value(const T &value) = 0;
-    virtual void value(const generic_value& any_value) override final
+    /// Parameter value setter function.
+    virtual void value(const T&) = 0;
+
+    virtual void generic_value(const value_t& value) override final
     {
-        value(conversion_helper<T>::from_generic(any_value));
+        this->value(conversion_helper<T>::from_generic(value));
     }
 };
 
-// TODO: Can't this simply be removed?
-#if 0
-// Partial template specialization for sequence types.
-template<typename T>
-class typed_client_write_interface<decof::sequence<T>> : public client_write_interface
-{
-    friend class client_context;
-
-private:
-    virtual void value(const decof::sequence<T> &value) = 0;
-    virtual void value(const generic_value& any_value) override final
-    {
-        try {
-            const std::vector<generic_value> &any_vector = boost::any_cast<const std::vector<generic_value> &>(any_value);
-            decof::sequence<T> new_value;
-//            new_value.reserve(any_vector.size());
-            for (auto elem : any_vector)
-                new_value.push_back(boost::any_cast<T>(elem));
-            value(new_value);
-        } catch(boost::bad_any_cast&) {
-            throw wrong_type_error();
-        }
-    }
-};
-#endif
 } // namespace decof
 
 #endif // DECOF_TYPED_CLIENT_WRITE_INTERFACE_H

@@ -42,7 +42,7 @@ public:
     parser(std::istream &in = std::cin);
 
     int parse();
-    generic_value result() const;
+    value_t result() const;
 
 private:
     void error(char const *msg);    // called on (syntax) errors
@@ -59,7 +59,7 @@ private:
     void exceptionHandler__(std::exception const &);
 
     scanner d_scanner;
-    generic_value result_;
+    value_t result_;
 };
 
 // $insert namespace-close

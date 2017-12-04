@@ -153,9 +153,10 @@ struct scalar_conversion_helper<
 };
 
 /**
- * @brief Helper class for conversion from/to generic_value.
+ * @brief Helper class for conversion from/to a value_t.
  *
  * @tparam T The target type for the conversion.
+ * @tparam Enable Dummy argument to enable partial template specialization.
  *
  * A helper class for conversions between generic (e.g., decof::variant) and
  * the corresponding concrete type and vice versa is needed in order to make
@@ -170,7 +171,7 @@ struct conversion_helper
      *
      * @throws wrong_type_error in case of a type mismatch.
      */
-    static T from_generic(const generic_value& arg) {
+    static T from_generic(const value_t& arg) {
         if (arg.type() != typeid(generic_scalar))
             throw wrong_type_error();
 
@@ -183,8 +184,8 @@ struct conversion_helper
      * @throws invalid_value_error if the conversion is not possible without
      * loss of precision.
      */
-    static generic_value to_generic(const T& arg) {
-        return generic_value{ scalar_conversion_helper<T>::to_generic(arg) };
+    static value_t to_generic(const T& arg) {
+        return value_t{ scalar_conversion_helper<T>::to_generic(arg) };
     }
 };
 
@@ -196,7 +197,7 @@ struct conversion_helper<sequence<T>>
 {
     using value_type = sequence<T>;
 
-    static value_type from_generic(const generic_value& arg) {
+    static value_type from_generic(const value_t& arg) {
         if (arg.type() != typeid(sequence_t))
             throw wrong_type_error();
 
@@ -208,13 +209,13 @@ struct conversion_helper<sequence<T>>
         return retval;
     }
 
-    static generic_value to_generic(const value_type& arg) {
+    static value_t to_generic(const value_type& arg) {
         sequence_t tmp;
         for (auto const& elem : arg) {
             tmp.value.push_back(scalar_conversion_helper<T>::to_generic(elem));
         }
 
-        return generic_value{ std::move(tmp) };
+        return value_t{ std::move(tmp) };
     }
 };
 
@@ -285,7 +286,7 @@ struct conversion_helper<std::tuple<Args...>>
         tuple_conversion_helper<std::tuple<Elems...>, sizeof...(Elems)>::to_generic(to, from);
     }
 
-    static value_type from_generic(const generic_value& arg) try {
+    static value_type from_generic(const value_t& arg) try {
         value_type retval;
         from_generic(retval, boost::get<tuple_t>(arg));
         return retval;
@@ -293,10 +294,10 @@ struct conversion_helper<std::tuple<Args...>>
         throw wrong_type_error();
     }
 
-    static generic_value to_generic(const value_type& arg) {
+    static value_t to_generic(const value_type& arg) {
         tuple_t retval;
         to_generic(retval, arg);
-        return generic_value{ retval };
+        return value_t{ retval };
     }
 };
 

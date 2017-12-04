@@ -164,12 +164,12 @@ void clisrv_context::process_request(std::string request)
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
             bool value_available = false;
-            generic_value any_value;
+            value_t value;
 
             if (ss_in.peek() != std::stringstream::traits_type::eof()) {
                 parser parser(ss_in);
                 parser.parse();
-                any_value = parser.result();
+                value = parser.result();
                 value_available = true;
             }
 
@@ -179,13 +179,12 @@ void clisrv_context::process_request(std::string request)
                 if (uri == object_dictionary_.name() + ":ul") {
                     encoder(static_cast<integer>(userlevel()));
                 } else {
-                    generic_value any_value = get_parameter(uri);
-                    boost::apply_visitor(encoder, any_value);
+                    boost::apply_visitor(encoder, static_cast<const value_t>(get_parameter(uri)));
                 }
 
                 out << "\n";
             } else if ((op == "set" || op == "param-set!") && !uri.empty() && value_available) {
-                set_parameter(uri, any_value);
+                set_parameter(uri, value);
                 out << "0\n";
             } else if ((op == "signal" || op == "exec") && !uri.empty() && !value_available) {
                 signal_event(uri);

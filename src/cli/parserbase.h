@@ -53,7 +53,7 @@ namespace Meta__
     };
 
     template <>
-    struct TagOf<generic_value>
+    struct TagOf<value_t>
     {
         static Tag__ const tag = Tag__::GEN;
     };
@@ -73,7 +73,7 @@ namespace Meta__
     template <>
     struct TypeOf<Tag__::GEN>
     {
-        typedef generic_value type;
+        typedef value_t type;
     };
 
 

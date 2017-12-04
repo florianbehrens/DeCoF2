@@ -33,7 +33,7 @@
 %token                  BOOLEAN INTEGER REAL STRING BINARY
 
 // Set polymorphic rules, i.e. rules return different types
-%polymorphic            GEN: generic_value; SEQ: sequence<generic_scalar>; SCL: generic_scalar;
+%polymorphic            GEN: value_t; SEQ: sequence<generic_scalar>; SCL: generic_scalar;
 
 // Define rule return types
 %type                   <GEN> expression
@@ -113,7 +113,7 @@ series:
     }
     | series ',' scalar
     {
-        // Append generic_value $3 to sequence<generic_scalar> $1 and return
+        // Append value_t $3 to sequence<generic_scalar> $1 and return
         $<SEQ>1.push_back($3);
         $<SEQ>$.swap($<SEQ>1);
     }

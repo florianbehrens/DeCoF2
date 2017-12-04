@@ -29,7 +29,7 @@ update_container::update_container() :
     back_(updates_.end())
 {}
 
-void update_container::push(const key_type &uri, const generic_value &any_value)
+void update_container::push(const key_type& uri, const value_t& value)
 {
     // Make sure iterators are either both invalid or both valid.
     assert((front_ == updates_.end() && back_ == updates_.end()) ||
@@ -40,7 +40,7 @@ void update_container::push(const key_type &uri, const generic_value &any_value)
 
     std::tie(current, is_new) = updates_.emplace(uri, container_type::mapped_type());
 
-    current->second.value = any_value;
+    current->second.value = value;
     current->second.time = std::chrono::system_clock::now();
 
     if (is_new) {
@@ -59,7 +59,7 @@ void update_container::push(const key_type &uri, const generic_value &any_value)
     }
 }
 
-std::tuple<update_container::key_type, generic_value, update_container::time_point> update_container::pop_front()
+std::tuple<update_container::key_type, value_t, update_container::time_point> update_container::pop_front()
 {
     if (front_ == updates_.end())
         throw std::out_of_range("Container empty");

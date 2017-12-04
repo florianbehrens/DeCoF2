@@ -64,7 +64,7 @@ std::string client_context::remote_endpoint() const
 void client_context::preload()
 {}
 
-void client_context::set_parameter(const std::string &uri, const generic_value &any_value, char separator)
+void client_context::set_parameter(const std::string& uri, const value_t& value, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -79,10 +79,10 @@ void client_context::set_parameter(const std::string &uri, const generic_value &
     if (userlevel_ > te->writelevel())
         throw access_denied_error();
 
-    param->value(any_value);
+    param->generic_value(value);
 }
 
-generic_value client_context::get_parameter(const std::string &uri, char separator)
+value_t client_context::get_parameter(const std::string &uri, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -94,7 +94,7 @@ generic_value client_context::get_parameter(const std::string &uri, char separat
     if (effective_userlevel() > obj->readlevel())
         throw access_denied_error();
 
-    return param->any_value();
+    return param->generic_value();
 }
 
 void client_context::signal_event(const std::string &uri, char separator)

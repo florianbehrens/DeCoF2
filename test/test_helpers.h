@@ -16,10 +16,10 @@
 
 namespace decof {
 
-// Makes BOOST_REQUIRE_EQUAL possible for generic_value instances.
+// Makes BOOST_REQUIRE_EQUAL possible for sequence_t instances.
 std::ostream& operator<<(std::ostream& out, const sequence_t& arg);
 
-// Makes BOOST_REQUIRE_EQUAL possible for generic_value instances.
+// Makes BOOST_REQUIRE_EQUAL possible for tuple_t instances.
 std::ostream& operator<<(std::ostream& out, const tuple_t& arg);
 
 } // namespace decof
