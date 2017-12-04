@@ -49,12 +49,6 @@ struct binary : public std::string
 template<typename T>
 using sequence = std::deque<T>;
 
-// TODO: Remove?
-typedef sequence<bool> boolean_seq;
-typedef sequence<std::intmax_t> integer_seq;
-typedef sequence<double> real_seq;
-typedef sequence<std::string> string_seq;
-
 using generic_scalar = boost::variant<boolean, integer, real, string>;
 
 template<typename T>

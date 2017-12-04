@@ -134,8 +134,8 @@ private:
 //  | |-- binary: binary (rw)
 //  | |-- boolean_seq: boolean_seq (rw)
 //  | |-- integer_seq: integer_seq (rw)
-//  | |-- real_seq: real_seq (rw)
-//  | |-- string_seq: string_seq (rw)
+//  | |-- real_seq: sequence<real> (rw)
+//  | |-- string_seq: sequence<string> (rw)
 //  | |-- binary_seq: binary_seq (rw)
 //  |-- tuples: node (r)
 //  | |-- tuple2: tuple<boolean, integer> (ro)
@@ -156,18 +156,18 @@ decof::node current_context_node("current-context", &obj_dict);
 current_context_endpoint_parameter endpoint_param("endpoint", &current_context_node);
 decof::node subnode("subnode", &obj_dict);
 time_parameter time_param("time", &subnode);
-decof::string_seq sl = { "value1", "value2", "value3" };
-decof::managed_readwrite_parameter<decof::string_seq> leaf2_param("leaf2", &subnode, decof::Normal, decof::Normal, sl);
+decof::sequence<string> sl = { "value1", "value2", "value3" };
+decof::managed_readwrite_parameter<decof::sequence<string>> leaf2_param("leaf2", &subnode, decof::Normal, decof::Normal, sl);
 ip_address_parameter ipo_address_param("ip-address", &subnode);
 decof::managed_readwrite_parameter<decof::boolean> boolean_param("boolean", &subnode);
 decof::managed_readwrite_parameter<std::uint16_t> integer_param("integer", &subnode);
 decof::managed_readwrite_parameter<decof::real> real_param("real", &subnode);
 decof::managed_readwrite_parameter<decof::string> string_param("string", &subnode);
 decof::managed_readwrite_parameter<decof::binary> binary_param("binary", &subnode);
-decof::managed_readwrite_parameter<decof::boolean_seq> boolean_seq_param("boolean_seq", &subnode);
+decof::managed_readwrite_parameter<decof::sequence<boolean>> boolean_seq_param("boolean_seq", &subnode);
 decof::managed_readwrite_parameter<decof::integer_seq> integer_seq_param("integer_seq", &subnode);
-decof::managed_readwrite_parameter<decof::real_seq> real_seq_param("real_seq", &subnode);
-decof::managed_readwrite_parameter<decof::string_seq> string_seq_param("string_seq", &subnode);
+decof::managed_readwrite_parameter<decof::sequence<real>> real_seq_param("real_seq", &subnode);
+decof::managed_readwrite_parameter<decof::sequence<string>> string_seq_param("string_seq", &subnode);
 //decof::managed_readwrite_parameter<decof::binary_seq> binary_seq_param("binary_seq", &subnode);
 decof::node tuples_node("tuples", &obj_dict);
 decof::managed_readwrite_parameter<std::tuple<decof::boolean, decof::integer, decof::real, decof::string/*, decof::binary*/>> scalar_tuple("scalar_tuple", &tuples_node);

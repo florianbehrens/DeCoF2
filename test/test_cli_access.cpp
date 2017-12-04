@@ -249,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE(string_readwrite, fixture)
 
 BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
 {
-    managed_readonly_parameter<decof::boolean_seq> boolean_seq_ro("boolean_seq_ro", &od, boolean_seq({ true, false, true, false }));
+    managed_readonly_parameter<decof::sequence<boolean>> boolean_seq_ro("boolean_seq_ro", &od, sequence<boolean>({ true, false, true, false }));
     client_sock.write_some(asio::buffer(std::string("get test:boolean_seq_ro\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -260,8 +260,8 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const boolean_seq current = boolean_seq_ro.value();
-    const boolean_seq expected = { true, false, true, false };
+    const sequence<boolean> current = boolean_seq_ro.value();
+    const sequence<boolean> expected = { true, false, true, false };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
@@ -271,13 +271,13 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
 
 BOOST_FIXTURE_TEST_CASE(boolean_seq_readwrite, fixture)
 {
-    managed_readwrite_parameter<decof::boolean_seq> boolean_seq_rw("boolean_seq_rw", &od, boolean_seq({ true, false, true, false }));
+    managed_readwrite_parameter<decof::sequence<boolean>> boolean_seq_rw("boolean_seq_rw", &od, sequence<boolean>({ true, false, true, false }));
     client_sock.write_some(asio::buffer(std::string("set test:boolean_seq_rw [#f,#t,#f,#t]\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const boolean_seq current = boolean_seq_rw.value();
-    const boolean_seq expected = { false, true, false, true };
+    const sequence<boolean> current = boolean_seq_rw.value();
+    const sequence<boolean> expected = { false, true, false, true };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
@@ -335,7 +335,7 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readwrite, fixture)
 
 BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
 {
-    managed_readonly_parameter<decof::real_seq> real_seq_ro("real_seq_ro", &od, real_seq({ -1.23, 1.23 }));
+    managed_readonly_parameter<decof::sequence<real>> real_seq_ro("real_seq_ro", &od, sequence<real>({ -1.23, 1.23 }));
     client_sock.write_some(asio::buffer(std::string("get test:real_seq_ro\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -346,8 +346,8 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const real_seq current = real_seq_ro.value();
-    const real_seq expected = { -1.23, 1.23 };
+    const sequence<real> current = real_seq_ro.value();
+    const sequence<real> expected = { -1.23, 1.23 };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
@@ -357,13 +357,13 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
 
 BOOST_FIXTURE_TEST_CASE(real_seq_readwrite, fixture)
 {
-    managed_readwrite_parameter<decof::real_seq> real_seq_rw("real_seq_rw", &od);
+    managed_readwrite_parameter<decof::sequence<real>> real_seq_rw("real_seq_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:real_seq_rw [-1.23,1.23]\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const real_seq current = real_seq_rw.value();
-    const real_seq expected = { -1.23, 1.23 };
+    const sequence<real> current = real_seq_rw.value();
+    const sequence<real> expected = { -1.23, 1.23 };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
@@ -373,7 +373,7 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readwrite, fixture)
 
 BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
 {
-    managed_readonly_parameter<decof::string_seq> string_seq_ro("string_seq_ro", &od, string_seq({ "Hello", "World" }));
+    managed_readonly_parameter<decof::sequence<string>> string_seq_ro("string_seq_ro", &od, sequence<string>({ "Hello", "World" }));
     client_sock.write_some(asio::buffer(std::string("get test:string_seq_ro\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -384,8 +384,8 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const string_seq current = string_seq_ro.value();
-    const string_seq expected = { "Hello", "World" };
+    const sequence<string> current = string_seq_ro.value();
+    const sequence<string> expected = { "Hello", "World" };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
@@ -395,13 +395,13 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
 
 BOOST_FIXTURE_TEST_CASE(string_seq_readwrite, fixture)
 {
-    managed_readwrite_parameter<decof::string_seq> string_seq_rw("string_seq_rw", &od);
+    managed_readwrite_parameter<decof::sequence<string>> string_seq_rw("string_seq_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:string_seq_rw [\"Hello\",\"World\"]\n")));
     io_service->poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const string_seq current = string_seq_rw.value();
-    const string_seq expected = { "Hello", "World" };
+    const sequence<string> current = string_seq_rw.value();
+    const sequence<string> expected = { "Hello", "World" };
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         current.cbegin(),
         current.cend(),
