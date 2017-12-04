@@ -135,12 +135,12 @@ void scgi_context::handle_put_request()
                 throw invalid_value_error();
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer") {
             ss >> str;
-            val = generic_scalar{ boost::lexical_cast<integer>(str) };
+            val = scalar_t{ boost::lexical_cast<integer>(str) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.real") {
             ss >> str;
-            val = generic_scalar{ boost::lexical_cast<real>(str) };
+            val = scalar_t{ boost::lexical_cast<real>(str) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
-            val = generic_scalar{ std::move(parser_.body) };
+            val = scalar_t{ std::move(parser_.body) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
 //            seq.reserve(parser_.body.size() / sizeof(char));
             for (char c : parser_.body)
@@ -175,7 +175,7 @@ void scgi_context::handle_put_request()
                 std::tie(result, it) = parser.parse(it, parser_.body.cend());
 
                 if (result == bencode_string_parser::good) {
-                    seq.value.push_back(generic_scalar{ std::move(parser.data) });
+                    seq.value.push_back(scalar_t{ std::move(parser.data) });
                 } else
                     throw invalid_value_error();
 

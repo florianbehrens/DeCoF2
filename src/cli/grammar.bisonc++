@@ -33,7 +33,7 @@
 %token                  BOOLEAN INTEGER REAL STRING BINARY
 
 // Set polymorphic rules, i.e. rules return different types
-%polymorphic            GEN: value_t; SEQ: sequence<generic_scalar>; SCL: generic_scalar;
+%polymorphic            GEN: value_t; SEQ: sequence<scalar_t>; SCL: scalar_t;
 
 // Define rule return types
 %type                   <GEN> expression
@@ -48,17 +48,17 @@
 expression:
     scalar
     {
-        // Assign $1 of type generic_scalar to result_
+        // Assign $1 of type scalar_t to result_
         result_ = std::move($1);
     }
     | sequence
     {
-        // Assign $1 of type sequence<generic_scalar> to result_
+        // Assign $1 of type sequence<scalar_t> to result_
         result_ = sequence_t{ std::move($1) };
     }
     | tuple
     {
-        // Assign $1 of type sequence<generic_scalar> to result_
+        // Assign $1 of type sequence<scalar_t> to result_
         result_ = tuple_t{ std::move($1) };
     }
     ;
@@ -100,7 +100,7 @@ opt_series:
     }
     | series
     {
-        // Swap sequence<generic_scalar> types $$ and $1
+        // Swap sequence<scalar_t> types $$ and $1
         $<SEQ>$.swap($<SEQ>1);
     }
     ;
@@ -108,12 +108,12 @@ opt_series:
 series:
     scalar
     {
-        // Initialize sequence<generic_scalar> with single element from scalar rule
+        // Initialize sequence<scalar_t> with single element from scalar rule
         $<SEQ>$.push_back($1);
     }
     | series ',' scalar
     {
-        // Append value_t $3 to sequence<generic_scalar> $1 and return
+        // Append value_t $3 to sequence<scalar_t> $1 and return
         $<SEQ>1.push_back($3);
         $<SEQ>$.swap($<SEQ>1);
     }
@@ -122,7 +122,7 @@ series:
 sequence:
     '[' opt_series ']'
     {
-        // Swap sequence<generic_scalar> types $$ and $2
+        // Swap sequence<scalar_t> types $$ and $2
         $<SEQ>$.swap($<SEQ>2);
     }
     ;
@@ -130,7 +130,7 @@ sequence:
 tuple:
     '{' opt_series '}'
     {
-        // Swap sequence<generic_scalar> types $$ and $2
+        // Swap sequence<scalar_t> types $$ and $2
         $<SEQ>$.swap($<SEQ>2);
     }
     ;

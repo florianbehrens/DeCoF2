@@ -41,13 +41,13 @@ namespace Meta__
 
 // $insert polymorphicSpecializations
     template <>
-    struct TagOf<generic_scalar>
+    struct TagOf<scalar_t>
     {
         static Tag__ const tag = Tag__::SCL;
     };
 
     template <>
-    struct TagOf<sequence<generic_scalar>>
+    struct TagOf<sequence<scalar_t>>
     {
         static Tag__ const tag = Tag__::SEQ;
     };
@@ -61,13 +61,13 @@ namespace Meta__
     template <>
     struct TypeOf<Tag__::SCL>
     {
-        typedef generic_scalar type;
+        typedef scalar_t type;
     };
 
     template <>
     struct TypeOf<Tag__::SEQ>
     {
-        typedef sequence<generic_scalar> type;
+        typedef sequence<scalar_t> type;
     };
 
     template <>

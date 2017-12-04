@@ -70,7 +70,7 @@ js_value_encoder::js_value_encoder(std::ostream& out) :
     m_out(out)
 {}
 
-void js_value_encoder::operator()(const generic_scalar &arg) const
+void js_value_encoder::operator()(const scalar_t &arg) const
 {
     boost::apply_visitor(*this, arg);
 }

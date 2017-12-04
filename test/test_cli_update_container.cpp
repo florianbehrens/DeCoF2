@@ -25,7 +25,7 @@
 
 BOOST_AUTO_TEST_SUITE(cli_update_container)
 
-using decof::generic_scalar;
+using decof::scalar_t;
 using decof::value_t;
 using decof::integer;
 using decof::real;

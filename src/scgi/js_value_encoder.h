@@ -33,7 +33,7 @@ struct js_value_encoder : public boost::static_visitor<>
 {
     explicit js_value_encoder(std::ostream& out);
 
-    void operator()(const generic_scalar& arg) const;
+    void operator()(const scalar_t& arg) const;
     void operator()(const sequence_t& arg) const;
     void operator()(const tuple_t& arg) const;
 

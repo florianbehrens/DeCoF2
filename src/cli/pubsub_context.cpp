@@ -190,7 +190,7 @@ void pubsub_context::process_request(std::string request)
                 throw access_denied_error();
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
-            notify(object_dictionary_.name() + ":ul", generic_scalar(static_cast<decof::integer>(userlevel())));
+            notify(object_dictionary_.name() + ":ul", scalar_t(static_cast<decof::integer>(userlevel())));
         } else {
             in >> uri;
 

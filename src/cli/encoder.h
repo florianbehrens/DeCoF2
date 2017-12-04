@@ -34,7 +34,7 @@ class encoder : public boost::static_visitor<>
 public:
     explicit encoder(std::ostream& out);
 
-    void operator()(const generic_scalar& arg) const;
+    void operator()(const scalar_t& arg) const;
     void operator()(const sequence_t& arg) const;
     void operator()(const tuple_t& arg) const;
 

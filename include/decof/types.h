@@ -49,7 +49,7 @@ struct binary : public std::string
 template<typename T>
 using sequence = std::deque<T>;
 
-using generic_scalar = boost::variant<boolean, integer, real, string>;
+using scalar_t = boost::variant<boolean, integer, real, string>;
 
 template<typename T>
 T convert_lossless_to_floating_point(integer i)
@@ -97,9 +97,9 @@ enum {
     tuple_tag
 };
 
-using sequence_t = tagged_type<sequence<generic_scalar>, sequence_tag>;
-using tuple_t = tagged_type<sequence<generic_scalar>, tuple_tag>;
-using value_t = boost::variant<generic_scalar, sequence_t, tuple_t>;
+using sequence_t = tagged_type<sequence<scalar_t>, sequence_tag>;
+using tuple_t = tagged_type<sequence<scalar_t>, tuple_tag>;
+using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
 
 /**
  * @brief Generic equality operator for tagged_type instances.

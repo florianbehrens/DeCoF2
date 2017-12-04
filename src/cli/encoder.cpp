@@ -64,7 +64,7 @@ encoder::encoder(std::ostream& out) :
     m_out(out)
 {}
 
-void encoder::operator()(const generic_scalar& arg) const
+void encoder::operator()(const scalar_t& arg) const
 {
     boost::apply_visitor(*this, arg);
 }

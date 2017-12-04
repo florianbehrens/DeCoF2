@@ -44,7 +44,7 @@ struct scalar_conversion_helper
      *
      * @throws wrong_type_error in case of a type mismatch.
      */
-    static T from_generic(const generic_scalar& arg) {
+    static T from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(T))
             throw wrong_type_error();
 
@@ -57,8 +57,8 @@ struct scalar_conversion_helper
      * @throws invalid_value_error if the conversion is not possible without
      * loss of precision.
      */
-    static generic_scalar to_generic(const T& arg) {
-        return generic_scalar{ arg };
+    static scalar_t to_generic(const T& arg) {
+        return scalar_t{ arg };
     }
 };
 
@@ -74,7 +74,7 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    static T from_generic(const generic_scalar& var) {
+    static T from_generic(const scalar_t& var) {
         if (var.type() == typeid(real)) {
             return convert_lossless_to_integral<T>(boost::get<real>(var));
         } else if (var.type() == typeid(integer)) {
@@ -84,8 +84,8 @@ struct scalar_conversion_helper<
         throw wrong_type_error();
     }
 
-    static generic_scalar to_generic(const T& arg) {
-        return generic_scalar{ convert_lossless<integer>(arg) };
+    static scalar_t to_generic(const T& arg) {
+        return scalar_t{ convert_lossless<integer>(arg) };
     }
 };
 
@@ -100,7 +100,7 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    static T from_generic(const generic_scalar& var) {
+    static T from_generic(const scalar_t& var) {
         if (var.type() == typeid(integer)) {
             return convert_lossless_to_floating_point<T>(boost::get<integer>(var));
         } else if (var.type() == typeid(real)) {
@@ -110,8 +110,8 @@ struct scalar_conversion_helper<
         throw wrong_type_error();
     }
 
-    static generic_scalar to_generic(const T& arg) {
-        return generic_scalar{ convert_lossless<real>(arg) };
+    static scalar_t to_generic(const T& arg) {
+        return scalar_t{ convert_lossless<real>(arg) };
     }
 };
 
@@ -128,7 +128,7 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    static T from_generic(const generic_scalar& arg) {
+    static T from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(std::string)) {
             throw wrong_type_error();
         }
@@ -145,11 +145,11 @@ struct scalar_conversion_helper<
         );
     }
 
-    static generic_scalar to_generic(const T& arg) {
+    static scalar_t to_generic(const T& arg) {
         std::string tmp(
             reinterpret_cast<const char*>(arg.data()),
             reinterpret_cast<const char*>(arg.data() + arg.size()));
-        return generic_scalar{ std::move(tmp) };
+        return scalar_t{ std::move(tmp) };
     }
 };
 
@@ -173,10 +173,10 @@ struct conversion_helper
      * @throws wrong_type_error in case of a type mismatch.
      */
     static T from_generic(const value_t& arg) {
-        if (arg.type() != typeid(generic_scalar))
+        if (arg.type() != typeid(scalar_t))
             throw wrong_type_error();
 
-        return scalar_conversion_helper<T>::from_generic(boost::get<generic_scalar>(arg));
+        return scalar_conversion_helper<T>::from_generic(boost::get<scalar_t>(arg));
     }
 
     /**
