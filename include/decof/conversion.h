@@ -27,6 +27,59 @@ namespace decof
 {
 
 /**
+ * @brief Converts an integer number losslessly to type T or throws.
+ *
+ * @param i Integer value to convert losslessly to type T.
+ * @throw invalid_value_error if conversion is not lossless.
+ */
+template<typename T>
+T convert_lossless_to_floating_point(integer i)
+{
+    auto const limit = (1ll << std::numeric_limits<T>::digits);
+
+    if (i > limit || i < -limit)
+        throw invalid_value_error();
+
+    return static_cast<T>(i);
+}
+
+/**
+ * @brief Converts an input type From losslessly to type To or throws.
+ *
+ * @param from Value to convert losslessly to type To.
+ * @throw invalid_value_error if conversion is not lossless.
+ */
+template<typename To, typename From>
+inline To convert_lossless(const From& from)
+{
+    try {
+        return boost::numeric_cast<To>(from);
+    } catch (boost::bad_numeric_cast&) {
+        throw invalid_value_error();
+    }
+}
+
+/**
+ * @brief Converts a real value losslessly to an integer value or throws.
+ *
+ * @param r Real value to convert losslessly to type T.
+ * @throw invalid_value_error if conversion is not lossless.
+ */
+template<typename T>
+inline T convert_lossless_to_integral(real r)
+{
+    if (std::floor(r) == r) {
+        try {
+            return boost::numeric_cast<T>(r);
+        } catch(boost::bad_numeric_cast&) {
+            throw invalid_value_error();
+        }
+    } else {
+        throw invalid_value_error();
+    }
+}
+
+/**
  * @brief Helper class for conversion from/to generic_scalar.
  *
  * @tparam T The target type for the conversion.

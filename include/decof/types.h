@@ -49,57 +49,11 @@ struct binary : public std::string
 template<typename T>
 using sequence = std::deque<T>;
 
-using scalar_t = boost::variant<boolean, integer, real, string>;
-
-template<typename T>
-T convert_lossless_to_floating_point(integer i)
-{
-    auto const limit = (1ll << std::numeric_limits<T>::digits);
-
-    if (i > limit || i < -limit)
-        throw invalid_value_error();
-
-    return static_cast<T>(i);
-}
-
-template<typename To, typename From>
-inline To convert_lossless(const From& from)
-{
-    try {
-        return boost::numeric_cast<To>(from);
-    } catch (boost::bad_numeric_cast&) {
-        throw invalid_value_error();
-    }
-}
-
-template<typename T>
-inline T convert_lossless_to_integral(real r)
-{
-    if (std::floor(r) == r) {
-        try {
-            return boost::numeric_cast<T>(r);
-        } catch(boost::bad_numeric_cast&) {
-            throw invalid_value_error();
-        }
-    } else {
-        throw invalid_value_error();
-    }
-}
-
 template<typename T, size_t Id>
 struct tagged_type
 {
     T value;
 };
-
-enum {
-    sequence_tag,
-    tuple_tag
-};
-
-using sequence_t = tagged_type<sequence<scalar_t>, sequence_tag>;
-using tuple_t = tagged_type<sequence<scalar_t>, tuple_tag>;
-using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
 
 /**
  * @brief Generic equality operator for tagged_type instances.
@@ -109,6 +63,16 @@ bool operator==(const tagged_type<T, Id>& lhs, const tagged_type<T, Id>& rhs)
 {
     return lhs == rhs;
 }
+
+enum {
+    sequence_tag,
+    tuple_tag
+};
+
+using scalar_t = boost::variant<boolean, integer, real, string>;
+using sequence_t = tagged_type<sequence<scalar_t>, sequence_tag>;
+using tuple_t = tagged_type<sequence<scalar_t>, tuple_tag>;
+using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
 
 } // namespace decof
 
