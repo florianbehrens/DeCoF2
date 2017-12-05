@@ -19,33 +19,36 @@
 
 #include <functional>
 
+#include "encoding_hint.h"
 #include "external_readwrite_parameter.h"
 
 namespace decof
 {
 
-/** @brief External readwrite parameter class with handler registration support.
+/**
+ * @brief External readwrite parameter class with handler registration support.
  *
  * This class is the handler version of class #external_readwrite_parameter. It
  * supports runtime registration of callable(s) as handler functions.
  *
  * @tparam T The value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class external_readwrite_handler_parameter : public external_readwrite_parameter<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class external_readwrite_handler_parameter : public external_readwrite_parameter<T, EncodingHint>
 {
 public:
-    using external_readwrite_parameter<T>::external_readwrite_parameter;
+    using external_readwrite_parameter<T, EncodingHint>::external_readwrite_parameter;
 
     /// Set external value setter handler.
-    external_readwrite_handler_parameter<T> &external_value_set_handler(std::function<bool(const T&)> handler)
+    external_readwrite_handler_parameter<T, EncodingHint> &external_value_set_handler(std::function<bool(const T&)> handler)
     {
         external_value_set_handler_ = handler;
         return *this;
     }
 
     /// Set external value getter handler.
-    external_readwrite_handler_parameter<T> &external_value_get_handler(std::function<T()> handler)
+    external_readwrite_handler_parameter<T, EncodingHint> &external_value_get_handler(std::function<T()> handler)
     {
         external_value_get_handler_ = handler;
         return *this;

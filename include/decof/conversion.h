@@ -20,6 +20,7 @@
 #include <tuple>
 #include <type_traits>
 
+#include "encoding_hint.h"
 #include "exceptions.h"
 #include "types.h"
 
@@ -89,7 +90,7 @@ inline T convert_lossless_to_integral(real r)
  * use of partial template specialization which is not possible with function
  * templates.
  */
-template<typename T, typename Enable = void>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct scalar_conversion_helper
 {
     /**
@@ -121,6 +122,7 @@ struct scalar_conversion_helper
 template<typename T>
 struct scalar_conversion_helper<
     T,
+    encoding_hint::none,
     typename std::enable_if<
         std::is_integral<typename std::remove_reference<T>::type>::value &&
         !std::is_same<typename std::remove_reference<T>::type, bool>::value
@@ -148,6 +150,7 @@ struct scalar_conversion_helper<
 template<typename T>
 struct scalar_conversion_helper<
     T,
+    encoding_hint::none,
     typename std::enable_if<
         std::is_floating_point<typename std::remove_reference<T>::type>::value
     >::type
@@ -168,12 +171,20 @@ struct scalar_conversion_helper<
     }
 };
 
+//std::string -> string_t
+//std::vector<float> -> sequence<real>
+
+
+
+
+
 /**
  * @brief Partial template specialization for sequence of char types.
  */
 template<typename T>
 struct scalar_conversion_helper<
     T,
+    encoding_hint::none,
     typename std::enable_if<
         std::is_same<decltype(std::declval<const T>().data()), typename T::value_type const*>::value && // has T::data() method?
         std::is_same<decltype(std::declval<T>().size()), typename T::size_type>::value && // has T::size() method?
@@ -182,11 +193,11 @@ struct scalar_conversion_helper<
 >
 {
     static T from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(std::string)) {
+        if (arg.type() != typeid(string_t)) {
             throw wrong_type_error();
         }
 
-        auto const& str = boost::get<std::string>(arg);
+        auto const& str = boost::get<string_t>(arg);
 
         if (str.size() % sizeof(typename T::value_type)) {
             throw invalid_value_error();
@@ -199,10 +210,60 @@ struct scalar_conversion_helper<
     }
 
     static scalar_t to_generic(const T& arg) {
-        std::string tmp(
+        string_t tmp(
             reinterpret_cast<const char*>(arg.data()),
             reinterpret_cast<const char*>(arg.data() + arg.size()));
         return scalar_t{ std::move(tmp) };
+    }
+};
+
+// std::vector<T>, binary <-> binary_t
+/**
+ * @brief Partial template specialization for binary encoding of contiguous
+ * array types.
+ *
+ * This partial template specialization is chosen if @c EncodingHint is
+ * encoding_hint::binary and @c T satisifies the following requirements:
+ *
+ * - Provides a constructor <tt>T::T(T::value_type const*, T::value_type const*)</tt>,
+ * - Provides a member function <tt>T::value_type const* data() const</tt>,
+ * - Provides a member function <tt>T::size_type size() const</tt>,
+ *
+ * such as types like @c std::vector<T>, and @c std::string provide.
+ */
+template<typename T>
+struct scalar_conversion_helper<
+    T,
+    encoding_hint::binary,
+    typename std::enable_if<
+        std::is_same<decltype(std::declval<const T>().data()), typename T::value_type const*>::value && // has T::data() method?
+        std::is_same<decltype(std::declval<const T>().size()), typename T::size_type>::value && // has T::size() method?
+        std::is_constructible<T, typename T::value_type const*, typename T::value_type const*>::value // has T(It, It) constructor
+    >::type
+>
+{
+    static T from_generic(const scalar_t& arg) {
+        if (arg.type() != typeid(binary_t)) {
+            throw wrong_type_error();
+        }
+
+        auto const& val = boost::get<binary_t>(arg);
+
+        if (val.size() % sizeof(typename T::value_type)) {
+            throw invalid_value_error();
+        }
+
+        return T(
+            reinterpret_cast<typename T::value_type const*>(val.data()),
+            reinterpret_cast<typename T::value_type const*>(val.data() + val.size())
+        );
+    }
+
+    static scalar_t to_generic(const T& arg) {
+        // Assumption: No alignment gaps!
+        return binary_t(
+            reinterpret_cast<const char*>(arg.data()),
+            reinterpret_cast<const char*>(arg.data() + arg.size()));
     }
 };
 
@@ -217,7 +278,7 @@ struct scalar_conversion_helper<
  * use of partial template specialization which is not possible with function
  * templates.
  */
-template<typename T, typename Enable = void>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct conversion_helper
 {
     /**
@@ -247,7 +308,7 @@ struct conversion_helper
  * @brief Partial template specialization for sequence types.
  */
 template<typename T>
-struct conversion_helper<sequence<T>>
+struct conversion_helper<sequence<T>, encoding_hint::none>
 {
     using value_type = sequence<T>;
 
@@ -256,7 +317,7 @@ struct conversion_helper<sequence<T>>
             throw wrong_type_error();
 
         value_type retval;
-        for (auto const& elem : boost::get<sequence_t>(arg).value) {
+        for (auto const& elem : boost::get<sequence_t>(arg)) {
             retval.push_back(scalar_conversion_helper<T>::from_generic(elem));
         }
 
@@ -266,7 +327,7 @@ struct conversion_helper<sequence<T>>
     static value_t to_generic(const value_type& arg) {
         sequence_t tmp;
         for (auto const& elem : arg) {
-            tmp.value.push_back(scalar_conversion_helper<T>::to_generic(elem));
+            tmp.push_back(scalar_conversion_helper<T>::to_generic(elem));
         }
 
         return value_t{ std::move(tmp) };
@@ -277,7 +338,7 @@ struct conversion_helper<sequence<T>>
  * @brief Partial template specialization for tuple types.
  */
 template<typename... Args>
-struct conversion_helper<std::tuple<Args...>>
+struct conversion_helper<std::tuple<Args...>, encoding_hint::none>
 {
     using value_type = std::tuple<Args...>;
 
@@ -296,13 +357,13 @@ struct conversion_helper<std::tuple<Args...>>
             std::get<N-1>(to) =
                 scalar_conversion_helper<
                     typename std::tuple_element<N-1, Tuple>::type
-                >::from_generic(from.value[N-1]);
+                >::from_generic(from[N-1]);
         }
 
         static void to_generic(tuple_t& to, const Tuple& from)
         {
             tuple_conversion_helper<Tuple, N-1>::to_generic(to, from);
-            to.value.push_back(
+            to.push_back(
                 scalar_conversion_helper<
                     typename std::tuple_element<N-1, Tuple>::type
                 >::to_generic(std::get<N-1>(from)));
@@ -316,12 +377,12 @@ struct conversion_helper<std::tuple<Args...>>
         {
             std::get<0>(to) = scalar_conversion_helper<
                 typename std::tuple_element<0, Tuple>::type
-            >::from_generic(from.value[0]);
+            >::from_generic(from[0]);
         }
 
         static void to_generic(tuple_t& to, const Tuple& from)
         {
-            to.value.push_back(
+            to.push_back(
                 scalar_conversion_helper<
                     typename std::tuple_element<0, Tuple>::type
                 >::to_generic(std::get<0>(from)));

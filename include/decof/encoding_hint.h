@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2017 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_BASIC_PARAMETER_H
-#define DECOF_BASIC_PARAMETER_H
+#ifndef DECOF_ENCODING_HINT
+#define DECOF_ENCODING_HINT
 
-#include "object.h"
+namespace decof {
 
-namespace decof
-{
-
-/** @brief Basic parameter type.
- *
- * @tparam T The parameter value type.
- *
- * A basic_parameter adds to the #object class the concept of a parameter
- * value of a certain type. It does not contain any accessing functions.
+/**
+ * @brief Encoding hints for client contexts.
  */
-template<typename T>
-class basic_parameter : public object
+enum class encoding_hint
 {
-public:
-    typedef T value_type;
-
-protected:
-    // We inherit base class constructors
-    using object::object;
+    none,
+    binary
 };
 
 } // namespace decof
 
-#endif // DECOF_BASIC_PARAMETER_H
+#endif // DECOF_ENCODING_HINT

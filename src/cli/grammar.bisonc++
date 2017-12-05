@@ -83,12 +83,12 @@ scalar:
         // Trim "" and unescape matched string
         decof::string res = d_scanner.matched();
         res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
-        $$ = res;
+        $$ = string_t{ std::move(res) };
     }
     | BINARY
     {
         // Decode matched string
-        $$ = base64decode(d_scanner.matched().substr(1));
+        $$ = binary_t{ base64decode(d_scanner.matched().substr(1)) };
     }
     ;
 

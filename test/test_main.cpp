@@ -30,9 +30,9 @@ std::ostream& operator<<(std::ostream& out, const sequence_t& arg)
 {
     out << '[';
 
-    auto it = std::cbegin(arg.value);
-    for (; it != std::cend(arg.value); ++it) {
-        if (it != std::cbegin(arg.value)) out.put(',');
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) out.put(',');
         out << *it;
     }
 
@@ -45,9 +45,9 @@ std::ostream& operator<<(std::ostream& out, const tuple_t& arg)
 {
     out << '{';
 
-    auto it = std::cbegin(arg.value);
-    for (; it != std::cend(arg.value); ++it) {
-        if (it != std::cbegin(arg.value)) out.put(',');
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) out.put(',');
         out << *it;
     }
 

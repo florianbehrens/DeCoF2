@@ -78,12 +78,12 @@ void js_value_encoder::operator()(const scalar_t &arg) const
 void js_value_encoder::operator()(const sequence_t& arg) const
 {
     sequence_element_encoder enc(m_out);
-    for (const auto& elem : arg.value) boost::apply_visitor(enc, elem);
+    for (const auto& elem : arg) boost::apply_visitor(enc, elem);
 }
 
 void js_value_encoder::operator()(const tuple_t& arg) const
 {
-    for (const auto& elem : arg.value) {
+    for (const auto& elem : arg) {
         boost::apply_visitor(*this, elem);
         m_out << "\r\n";
     }

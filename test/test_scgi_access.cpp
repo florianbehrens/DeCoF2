@@ -398,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(put_string, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_binary, fixture)
 {
-    managed_readonly_parameter<binary> binary_ro("binary_ro", &od, "Hello\nWorld");
+    managed_readonly_parameter<std::string, encoding_hint::binary> binary_ro("binary_ro", &od, "Hello\nWorld");
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },

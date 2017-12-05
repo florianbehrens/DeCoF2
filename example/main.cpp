@@ -31,7 +31,7 @@ DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(current_context_endpoint_parameter, st
 DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(time_parameter, string);
 DECOF_DECLARE_EVENT(exit_event);
 DECOF_DECLARE_WRITEONLY_PARAMETER(cout_parameter, string);
-typedef std::tuple<boolean, integer, real, string/*, binary*/> cout_tuple_parameter_type;
+typedef std::tuple<boolean, integer, real, string> cout_tuple_parameter_type;
 DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_type);
 
 struct spin_count_parameter : public managed_readonly_parameter<integer>
@@ -89,8 +89,7 @@ void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
     std::cout << "Boolean value: " << std::get<0>(value) << std::endl
               << "Integer value: " << std::get<1>(value) << std::endl
               << "Real value: " << std::get<2>(value) << std::endl
-              << "String value: " << std::get<3>(value) << std::endl
-              /*<< "Binary value: " << std::get<4>(value) << std::endl*/;
+              << "String value: " << std::get<3>(value) << std::endl;
 }
 
 struct ip_address_parameter : public external_readwrite_parameter<string>
@@ -164,15 +163,15 @@ ip_address_parameter ipo_address_param("ip-address", &subnode);
 managed_readwrite_parameter<boolean> boolean_param("boolean", &subnode);
 managed_readwrite_parameter<std::uint16_t> integer_param("integer", &subnode);
 managed_readwrite_parameter<real> real_param("real", &subnode);
-managed_readwrite_parameter<string> string_param("string", &subnode);
-managed_readwrite_parameter<binary> binary_param("binary", &subnode);
+managed_readwrite_parameter<std::string> string_param("string", &subnode);
+managed_readwrite_parameter<std::vector<float>, encoding_hint::binary> binary_param("binary", &subnode);
 managed_readwrite_parameter<sequence<boolean>> boolean_seq_param("boolean_seq", &subnode);
 managed_readwrite_parameter<sequence<integer>> integer_seq_param("integer_seq", &subnode);
 managed_readwrite_parameter<sequence<real>> real_seq_param("real_seq", &subnode);
 managed_readwrite_parameter<sequence<string>> string_seq_param("string_seq", &subnode);
-//managed_readwrite_parameter<std::string> binary_seq_param("binary_seq", &subnode);
+managed_readwrite_parameter<std::vector<float>, encoding_hint::binary> binary_seq_param("binary_seq", &subnode);
 node tuples_node("tuples", &obj_dict);
-managed_readwrite_parameter<std::tuple<boolean, integer, real, string/*, binary*/>> scalar_tuple("scalar_tuple", &tuples_node);
+managed_readwrite_parameter<std::tuple<boolean, integer, real, string>> scalar_tuple("scalar_tuple", &tuples_node);
 node events_node("events", &obj_dict);
 exit_event exit_ev("exit", &events_node);
 node writeonly_node("writeonly", &obj_dict);

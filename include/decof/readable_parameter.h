@@ -22,14 +22,15 @@
 #include <decof/client_context/object_visitor.h>
 
 #include "basic_parameter.h"
+#include "encoding_hint.h"
 #include "conversion.h"
 #include "typed_client_read_interface.h"
 
 namespace decof
 {
 
-template<typename T>
-class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T, EncodingHint>
 {
 public:
     virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override {
@@ -48,7 +49,7 @@ protected:
     using basic_parameter<T>::basic_parameter;
 
     void signal(const T& value) {
-        signal_(this->fq_name(), conversion_helper<T>::to_generic(value));
+        signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
     }
 
 private:

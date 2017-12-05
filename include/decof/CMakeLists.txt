@@ -7,6 +7,7 @@ add_custom_target(
         client_read_interface.h
         client_write_interface.h
         conversion.h
+        encoding_hint.h
         event.h
         exceptions.h
         external_readonly_handler_parameter.h

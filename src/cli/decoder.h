@@ -32,7 +32,7 @@ namespace cli
 {
 
 /// Base64 string decoder function.
-binary base64decode(std::string base64);
+std::string base64decode(std::string base64);
 
 /**
  * @brief Converts the backslash escaped character sequence [#begin, #end) to an

@@ -69,4 +69,12 @@ BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integral)
     BOOST_REQUIRE_EQUAL(conversion_helper<integer>::from_generic(val_max), nominal);
 }
 
+BOOST_AUTO_TEST_CASE(vector_binary_conversion)
+{
+    std::vector<float> v{ 1.0f, 2.0f, 3.0f };
+    auto value = scalar_conversion_helper<decltype(v), encoding_hint::binary>::to_generic(v);
+    BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(value));
+    BOOST_REQUIRE((v == scalar_conversion_helper<decltype(v), encoding_hint::binary>::from_generic(value)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

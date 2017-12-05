@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "encoding_hint.h"
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"
 
@@ -36,18 +37,24 @@ namespace decof
 {
 
 /**
+ * @brief Readwrite parameter type with an externally managed value.
+ *
  * An external_readwrite_parameter may only be modified by the client side and is
  * managed by the server implementation, i.e. externally from the framework's
  * viewpoint.
  *
  * This parameter type can be monitored efficiently.
+ *
+ * @tparam T The parameter value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class external_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class external_readwrite_parameter :
+    public readable_parameter<T, EncodingHint>, public typed_client_write_interface<T, EncodingHint>
 {
 public:
     external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal) :
-        readable_parameter<T>(name, parent, readlevel, writelevel)
+        readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel)
     {}
 
     virtual T value() const override final {
@@ -57,7 +64,7 @@ public:
 private:
     virtual void value(const T &value) override final {
         if (external_value(value) == true)
-            readable_parameter<T>::signal(value);
+            readable_parameter<T, EncodingHint>::signal(value);
     }
 
     virtual bool external_value(const T &value) = 0;

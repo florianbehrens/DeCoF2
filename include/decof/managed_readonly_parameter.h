@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "encoding_hint.h"
 #include "readable_parameter.h"
 
 /// Convenience macro for parameter declaration
@@ -32,21 +33,24 @@ namespace decof
 {
 
 /**
- * A managed_readonly_parameter may only by modified by the server side.
+ * @brief A managed_readonly_parameter may only by modified by the server side.
  *
  * This parameter type can be monitored efficiently.
+ *
+ * @tparam T The parameter value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class managed_readonly_parameter : public readable_parameter<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class managed_readonly_parameter : public readable_parameter<T, EncodingHint>
 {
 public:
     managed_readonly_parameter(std::string name, node *parent, const T &value)
-     : readable_parameter<T>(name, parent, Normal, Forbidden),
+     : readable_parameter<T, EncodingHint>(name, parent, Normal, Forbidden),
        value_(value)
     {}
 
     managed_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, const T &value = T())
-     : readable_parameter<T>(name, parent, readlevel, Forbidden),
+     : readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden),
        value_(value)
     {}
 
@@ -68,7 +72,7 @@ public:
     {
         if (value_ != value) {
             value_ = value;
-            readable_parameter<T>::signal(value_);
+            readable_parameter<T, EncodingHint>::signal(value_);
         }
     }
 
@@ -79,7 +83,7 @@ public:
     {
         if (value_ != value) {
             value_ = std::move(value);
-            readable_parameter<T>::signal(value_);
+            readable_parameter<T, EncodingHint>::signal(value_);
         }
     }
 

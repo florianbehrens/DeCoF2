@@ -19,23 +19,26 @@
 
 #include <functional>
 
+#include "encoding_hint.h"
 #include "external_readonly_parameter.h"
 
 namespace decof
 {
 
-/** @brief External readonly parameter class with handler registration support.
+/**
+ * @brief External readonly parameter class with handler registration support.
  *
  * This class is the handler version of class #external_readonly_parameter. It
  * supports runtime registration of callable(s) as handler functions.
  *
  * @tparam T The value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class external_readonly_handler_parameter : public external_readonly_parameter<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class external_readonly_handler_parameter : public external_readonly_parameter<T, EncodingHint>
 {
 public:
-    using external_readonly_parameter<T>::external_readonly_parameter;
+    using external_readonly_parameter<T, EncodingHint>::external_readonly_parameter;
 
     /// Set external value getter handler.
     void external_value_handler(std::function<T()> handler)

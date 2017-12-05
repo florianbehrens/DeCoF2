@@ -447,14 +447,14 @@ try
          
          decof::string res = d_scanner.matched();
          res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
-         d_val__.get<Tag__::SCL>() = res;
+         d_val__.get<Tag__::SCL>() = string_t{ std::move(res) };
          }
         break;
 
         case 8:
         {
          
-         d_val__.get<Tag__::SCL>() = base64decode(d_scanner.matched().substr(1));
+         d_val__.get<Tag__::SCL>() = binary_t{ base64decode(d_scanner.matched().substr(1)) };
          }
         break;
 

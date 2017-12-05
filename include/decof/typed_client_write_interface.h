@@ -18,13 +18,13 @@
 #define DECOF_TYPED_CLIENT_WRITE_INTERFACE_H
 
 #include "client_write_interface.h"
-#include "conversion.h"
+#include "encoding_hint.h"
 #include "exceptions.h"
 
 namespace decof
 {
 
-template<typename T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_write_interface : public client_write_interface
 {
 private:
@@ -33,7 +33,7 @@ private:
 
     virtual void generic_value(const value_t& value) override final
     {
-        this->value(conversion_helper<T>::from_generic(value));
+        this->value(conversion_helper<T, EncodingHint>::from_generic(value));
     }
 };
 

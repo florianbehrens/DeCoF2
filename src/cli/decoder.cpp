@@ -26,7 +26,7 @@ namespace decof
 namespace cli
 {
 
-binary base64decode(std::string base64)
+std::string base64decode(std::string base64)
 {
     // This function is based on code from
     // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
@@ -36,7 +36,7 @@ binary base64decode(std::string base64)
 
     unsigned int paddChars = count(base64.begin(), base64.end(), '=');
     std::replace(base64.begin(), base64.end(), '=', 'A');
-    binary result(it_binary_t(base64.begin()), it_binary_t(base64.end()));
+    std::string result(it_binary_t(base64.begin()), it_binary_t(base64.end()));
     result.erase(result.end() - paddChars, result.end());
     return result;
 }

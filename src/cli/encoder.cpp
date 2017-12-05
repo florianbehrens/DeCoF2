@@ -32,7 +32,7 @@
 namespace {
 
 /// Base64 string encoder function.
-std::string base64_encode(const decof::binary &bin)
+std::string base64_encode(const std::string& bin)
 {
     // The following is based on code from
     // http://stackoverflow.com/questions/10521581/base64-encode-using-boost-throw-exception/10973348#10973348
@@ -55,11 +55,6 @@ namespace decof
 namespace cli
 {
 
-//void encoder::encode_binary(std::ostream &out, const binary &value)
-//{
-//    out << "&" << base64_encode(value);
-//}
-
 encoder::encoder(std::ostream& out) :
     m_out(out)
 {}
@@ -73,9 +68,9 @@ void encoder::operator()(const sequence_t& arg) const
 {
     m_out << '[';
 
-    auto it = std::cbegin(arg.value);
-    for (; it != std::cend(arg.value); ++it) {
-        if (it != std::cbegin(arg.value)) m_out.put(',');
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) m_out.put(',');
         boost::apply_visitor(*this, *it);
     }
 
@@ -86,9 +81,9 @@ void encoder::operator()(const tuple_t& arg) const
 {
     m_out << '{';
 
-    auto it = std::cbegin(arg.value);
-    for (; it != std::cend(arg.value); ++it) {
-        if (it != std::cbegin(arg.value)) m_out.put(',');
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) m_out.put(',');
         boost::apply_visitor(*this, *it);
     }
 
@@ -112,7 +107,7 @@ void encoder::operator()(const real& arg) const
     m_out << std::setprecision(17) << arg;
 }
 
-void encoder::operator()(const string& arg) const
+void encoder::operator()(const string_t& arg) const
 {
     static const std::map<char, char> escape_characters = {
         { '\a', 'a' },
@@ -145,44 +140,10 @@ void encoder::operator()(const string& arg) const
     m_out << '"';
 }
 
-//void encoder::operator()(const sequence<integer>& val) const
-//{
-//    m_out << '[';
-
-//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
-//        if (it != val.cbegin())
-//            m_out << ",";
-//        this->operator()(*it);
-//    }
-
-//    m_out << '[';
-//}
-
-//void encoder::operator()(const sequence<real>& val) const
-//{
-//    m_out << '[';
-
-//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
-//        if (it != val.cbegin())
-//            m_out << ",";
-//        this->operator()(*it);
-//    }
-
-//    m_out << '[';
-//}
-
-//void encoder::operator()(const sequence<string>& val) const
-//{
-//    m_out << '[';
-
-//    for (auto it = val.cbegin(); it != val.cend(); ++it) {
-//        if (it != val.cbegin())
-//            m_out << ",";
-//        this->operator()(*it);
-//    }
-
-//    m_out << '[';
-//}
+void encoder::operator()(const binary_t &arg) const
+{
+    m_out << '&' << base64_encode(arg);
+}
 
 } // namespace cli
 

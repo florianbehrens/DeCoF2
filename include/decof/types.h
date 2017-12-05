@@ -40,38 +40,93 @@ typedef long long integer;
 typedef double real;
 typedef std::string string;
 
-// TODO:
-struct binary : public std::string
-{
-    using std::string::string;
-};
-
 template<typename T>
 using sequence = std::deque<T>;
 
-template<typename T, size_t Id>
-struct tagged_type
+/**
+ * @brief Type tagging class.
+ *
+ * This template class creates a completely new type so that the following
+ * condition is @c true:
+ * @code
+ * typeid(tag<T>) != typeid(T)
+ * @endcode
+ *
+ * The new type behaves exactly like the original type, though.
+ */
+template<typename T, size_t Id = 0>
+struct tag : public T
 {
-    T value;
+    using T::T;
+
+    /**
+     * @brief Explicit default constructor.
+     *
+     * We need an explicit default constructor, because it is not automatically
+     * generated for classes with at least one user-defined constructor.
+     */
+    tag() = default;
+
+    /**
+     * @brief Implicit conversion from base type.
+     */
+    tag(const T& rhs) :
+        T(rhs)
+    {}
+
+    /**
+     * @brief Assignment operator from base type.
+     */
+    tag& operator=(const T& rhs)
+    {
+        if (static_cast<T*>(this) == &rhs) {
+            return *this;
+        } else {
+            T::operator=(rhs);
+        }
+
+        return *this;
+    }
+
+    /**
+     * @brief Move assignment operator from base type.
+     */
+    tag& operator=(T&& rhs)
+    {
+        if (static_cast<T*>(this) == &rhs) {
+            return *this;
+        } else {
+            T::operator=(std::move(rhs));
+        }
+
+        return *this;
+    }
+
+    /**
+     * @brief Move constructor from base type.
+     */
+    tag(T&& rhs) :
+        T(std::move(rhs))
+    {}
 };
 
-/**
- * @brief Generic equality operator for tagged_type instances.
- */
-template<typename T, size_t Id>
-bool operator==(const tagged_type<T, Id>& lhs, const tagged_type<T, Id>& rhs)
-{
-    return lhs == rhs;
-}
+enum {
+    string_tag,
+    binary_tag
+};
+
+using string_t = tag<string, string_tag>;
+using binary_t = tag<string, binary_tag>;
+
+using scalar_t = boost::variant<boolean, integer, real, string_t, binary_t>;
 
 enum {
     sequence_tag,
     tuple_tag
 };
 
-using scalar_t = boost::variant<boolean, integer, real, string>;
-using sequence_t = tagged_type<sequence<scalar_t>, sequence_tag>;
-using tuple_t = tagged_type<sequence<scalar_t>, tuple_tag>;
+using sequence_t = tag<sequence<scalar_t>, sequence_tag>;
+using tuple_t = tag<sequence<scalar_t>, tuple_tag>;
 using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
 
 } // namespace decof

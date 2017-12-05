@@ -19,12 +19,12 @@
 
 #include "client_read_interface.h"
 #include "conversion.h"
-#include "types.h"
+#include "encoding_hint.h"
 
 namespace decof
 {
 
-template<typename T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_read_interface : public client_read_interface
 {
 public:
@@ -32,7 +32,7 @@ public:
     virtual T value() const = 0;
 
     virtual value_t generic_value() const override final {
-        return conversion_helper<T>::to_generic(value());
+        return conversion_helper<T, EncodingHint>::to_generic(value());
     }
 };
 

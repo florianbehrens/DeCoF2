@@ -17,6 +17,7 @@
 #ifndef DECOF_ALL_H
 #define DECOF_ALL_H
 
+#include "encoding_hint.h"
 #include "event.h"
 #include "exceptions.h"
 #include "external_readonly_handler_parameter.h"

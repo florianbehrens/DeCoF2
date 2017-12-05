@@ -25,15 +25,11 @@
 
 BOOST_AUTO_TEST_SUITE(cli_update_container)
 
-using decof::scalar_t;
-using decof::value_t;
-using decof::integer;
-using decof::real;
-using decof::string;
+using namespace decof;
 
 struct fixture
 {
-    decof::cli::update_container updates_;
+    cli::update_container updates_;
 };
 
 BOOST_FIXTURE_TEST_CASE(initial_empty, fixture)
@@ -46,13 +42,13 @@ BOOST_FIXTURE_TEST_CASE(push_single_element, fixture)
     const std::string nominal_uri("root");
     const value_t nominal_value(integer(0));
 
-    decof::cli::update_container::time_point before = std::chrono::system_clock::now();
+    cli::update_container::time_point before = std::chrono::system_clock::now();
     updates_.push(nominal_uri, nominal_value);
-    decof::cli::update_container::time_point after = std::chrono::system_clock::now();
+    cli::update_container::time_point after = std::chrono::system_clock::now();
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
     std::string actual_uri;
-    decof::cli::update_container::time_point time;
+    cli::update_container::time_point time;
     value_t actual_value;
 
     std::tie(actual_uri, actual_value, time) = updates_.pop_front();
@@ -67,7 +63,7 @@ BOOST_FIXTURE_TEST_CASE(push_single_element, fixture)
 BOOST_FIXTURE_TEST_CASE(push_equal_elements, fixture)
 {
     const std::string nominal_uri("very:very:very:lengthy:parameter:path");
-    const value_t value(string(10, 'A'));
+    const value_t value(string_t(10, 'A'));
 
     // Push a huge number of equal key updates
     const size_t count = 1000000;
@@ -80,15 +76,15 @@ BOOST_FIXTURE_TEST_CASE(push_equal_elements, fixture)
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // Check current time
-    decof::cli::update_container::time_point before = std::chrono::system_clock::now();
-    const value_t nominal_value(string(10, 'X'));
+    cli::update_container::time_point before = std::chrono::system_clock::now();
+    const value_t nominal_value(string_t(10, 'X'));
     updates_.push(nominal_uri, nominal_value);
-    decof::cli::update_container::time_point after = std::chrono::system_clock::now();
+    cli::update_container::time_point after = std::chrono::system_clock::now();
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
     std::string actual_uri;
     value_t actual_value;
-    decof::cli::update_container::time_point time;
+    cli::update_container::time_point time;
 
     std::tie(actual_uri, actual_value, time) = updates_.pop_front();
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);
@@ -111,13 +107,13 @@ BOOST_FIXTURE_TEST_CASE(push_different_elements, fixture)
 
     // Push a reasonably big number of different key updates
     const size_t count = 1000000;
-    decof::cli::update_container::time_point before = std::chrono::system_clock::now();
+    cli::update_container::time_point before = std::chrono::system_clock::now();
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < count; ++i) {
         updates_.push(uri + std::to_string(i), integer(i));
     }
     auto duration = std::chrono::high_resolution_clock::now() - start;
-    decof::cli::update_container::time_point after = std::chrono::system_clock::now();
+    cli::update_container::time_point after = std::chrono::system_clock::now();
 
     std::cout << "Pushing " << count << " different elements into container took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
@@ -130,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE(push_different_elements, fixture)
     start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < count; ++i) {
         std::string actual_uri;
-        decof::cli::update_container::time_point time;
+        cli::update_container::time_point time;
         value_t actual_value;
 
         std::tie(actual_uri, actual_value, time) = updates_.pop_front();
@@ -148,12 +144,12 @@ BOOST_FIXTURE_TEST_CASE(push_different_elements, fixture)
 
 BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
 {
-    decof::cli::update_container::time_point time[6];
+    cli::update_container::time_point time[6];
 
     time[0] = std::chrono::system_clock::now();
     updates_.push("parameter1", integer(1));
     time[1] = std::chrono::system_clock::now();
-    updates_.push("parameter2", string("value"));
+    updates_.push("parameter2", string_t("value"));
     time[2] = std::chrono::system_clock::now();
     updates_.push("parameter1", integer(2));
     time[3] = std::chrono::system_clock::now();
@@ -165,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
     std::string actual_uri;
-    decof::cli::update_container::time_point actual_time;
+    cli::update_container::time_point actual_time;
     value_t actual_value;
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
@@ -175,7 +171,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
     BOOST_REQUIRE_EQUAL("parameter2", actual_uri);
-    BOOST_REQUIRE(value_t{ string("value") } == actual_value);
+    BOOST_REQUIRE(value_t{ string_t("value") } == actual_value);
     BOOST_REQUIRE(time[1] <= actual_time && actual_time <= time[2]);
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
@@ -187,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
 BOOST_FIXTURE_TEST_CASE(empty_and_push_element, fixture)
 {
     std::string actual_uri;
-    decof::cli::update_container::time_point actual_time;
+    cli::update_container::time_point actual_time;
     value_t actual_value;
 
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);

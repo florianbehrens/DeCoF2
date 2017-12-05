@@ -135,16 +135,16 @@ void scgi_context::handle_put_request()
                 throw invalid_value_error();
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer") {
             ss >> str;
-            val = scalar_t{ boost::lexical_cast<integer>(str) };
+            val = boost::lexical_cast<integer>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real") {
             ss >> str;
-            val = scalar_t{ boost::lexical_cast<real>(str) };
+            val = boost::lexical_cast<real>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
-            val = scalar_t{ std::move(parser_.body) };
+            val = string_t{ std::move(parser_.body) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
 //            seq.reserve(parser_.body.size() / sizeof(char));
             for (char c : parser_.body)
-                seq.value.emplace_back(c > 0);
+                seq.emplace_back(c > 0);
             val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
             if (parser_.body.size() % sizeof(integer))
@@ -154,7 +154,7 @@ void scgi_context::handle_put_request()
 //            seq.reserve(size);
             array_view<const integer> elems(reinterpret_cast<const integer*>(&parser_.body[0]), size);
             for (auto elem : elems)
-                seq.value.emplace_back(static_cast<integer>(little_endian_to_native(elem)));
+                seq.emplace_back(static_cast<integer>(little_endian_to_native(elem)));
             val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
             if (parser_.body.size() % sizeof(decof::real))
@@ -165,7 +165,7 @@ void scgi_context::handle_put_request()
 
             array_view<const double> elems(reinterpret_cast<const double*>(&parser_.body[0]), size);
             for (auto elem : elems)
-                seq.value.emplace_back(little_endian_to_native(elem));
+                seq.emplace_back(little_endian_to_native(elem));
             val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
             auto it = parser_.body.cbegin();
@@ -175,7 +175,7 @@ void scgi_context::handle_put_request()
                 std::tie(result, it) = parser.parse(it, parser_.body.cend());
 
                 if (result == bencode_string_parser::good) {
-                    seq.value.push_back(scalar_t{ std::move(parser.data) });
+                    seq.push_back(string_t{ std::move(parser.data) });
                 } else
                     throw invalid_value_error();
 
