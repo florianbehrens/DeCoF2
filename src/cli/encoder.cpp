@@ -138,7 +138,7 @@ void encoder::operator()(const string& arg) const
         } else if ((it = escape_characters.find(ch)) != escape_characters.cend()) {
             m_out << "\\" << it->second;
         } else {
-            m_out << "\\x" << std::hex << ch;
+            m_out << "\\x" << std::setw(2) << std::setfill('0') << std::hex << int(ch);
         }
     }
 
