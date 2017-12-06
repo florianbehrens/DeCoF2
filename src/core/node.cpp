@@ -101,7 +101,6 @@ object *node::find_child(const std::string &uri, char separator)
 sequence<std::string> node::children() const
 {
     sequence<std::string> retval;
-//    retval.reserve(children_.size());
     for (const auto c : children_)
         retval.push_back(c->name());
     return retval;

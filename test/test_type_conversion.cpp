@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// TODO
-//#include "value.h"
 #include <decof/types.h>
 #include <decof/conversion.h>
 

@@ -142,7 +142,6 @@ void scgi_context::handle_put_request()
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
             val = string_t{ std::move(parser_.body) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
-//            seq.reserve(parser_.body.size() / sizeof(char));
             for (char c : parser_.body)
                 seq.emplace_back(c > 0);
             val = std::move(seq);
@@ -151,7 +150,6 @@ void scgi_context::handle_put_request()
                 throw invalid_value_error();
 
             size_t size = parser_.body.size() / sizeof(integer);
-//            seq.reserve(size);
             array_view<const integer> elems(reinterpret_cast<const integer*>(&parser_.body[0]), size);
             for (auto elem : elems)
                 seq.emplace_back(static_cast<integer>(little_endian_to_native(elem)));
@@ -161,7 +159,6 @@ void scgi_context::handle_put_request()
                 throw invalid_value_error();
 
             size_t size = parser_.body.size() / sizeof(decof::real);
-//            seq.reserve(size);
 
             array_view<const double> elems(reinterpret_cast<const double*>(&parser_.body[0]), size);
             for (auto elem : elems)
