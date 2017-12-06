@@ -25,8 +25,6 @@ namespace decof
 {
 
 // Forward declarations
-class client_read_interface;
-class client_write_interface;
 class event;
 class node;
 class object;
@@ -37,10 +35,33 @@ class object;
 class object_visitor
 {
 public:
-    virtual void visit(event *event);
-    virtual void visit(node *node);
-    virtual void visit(client_read_interface* param);
-    virtual void visit(client_write_interface* param);
+    /**
+     * @name Language type visitor functions.
+     * @{
+     */
+    virtual void visit(object* obj) {}
+    virtual void visit(event* event) {}
+    virtual void visit(node* node) {}
+    ///@}
+
+    /**
+     * @name Parameter value type class visitor functions.
+     * @{
+     */
+    virtual void visit(object* obj, boolean);
+    virtual void visit(object* obj, integer);
+    virtual void visit(object* obj, real);
+    virtual void visit(object* obj, string_t);
+    virtual void visit(object* obj, binary_t);
+
+    virtual void visit(object* obj, sequence<boolean>);
+    virtual void visit(object* obj, sequence<integer>);
+    virtual void visit(object* obj, sequence<real>);
+    virtual void visit(object* obj, sequence<string_t>);
+    virtual void visit(object* obj, sequence<binary_t>);
+
+    virtual void visit(object* obj, tuple_t);
+    ///@}
 
 protected:
     void write_indentation(std::stringstream &ss, const object *te);

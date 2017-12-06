@@ -84,6 +84,8 @@ inline T convert_lossless_to_integral(real r)
  * @brief Helper class for conversion from/to generic_scalar.
  *
  * @tparam T The target type for the conversion.
+ * @tparam EncodingHint Encoding hints for use by client contexts.
+ * @tparam Enable Dummy argument to enable partial template specialization.
  *
  * A helper class for conversions between a generic scalar type and
  * the corresponding concrete type and vice versa is needed in order to make
@@ -93,6 +95,8 @@ inline T convert_lossless_to_integral(real r)
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct scalar_conversion_helper
 {
+    using type = T;
+
     /**
      * @brief Conversion from value of type generic_scalar to concrete type.
      *
@@ -129,6 +133,8 @@ struct scalar_conversion_helper<
     >::type
 >
 {
+    using type = integer;
+
     static T from_generic(const scalar_t& var) {
         if (var.type() == typeid(real)) {
             return convert_lossless_to_integral<T>(boost::get<real>(var));
@@ -156,6 +162,8 @@ struct scalar_conversion_helper<
     >::type
 >
 {
+    using type = real;
+
     static T from_generic(const scalar_t& var) {
         if (var.type() == typeid(integer)) {
             return convert_lossless_to_floating_point<T>(boost::get<integer>(var));
@@ -185,6 +193,8 @@ struct scalar_conversion_helper<
     >::type
 >
 {
+    using type = string_t;
+
     static T from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(string_t)) {
             throw wrong_type_error();
@@ -234,6 +244,8 @@ struct scalar_conversion_helper<
     >::type
 >
 {
+    using type = binary_t;
+
     static T from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(binary_t) && arg.type() != typeid(string_t)) {
             throw wrong_type_error();
@@ -266,6 +278,7 @@ struct scalar_conversion_helper<
  * @brief Helper class for conversion from/to a value_t.
  *
  * @tparam T The target type for the conversion.
+ * @tparam EncodingHint Encoding hints for use by client contexts.
  * @tparam Enable Dummy argument to enable partial template specialization.
  *
  * A helper class for conversions between generic (e.g., decof::variant) and
@@ -276,6 +289,8 @@ struct scalar_conversion_helper<
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct conversion_helper
 {
+    using type = typename scalar_conversion_helper<T, EncodingHint>::type;
+
     /**
      * @brief Conversion from generic (e.g., decof::variant) to concrete type.
      *
@@ -305,13 +320,13 @@ struct conversion_helper
 template<typename T, encoding_hint EncodingHint>
 struct conversion_helper<sequence<T>, EncodingHint>
 {
-    using value_type = sequence<T>;
+    using type = sequence<typename scalar_conversion_helper<T, EncodingHint>::type>;
 
-    static value_type from_generic(const value_t& arg) {
+    static sequence<T> from_generic(const value_t& arg) {
         if (arg.type() != typeid(sequence_t))
             throw wrong_type_error();
 
-        value_type retval;
+        sequence<T> retval;
         for (auto const& elem : boost::get<sequence_t>(arg)) {
             retval.push_back(scalar_conversion_helper<T, EncodingHint>::from_generic(elem));
         }
@@ -319,7 +334,7 @@ struct conversion_helper<sequence<T>, EncodingHint>
         return retval;
     }
 
-    static value_t to_generic(const value_type& arg) {
+    static value_t to_generic(const sequence<T>& arg) {
         sequence_t tmp;
         for (auto const& elem : arg) {
             tmp.push_back(scalar_conversion_helper<T, EncodingHint>::to_generic(elem));
@@ -335,6 +350,7 @@ struct conversion_helper<sequence<T>, EncodingHint>
 template<typename... Args>
 struct conversion_helper<std::tuple<Args...>, encoding_hint::none>
 {
+    using type = tuple_t;
     using value_type = std::tuple<Args...>;
 
     template<typename Tuple>

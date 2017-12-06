@@ -35,8 +35,8 @@ class visitor : public object_visitor
 public:
     explicit visitor(std::stringstream &ss);
 
-    virtual void visit(node *node) override;
-    virtual void visit(client_read_interface* param) override;
+    virtual void visit(object* obj) override;
+    virtual void visit(node* node) override;
 
 private:
     std::stringstream &ss_;

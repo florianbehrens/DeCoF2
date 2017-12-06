@@ -164,7 +164,7 @@ managed_readwrite_parameter<boolean> boolean_param("boolean", &subnode);
 managed_readwrite_parameter<std::uint16_t> integer_param("integer", &subnode);
 managed_readwrite_parameter<real> real_param("real", &subnode);
 managed_readwrite_parameter<std::string> string_param("string", &subnode);
-managed_readwrite_parameter<std::vector<float>, encoding_hint::binary> binary_param("binary", &subnode);
+managed_readwrite_parameter<std::string, encoding_hint::binary> binary_param("binary", &subnode);
 managed_readwrite_parameter<sequence<boolean>> boolean_seq_param("boolean_seq", &subnode);
 managed_readwrite_parameter<sequence<integer>> integer_seq_param("integer_seq", &subnode);
 managed_readwrite_parameter<sequence<real>> real_seq_param("real_seq", &subnode);

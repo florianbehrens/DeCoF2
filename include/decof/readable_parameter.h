@@ -30,7 +30,9 @@ namespace decof
 {
 
 template<typename T, encoding_hint EncodingHint = encoding_hint::none>
-class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T, EncodingHint>
+class readable_parameter :
+    public basic_parameter<T, EncodingHint>,
+    public typed_client_read_interface<T, EncodingHint>
 {
 public:
     virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override {
@@ -39,14 +41,9 @@ public:
         return retval;
     }
 
-    /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor) override {
-        visitor->visit(this);
-    }
-
 protected:
     // We inherit base class constructors
-    using basic_parameter<T>::basic_parameter;
+    using basic_parameter<T, EncodingHint>::basic_parameter;
 
     void signal(const T& value) {
         signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));

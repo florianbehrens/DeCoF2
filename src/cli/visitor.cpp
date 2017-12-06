@@ -33,29 +33,27 @@ visitor::visitor(std::stringstream &ss) :
     ss_(ss)
 {}
 
-void visitor::visit(node* node)
+void visitor::visit(object* obj)
 {
-    write_indentation(ss_, node);
-    if (node->parent() != nullptr)
-        ss_ << ":";
-    ss_ << node->name() << std::endl;
-}
-
-void visitor::visit(client_read_interface* param)
-{
-    encoder enc(ss_);
-    auto obj = dynamic_cast<object*>(param);
-
-    if (!obj) return;
+    auto param = dynamic_cast<client_read_interface*>(obj);
+    if (!param) return;
 
     write_indentation(ss_, obj);
     ss_ << (obj->parent() != nullptr ? ":" : "" )
         << obj->name();
 
     ss_ << " = ";
-    boost::apply_visitor(enc, static_cast<const value_t>(param->generic_value()));
+    boost::apply_visitor(encoder(ss_), static_cast<const value_t>(param->generic_value()));
 
     ss_ << std::endl;
+}
+
+void visitor::visit(node* node)
+{
+    write_indentation(ss_, node);
+    if (node->parent() != nullptr)
+        ss_ << ":";
+    ss_ << node->name() << std::endl;
 }
 
 } // namespace cli

@@ -32,6 +32,23 @@ std::string node_type_str(decof::node *node)
     return ss.str();
 }
 
+std::string userlevel_name(decof::userlevel_t ul)
+{
+    static const std::map<decof::userlevel_t, const char*> userlevel_names = {
+        { decof::Internal,    "internal" },
+        { decof::Service,     "service" },
+        { decof::Maintenance, "maintenance" },
+        { decof::Normal,      "normal" },
+        { decof::Readonly,    "readonly" }
+    };
+
+    try {
+        return userlevel_names.at(ul);
+    } catch (std::out_of_range&) {}
+
+    return "invalid";
+}
+
 } // Anonymous namespace
 
 namespace decof
@@ -109,70 +126,62 @@ void xml_visitor::visit(node* node)
         write_param(node, node_type_str(node));
 }
 
-void xml_visitor::visit(client_read_interface* param)
+void xml_visitor::visit(object* obj, boolean)
 {
-
+    write_param(obj, "BOOLEAN");
 }
 
-void xml_visitor::visit(client_write_interface* param)
+void xml_visitor::visit(object* obj, integer)
 {
-
+    write_param(obj, "INTEGER");
 }
 
-//void xml_visitor::visit(object*)
-//{}
+void xml_visitor::visit(object* obj, real)
+{
+    write_param(obj, "REAL");
+}
 
-//void xml_visitor::visit(basic_parameter<boolean> *param)
-//{
-//    write_param(param, "BOOLEAN");
-//}
+void xml_visitor::visit(object* obj, string_t)
+{
+    write_param(obj, "STRING");
+}
 
-//void xml_visitor::visit(basic_parameter<integer> *param)
-//{
-//    write_param(param, "INTEGER");
-//}
+void xml_visitor::visit(object* obj, binary_t)
+{
+    write_param(obj, "BINARY");
+}
 
-//void xml_visitor::visit(basic_parameter<real> *param)
-//{
-//    write_param(param, "REAL");
-//}
+void xml_visitor::visit(object* obj, sequence<boolean>)
+{
+    write_param(obj, "BOOLEAN_SEQ");
+}
 
-//void xml_visitor::visit(basic_parameter<string> *param)
-//{
-//    write_param(param, "STRING");
-//}
+void xml_visitor::visit(object* obj, sequence<integer>)
+{
+    write_param(obj, "INTEGER_SEQ");
+}
 
-//void xml_visitor::visit(basic_parameter<binary> *param)
-//{
-//    write_param(param, "BINARY");
-//}
+void xml_visitor::visit(object* obj, sequence<real>)
+{
+    write_param(obj, "REAL_SEQ");
+}
 
-//void xml_visitor::visit(basic_parameter<boolean_seq> *param)
-//{
-//    write_param(param, "BOOLEAN_SEQ");
-//}
+void xml_visitor::visit(object* obj, sequence<string_t>)
+{
+    write_param(obj, "STRING_SEQ");
+}
 
-//void xml_visitor::visit(basic_parameter<integer_seq> *param)
-//{
-//    write_param(param, "INTEGER_SEQ");
-//}
+void xml_visitor::visit(object* obj, sequence<binary_t>)
+{
+    write_param(obj, "BINARY_SEQ");
+}
 
-//void xml_visitor::visit(basic_parameter<real_seq> *param)
-//{
-//    write_param(param, "REAL_SEQ");
-//}
+void xml_visitor::visit(object* obj, tuple_t)
+{
+    write_param(obj, "TUPLE");
+}
 
-//void xml_visitor::visit(basic_parameter<string_seq> *param)
-//{
-//    write_param(param, "STRING_SEQ");
-//}
-
-//void xml_visitor::visit(basic_parameter<binary_seq> *param)
-//{
-//    write_param(param, "BINARY_SEQ");
-//}
-
-void xml_visitor::write_param(const object *obj, const std::string &type_str)
+void xml_visitor::write_param(const decof::object* obj, const std::string &type_str)
 {
     if (!first_pass_) {
         bool readonly = (dynamic_cast<const client_write_interface*>(obj) == nullptr);
@@ -195,23 +204,6 @@ void xml_visitor::write_param(const object *obj, const std::string &type_str)
 
         out_ << "><description> </description></param>\n";
     }
-}
-
-std::string xml_visitor::userlevel_name(userlevel_t ul) const
-{
-    static const std::map<userlevel_t, const char*> userlevel_names = {
-        { Internal,    "internal" },
-        { Service,     "service" },
-        { Maintenance, "maintenance" },
-        { Normal,      "normal" },
-        { Readonly,    "readonly" }
-    };
-
-    try {
-        return userlevel_names.at(ul);
-    } catch (std::out_of_range&) {}
-
-    return "invalid";
 }
 
 } // namespace scgi
