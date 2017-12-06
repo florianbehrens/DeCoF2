@@ -133,13 +133,13 @@ private:
 //  | |-- double: double (rw)
 //  | |-- string: string (rw)
 //  | |-- binary: binary (rw)
-//  | |-- boolean_seq: boolean_seq (rw)
-//  | |-- integer_seq: integer_seq (rw)
+//  | |-- boolean_seq: sequence<boolean> (rw)
+//  | |-- integer_seq: sequence<integer> (rw)
 //  | |-- real_seq: sequence<real> (rw)
 //  | |-- string_seq: sequence<string> (rw)
-//  | |-- binary_seq: binary_seq (rw)
+//  | |-- binary_seq: sequence<string> (rw)
 //  |-- tuples: node (r)
-//  | |-- tuple2: tuple<boolean, integer> (ro)
+//  | |-- scalar_tuple: tuple<boolean, integer, real, string> (rw)
 //  |-- events: node (r)
 //  | |-- exit: event
 //  |-- writeonly: node (r)
@@ -169,7 +169,7 @@ managed_readwrite_parameter<sequence<boolean>> boolean_seq_param("boolean_seq", 
 managed_readwrite_parameter<sequence<integer>> integer_seq_param("integer_seq", &subnode);
 managed_readwrite_parameter<sequence<real>> real_seq_param("real_seq", &subnode);
 managed_readwrite_parameter<sequence<string>> string_seq_param("string_seq", &subnode);
-managed_readwrite_parameter<std::vector<float>, encoding_hint::binary> binary_seq_param("binary_seq", &subnode);
+managed_readwrite_parameter<sequence<string>, encoding_hint::binary> binary_seq_param("binary_seq", &subnode, { "Hello", "decof2" });
 node tuples_node("tuples", &obj_dict);
 managed_readwrite_parameter<std::tuple<boolean, integer, real, string>> scalar_tuple("scalar_tuple", &tuples_node);
 node events_node("events", &obj_dict);
@@ -184,6 +184,11 @@ composite comp("composite", &obj_dict);
 int main()
 {
     // Output some diagnostics:
+    std::cout << "sizeof(scalar_t) = " << sizeof(scalar_t) << std::endl;
+    std::cout << "sizeof(sequence_t) = " << sizeof(sequence_t) << std::endl;
+    std::cout << "sizeof(tuple_t) = " << sizeof(tuple_t) << std::endl;
+    std::cout << "sizeof(value_t) = " << sizeof(value_t) << std::endl;
+
     std::cout << "sizeof(node) = " << sizeof(node) << std::endl;
     std::cout << "sizeof(managed_readonly_parameter<integer>) = "
               << sizeof(managed_readonly_parameter<integer>) << std::endl;

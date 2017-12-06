@@ -171,13 +171,6 @@ struct scalar_conversion_helper<
     }
 };
 
-//std::string -> string_t
-//std::vector<float> -> sequence<real>
-
-
-
-
-
 /**
  * @brief Partial template specialization for sequence of char types.
  */
@@ -217,7 +210,6 @@ struct scalar_conversion_helper<
     }
 };
 
-// std::vector<T>, binary <-> binary_t
 /**
  * @brief Partial template specialization for binary encoding of contiguous
  * array types.
@@ -243,11 +235,14 @@ struct scalar_conversion_helper<
 >
 {
     static T from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(binary_t)) {
+        if (arg.type() != typeid(binary_t) && arg.type() != typeid(string_t)) {
             throw wrong_type_error();
         }
 
-        auto const& val = boost::get<binary_t>(arg);
+        const std::string& val =
+            arg.type() == typeid(string_t) ?
+                static_cast<std::string>(boost::get<string_t>(arg)) :
+                static_cast<std::string>(boost::get<binary_t>(arg));
 
         if (val.size() % sizeof(typename T::value_type)) {
             throw invalid_value_error();
@@ -290,7 +285,7 @@ struct conversion_helper
         if (arg.type() != typeid(scalar_t))
             throw wrong_type_error();
 
-        return scalar_conversion_helper<T>::from_generic(boost::get<scalar_t>(arg));
+        return scalar_conversion_helper<T, EncodingHint>::from_generic(boost::get<scalar_t>(arg));
     }
 
     /**
@@ -300,15 +295,15 @@ struct conversion_helper
      * loss of precision.
      */
     static value_t to_generic(const T& arg) {
-        return value_t{ scalar_conversion_helper<T>::to_generic(arg) };
+        return value_t{ scalar_conversion_helper<T, EncodingHint>::to_generic(arg) };
     }
 };
 
 /**
  * @brief Partial template specialization for sequence types.
  */
-template<typename T>
-struct conversion_helper<sequence<T>, encoding_hint::none>
+template<typename T, encoding_hint EncodingHint>
+struct conversion_helper<sequence<T>, EncodingHint>
 {
     using value_type = sequence<T>;
 
@@ -318,7 +313,7 @@ struct conversion_helper<sequence<T>, encoding_hint::none>
 
         value_type retval;
         for (auto const& elem : boost::get<sequence_t>(arg)) {
-            retval.push_back(scalar_conversion_helper<T>::from_generic(elem));
+            retval.push_back(scalar_conversion_helper<T, EncodingHint>::from_generic(elem));
         }
 
         return retval;
@@ -327,7 +322,7 @@ struct conversion_helper<sequence<T>, encoding_hint::none>
     static value_t to_generic(const value_type& arg) {
         sequence_t tmp;
         for (auto const& elem : arg) {
-            tmp.push_back(scalar_conversion_helper<T>::to_generic(elem));
+            tmp.push_back(scalar_conversion_helper<T, EncodingHint>::to_generic(elem));
         }
 
         return value_t{ std::move(tmp) };
