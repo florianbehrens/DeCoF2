@@ -54,12 +54,16 @@ expression:
     | sequence
     {
         // Assign $1 of type sequence<scalar_t> to result_
-        result_ = sequence_t{ std::move($1) };
+        sequence_t tmp;
+        d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+        result_ = tmp;
     }
     | tuple
     {
         // Assign $1 of type sequence<scalar_t> to result_
-        result_ = tuple_t{ std::move($1) };
+        tuple_t tmp;
+        d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+        result_ = tmp;
     }
     ;
 

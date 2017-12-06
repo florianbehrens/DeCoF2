@@ -410,15 +410,19 @@ try
 
         case 2:
         {
-         
-         result_ = sequence_t{ std::move(d_vsp__[0].data<Tag__::SEQ>()) };
+
+         sequence_t tmp;
+         d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+         result_ = tmp;
          }
         break;
 
         case 3:
         {
          
-         result_ = tuple_t{ std::move(d_vsp__[0].data<Tag__::SEQ>()) };
+         tuple_t tmp;
+         d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+         result_ = tmp;
          }
         break;
 
