@@ -20,6 +20,8 @@
 #include <tuple>
 #include <type_traits>
 
+#include <boost/iterator/transform_iterator.hpp>
+
 #include "encoding_hint.h"
 #include "exceptions.h"
 #include "types.h"
@@ -81,21 +83,73 @@ inline T convert_lossless_to_integral(real r)
 }
 
 /**
- * @brief Helper class for conversion from/to generic_scalar.
+ * @brief Helper class for conversion from/to a #scalar_t type.
  *
  * @tparam T The target type for the conversion.
  * @tparam EncodingHint Encoding hints for use by client contexts.
  * @tparam Enable Dummy argument to enable partial template specialization.
  *
- * A helper class for conversions between a generic scalar type and
- * the corresponding concrete type and vice versa is needed in order to make
- * use of partial template specialization which is not possible with function
- * templates.
+ * A helper class for conversions between the type #scalar_t and
+ * the corresponding concrete type and vice versa is needed in order to
+ * make use of partial template specialization which is not possible with
+ * function templates.
+ *
+ * The following table shows the available specializations and the
+ * corresponding #scalar_t's alternative type:
+ *
+ * <table>
+ *   <tr>
+ *     <th>#scalar_t alternative type
+ *     <th>Encoding hint
+ *     <th>Type requirements of @c T
+ *   <tr>
+ *     <td>@c bool
+ *     <td>
+ *     <td>@c T is @c bool
+ *   <tr>
+ *     <td>@c intmax_t
+ *     <td>
+ *     <td>@c T is integral but not @c bool
+ *   <tr>
+ *     <td>@c double
+ *     <td>
+ *     <td>@c T is a floating point type
+ *   <tr>
+ *     <td>@c string_t
+ *     <td>
+ *     <td>@c T is @c std\::string
+ *   <tr>
+ *     <td>@c binary_t
+ *     <td>binary
+ *     <td>@c T is @c std\::string
+ *   <tr>
+ *     <td>@c string_t
+ *     <td>
+ *     <td>@c T is <tt>const char*</tt> (one-way conversion to #scalar_t only)
+ *   <tr>
+ *     <td>@c binary_t
+ *     <td>@c binary
+ *     <td>@c T is <tt>const char*</tt> (one-way conversion to #scalar_t only)
+ *   <tr>
+ *     <td>@c binary_t
+ *     <td>@c binary
+ *     <td>@c T is @c std::array<>
+ *   <tr>
+ *     <td>@c binary_t
+ *     <td>@c binary
+ *     <td>@c T meets the requirements of a @c
+ *         <a href="http://en.cppreference.com/w/cpp/concept/SequenceContainer">SequenceContainer</a>
+ *         (not including @c std::array<>) but not @c std::string
+ *   <tr>
+ *     <td>@c binary_t
+ *     <td>@c binary
+ *     <td>All other @c T
+ * </table>
  */
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct scalar_conversion_helper
 {
-    using type = T;
+    using type = binary_t;
 
     /**
      * @brief Conversion from value of type generic_scalar to concrete type.
@@ -103,10 +157,17 @@ struct scalar_conversion_helper
      * @throws wrong_type_error in case of a type mismatch.
      */
     static T from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(T))
+        if (arg.type() != typeid(binary_t))
             throw wrong_type_error();
 
-        return boost::get<T>(arg);
+        auto const& binary = boost::get<binary_t>(arg);
+
+        T retval;
+        std::copy_n(
+            binary.cbegin(),
+            sizeof(T),
+            reinterpret_cast<T*>(&retval));
+        return retval;
     }
 
     /**
@@ -116,6 +177,34 @@ struct scalar_conversion_helper
      * loss of precision.
      */
     static scalar_t to_generic(const T& arg) {
+        return binary_t(
+            reinterpret_cast<const char*>(&arg),
+            reinterpret_cast<const char*>(&arg) + sizeof(arg));
+    }
+};
+
+/**
+ * @brief Partial template specialization for type @c bool.
+ */
+template<>
+struct scalar_conversion_helper<bool, encoding_hint::none>
+{
+    using type = boolean;
+
+    static bool from_generic(const scalar_t& arg) {
+        if (arg.type() != typeid(boolean))
+            throw wrong_type_error();
+
+        return boost::get<boolean>(arg);
+    }
+
+    /**
+     * @brief Conversion from concrete to value of type generic_scalar.
+     *
+     * @throws invalid_value_error if the conversion is not possible without
+     * loss of precision.
+     */
+    static scalar_t to_generic(const bool& arg) {
         return scalar_t{ arg };
     }
 };
@@ -180,97 +269,182 @@ struct scalar_conversion_helper<
 };
 
 /**
- * @brief Partial template specialization for sequence of char types.
+ * @brief Partial template specialization for type <tt>const char*</tt>.
+ *
+ * This specialization only provides a conversion from the concrete to the
+ * generic type, but not vice verse. Hence the type <tt>const char*</tt> can
+ * only be used with readonly parameters.
  */
-template<typename T>
-struct scalar_conversion_helper<
-    T,
-    encoding_hint::none,
-    typename std::enable_if<
-        std::is_same<decltype(std::declval<const T>().data()), typename T::value_type const*>::value && // has T::data() method?
-        std::is_same<decltype(std::declval<T>().size()), typename T::size_type>::value && // has T::size() method?
-        std::is_constructible<T, typename T::value_type const*, typename T::value_type const*>::value // has T(It, It) constructor
-    >::type
->
+template<>
+struct scalar_conversion_helper<const char*, encoding_hint::none>
 {
     using type = string_t;
 
-    static T from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(string_t)) {
-            throw wrong_type_error();
-        }
-
-        auto const& str = boost::get<string_t>(arg);
-
-        if (str.size() % sizeof(typename T::value_type)) {
-            throw invalid_value_error();
-        }
-
-        return T(
-            reinterpret_cast<typename T::value_type const*>(&str[0]),
-            reinterpret_cast<typename T::value_type const*>(&str[str.size()])
-        );
-    }
-
-    static scalar_t to_generic(const T& arg) {
-        string_t tmp(
-            reinterpret_cast<const char*>(arg.data()),
-            reinterpret_cast<const char*>(arg.data() + arg.size()));
-        return scalar_t{ std::move(tmp) };
+    static scalar_t to_generic(const char* arg) {
+        return string_t(arg);
     }
 };
 
 /**
- * @brief Partial template specialization for binary encoding of contiguous
- * array types.
+ * @brief Partial template specialization for binary encoding of type
+ * <tt>const char*</tt>.
  *
- * This partial template specialization is chosen if @c EncodingHint is
- * encoding_hint::binary and @c T satisifies the following requirements:
- *
- * - Provides a constructor <tt>T::T(T::value_type const*, T::value_type const*)</tt>,
- * - Provides a member function <tt>T::value_type const* data() const</tt>,
- * - Provides a member function <tt>T::size_type size() const</tt>,
- *
- * such as types like @c std::vector<T>, and @c std::string provide.
+ * This specialization only provides a conversion from the concrete to the
+ * generic type, but not vice verse. Hence the type <tt>const char*</tt> can
+ * only be used with readonly parameters.
+ */
+template<>
+struct scalar_conversion_helper<const char*, encoding_hint::binary>
+{
+    using type = binary_t;
+
+    static scalar_t to_generic(const char* arg) {
+        return binary_t(arg);
+    }
+};
+
+/**
+ * @brief Partial template specialization for type @c std::string.
+ */
+template<>
+struct scalar_conversion_helper<
+    std::string,
+    encoding_hint::none
+>
+{
+    using type = string_t;
+
+    static std::string from_generic(const scalar_t& arg) {
+        if (arg.type() != typeid(string_t)) {
+            throw wrong_type_error();
+        }
+
+        return boost::get<string_t>(arg);
+    }
+
+    static scalar_t to_generic(const std::string& arg) {
+        return string_t{ arg };
+    }
+};
+
+/**
+ * @brief Partial template specialization for type @c std::string and binary
+ * encoding.
+ */
+template<>
+struct scalar_conversion_helper<
+    std::string,
+    encoding_hint::binary
+>
+{
+    using type = string_t;
+
+    static std::string from_generic(const scalar_t& arg) {
+        if (arg.type() == typeid(string_t)) {
+            return boost::get<string_t>(arg);
+        } else if (arg.type() == typeid(binary_t)) {
+            return boost::get<binary_t>(arg);
+        } else {
+            throw wrong_type_error();
+        }
+    }
+
+    static scalar_t to_generic(const std::string& arg) {
+        return binary_t{ arg };
+    }
+};
+
+/**
+ * @brief Partial template specialization for type @c std::array<> and binary
+ * encoding.
+ */
+template<typename T, size_t N>
+struct scalar_conversion_helper<
+    std::array<T, N>,
+    encoding_hint::binary
+>
+{
+    using type = binary_t;
+
+    static std::array<T, N> from_generic(const scalar_t& arg) {
+        if (arg.type() != typeid(binary_t))
+            throw wrong_type_error();
+
+        const auto& binary = boost::get<binary_t>(arg);
+
+        if (binary.size() != N * sizeof(T))
+            throw invalid_value_error();
+
+        std::array<T, N> retval;
+        std::copy(
+            reinterpret_cast<const T*>(binary.data()),
+            reinterpret_cast<const T*>(binary.data() + binary.size()),
+            retval.data());
+        return retval;
+    }
+
+    static scalar_t to_generic(const std::array<T, N>& arg) {
+        return binary_t(
+            reinterpret_cast<const char*>(arg.data()),
+            reinterpret_cast<const char*>(arg.data() + arg.size()));
+    }
+};
+
+/**
+ * @brief Partial template specialization for types meeting (some of) the
+ * requirements of a @c
+ * <a href="http://en.cppreference.com/w/cpp/concept/SequenceContainer">SequenceContainer</a>
+ * (not including @c std::array<>) but not @c std::string and binary encoding.
  */
 template<typename T>
 struct scalar_conversion_helper<
     T,
     encoding_hint::binary,
     typename std::enable_if<
-        std::is_same<decltype(std::declval<const T>().data()), typename T::value_type const*>::value && // has T::data() method?
-        std::is_same<decltype(std::declval<const T>().size()), typename T::size_type>::value && // has T::size() method?
-        std::is_constructible<T, typename T::value_type const*, typename T::value_type const*>::value // has T(It, It) constructor
+        std::is_constructible<
+            T,
+            sequence_t::const_iterator, // Should be a boost::transform_iterator!
+            sequence_t::const_iterator  // Should be a boost::transform_iterator!
+        >::value &&
+        std::is_same< // has T::const_iterator T::cbegin() method?
+            decltype(std::declval<T>().cbegin()),
+            typename T::const_iterator
+        >::value &&
+        std::is_same< // has T::const_iterator T::cend() method?
+            decltype(std::declval<T>().cend()),
+            typename T::const_iterator
+        >::value &&
+        !std::is_same<T, std::string>::value
     >::type
 >
 {
     using type = binary_t;
 
     static T from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(binary_t) && arg.type() != typeid(string_t)) {
+        if (arg.type() != typeid(binary_t))
             throw wrong_type_error();
-        }
 
-        const std::string& val =
-            arg.type() == typeid(string_t) ?
-                static_cast<std::string>(boost::get<string_t>(arg)) :
-                static_cast<std::string>(boost::get<binary_t>(arg));
+        auto const& binary = boost::get<binary_t>(arg);
 
-        if (val.size() % sizeof(typename T::value_type)) {
+        if (binary.size() % sizeof(typename T::value_type) != 0)
             throw invalid_value_error();
-        }
 
         return T(
-            reinterpret_cast<typename T::value_type const*>(val.data()),
-            reinterpret_cast<typename T::value_type const*>(val.data() + val.size())
+            reinterpret_cast<const typename T::value_type*>(binary.data()),
+            reinterpret_cast<const typename T::value_type*>(binary.data() + binary.size())
         );
     }
 
     static scalar_t to_generic(const T& arg) {
-        // Assumption: No alignment gaps!
-        return binary_t(
-            reinterpret_cast<const char*>(arg.data()),
-            reinterpret_cast<const char*>(arg.data() + arg.size()));
+        binary_t retval;
+        retval.reserve(std::distance(arg.cbegin(), arg.cend()) * sizeof(typename T::value_type));
+
+        auto const out_it = std::back_inserter(retval);
+        for (auto const& elem : arg) {
+            std::copy_n(reinterpret_cast<const char*>(&elem), sizeof(typename T::value_type), out_it);
+        }
+
+        return retval;
     }
 };
 
@@ -285,6 +459,35 @@ struct scalar_conversion_helper<
  * the corresponding concrete type and vice versa is needed in order to make
  * use of partial template specialization which is not possible with function
  * templates.
+ *
+ * The following table shows the available specializations and the
+ * corresponding #value_t's alternative type:
+ *
+ * <table>
+ *   <tr>
+ *     <th>#value_t alternative type
+ *     <th>Encoding hint
+ *     <th>Type requirements of @c T
+ *   <tr>
+ *     <td>@c #sequence_t
+ *     <td>
+ *     <td>@c T is @c std::array<>
+ *   <tr>
+ *     <td>@c #sequence_t
+ *     <td>
+ *     <td>@c T meets (some of) the requirements of @c
+ *         <a href="http://en.cppreference.com/w/cpp/concept/SequenceContainer">SequenceContainer</a>,
+ *         but is not @c std::string
+ *   <tr>
+ *     <td>@c #tuple_t
+ *     <td>
+ *     <td>T is a @c std::tuple<>
+ * </table>
+ *
+ * The following standard containers meet the requirements of
+ * @c <a href="http://en.cppreference.com/w/cpp/concept/SequenceContainer">SequenceContainer</a>:
+ * @c std::string, @c std::vector, @c std::deque, @c std::forward_list, and
+ * @c std::list.
  */
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct conversion_helper
@@ -315,32 +518,85 @@ struct conversion_helper
 };
 
 /**
- * @brief Partial template specialization for sequence types.
+ * @brief Partial template specialization for type @c std::array<>.
  */
-template<typename T, encoding_hint EncodingHint>
-struct conversion_helper<sequence<T>, EncodingHint>
+template<typename T, size_t N>
+struct conversion_helper<
+    std::array<T, N>,
+    encoding_hint::none
+>
 {
-    using type = sequence<typename scalar_conversion_helper<T, EncodingHint>::type>;
+    using type = sequence<typename scalar_conversion_helper<T, encoding_hint::none>::type>;
 
-    static sequence<T> from_generic(const value_t& arg) {
-        if (arg.type() != typeid(sequence_t))
-            throw wrong_type_error();
+    static std::array<T, N> from_generic(const value_t& arg) {
+        if (arg.type() != typeid(sequence_t)) throw wrong_type_error();
 
-        sequence<T> retval;
-        for (auto const& elem : boost::get<sequence_t>(arg)) {
-            retval.push_back(scalar_conversion_helper<T, EncodingHint>::from_generic(elem));
-        }
+        const auto& val = boost::get<sequence_t>(arg);
+        if (val.size() != N) throw invalid_value_error();
+
+        std::array<T, N> retval;
+        std::transform(val.cbegin(), val.cend(), retval.begin(), scalar_conversion_helper<T>::from_generic);
 
         return retval;
     }
 
-    static value_t to_generic(const sequence<T>& arg) {
+    static value_t to_generic(const std::array<T, N>& arg) {
         sequence_t tmp;
-        for (auto const& elem : arg) {
-            tmp.push_back(scalar_conversion_helper<T, EncodingHint>::to_generic(elem));
-        }
+        std::transform(arg.cbegin(), arg.cend(), std::back_inserter(tmp), scalar_conversion_helper<T>::to_generic);
+        return std::move(tmp);
+    }
+};
 
-        return value_t{ std::move(tmp) };
+/**
+ * @brief Partial template specialization for types meeting the requirements of
+ * a @c
+ * <a href="http://en.cppreference.com/w/cpp/concept/SequenceContainer">SequenceContainer</a>
+ * but not @c std::string.
+ */
+template<typename T>
+struct conversion_helper<
+    T,
+    encoding_hint::none,
+    typename std::enable_if<
+        std::is_constructible<
+            T,
+            sequence_t::const_iterator, // Should be a boost::transform_iterator!
+            sequence_t::const_iterator  // Should be a boost::transform_iterator!
+        >::value &&
+        std::is_same< // has T::const_iterator T::cbegin() method?
+            decltype(std::declval<T>().cbegin()),
+            typename T::const_iterator
+        >::value &&
+        std::is_same< // has T::const_iterator T::cbegin() method?
+            decltype(std::declval<T>().cend()),
+            typename T::const_iterator
+        >::value &&
+        !std::is_same<T, std::string>::value
+    >::type
+>
+{
+    using type = sequence<typename scalar_conversion_helper<typename T::value_type>::type>;
+
+    static T from_generic(const value_t& arg) {
+        if (arg.type() != typeid(sequence_t))
+            throw wrong_type_error();
+
+        auto const& src = boost::get<sequence_t>(arg);
+        auto const& transform = scalar_conversion_helper<typename T::value_type>::from_generic;
+
+        return T(
+            boost::make_transform_iterator(src.cbegin(), transform),
+            boost::make_transform_iterator(src.cend(), transform)
+        );
+    }
+
+    static value_t to_generic(const T& arg) {
+        auto const& transform = scalar_conversion_helper<typename T::value_type>::to_generic;
+
+        return sequence_t(
+            boost::make_transform_iterator(arg.cbegin(), transform),
+            boost::make_transform_iterator(arg.cend(), transform)
+        );
     }
 };
 

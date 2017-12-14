@@ -408,44 +408,6 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readwrite, fixture)
         expected.cend());
 }
 
-BOOST_FIXTURE_TEST_CASE(binary_seq_readonly, fixture)
-{
-    managed_readonly_parameter<sequence<std::string>, encoding_hint::binary> binary_seq_ro("binary_seq_ro", &od, { "Hello", "World" });
-    client_sock.write_some(asio::buffer(std::string("get test:binary_seq_ro\n")));
-    io_service->poll();
-    asio::read_until(client_sock, buf, std::string("\n"));
-    std::getline(is, str);
-    BOOST_REQUIRE_EQUAL(str, "[&SGVsbG8=,&V29ybGQ=]");
-
-    client_sock.write_some(asio::buffer(std::string("set test:binary_seq_ro []\n")));
-    io_service->poll();
-    asio::read_until(client_sock, buf, std::string("\n"));
-
-    const sequence<std::string> current = binary_seq_ro.value();
-    const sequence<std::string> expected{ "Hello", "World" };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
-}
-
-BOOST_FIXTURE_TEST_CASE(binary_seq_readwrite, fixture)
-{
-    managed_readwrite_parameter<sequence<std::string>, encoding_hint::binary> binary_seq_rw("binary_seq_rw", &od);
-    client_sock.write_some(asio::buffer(std::string("set test:binary_seq_rw [&SGVsbG8=,&V29ybGQ=]\n")));
-    io_service->poll();
-    asio::read_until(client_sock, buf, std::string("\n"));
-
-    const sequence<std::string> current = binary_seq_rw.value();
-    const sequence<std::string> expected = { "Hello", "World" };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
-}
-
 typedef std::tuple<boolean, integer, real, string> full_tuple;
 
 BOOST_FIXTURE_TEST_CASE(tuple_readonly, fixture)
