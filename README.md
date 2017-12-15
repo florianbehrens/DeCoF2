@@ -340,5 +340,5 @@ and separated by CR+LF.
 
 ### Dependencies
 
-DeCoF2 has the following dependencies:
-* Boost 1.54 (Signals2, StringAlgo, System, Variant, Test)
+DeCoF2 has the following link-time dependencies:
+* Boost 1.54 (system unit_test_framework)
