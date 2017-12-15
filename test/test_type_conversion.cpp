@@ -83,14 +83,14 @@ BOOST_AUTO_TEST_CASE(conversion_from_string_to_string_t)
 {
     std::string nominal = "Hello World";
 
-    auto const& gen = conversion_helper<std::string>::to_generic(nominal);
+    auto const gen = conversion_helper<std::string>::to_generic(nominal);
     BOOST_REQUIRE_NO_THROW(boost::get<string_t>(boost::get<scalar_t>(gen)));
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_const_char_ptr_to_string_t)
 {
     const char* nominal = "Hello World";
-    auto const& actual = boost::get<string_t>(boost::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
+    auto const actual = boost::get<string_t>(boost::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
 
     BOOST_REQUIRE_EQUAL(nominal, actual);
 }
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(conversion_from_string_t_to_string)
 {
     std::string nominal{ "Hello World" };
     value_t gen{ string_t{ nominal } };
-    auto const& actual = conversion_helper<std::string>::from_generic(gen);
+    auto const actual = conversion_helper<std::string>::from_generic(gen);
     BOOST_REQUIRE_EQUAL(nominal, actual);
 }
 
