@@ -34,15 +34,6 @@
 namespace decof
 {
 
-// Scalar parameter types
-typedef bool boolean;
-typedef long long integer;
-typedef double real;
-typedef std::string string;
-
-template<typename T>
-using sequence = std::deque<T>;
-
 /**
  * @brief Type tagging class.
  *
@@ -110,23 +101,37 @@ struct tag : public T
     {}
 };
 
-enum {
-    string_tag,
-    binary_tag
-};
+/**
+ * @name Tags for DeCoP parameter type identification.
+ * @{
+ */
+struct boolean_tag {};
+struct integer_tag {};
+struct real_tag {};
+struct string_tag {};
+struct binary_tag {};
+template<typename T>
+struct sequence_tag {};
+struct tuple_tag {};
+///@}
 
-using string_t = tag<string, string_tag>;
-using binary_t = tag<string, binary_tag>;
+/**
+ * @name DeCoP parameter type aliases.
+ * @{
+ */
+using boolean_t = bool;
+using integer_t = long long;
+using real_t = double;
+using string_t = tag<std::string, 0>;
+using binary_t = tag<std::string, 1>;
+using scalar_t = boost::variant<boolean_t, integer_t, real_t, string_t, binary_t>;
+using sequence_t = tag<std::deque<scalar_t>, 0>;
+using tuple_t = tag<std::deque<scalar_t>, 1>;
+///@}
 
-using scalar_t = boost::variant<boolean, integer, real, string_t, binary_t>;
-
-enum {
-    sequence_tag,
-    tuple_tag
-};
-
-using sequence_t = tag<sequence<scalar_t>, sequence_tag>;
-using tuple_t = tag<sequence<scalar_t>, tuple_tag>;
+/**
+ * @brief Type safe union for exchange of parameter values.
+ */
 using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
 
 } // namespace decof

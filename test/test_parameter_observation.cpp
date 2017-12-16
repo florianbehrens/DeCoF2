@@ -53,11 +53,11 @@ struct fixture
         }
     };
 
-    struct external_readonly_parameter_t : public decof::external_readonly_parameter<decof::boolean>
+    struct external_readonly_parameter_t : public decof::external_readonly_parameter<bool>
     {
-        using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
+        using decof::external_readonly_parameter<bool>::external_readonly_parameter;
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return m_value;
         }
@@ -65,17 +65,17 @@ struct fixture
         bool m_value = false;
     };
 
-    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<decof::boolean>
+    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<bool>
     {
-        using decof::external_readwrite_parameter<decof::boolean>::external_readwrite_parameter;
+        using decof::external_readwrite_parameter<bool>::external_readwrite_parameter;
 
-        bool external_value(const decof::boolean &value) override
+        bool external_value(const bool &value) override
         {
             m_value = value;
             return true;
         }
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return m_value;
         }
@@ -101,8 +101,8 @@ struct fixture
     value_t notified_value;
 
     decof::object_dictionary obj_dict;
-    decof::managed_readonly_parameter<decof::boolean> managed_readonly_parameter;
-    decof::managed_readwrite_parameter<decof::boolean> managed_readwrite_parameter;
+    decof::managed_readonly_parameter<bool> managed_readonly_parameter;
+    decof::managed_readwrite_parameter<bool> managed_readwrite_parameter;
     external_readonly_parameter_t external_readonly_parameter;
     external_readwrite_parameter_t external_readwrite_parameter;
     std::shared_ptr<my_context_t> my_context;

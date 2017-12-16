@@ -41,36 +41,36 @@ struct fixture
         }
     };
 
-    struct external_readonly_parameter_t : public decof::external_readonly_parameter<decof::boolean>
+    struct external_readonly_parameter_t : public decof::external_readonly_parameter<bool>
     {
-        using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
+        using decof::external_readonly_parameter<bool>::external_readonly_parameter;
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return true;
         }
     };
 
-    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<decof::boolean>
+    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<bool>
     {
-        using decof::external_readwrite_parameter<decof::boolean>::external_readwrite_parameter;
+        using decof::external_readwrite_parameter<bool>::external_readwrite_parameter;
 
-        bool external_value(const decof::boolean &value) override
+        bool external_value(const bool &value) override
         {
             return true;
         }
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return true;
         }
     };
 
-    struct writeonly_parameter_t : public decof::writeonly_parameter<decof::boolean>
+    struct writeonly_parameter_t : public decof::writeonly_parameter<bool>
     {
-        using decof::writeonly_parameter<decof::boolean>::writeonly_parameter;
+        using decof::writeonly_parameter<bool>::writeonly_parameter;
 
-        void value(const decof::boolean &value) override
+        void value(const bool &value) override
         {}
     };
 
@@ -84,8 +84,8 @@ struct fixture
     {}
 
     decof::object_dictionary obj_dict;
-    decof::managed_readwrite_parameter<decof::boolean> managed_readwrite_parameter;
-    decof::managed_readonly_parameter<decof::boolean> managed_readonly_parameter;
+    decof::managed_readwrite_parameter<bool> managed_readwrite_parameter;
+    decof::managed_readonly_parameter<bool> managed_readonly_parameter;
     external_readwrite_parameter_t external_readwrite_parameter;
     external_readonly_parameter_t external_readonly_parameter;
     writeonly_parameter_t writeonly_parameter;

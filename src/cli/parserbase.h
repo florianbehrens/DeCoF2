@@ -47,7 +47,7 @@ namespace Meta__
     };
 
     template <>
-    struct TagOf<sequence<scalar_t>>
+    struct TagOf<std::deque<scalar_t>>
     {
         static Tag__ const tag = Tag__::SEQ;
     };
@@ -67,7 +67,7 @@ namespace Meta__
     template <>
     struct TypeOf<Tag__::SEQ>
     {
-        typedef sequence<scalar_t> type;
+        typedef std::deque<scalar_t> type;
     };
 
     template <>

@@ -155,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(post_event, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_boolean, fixture)
 {
-    managed_readonly_parameter<boolean> boolean_ro("boolean_ro", &od, true);
+    managed_readonly_parameter<bool> boolean_ro("boolean_ro", &od, true);
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(get_boolean, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_boolean, fixture)
 {
-    managed_readwrite_parameter<boolean> boolean_rw("boolean_rw", &od, true);
+    managed_readwrite_parameter<bool> boolean_rw("boolean_rw", &od, true);
 
     ss << scgi_request(
         {
@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(put_boolean, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_integer, fixture)
 {
-    managed_readonly_parameter<integer> integer_ro("integer_ro", &od, -12345);
+    managed_readonly_parameter<int> integer_ro("integer_ro", &od, -12345);
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(get_integer, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_integer, fixture)
 {
-    managed_readwrite_parameter<integer> integer_rw("integer_rw", &od, 0);
+    managed_readwrite_parameter<int> integer_rw("integer_rw", &od, 0);
 
     ss << scgi_request(
         {
@@ -276,7 +276,7 @@ BOOST_FIXTURE_TEST_CASE(put_integer, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_real, fixture)
 {
-    managed_readonly_parameter<real> real_ro("real_ro", &od, -123.45);
+    managed_readonly_parameter<double> real_ro("real_ro", &od, -123.45);
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },
@@ -308,7 +308,7 @@ BOOST_FIXTURE_TEST_CASE(get_real, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_real, fixture)
 {
-    managed_readwrite_parameter<real> real_rw("real_rw", &od, 0);
+    managed_readwrite_parameter<double> real_rw("real_rw", &od, 0);
 
     ss << scgi_request(
         {
@@ -337,7 +337,7 @@ BOOST_FIXTURE_TEST_CASE(put_real, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_string, fixture)
 {
-    managed_readonly_parameter<string> string_ro("string_ro", &od, "Hello\nWorld");
+    managed_readonly_parameter<std::string> string_ro("string_ro", &od, "Hello\nWorld");
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },
@@ -369,7 +369,7 @@ BOOST_FIXTURE_TEST_CASE(get_string, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_string, fixture)
 {
-    managed_readwrite_parameter<string> string_rw("string_rw", &od);
+    managed_readwrite_parameter<std::string> string_rw("string_rw", &od);
 
     ss << scgi_request(
         {
@@ -459,7 +459,7 @@ BOOST_FIXTURE_TEST_CASE(put_binary, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_boolean_seq, fixture)
 {
-    managed_readonly_parameter<sequence<boolean>> boolean_seq_ro("boolean_seq_ro", &od, sequence<boolean>{ true, false, true });
+    managed_readonly_parameter<std::vector<bool>> boolean_seq_ro("boolean_seq_ro", &od, { true, false, true });
 
     ss << scgi_request({
         { "CONTENT_LENGTH",         "0" },
@@ -491,7 +491,7 @@ BOOST_FIXTURE_TEST_CASE(get_boolean_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
 {
-    managed_readwrite_parameter<sequence<boolean>> boolean_seq_rw("boolean_seq_rw", &od);
+    managed_readwrite_parameter<std::vector<bool>> boolean_seq_rw("boolean_seq_rw", &od);
 
     ss << scgi_request(
         {
@@ -514,8 +514,8 @@ BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
     std::getline(is, str, '\r');
     BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
 
-    sequence<boolean> nominal{ true, false, true };
-    sequence<boolean> actual = boolean_seq_rw.value();
+    std::vector<bool> nominal{ true, false, true };
+    std::vector<bool> actual = boolean_seq_rw.value();
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         actual.cbegin(),
         actual.cend(),
@@ -525,7 +525,7 @@ BOOST_FIXTURE_TEST_CASE(put_boolean_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_integer_seq, fixture)
 {
-    managed_readonly_parameter<sequence<int>> integer_seq_ro("integer_seq_ro", &od, {
+    managed_readonly_parameter<std::vector<int>> integer_seq_ro("integer_seq_ro", &od, {
         std::numeric_limits<int>::max(),
         0,
         std::numeric_limits<int>::min()
@@ -570,9 +570,9 @@ BOOST_FIXTURE_TEST_CASE(get_integer_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
 {
-    managed_readwrite_parameter<sequence<int>> integer_seq_rw("integer_seq_rw", &od);
+    managed_readwrite_parameter<std::vector<int>> integer_seq_rw("integer_seq_rw", &od);
 
-    integer data[] = {
+    integer_t data[] = {
         std::numeric_limits<int>::max(),
         0,
         std::numeric_limits<int>::min()
@@ -609,10 +609,10 @@ BOOST_FIXTURE_TEST_CASE(put_integer_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_real_seq, fixture)
 {
-    managed_readonly_parameter<sequence<real>> real_seq_ro("real_seq_ro", &od, sequence<real>{
-        std::numeric_limits<real>::max(),
+    managed_readonly_parameter<std::vector<double>> real_seq_ro("real_seq_ro", &od, {
+        std::numeric_limits<double>::max(),
         0,
-        std::numeric_limits<real>::lowest()
+        std::numeric_limits<double>::lowest()
     });
 
     ss << scgi_request({
@@ -654,12 +654,12 @@ BOOST_FIXTURE_TEST_CASE(get_real_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_real_seq, fixture)
 {
-    managed_readwrite_parameter<sequence<real>> real_seq_rw("real_seq_rw", &od);
+    managed_readwrite_parameter<std::vector<double>> real_seq_rw("real_seq_rw", &od);
 
     double data[] = {
-        std::numeric_limits<real>::max(),
+        std::numeric_limits<real_t>::max(),
         0,
-        std::numeric_limits<real>::lowest()
+        std::numeric_limits<real_t>::lowest()
     };
 
     ss << scgi_request(
@@ -683,7 +683,7 @@ BOOST_FIXTURE_TEST_CASE(put_real_seq, fixture)
     std::getline(is, str, '\r');
     BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
 
-    sequence<real> actual = real_seq_rw.value();
+    std::vector<double> actual = real_seq_rw.value();
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         data,
         data + sizeof(data) / sizeof(data[0]),
@@ -693,7 +693,7 @@ BOOST_FIXTURE_TEST_CASE(put_real_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_string_seq, fixture)
 {
-    managed_readonly_parameter<sequence<string>> string_seq_ro("string_seq_ro", &od, sequence<string>{
+    managed_readonly_parameter<std::vector<std::string>> string_seq_ro("string_seq_ro", &od, {
         "Line1\r\n",
         "Line2"
     });
@@ -746,7 +746,7 @@ BOOST_FIXTURE_TEST_CASE(get_string_seq, fixture)
 
 BOOST_FIXTURE_TEST_CASE(put_string_seq, fixture)
 {
-    managed_readwrite_parameter<sequence<string>> string_seq_rw("string_seq_rw", &od);
+    managed_readwrite_parameter<std::vector<std::string>> string_seq_rw("string_seq_rw", &od);
 
     ss << scgi_request(
         {
@@ -769,7 +769,7 @@ BOOST_FIXTURE_TEST_CASE(put_string_seq, fixture)
     std::getline(is, str, '\r');
     BOOST_REQUIRE_EQUAL(str, "HTTP/1.1 200 OK");
 
-    sequence<string> actual = string_seq_rw.value();
+    std::vector<std::string> actual = string_seq_rw.value();
     std::string nominal[] = { "Line1\r\n", "Line2" };
 
     BOOST_REQUIRE_EQUAL_COLLECTIONS(

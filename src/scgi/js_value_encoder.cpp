@@ -37,24 +37,24 @@ public:
         m_out(out)
     {}
 
-    void operator()(const boolean& arg) const
+    void operator()(const boolean_t& arg) const
     {
         m_out.put(static_cast<unsigned char>(arg));
     }
 
-    void operator()(const integer& arg) const
+    void operator()(const integer_t& arg) const
     {
         int32_t elem_le = native_to_little_endian(arg);
         m_out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
     }
 
-    void operator()(const real& arg) const
+    void operator()(const real_t& arg) const
     {
         double elem_le = native_to_little_endian(arg);
         m_out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
     }
 
-    void operator()(const string& arg) const
+    void operator()(const string_t& arg) const
     {
         // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
         m_out << arg.size() << ":" << arg << "\r\n";
@@ -89,24 +89,29 @@ void js_value_encoder::operator()(const tuple_t& arg) const
     }
 }
 
-void js_value_encoder::operator()(const boolean& arg) const
+void js_value_encoder::operator()(const boolean_t& arg) const
 {
     m_out << std::boolalpha << arg << std::noboolalpha;
 }
 
-void js_value_encoder::operator()(const integer& arg) const
+void js_value_encoder::operator()(const integer_t& arg) const
 {
     m_out << arg;
 }
 
-void js_value_encoder::operator()(const real& arg) const
+void js_value_encoder::operator()(const real_t& arg) const
 {
     // Use minimum value without loss of precision in conversion between binary
     // and decimal number representation and vice versa.
     m_out << std::setprecision(17) << arg;
 }
 
-void js_value_encoder::operator()(const string& arg) const
+void js_value_encoder::operator()(const string_t& arg) const
+{
+    m_out << arg;
+}
+
+void js_value_encoder::operator()(const binary_t& arg) const
 {
     m_out << arg;
 }

@@ -27,12 +27,12 @@ public:
     explicit composite(std::string name, node *parent = nullptr);
 
 private:
-    void summand1_changing(const decof::integer &value);
-    void summand2_changing(const decof::integer &value);
+    void summand1_changing(const int& value);
+    void summand2_changing(const int& value);
 
-    decof::managed_readwrite_handler_parameter<decof::integer> summand1_;
-    decof::managed_readwrite_handler_parameter<decof::integer> summand2_;
-    decof::managed_readonly_parameter<decof::integer> sum_;
+    decof::managed_readwrite_handler_parameter<int> summand1_;
+    decof::managed_readwrite_handler_parameter<int> summand2_;
+    decof::managed_readonly_parameter<int> sum_;
 };
 
 #endif // DECOF_EXAMPLE_COMPOSITE_H

@@ -38,19 +38,19 @@ public:
     void visit(event* event) override;
     void visit(node* node) override;
 
-    virtual void visit(object* obj, boolean);
-    virtual void visit(object* obj, integer);
-    virtual void visit(object* obj, real);
-    virtual void visit(object* obj, string_t);
-    virtual void visit(object* obj, binary_t);
+    virtual void visit(object* obj, boolean_tag);
+    virtual void visit(object* obj, integer_tag);
+    virtual void visit(object* obj, real_tag);
+    virtual void visit(object* obj, string_tag);
+    virtual void visit(object* obj, binary_tag);
 
-    virtual void visit(object* obj, sequence<boolean>);
-    virtual void visit(object* obj, sequence<integer>);
-    virtual void visit(object* obj, sequence<real>);
-    virtual void visit(object* obj, sequence<string_t>);
-    virtual void visit(object* obj, sequence<binary_t>);
+    virtual void visit(object* obj, sequence_tag<boolean_tag>);
+    virtual void visit(object* obj, sequence_tag<integer_tag>);
+    virtual void visit(object* obj, sequence_tag<real_tag>);
+    virtual void visit(object* obj, sequence_tag<string_tag>);
+    virtual void visit(object* obj, sequence_tag<binary_tag>);
 
-    virtual void visit(object* obj, tuple_t);
+    virtual void visit(object* obj, tuple_tag);
 
 private:
     void write_param(const object *obj, const std::string &type_str);

@@ -17,8 +17,7 @@
 #ifndef DECOF_NODE_H
 #define DECOF_NODE_H
 
-#include <deque>
-#include <list>
+#include <forward_list>
 #include <memory>
 #include <string>
 
@@ -29,17 +28,17 @@
 namespace decof
 {
 
-class node : public automatic_ptr_target<node>, public readable_parameter<sequence<std::string>>
+class node : public automatic_ptr_target<node>, public readable_parameter<std::forward_list<std::string>>
 {
 public:
-    typedef std::list<object*> children_t;
+    typedef std::forward_list<object*> children_t;
     typedef children_t::iterator iterator;
 
 public:
     explicit node(std::string name, node *parent = nullptr, userlevel_t readlevel = Normal);
     virtual ~node();
 
-    virtual sequence<std::string> value() const override;
+    virtual std::forward_list<std::string> value() const override;
 
     /// Visitor pattern accept method
     virtual void accept(object_visitor *visitor) override final;
@@ -61,7 +60,7 @@ public:
     object *find_child(const std::string &uri, char separator = ':');
 
     /// The same as value().
-    sequence<std::string> children() const;
+    std::forward_list<std::string> children() const;
 
     /// Returns an interator for the list of children
     iterator begin();

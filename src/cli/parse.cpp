@@ -435,21 +435,21 @@ try
         case 5:
         {
          
-         d_val__.get<Tag__::SCL>() = static_cast<decof::integer>(std::stoi(d_scanner.matched()));
+         d_val__.get<Tag__::SCL>() = static_cast<decof::integer_t>(std::stoi(d_scanner.matched()));
          }
         break;
 
         case 6:
         {
          
-         d_val__.get<Tag__::SCL>() = static_cast<decof::real>(std::stod(d_scanner.matched()));
+         d_val__.get<Tag__::SCL>() = static_cast<decof::real_t>(std::stod(d_scanner.matched()));
          }
         break;
 
         case 7:
         {
          
-         decof::string res = d_scanner.matched();
+         std::string res = d_scanner.matched();
          res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
          d_val__.get<Tag__::SCL>() = string_t{ std::move(res) };
          }

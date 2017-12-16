@@ -159,7 +159,7 @@ void clisrv_context::process_request(std::string request)
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
 
-            encoder(static_cast<integer>(userlevel()));
+            encoder(static_cast<integer_t>(userlevel()));
             out << "\n";
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
@@ -177,7 +177,7 @@ void clisrv_context::process_request(std::string request)
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
-                    encoder(static_cast<integer>(userlevel()));
+                    encoder(static_cast<integer_t>(userlevel()));
                 } else {
                     boost::apply_visitor(encoder, static_cast<const value_t>(get_parameter(uri)));
                 }

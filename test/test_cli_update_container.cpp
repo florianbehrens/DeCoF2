@@ -40,7 +40,7 @@ BOOST_FIXTURE_TEST_CASE(initial_empty, fixture)
 BOOST_FIXTURE_TEST_CASE(push_single_element, fixture)
 {
     const std::string nominal_uri("root");
-    const value_t nominal_value(integer(0));
+    const value_t nominal_value(integer_t(0));
 
     cli::update_container::time_point before = std::chrono::system_clock::now();
     updates_.push(nominal_uri, nominal_value);
@@ -110,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE(push_different_elements, fixture)
     cli::update_container::time_point before = std::chrono::system_clock::now();
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < count; ++i) {
-        updates_.push(uri + std::to_string(i), integer(i));
+        updates_.push(uri + std::to_string(i), integer_t(i));
     }
     auto duration = std::chrono::high_resolution_clock::now() - start;
     cli::update_container::time_point after = std::chrono::system_clock::now();
@@ -147,15 +147,15 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
     cli::update_container::time_point time[6];
 
     time[0] = std::chrono::system_clock::now();
-    updates_.push("parameter1", integer(1));
+    updates_.push("parameter1", integer_t(1));
     time[1] = std::chrono::system_clock::now();
     updates_.push("parameter2", string_t("value"));
     time[2] = std::chrono::system_clock::now();
-    updates_.push("parameter1", integer(2));
+    updates_.push("parameter1", integer_t(2));
     time[3] = std::chrono::system_clock::now();
-    updates_.push("parameter3", real(1.0));
+    updates_.push("parameter3", real_t(1.0));
     time[4] = std::chrono::system_clock::now();
-    updates_.push("parameter1", integer(3));
+    updates_.push("parameter1", integer_t(3));
     time[5] = std::chrono::system_clock::now();
 
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
@@ -166,7 +166,7 @@ BOOST_FIXTURE_TEST_CASE(push_arbitrary_elements, fixture)
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
     BOOST_REQUIRE_EQUAL("parameter1", actual_uri);
-    BOOST_REQUIRE(value_t{ integer(3) } == actual_value);
+    BOOST_REQUIRE(value_t{ integer_t(3) } == actual_value);
     BOOST_REQUIRE(time[4] <= actual_time && actual_time <= time[5]);
 
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
@@ -187,30 +187,30 @@ BOOST_FIXTURE_TEST_CASE(empty_and_push_element, fixture)
     value_t actual_value;
 
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);
-    updates_.push("parameter", integer(1));
+    updates_.push("parameter", integer_t(1));
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
     updates_.pop_front();
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);
-    updates_.push("parameter", integer(2));
+    updates_.push("parameter", integer_t(2));
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
     std::tie(actual_uri, actual_value, actual_time) = updates_.pop_front();
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);
 
     BOOST_REQUIRE_EQUAL("parameter", actual_uri);
-    BOOST_REQUIRE(value_t{ integer(2) } == actual_value);
+    BOOST_REQUIRE(value_t{ integer_t(2) } == actual_value);
 }
 
 BOOST_FIXTURE_TEST_CASE(push_and_pop_interchangeably, fixture)
 {
     BOOST_REQUIRE_EQUAL(updates_.empty(), true);
-    updates_.push("c", integer(1));
-    updates_.push("b", integer(2));
+    updates_.push("c", integer_t(1));
+    updates_.push("b", integer_t(2));
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
     updates_.pop_front();
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
-    updates_.push("a", integer(3));
+    updates_.push("a", integer_t(3));
     BOOST_REQUIRE_EQUAL(updates_.empty(), false);
 
     updates_.pop_front();

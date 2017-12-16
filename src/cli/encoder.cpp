@@ -90,17 +90,17 @@ void encoder::operator()(const tuple_t& arg) const
     m_out << '}';
 }
 
-void encoder::operator()(const boolean& arg) const
+void encoder::operator()(const boolean_t& arg) const
 {
     m_out << (arg ? "#t" : "#f");
 }
 
-void encoder::operator()(const integer& arg) const
+void encoder::operator()(const integer_t& arg) const
 {
     m_out << arg;
 }
 
-void encoder::operator()(const real& arg) const
+void encoder::operator()(const real_t& arg) const
 {
     // Use minimum value without loss of precision in conversion between binary
     // and decimal number representation and vice versa.

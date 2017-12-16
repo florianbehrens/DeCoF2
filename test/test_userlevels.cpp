@@ -67,7 +67,7 @@ struct fixture
     {}
 
     object_dictionary obj_dict;
-    managed_readwrite_parameter<boolean> managed_readwrite_param;
+    managed_readwrite_parameter<bool> managed_readwrite_param;
     my_event_t event;
     std::shared_ptr<my_context_t> my_context;
 };

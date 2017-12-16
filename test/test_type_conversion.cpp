@@ -41,7 +41,10 @@ using decof_types = boost::mpl::list<
     float, double,
     std::string,
     std::array<int, 3>,
-    sequence<boolean>, sequence<integer>, sequence<real>, sequence<string>>;
+    std::vector<bool>,
+    std::vector<int>,
+    std::vector<double>,
+    std::vector<std::string>>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(round_trip_conversion, T, decof_types)
 {
@@ -59,7 +62,7 @@ BOOST_AUTO_TEST_CASE(empty_value_t_throws)
 
 BOOST_AUTO_TEST_CASE(integral_type_convertible_to_floating_point)
 {
-    const integer nominal = (1ll << std::numeric_limits<float>::digits) - 1;
+    const integer_t nominal = (1ll << std::numeric_limits<float>::digits) - 1;
 
     value_t val_min{ -nominal };
     BOOST_REQUIRE_EQUAL(conversion_helper<float>::from_generic(val_min), -nominal);
@@ -70,13 +73,13 @@ BOOST_AUTO_TEST_CASE(integral_type_convertible_to_floating_point)
 
 BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integral)
 {
-    const integer nominal = (1ll << std::numeric_limits<real>::digits) - 1;
+    const long long nominal = (1ll << std::numeric_limits<real_t>::digits) - 1;
 
-    value_t val_min{ static_cast<real>(-nominal) };
-    BOOST_REQUIRE_EQUAL(conversion_helper<integer>::from_generic(val_min), -nominal);
+    value_t val_min{ static_cast<real_t>(-nominal) };
+    BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_min), -nominal);
 
-    value_t val_max{ static_cast<real>(nominal) };
-    BOOST_REQUIRE_EQUAL(conversion_helper<integer>::from_generic(val_max), nominal);
+    value_t val_max{ static_cast<real_t>(nominal) };
+    BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_max), nominal);
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_string_to_string_t)

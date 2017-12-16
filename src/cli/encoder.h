@@ -38,9 +38,9 @@ public:
     void operator()(const sequence_t& arg) const;
     void operator()(const tuple_t& arg) const;
 
-    void operator()(const boolean& arg) const;
-    void operator()(const integer& arg) const;
-    void operator()(const real& arg) const;
+    void operator()(const boolean_t& arg) const;
+    void operator()(const integer_t& arg) const;
+    void operator()(const real_t& arg) const;
     void operator()(const string_t& arg) const;
     void operator()(const binary_t& arg) const;
 

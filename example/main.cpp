@@ -37,7 +37,7 @@ DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_typ
 struct spin_count_parameter : public managed_readonly_parameter<long long>
 {
     spin_count_parameter(node *parent) :
-        managed_readonly_parameter<integer>("spin-count", parent, 0)
+        managed_readonly_parameter<long long>("spin-count", parent, 0)
     {
         io_service->post(std::bind(&spin_count_parameter::increment, this));
     }
@@ -65,7 +65,7 @@ current_context_endpoint_parameter::value_type current_context_endpoint_paramete
     return "Unknown";
 }
 
-string time_parameter::external_value() const
+std::string time_parameter::external_value() const
 {
     const size_t max_length = 40;
     char str[max_length];
@@ -95,7 +95,7 @@ void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
 struct ip_address_parameter : public external_readwrite_parameter<std::string>
 {
     ip_address_parameter(std::string name, node *parent = nullptr)
-     : external_readwrite_parameter<string>(name, parent)
+     : external_readwrite_parameter<std::string>(name, parent)
     {}
 
 private:
@@ -134,12 +134,12 @@ private:
 //  | |-- string: string (rw)
 //  | |-- binary: binary (rw)
 //  | |-- boolean_seq: sequence<boolean> (rw)
-//  | |-- integer_seq: sequence<integer> (rw)
+//  | |-- integer_seq: sequence<int> (rw)
 //  | |-- real_seq: sequence<real> (rw)
 //  | |-- string_seq: sequence<string> (rw)
 //  | |-- binary_seq: sequence<string> (rw)
 //  |-- tuples: node (r)
-//  | |-- scalar_tuple: tuple<boolean, integer, real, string> (rw)
+//  | |-- scalar_tuple: tuple<boolean, int, real, string> (rw)
 //  |-- events: node (r)
 //  | |-- exit: event
 //  |-- writeonly: node (r)
@@ -188,24 +188,24 @@ int main()
     std::cout << "sizeof(value_t) = " << sizeof(value_t) << std::endl;
 
     std::cout << "sizeof(node) = " << sizeof(node) << std::endl;
-    std::cout << "sizeof(managed_readonly_parameter<integer>) = "
-              << sizeof(managed_readonly_parameter<integer>) << std::endl;
-    std::cout << "sizeof(managed_readwrite_parameter<integer>) = "
-              << sizeof(managed_readwrite_parameter<integer>) << std::endl;
-    std::cout << "sizeof(managed_readwrite_handler_parameter<integer>) = "
-              << sizeof(managed_readwrite_handler_parameter<integer>) << std::endl;
-    std::cout << "sizeof(external_readonly_parameter<integer>) = "
-              << sizeof(external_readonly_parameter<integer>) << std::endl;
-    std::cout << "sizeof(external_readonly_handler_parameter<integer>) = "
-              << sizeof(external_readonly_handler_parameter<integer>) << std::endl;
-    std::cout << "sizeof(external_readwrite_parameter<integer>) = "
-              << sizeof(external_readwrite_parameter<integer>) << std::endl;
-    std::cout << "sizeof(external_readwrite_handler_parameter<integer>) = "
-              << sizeof(external_readwrite_handler_parameter<integer>) << std::endl;
-    std::cout << "sizeof(writeonly_parameter<integer>) = "
-              << sizeof(writeonly_parameter<integer>) << std::endl;
-    std::cout << "sizeof(writeonly_handler_parameter<integer>) = "
-              << sizeof(writeonly_handler_parameter<integer>) << std::endl;
+    std::cout << "sizeof(managed_readonly_parameter<int>) = "
+              << sizeof(managed_readonly_parameter<int>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_parameter<int>) = "
+              << sizeof(managed_readwrite_parameter<int>) << std::endl;
+    std::cout << "sizeof(managed_readwrite_handler_parameter<int>) = "
+              << sizeof(managed_readwrite_handler_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readonly_parameter<int>) = "
+              << sizeof(external_readonly_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readonly_handler_parameter<int>) = "
+              << sizeof(external_readonly_handler_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readwrite_parameter<int>) = "
+              << sizeof(external_readwrite_parameter<int>) << std::endl;
+    std::cout << "sizeof(external_readwrite_handler_parameter<int>) = "
+              << sizeof(external_readwrite_handler_parameter<int>) << std::endl;
+    std::cout << "sizeof(writeonly_parameter<int>) = "
+              << sizeof(writeonly_parameter<int>) << std::endl;
+    std::cout << "sizeof(writeonly_handler_parameter<int>) = "
+              << sizeof(writeonly_handler_parameter<int>) << std::endl;
 
     std::cout << "sizeof(boost::asio::steady_timer) = " << sizeof(boost::asio::steady_timer) << std::endl;
     std::cout << "sizeof(boost::signals2::connection) = " << sizeof(boost::signals2::connection) << std::endl;

@@ -23,57 +23,57 @@
 namespace decof
 {
 
-void object_visitor::visit(object *obj, boolean)
+void object_visitor::visit(object *obj, boolean_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, integer)
+void object_visitor::visit(object *obj, integer_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, real)
+void object_visitor::visit(object *obj, real_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, string_t)
+void object_visitor::visit(object *obj, string_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, binary_t)
+void object_visitor::visit(object *obj, binary_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence<boolean>)
+void object_visitor::visit(object *obj, sequence_tag<boolean_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence<integer>)
+void object_visitor::visit(object *obj, sequence_tag<integer_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence<real>)
+void object_visitor::visit(object *obj, sequence_tag<real_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence<string_t>)
+void object_visitor::visit(object *obj, sequence_tag<string_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence<binary_t>)
+void object_visitor::visit(object *obj, sequence_tag<binary_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, tuple_t)
+void object_visitor::visit(object *obj, tuple_tag)
 {
     visit(obj);
 }

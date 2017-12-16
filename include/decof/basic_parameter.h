@@ -38,7 +38,7 @@ public:
     typedef T value_type;
 
     virtual void accept(object_visitor *visitor) override {
-        visitor->visit(this, typename conversion_helper<T, EncodingHint>::type());
+        visitor->visit(this, typename conversion_helper<T, EncodingHint>::type_tag());
     }
 
 protected:

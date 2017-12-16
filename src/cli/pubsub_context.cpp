@@ -190,7 +190,7 @@ void pubsub_context::process_request(std::string request)
                 throw access_denied_error();
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
-            notify(object_dictionary_.name() + ":ul", scalar_t(static_cast<decof::integer>(userlevel())));
+            notify(object_dictionary_.name() + ":ul", scalar_t(static_cast<decof::integer_t>(userlevel())));
         } else {
             in >> uri;
 
@@ -210,7 +210,7 @@ void pubsub_context::process_request(std::string request)
             if (command == "subscribe" || command == "add") {
                 // Apply special handling for 'ul' parameter
                 if (full_uri == object_dictionary_.name() + ":ul")
-                    notify(full_uri, static_cast<decof::integer>(userlevel()));
+                    notify(full_uri, static_cast<decof::integer_t>(userlevel()));
                 else
                     observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {

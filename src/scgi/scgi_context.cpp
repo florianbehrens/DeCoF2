@@ -135,10 +135,10 @@ void scgi_context::handle_put_request()
                 throw invalid_value_error();
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer") {
             ss >> str;
-            val = boost::lexical_cast<integer>(str);
+            val = boost::lexical_cast<integer_t>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real") {
             ss >> str;
-            val = boost::lexical_cast<real>(str);
+            val = boost::lexical_cast<real_t>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
             val = string_t{ std::move(parser_.body) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
@@ -146,19 +146,19 @@ void scgi_context::handle_put_request()
                 seq.emplace_back(c > 0);
             val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
-            if (parser_.body.size() % sizeof(integer))
+            if (parser_.body.size() % sizeof(integer_t))
                 throw invalid_value_error();
 
-            size_t size = parser_.body.size() / sizeof(integer);
-            array_view<const integer> elems(reinterpret_cast<const integer*>(&parser_.body[0]), size);
+            size_t size = parser_.body.size() / sizeof(integer_t);
+            array_view<const integer_t> elems(reinterpret_cast<const integer_t*>(&parser_.body[0]), size);
             for (auto elem : elems)
-                seq.emplace_back(static_cast<integer>(little_endian_to_native(elem)));
+                seq.emplace_back(static_cast<integer_t>(little_endian_to_native(elem)));
             val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
-            if (parser_.body.size() % sizeof(decof::real))
+            if (parser_.body.size() % sizeof(decof::real_t))
                 throw invalid_value_error();
 
-            size_t size = parser_.body.size() / sizeof(decof::real);
+            size_t size = parser_.body.size() / sizeof(decof::real_t);
 
             array_view<const double> elems(reinterpret_cast<const double*>(&parser_.body[0]), size);
             for (auto elem : elems)

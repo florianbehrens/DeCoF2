@@ -20,19 +20,21 @@
 #include <algorithm>
 #include <iostream>
 
+#include <boost/iterator/transform_iterator.hpp>
+
 #include <client_context/object_visitor.h>
 
 namespace decof
 {
 
 node::node(std::string name, node *parent, userlevel_t readlevel)
- : readable_parameter<sequence<std::string>>(name, parent, readlevel, Forbidden)
+ : readable_parameter<std::forward_list<std::string>>(name, parent, readlevel, Forbidden)
 {}
 
 node::~node()
 {}
 
-sequence<std::string> node::value() const
+std::forward_list<std::string> node::value() const
 {
     return children();
 }
@@ -47,7 +49,7 @@ void node::add_child(object *child)
     if (child->parent_)
         child->parent()->remove_child(child);
 
-    children_.push_back(child);
+    children_.push_front(child);
     child->parent_ = this;
 }
 
@@ -98,12 +100,14 @@ object *node::find_child(const std::string &uri, char separator)
     return te;
 }
 
-sequence<std::string> node::children() const
+std::forward_list<std::string> node::children() const
 {
-    sequence<std::string> retval;
-    for (const auto c : children_)
-        retval.push_back(c->name());
-    return retval;
+    auto const& func = [](object* obj) { return obj->name(); };
+
+    return std::forward_list<std::string>(
+        boost::make_transform_iterator(children_.cbegin(), func),
+        boost::make_transform_iterator(children_.cend(), func)
+    );
 }
 
 node::iterator node::begin()

@@ -36,7 +36,7 @@ namespace decof
  * @throw invalid_value_error if conversion is not lossless.
  */
 template<typename T>
-T convert_lossless_to_floating_point(integer i)
+T convert_lossless_to_floating_point(integer_t i)
 {
     auto const limit = (1ll << std::numeric_limits<T>::digits);
 
@@ -69,7 +69,7 @@ inline To convert_lossless(const From& from)
  * @throw invalid_value_error if conversion is not lossless.
  */
 template<typename T>
-inline T convert_lossless_to_integral(real r)
+inline T convert_lossless_to_integral(real_t r)
 {
     if (std::floor(r) == r) {
         try {
@@ -149,7 +149,7 @@ inline T convert_lossless_to_integral(real r)
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct scalar_conversion_helper
 {
-    using type = binary_t;
+    using type_tag = binary_tag;
 
     /**
      * @brief Conversion from value of type generic_scalar to concrete type.
@@ -189,13 +189,13 @@ struct scalar_conversion_helper
 template<>
 struct scalar_conversion_helper<bool, encoding_hint::none>
 {
-    using type = boolean;
+    using type_tag = boolean_tag;
 
     static bool from_generic(const scalar_t& arg) {
-        if (arg.type() != typeid(boolean))
+        if (arg.type() != typeid(boolean_t))
             throw wrong_type_error();
 
-        return boost::get<boolean>(arg);
+        return boost::get<boolean_t>(arg);
     }
 
     /**
@@ -222,20 +222,20 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    using type = integer;
+    using type_tag = integer_tag;
 
     static T from_generic(const scalar_t& var) {
-        if (var.type() == typeid(real)) {
-            return convert_lossless_to_integral<T>(boost::get<real>(var));
-        } else if (var.type() == typeid(integer)) {
-            return convert_lossless<T>(boost::get<integer>(var));
+        if (var.type() == typeid(real_t)) {
+            return convert_lossless_to_integral<T>(boost::get<real_t>(var));
+        } else if (var.type() == typeid(integer_t)) {
+            return convert_lossless<T>(boost::get<integer_t>(var));
         }
 
         throw wrong_type_error();
     }
 
     static scalar_t to_generic(const T& arg) {
-        return scalar_t{ convert_lossless<integer>(arg) };
+        return scalar_t{ convert_lossless<integer_t>(arg) };
     }
 };
 
@@ -251,20 +251,20 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    using type = real;
+    using type_tag = real_tag;
 
     static T from_generic(const scalar_t& var) {
-        if (var.type() == typeid(integer)) {
-            return convert_lossless_to_floating_point<T>(boost::get<integer>(var));
-        } else if (var.type() == typeid(real)) {
-            return convert_lossless<T>(boost::get<real>(var));
+        if (var.type() == typeid(integer_t)) {
+            return convert_lossless_to_floating_point<T>(boost::get<integer_t>(var));
+        } else if (var.type() == typeid(real_t)) {
+            return convert_lossless<T>(boost::get<real_t>(var));
         }
 
         throw wrong_type_error();
     }
 
     static scalar_t to_generic(const T& arg) {
-        return scalar_t{ convert_lossless<real>(arg) };
+        return scalar_t{ convert_lossless<real_t>(arg) };
     }
 };
 
@@ -278,7 +278,7 @@ struct scalar_conversion_helper<
 template<>
 struct scalar_conversion_helper<const char*, encoding_hint::none>
 {
-    using type = string_t;
+    using type_tag = string_tag;
 
     static scalar_t to_generic(const char* arg) {
         return string_t(arg);
@@ -296,7 +296,7 @@ struct scalar_conversion_helper<const char*, encoding_hint::none>
 template<>
 struct scalar_conversion_helper<const char*, encoding_hint::binary>
 {
-    using type = binary_t;
+    using type_tag = binary_tag;
 
     static scalar_t to_generic(const char* arg) {
         return binary_t(arg);
@@ -312,7 +312,7 @@ struct scalar_conversion_helper<
     encoding_hint::none
 >
 {
-    using type = string_t;
+    using type_tag = string_tag;
 
     static std::string from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(string_t)) {
@@ -337,7 +337,7 @@ struct scalar_conversion_helper<
     encoding_hint::binary
 >
 {
-    using type = string_t;
+    using type_tag = string_tag;
 
     static std::string from_generic(const scalar_t& arg) {
         if (arg.type() == typeid(string_t)) {
@@ -364,7 +364,7 @@ struct scalar_conversion_helper<
     encoding_hint::binary
 >
 {
-    using type = binary_t;
+    using type_tag = binary_tag;
 
     static std::array<T, N> from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(binary_t))
@@ -418,7 +418,7 @@ struct scalar_conversion_helper<
     >::type
 >
 {
-    using type = binary_t;
+    using type_tag = binary_tag;
 
     static T from_generic(const scalar_t& arg) {
         if (arg.type() != typeid(binary_t))
@@ -492,7 +492,7 @@ struct scalar_conversion_helper<
 template<typename T, encoding_hint EncodingHint = encoding_hint::none, typename Enable = void>
 struct conversion_helper
 {
-    using type = typename scalar_conversion_helper<T, EncodingHint>::type;
+    using type_tag = typename scalar_conversion_helper<T, EncodingHint>::type_tag;
 
     /**
      * @brief Conversion from generic (e.g., decof::variant) to concrete type.
@@ -526,7 +526,7 @@ struct conversion_helper<
     encoding_hint::none
 >
 {
-    using type = sequence<typename scalar_conversion_helper<T, encoding_hint::none>::type>;
+    using type_tag = sequence_tag<typename scalar_conversion_helper<T, encoding_hint::none>::type_tag>;
 
     static std::array<T, N> from_generic(const value_t& arg) {
         if (arg.type() != typeid(sequence_t)) throw wrong_type_error();
@@ -575,7 +575,7 @@ struct conversion_helper<
     >::type
 >
 {
-    using type = sequence<typename scalar_conversion_helper<typename T::value_type>::type>;
+    using type_tag = sequence_tag<typename scalar_conversion_helper<typename T::value_type>::type_tag>;
 
     static T from_generic(const value_t& arg) {
         if (arg.type() != typeid(sequence_t))
@@ -606,7 +606,7 @@ struct conversion_helper<
 template<typename... Args>
 struct conversion_helper<std::tuple<Args...>, encoding_hint::none>
 {
-    using type = tuple_t;
+    using type_tag = tuple_tag;
     using value_type = std::tuple<Args...>;
 
     template<typename Tuple>
