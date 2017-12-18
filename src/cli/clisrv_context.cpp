@@ -23,7 +23,10 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/asio.hpp>
+#include <boost/any.hpp>
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
@@ -32,9 +35,12 @@
 #include <decof/object_dictionary.h>
 #include <decof/types.h>
 
+#include "browse_visitor.h"
 #include "parser.h"
 #include "encoder.h"
-#include "visitor.h"
+#include "tree_visitor.h"
+
+using boost::system::error_code;
 
 namespace
 {
@@ -49,10 +55,14 @@ namespace decof
 namespace cli
 {
 
-clisrv_context::clisrv_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+clisrv_context::clisrv_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
     cli_context_base(od, userlevel),
+    strand_(strand),
     socket_(std::move(socket))
-{}
+{
+    if (connect_event_cb_)
+        connect_event_cb_(false, true, remote_endpoint());
+}
 
 std::string clisrv_context::connection_type() const
 {
@@ -61,7 +71,8 @@ std::string clisrv_context::connection_type() const
 
 std::string clisrv_context::remote_endpoint() const
 {
-    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
+    error_code ec;
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
 void clisrv_context::preload()
@@ -70,23 +81,28 @@ void clisrv_context::preload()
     out << "DeCoF command line\n" << prompt;
 
     auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-    boost::asio::async_write(socket_, outbuf_,
-                             std::bind(&clisrv_context::write_handler, self,
-                                       std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_write(
+        socket_,
+        outbuf_,
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
 }
 
-void clisrv_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void clisrv_context::write_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-        boost::asio::async_read_until(socket_, inbuf_, '\n',
-                                      std::bind(&clisrv_context::read_handler, self,
-                                                std::placeholders::_1, std::placeholders::_2));
+
+        boost::asio::async_read_until(
+            socket_,
+            inbuf_,
+            '\n',
+            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
     } else
         disconnect();
 }
 
-void clisrv_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void clisrv_context::read_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto bufs = inbuf_.data();
@@ -95,9 +111,11 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
         inbuf_.consume(bytes_transferred);
 
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-        boost::asio::async_write(socket_, outbuf_,
-                                 std::bind(&clisrv_context::write_handler, self,
-                                           std::placeholders::_1, std::placeholders::_2));
+
+        boost::asio::async_write(
+            socket_,
+            outbuf_,
+            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
     }
     else
         disconnect();
@@ -105,7 +123,10 @@ void clisrv_context::read_handler(const boost::system::error_code &error, std::s
 
 void clisrv_context::disconnect()
 {
-    boost::system::error_code ec;
+    if (connect_event_cb_)
+        connect_event_cb_(false, false, remote_endpoint());
+
+    error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
 
@@ -117,19 +138,18 @@ void clisrv_context::disconnect()
 
 void clisrv_context::process_request(std::string request)
 {
-    // Trim (whitespace as in std::is_space() and parantheses)
-    boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+    // Trim whitespace and parantheses
+    std::string trimmed_request = boost::algorithm::trim_copy_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
     // Ignore empty request
-    if (request.empty())
+    if (trimmed_request.empty())
         return;
 
-    // Read and lower-case operation and uri
+    // Read operation and uri
     std::string op, uri;
-    std::stringstream ss_in(request);
+    std::stringstream ss_in(trimmed_request);
     ss_in >> op >> uri;
     std::transform(op.begin(), op.end(), op.begin(), ::tolower);
-    std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
 
     // Remove optional "'" from parameter name
     if (!uri.empty() && uri[0] == '\'')
@@ -174,6 +194,8 @@ void clisrv_context::process_request(std::string request)
             }
 
             if ((op == "get" || op == "param-ref") && !uri.empty() && !value_available) {
+                if (request_cb_)
+                    request_cb_(request_t::get, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
@@ -184,19 +206,45 @@ void clisrv_context::process_request(std::string request)
 
                 out << "\n";
             } else if ((op == "set" || op == "param-set!") && !uri.empty() && value_available) {
+                if (request_cb_)
+                    request_cb_(request_t::set, request, remote_endpoint());
+
                 set_parameter(uri, value);
+
                 out << "0\n";
             } else if ((op == "signal" || op == "exec") && !uri.empty() && !value_available) {
+                if (request_cb_)
+                    request_cb_(request_t::signal, request, remote_endpoint());
+
                 signal_event(uri);
+
                 out << "()\n";
             } else if ((op == "browse" || op == "param-disp") && !value_available) {
+                if (request_cb_)
+                    request_cb_(request_t::browse, request, remote_endpoint());
+
                 // This command is for compatibility reasons with legacy DeCoF
                 std::string root_uri(object_dictionary_.name());
                 if (!uri.empty())
                     root_uri = uri;
-                std::stringstream temp_ss;
-                visitor visitor(temp_ss);
+
+                std::ostringstream temp_ss;
+                browse_visitor visitor(temp_ss);
                 browse(&visitor, root_uri);
+
+                out << temp_ss.str();
+            } else if (op == "tree" && !value_available) {
+                if (request_cb_)
+                    request_cb_(request_t::tree, request, remote_endpoint());
+
+                std::string root_uri(object_dictionary_.name());
+                if (!uri.empty())
+                    root_uri = uri;
+
+                std::ostringstream temp_ss;
+                tree_visitor visitor(temp_ss);
+                browse(&visitor, root_uri);
+
                 out << temp_ss.str();
             } else
                 throw parse_error();

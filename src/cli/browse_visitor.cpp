@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "visitor.h"
+#include "browse_visitor.h"
 
 #include <boost/variant/apply_visitor.hpp>
 
@@ -29,31 +29,31 @@ namespace decof
 namespace cli
 {
 
-visitor::visitor(std::stringstream &ss) :
-    ss_(ss)
+browse_visitor::browse_visitor(std::ostream &out) :
+    out_(out)
 {}
 
-void visitor::visit(object* obj)
+void browse_visitor::visit(object* obj)
 {
     auto param = dynamic_cast<client_read_interface*>(obj);
     if (!param) return;
 
-    write_indentation(ss_, obj);
-    ss_ << (obj->parent() != nullptr ? ":" : "" )
+    write_indentation(out_, obj);
+    out_ << (obj->parent() != nullptr ? ":" : "" )
         << obj->name();
 
-    ss_ << " = ";
-    boost::apply_visitor(encoder(ss_), static_cast<const value_t>(param->generic_value()));
+    out_ << " = ";
+    boost::apply_visitor(encoder(out_), static_cast<const value_t>(param->generic_value()));
 
-    ss_ << std::endl;
+    out_ << std::endl;
 }
 
-void visitor::visit(node* node)
+void browse_visitor::visit(node* node)
 {
-    write_indentation(ss_, node);
+    write_indentation(out_, node);
     if (node->parent() != nullptr)
-        ss_ << ":";
-    ss_ << node->name() << std::endl;
+        out_ << ":";
+    out_ << node->name() << std::endl;
 }
 
 } // namespace cli

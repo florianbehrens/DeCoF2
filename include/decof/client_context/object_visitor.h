@@ -39,9 +39,9 @@ public:
      * @name Language type visitor functions.
      * @{
      */
-    virtual void visit(object* obj) {}
-    virtual void visit(event* event) {}
-    virtual void visit(node* node) {}
+    virtual void visit(object*) {}
+    virtual void visit(event* e);
+    virtual void visit(node* n);
     ///@}
 
     /**
@@ -58,13 +58,12 @@ public:
     virtual void visit(object* obj, sequence_tag<integer_tag>);
     virtual void visit(object* obj, sequence_tag<real_tag>);
     virtual void visit(object* obj, sequence_tag<string_tag>);
-    virtual void visit(object* obj, sequence_tag<binary_tag>);
 
     virtual void visit(object* obj, tuple_tag);
     ///@}
 
 protected:
-    void write_indentation(std::stringstream &ss, const object *te);
+    void write_indentation(std::ostream &out, const object *te);
     std::string indentation();
 
     void increment_indentation(size_t levels = 1u);

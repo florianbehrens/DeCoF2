@@ -57,12 +57,18 @@ public:
 private:
     virtual bool external_value(const T &value) override final
     {
-        if (external_value_set_handler_) return external_value_set_handler_(value);
+        if (external_value_set_handler_)
+            return external_value_set_handler_(value);
+
+        throw not_implemented_error();
     }
 
-    virtual T external_value()
+    virtual T external_value() const override final
     {
-        if (external_value_get_handler_) return external_value_get_handler_();
+        if (external_value_get_handler_)
+            return external_value_get_handler_();
+
+        throw not_implemented_error();
     }
 
     std::function<bool(const T&)> external_value_set_handler_;

@@ -19,7 +19,7 @@
 
 #include <chrono>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/asio/steady_timer.hpp>
 
 #include <decof/client_context/client_context.h>
@@ -33,8 +33,19 @@ namespace asio_tick
 class asio_tick_context : public decof::client_context
 {
 public:
+    /**
+     * @brief Constructor.
+     *
+     * @param obj_dict Reference to object dictionary.
+     * @param strand Reference to a Boost.Asio strand object used to dispatch
+     * the handlers.
+     * @param interval Timer tick interval in ms.
+     *
+     * @note The caller must make sure that the objects passed by reference to
+     * this constructor outlive the constructed object!
+     */
     explicit asio_tick_context(object_dictionary& obj_dict,
-                               std::shared_ptr<boost::asio::io_service> io_service,
+                               boost::asio::io_service::strand& strand,
                                std::chrono::milliseconds interval = std::chrono::milliseconds(100));
 
     void preload() override;
@@ -42,7 +53,7 @@ public:
 private:
     void tick_handler(const boost::system::error_code& error);
 
-    std::shared_ptr<boost::asio::io_service> io_service_;
+    boost::asio::strand& strand_;
     boost::asio::steady_timer timer_;
     std::chrono::milliseconds interval_;
 };

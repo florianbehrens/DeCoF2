@@ -22,17 +22,17 @@ namespace decof
 namespace asio_tick
 {
 
-asio_tick_context::asio_tick_context(decof::object_dictionary &obj_dict, std::shared_ptr<boost::asio::io_service> io_service, std::chrono::milliseconds interval) :
+asio_tick_context::asio_tick_context(decof::object_dictionary &obj_dict, boost::asio::io_service::strand& strand, std::chrono::milliseconds interval) :
     client_context(obj_dict),
-    io_service_(io_service),
-    timer_(*io_service),
+    strand_(strand),
+    timer_(strand.get_io_service()),
     interval_(interval)
 {}
 
 void asio_tick_context::preload()
 {
     timer_.expires_from_now(interval_);
-    timer_.async_wait(std::bind(&asio_tick_context::tick_handler, this, std::placeholders::_1));
+    timer_.async_wait(strand_.wrap(std::bind(&asio_tick_context::tick_handler, this, std::placeholders::_1)));
 }
 
 void asio_tick_context::tick_handler(const boost::system::error_code &error)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2017 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLI_VISITOR_H
-#define DECOF_CLI_VISITOR_H
+#include <decof/asio_executor/asio_executor.h>
 
-#include <sstream>
+namespace decof {
 
-#include <decof/client_context/object_visitor.h>
+asio_executor::asio_executor(asio_executor::strand& s) :
+    strand_(s)
+{}
 
-namespace decof
+void asio_executor::close()
 {
+    closed_ = true;
+}
 
-class node;
-class client_read_interface;
-
-namespace cli
+bool asio_executor::closed()
 {
+    return closed_;
+}
 
-class visitor : public object_visitor
+bool asio_executor::try_executing_one()
 {
-public:
-    explicit visitor(std::stringstream &ss);
-
-    virtual void visit(object* obj) override;
-    virtual void visit(node* node) override;
-
-private:
-    std::stringstream &ss_;
-};
-
-} // namespace cli
+    return false;
+}
 
 } // namespace decof
-
-#endif // DECOF_CLI_VISITOR_H

@@ -127,12 +127,12 @@ BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 
     node.add_child(&parameter);
 
-    BOOST_REQUIRE_EQUAL(std::distance(node.children().cbegin(), node.children().cend()), 1);
+    BOOST_REQUIRE_EQUAL(node.children().size(), 1);
     BOOST_REQUIRE_EQUAL(parameter.parent(), &node);
 
     node.remove_child(&parameter);
 
-    BOOST_REQUIRE(node.children().empty());
+    BOOST_REQUIRE_EQUAL(node.children().size(), 0);
     BOOST_REQUIRE(parameter.parent() == nullptr);
 }
 
@@ -143,12 +143,12 @@ BOOST_AUTO_TEST_CASE(set_and_reset_parent)
 
     parameter.reset_parent(&node);
 
-    BOOST_REQUIRE_EQUAL(std::distance(node.children().cbegin(), node.children().cend()), 1);
+    BOOST_REQUIRE_EQUAL(node.children().size(), 1);
     BOOST_REQUIRE_EQUAL(parameter.parent(), &node);
 
     parameter.reset_parent();
 
-    BOOST_REQUIRE(node.children().empty());
+    BOOST_REQUIRE_EQUAL(node.children().size(), 0);
     BOOST_REQUIRE(parameter.parent() == nullptr);
 }
 

@@ -19,6 +19,8 @@
 #include <ostream>
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/any.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
@@ -31,14 +33,17 @@
 #include "js_value_encoder.h"
 #include "xml_visitor.h"
 
+using boost::system::error_code;
+
 namespace decof
 {
 
 namespace scgi
 {
 
-scgi_context::scgi_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+scgi_context::scgi_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
     client_context(od, userlevel),
+    strand_(strand),
     socket_(std::move(socket))
 {}
 
@@ -55,12 +60,13 @@ std::string scgi_context::remote_endpoint() const
 void scgi_context::preload()
 {
     auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
-    socket_.async_read_some(boost::asio::buffer(inbuf_),
-                            std::bind(&scgi_context::read_handler, self,
-                                      std::placeholders::_1, std::placeholders::_2));
+
+    socket_.async_read_some(
+        boost::asio::buffer(inbuf_),
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
 }
 
-void scgi_context::read_handler(const boost::system::error_code& error, std::size_t bytes_transferred)
+void scgi_context::read_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         try {
@@ -205,12 +211,14 @@ void scgi_context::send_response(const response &resp)
     out << resp;
 
     auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
-    boost::asio::async_write(socket_, outbuf_,
-                             std::bind(&scgi_context::write_handler, self,
-                                       std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_write(
+        socket_,
+        outbuf_,
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
 }
 
-void scgi_context::write_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void scgi_context::write_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error)
         preload();
@@ -220,7 +228,7 @@ void scgi_context::write_handler(const boost::system::error_code &error, std::si
 
 void scgi_context::disconnect()
 {
-    boost::system::error_code ec;
+    error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
 

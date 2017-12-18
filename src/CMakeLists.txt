@@ -1,3 +1,4 @@
+add_subdirectory(asio_executor)
 add_subdirectory(asio_tick)
 add_subdirectory(cli)
 add_subdirectory(core)

@@ -26,13 +26,14 @@ enum error_codes {
     SUCCESS = 0,
     UNKNOWN_ERROR,
     PARSE_ERROR,
-    ACCESS_DENIED_ERROR,
-    INVALID_PARAMETER_ERROR,
-    WRONG_TYPE_ERROR,
-    INVALID_VALUE_ERROR,
-    UNKNOWN_OPERATION_ERROR,
+    ACCESS_DENIED,
+    INVALID_PARAMETER,
+    WRONG_TYPE,
+    INVALID_VALUE,
+    UNKNOWN_OPERATION,
     INVALID_USERLEVEL,
-    NOT_IMPLEMENTED_ERROR,
+    NOT_SUBSCRIBED,
+    NOT_IMPLEMENTED,
     PROTOCOL_SPECIFIC_ERRORS
 };
 
@@ -81,6 +82,11 @@ struct parse_error : public runtime_error
 struct invalid_userlevel_error : public runtime_error
 {
     invalid_userlevel_error();
+};
+
+struct not_subscribed_error : public runtime_error
+{
+    not_subscribed_error();
 };
 
 struct not_implemented_error : public runtime_error

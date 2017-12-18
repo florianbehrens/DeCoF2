@@ -337,7 +337,7 @@ struct scalar_conversion_helper<
     encoding_hint::binary
 >
 {
-    using type_tag = string_tag;
+    using type_tag = binary_tag;
 
     static std::string from_generic(const scalar_t& arg) {
         if (arg.type() == typeid(string_t)) {

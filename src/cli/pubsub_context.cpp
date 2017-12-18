@@ -33,6 +33,8 @@
 
 #include "encoder.h"
 
+using boost::system::error_code;
+
 namespace {
 
 struct iso8601_time
@@ -62,10 +64,14 @@ namespace decof
 namespace cli
 {
 
-pubsub_context::pubsub_context(boost::asio::ip::tcp::socket&& socket, object_dictionary& od, userlevel_t userlevel) :
+pubsub_context::pubsub_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
     cli_context_base(od, userlevel),
+    strand_(strand),
     socket_(std::move(socket))
 {
+    if (connect_event_cb_)
+        connect_event_cb_(true, true, remote_endpoint());
+
     boost::asio::socket_base::send_buffer_size option;
     socket_.get_option(option);
     socket_send_buf_size_ = option.value();
@@ -78,18 +84,22 @@ std::string pubsub_context::connection_type() const
 
 std::string pubsub_context::remote_endpoint() const
 {
-    return boost::lexical_cast<std::string>(socket_.remote_endpoint());
+    error_code ec;
+    return boost::lexical_cast<std::string>(socket_.remote_endpoint(ec));
 }
 
 void pubsub_context::preload()
 {
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-    boost::asio::async_read_until(socket_, inbuf_, '\n',
-                                  std::bind(&pubsub_context::read_handler, self,
-                                            std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_read_until(
+        socket_,
+        inbuf_,
+        '\n',
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
 }
 
-void pubsub_context::read_handler(const boost::system::error_code &error, std::size_t bytes_transferred)
+void pubsub_context::read_handler(const error_code &error, std::size_t bytes_transferred)
 {
     if (!error) {
         boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
@@ -104,7 +114,7 @@ void pubsub_context::read_handler(const boost::system::error_code &error, std::s
         close();
 }
 
-void pubsub_context::write_handler(const boost::system::error_code& error, std::size_t bytes_transferred)
+void pubsub_context::write_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         writing_active_ = false;
@@ -146,14 +156,20 @@ void pubsub_context::preload_writing()
         return;
 
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-    boost::asio::async_write(socket_, outbuf_,
-                             std::bind(&pubsub_context::write_handler, self,
-                                       std::placeholders::_1, std::placeholders::_2));
+
+    boost::asio::async_write(
+        socket_,
+        outbuf_,
+        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
+
     writing_active_ = true;
 }
 
 void pubsub_context::close()
 {
+    if (connect_event_cb_)
+        connect_event_cb_(true, false, remote_endpoint());
+
     if (!socket_.is_open())
         return;
 
@@ -170,10 +186,10 @@ void pubsub_context::process_request(std::string request)
     std::string uri;
 
     try {
-        // Trim (whitespace as in std::is_space() and parantheses) and tokenize the request string
-        boost::algorithm::trim_if(request, boost::is_any_of(" \f\n\r\t\v()"));
+        // Trim whitespace and parantheses
+        std::string trimmed_request = boost::algorithm::trim_copy_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
-        std::stringstream in(request);
+        std::stringstream in(trimmed_request);
         std::string command;
 
         in >> command;
@@ -208,12 +224,18 @@ void pubsub_context::process_request(std::string request)
                 full_uri = object_dictionary_.name() + ":" + uri;
 
             if (command == "subscribe" || command == "add") {
+                if (request_cb_)
+                    request_cb_(request_t::subscribe, request, remote_endpoint());
+
                 // Apply special handling for 'ul' parameter
                 if (full_uri == object_dictionary_.name() + ":ul")
                     notify(full_uri, static_cast<decof::integer_t>(userlevel()));
                 else
                     observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {
+                if (request_cb_)
+                    request_cb_(request_t::unsubscribe, request, remote_endpoint());
+
                 unobserve(full_uri);
             } else
                 throw unknown_operation_error();

@@ -56,8 +56,9 @@ public:
     /// Returns the connection type, e.g., "tcp", "serial".
     virtual std::string connection_type() const;
 
-    /// @brief Returns the connections' remote endpoint.
-    /// For a TCP connection this results in a string such as "10.0.0.1:1234".
+    /** @brief Returns the connections' remote endpoint.
+     * @return The remote endpoint as string (such as "10.0.0.1:1234" for a
+     * TCP connection) or an empty string on error. */
     virtual std::string remote_endpoint() const;
 
     virtual void preload();
@@ -71,13 +72,20 @@ protected:
     /// @param separator Hierachy level separator charater used in URI.
     void signal_event(const std::string &uri, char separator = ':');
 
-    /// Observe object.
-    /// @param uri The object URI to be observed.
-    /// @param slot The slot to be called on object updates.
-    /// @param separator The separator character.
-    void observe(const std::string& uri, client_read_interface::signal_type::slot_type slot, char separator = ':');
+    /** @brief Observe object.
+     *
+     * @param uri The object URI to be observed.
+     * @param slot The slot to be called on object updates.
+     * @param separator The separator character.
+     */
+    void observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator = ':');
 
-    void unobserve(const std::string& uri);
+    /** @brief Terminate object observation.
+     *
+     * @param uri The object URI to be observed.
+     * @param separator The separator character.
+     */
+    void unobserve(const std::string& uri, char separator = ':');
 
     /** @brief Traverse object tree using visitor pattern.
      * @param visitor Pointer to visitor object.

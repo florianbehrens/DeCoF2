@@ -49,7 +49,10 @@ public:
 private:
     virtual T external_value() const override final
     {
-        if (external_value_handler_) return external_value_handler_();
+        if (external_value_handler_)
+            return external_value_handler_();
+
+        throw not_implemented_error();
     }
 
     std::function<T()> external_value_handler_;

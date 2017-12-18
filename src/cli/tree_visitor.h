@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_SCGI_XML_VISITOR_H
-#define DECOF_SCGI_XML_VISITOR_H
+#ifndef DECOF_CLI_TREE_VISITOR_H
+#define DECOF_CLI_TREE_VISITOR_H
 
-#include <stack>
 #include <ostream>
 
 #include <decof/client_context/object_visitor.h>
-#include <decof/userlevel.h>
+#include <decof/types.h>
 
 namespace decof
 {
 
-namespace scgi
+class object;
+class event;
+class node;
+
+namespace cli
 {
 
-class xml_visitor : public object_visitor
+class tree_visitor : public object_visitor
 {
 public:
-    explicit xml_visitor(std::ostream &out);
-    virtual ~xml_visitor();
+    explicit tree_visitor(std::ostream &out);
 
-    virtual void visit(event* event) override;
-    virtual void visit(node* node) override;
+    virtual void visit(object* obj) override;
+    virtual void visit(event *event) override;
+    virtual void visit(node *node) override;
 
     virtual void visit(object* obj, boolean_tag) override;
     virtual void visit(object* obj, integer_tag) override;
@@ -52,15 +55,13 @@ public:
     virtual void visit(object* obj, tuple_tag) override;
 
 private:
-    void write_param(const object *obj, const std::string &type_str);
+    void write_param(decof::object *obj, const char *type);
 
     std::ostream &out_;
-    std::stack<node*> node_stack_;
-    bool first_pass_ = true;
 };
 
-} // namespace scgi
+} // namespace cli
 
 } // namespace decof
 
-#endif // DECOF_SCGI_XML_VISITOR_H
+#endif // DECOF_CLI_TREE_VISITOR_H

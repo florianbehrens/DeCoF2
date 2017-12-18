@@ -32,11 +32,15 @@ namespace cli
 class cli_context_base : public client_context
 {
 public:
+    enum class request_t { get, set, signal, browse, tree, subscribe, unsubscribe };
+
     using userlevel_cb_t = std::function<bool(const client_context&, userlevel_t, const std::string&)>;
+    using connect_event_cb_t = std::function<void(bool pubsub, bool connect, const std::string& peer_address)>;
+    using request_cb_t = std::function<void(request_t request_type, const std::string& request_string, const std::string& peer_address)>;
 
     using client_context::client_context;
 
-    /** @brief Call to install a userlevel change callback.
+    /** @brief Install a userlevel change callback.
      *
      * The given callable is invoked each time the userlevel is changed. You
      * can deny this operation by returning #false.
@@ -44,8 +48,25 @@ public:
      * @param userlevel_cb The callable to be invoked on userlevel changes. */
     static void install_userlevel_callback(const userlevel_cb_t& userlevel_cb) noexcept;
 
+    /** @brief Install a connection event callback.
+     *
+     * The given callable is invoked each time a client initiates a connection
+     * or disconnects.
+     *
+     * @param connect_event_cb The callable to be invoked. */
+    static void install_connection_event_callback(const connect_event_cb_t& connect_event_cb) noexcept;
+
+    /** @brief Install a request callback.
+     *
+     * The given callable is invoked each time a client makes a request.
+     *
+     * @param request_cb The callable to be invoked. */
+    static void install_request_callback(const request_cb_t& request_cb) noexcept;
+
 protected:
     static userlevel_cb_t userlevel_cb_;
+    static connect_event_cb_t connect_event_cb_;
+    static request_cb_t request_cb_;
 };
 
 } // namespace cli

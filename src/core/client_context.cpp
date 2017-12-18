@@ -115,7 +115,7 @@ void client_context::signal_event(const std::string &uri, char separator)
     ev->signal();
 }
 
-void client_context::observe(const std::string &uri, client_read_interface::signal_type::slot_type slot, char separator)
+void client_context::observe(const std::string &uri, client_read_interface::value_change_slot_t slot, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -127,13 +127,27 @@ void client_context::observe(const std::string &uri, client_read_interface::sign
 
         if (observables_.count(uri) == 0)
             observables_[uri] = param->observe(slot);
+        else
+            // TODO: Raise error or deliver value?
+            slot(uri, param->generic_value());
     } else
         throw invalid_parameter_error();
 }
 
-void client_context::unobserve(const std::string &uri)
+void client_context::unobserve(const std::string &uri, char separator)
 {
-    observables_.erase(uri);
+    if (observables_.count(uri) != 0) {
+        object_dictionary::context_guard cg(object_dictionary_, this);
+
+        auto obj = object_dictionary_.find_object(uri, separator);
+
+        if (client_read_interface* param = dynamic_cast<client_read_interface*>(obj)) {
+            observables_.erase(uri);
+            param->unobserve();
+        } else
+            throw invalid_parameter_error();
+    } else
+        throw not_subscribed_error();
 }
 
 void client_context::browse(object_visitor *visitor, const std::string &root_uri)

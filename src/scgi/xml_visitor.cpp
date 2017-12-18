@@ -171,11 +171,6 @@ void xml_visitor::visit(object* obj, sequence_tag<string_tag>)
     write_param(obj, "STRING_SEQ");
 }
 
-void xml_visitor::visit(object* obj, sequence_tag<binary_tag>)
-{
-    write_param(obj, "BINARY_SEQ");
-}
-
 void xml_visitor::visit(object* obj, tuple_tag)
 {
     write_param(obj, "TUPLE");

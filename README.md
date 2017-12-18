@@ -197,7 +197,7 @@ The following table lists the value access functions by parameter type.
 
 Parameter    | Readonly                                 | Readwrite       | Writeonly
 -------------|------------------------------------------|-----------------|----------
-**Managed**  | ```T value()```<br>```value(T)```        | ```T value()``` | None
+**Managed**  | ```T value()```<br>```const T& value_ref()```<br>```value(T)``` | ```T value()```<br>```const T& value_ref()``` | None
 **External** | ```T value()```<br>```value_changed()``` | ```T value()``` | None
 
 ### Protocols
@@ -341,4 +341,4 @@ and separated by CR+LF.
 ### Dependencies
 
 DeCoF2 has the following link-time dependencies:
-* Boost 1.54 (system unit_test_framework)
+* Boost 1.56 (required: system, optional: thread, unit_test_framework)

@@ -18,6 +18,7 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/asio/read_until.hpp>
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
@@ -34,18 +35,19 @@ namespace asio = boost::asio;
 struct fixture
 {
     fixture() :
-        io_service(new asio::io_service()),
-        client_sock(*io_service),
+        io_service(),
+        strand(io_service),
+        client_sock(io_service),
         od("test"),
-        conn_mgr(od, io_service, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0)),
+        server(od, strand, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0)),
         is(&buf)
     {
         // Setup server
-        conn_mgr.preload();
+        server.preload();
 
         // Connect with server and wait for prompt
-        client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), conn_mgr.port()));
-        io_service->poll();
+        client_sock.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), server.port()));
+        io_service.poll();
         asio::read_until(client_sock, buf, std::string("\n> "));
         buf.consume(buf.size());
     }
@@ -55,11 +57,12 @@ struct fixture
         client_sock.close();
     }
 
-    std::shared_ptr<asio::io_service> io_service;
+    asio::io_service io_service;
+    asio::io_service::strand strand;
     boost::asio::ip::tcp::socket client_sock;
 
     object_dictionary od;
-    generic_tcp_server<cli::clisrv_context> conn_mgr;
+    generic_tcp_server<cli::clisrv_context> server;
 
     asio::streambuf buf;
     std::istream is;
@@ -78,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
     {
         // Read initial userlevel
         client_sock.write_some(asio::buffer(std::string("(param-ref 'ul)\n")));
-        io_service->poll();
+        io_service.poll();
 
         asio::streambuf buf;
         buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
@@ -94,7 +97,7 @@ BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
         out << "(exec 'change-ul " << Internal << " \"passwd\")\n";
 
         client_sock.write_some(asio::buffer(out.str()));
-        io_service->poll();
+        io_service.poll();
 
         asio::streambuf buf;
         buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
@@ -106,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
     {
         // Read userlevel after change
         client_sock.write_some(asio::buffer(std::string("(param-ref 'ul)\n")));
-        io_service->poll();
+        io_service.poll();
 
         asio::streambuf buf;
         buf.commit(asio::read_until(client_sock, buf, std::string("> ")));
@@ -120,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE(omit_root_node_name, fixture)
 {
     managed_readonly_parameter<bool> dummy("dummy", &od, true);
     client_sock.write_some(asio::buffer(std::string("get dummy\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "#t");
@@ -130,13 +133,13 @@ BOOST_FIXTURE_TEST_CASE(boolean_readonly, fixture)
 {
     managed_readonly_parameter<bool> boolean_ro("boolean_ro", &od, true);
     client_sock.write_some(asio::buffer(std::string("get test:boolean_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "#t");
 
     client_sock.write_some(asio::buffer(std::string("set test:boolean_ro #f\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(boolean_ro.value(), true);
 }
@@ -145,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE(boolean_readwrite, fixture)
 {
     managed_readwrite_parameter<bool> boolean_rw("boolean_rw", &od, false);
     client_sock.write_some(asio::buffer(std::string("set test:boolean_rw #t\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(boolean_rw.value(), true);
 }
@@ -154,13 +157,13 @@ BOOST_FIXTURE_TEST_CASE(integer_readonly, fixture)
 {
     managed_readonly_parameter<int> integer_ro("integer_ro", &od, -42);
     client_sock.write_some(asio::buffer(std::string("get test:integer_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "-42");
 
     client_sock.write_some(asio::buffer(std::string("set test:integer_ro 0\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(integer_ro.value(), -42);
 }
@@ -169,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE(integer_readwrite, fixture)
 {
     managed_readwrite_parameter<int> integer_rw("integer_rw", &od, 0);
     client_sock.write_some(asio::buffer(std::string("set test:integer_rw -42\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(integer_rw.value(), -42);
 }
@@ -178,13 +181,13 @@ BOOST_FIXTURE_TEST_CASE(real_readonly, fixture)
 {
     managed_readonly_parameter<double> real_ro("real_ro", &od, -0.123456);
     client_sock.write_some(asio::buffer(std::string("get test:real_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "-0.123456");
 
     client_sock.write_some(asio::buffer(std::string("set test:real_ro 0\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(real_ro.value(), -0.123456);
 }
@@ -193,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(real_readwrite, fixture)
 {
     managed_readwrite_parameter<double> real_rw("real_rw", &od, 0.0);
     client_sock.write_some(asio::buffer(std::string("set test:real_rw -0.123456\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(real_rw.value(), -0.123456);
 }
@@ -202,13 +205,13 @@ BOOST_FIXTURE_TEST_CASE(string_readonly, fixture)
 {
     managed_readonly_parameter<std::string> string_ro("string_ro", &od, "decof");
     client_sock.write_some(asio::buffer(std::string("get test:string_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "\"decof\"");
 
     client_sock.write_some(asio::buffer(std::string("set test:string_ro \"nope\"\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(string_ro.value(), "decof");
 }
@@ -217,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(string_readwrite, fixture)
 {
     managed_readwrite_parameter<std::string> string_rw("string_rw", &od, "");
     client_sock.write_some(asio::buffer(std::string("set test:string_rw \"decof\"\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(string_rw.value(), "decof");
 }
@@ -226,13 +229,13 @@ BOOST_FIXTURE_TEST_CASE(binary_readonly, fixture)
 {
     managed_readonly_parameter<std::string, encoding_hint::binary> binary_ro("binary_ro", &od, "decof");
     client_sock.write_some(asio::buffer(std::string("get test:binary_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "&ZGVjb2Y=");
 
     client_sock.write_some(asio::buffer(std::string("set test:binary_ro &bm9wZQo=\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(binary_ro.value(), "decof");
 }
@@ -241,7 +244,7 @@ BOOST_FIXTURE_TEST_CASE(binary_readwrite, fixture)
 {
     managed_readwrite_parameter<std::string, encoding_hint::binary> binary_rw("binary_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:binary_rw &ZGVjb2Y=\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     BOOST_REQUIRE_EQUAL(binary_rw.value(), "decof");
 }
@@ -250,13 +253,13 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
 {
     managed_readonly_parameter<std::vector<bool>> boolean_seq_ro("boolean_seq_ro", &od, { true, false, true, false });
     client_sock.write_some(asio::buffer(std::string("get test:boolean_seq_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "[#t,#f,#t,#f]");
 
     client_sock.write_some(asio::buffer(std::string("set test:boolean_seq_ro [#f,#t,#f,#t]\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<bool> current = boolean_seq_ro.value();
@@ -272,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readwrite, fixture)
 {
     managed_readwrite_parameter<std::vector<bool>> boolean_seq_rw("boolean_seq_rw", &od, { true, false, true, false });
     client_sock.write_some(asio::buffer(std::string("set test:boolean_seq_rw [#f,#t,#f,#t]\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<bool> current = boolean_seq_rw.value();
@@ -291,13 +294,13 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
     });
 
     client_sock.write_some(asio::buffer(std::string("get test:integer_seq_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "[-2147483648,2147483647]");
 
     client_sock.write_some(asio::buffer(std::string("set test:integer_seq_ro []\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<int> current = integer_seq_ro.value();
@@ -317,7 +320,7 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readwrite, fixture)
     managed_readwrite_parameter<std::vector<int>> integer_seq_rw("integer_seq_rw", &od);
 
     client_sock.write_some(asio::buffer(std::string("set test:integer_seq_rw [-2147483648,2147483647]\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<int> current = integer_seq_rw.value();
@@ -336,13 +339,13 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
 {
     managed_readonly_parameter<std::vector<double>> real_seq_ro("real_seq_ro", &od, { -1.23, 1.23 });
     client_sock.write_some(asio::buffer(std::string("get test:real_seq_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "[-1.23,1.23]");
 
     client_sock.write_some(asio::buffer(std::string("set test:real_seq_ro []\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<double> current = real_seq_ro.value();
@@ -358,7 +361,7 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readwrite, fixture)
 {
     managed_readwrite_parameter<std::vector<double>> real_seq_rw("real_seq_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:real_seq_rw [-1.23,1.23]\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<double> current = real_seq_rw.value();
@@ -374,13 +377,13 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
 {
     managed_readonly_parameter<std::vector<std::string>> string_seq_ro("string_seq_ro", &od, { "Hello", "World" });
     client_sock.write_some(asio::buffer(std::string("get test:string_seq_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "[\"Hello\",\"World\"]");
 
     client_sock.write_some(asio::buffer(std::string("set test:string_seq_ro []\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<std::string> current = string_seq_ro.value();
@@ -396,7 +399,7 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readwrite, fixture)
 {
     managed_readwrite_parameter<std::vector<std::string>> string_seq_rw("string_seq_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:string_seq_rw [\"Hello\",\"World\"]\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const std::vector<std::string> current = string_seq_rw.value();
@@ -414,13 +417,13 @@ BOOST_FIXTURE_TEST_CASE(tuple_readonly, fixture)
 {
     managed_readonly_parameter<full_tuple> tuple_ro("tuple_ro", &od, std::make_tuple(true, -1, -1.23, "Hello World"));
     client_sock.write_some(asio::buffer(std::string("get test:tuple_ro\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
     std::getline(is, str);
     BOOST_REQUIRE_EQUAL(str, "{#t,-1,-1.23,\"Hello World\"}");
 
     client_sock.write_some(asio::buffer(std::string("set test:tuple_ro {#f,1,1.23,\"\"}\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const full_tuple current = tuple_ro.value();
@@ -432,7 +435,7 @@ BOOST_FIXTURE_TEST_CASE(tuple_readwrite, fixture)
 {
     managed_readwrite_parameter<full_tuple> tuple_rw("tuple_rw", &od);
     client_sock.write_some(asio::buffer(std::string("set test:tuple_rw {#t,-1,-1.23,\"Hello World\"}\n")));
-    io_service->poll();
+    io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
     const full_tuple current = tuple_rw.value();

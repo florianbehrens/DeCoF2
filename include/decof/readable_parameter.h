@@ -35,22 +35,35 @@ class readable_parameter :
     public typed_client_read_interface<T, EncodingHint>
 {
 public:
-    virtual boost::signals2::scoped_connection observe(client_read_interface::slot_type slot) override {
+    /// Override client_read_interface::observe.
+    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
-        signal(this->value());
+        emit(this->value());
         return retval;
+    }
+
+    /** @brief  Override client_read_interface::unobserve.
+     *
+     * @note The implementation of this function can check whether there are
+     * still other client contexts connected by calling @code
+     * signal().num_slots() @endcode.
+     */
+    virtual void unobserve() override {
     }
 
 protected:
     // We inherit base class constructors
     using basic_parameter<T, EncodingHint>::basic_parameter;
 
-    void signal(const T& value) {
+    /** @brief Emit parameter value observation signal.
+     *
+     * @param value The value to be reported to the connected slot(s).
+     */
+    void emit(const T& value) {
         signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
     }
 
-private:
-    client_read_interface::signal_type signal_;
+    client_read_interface::value_change_signal_t signal_;
 };
 
 } // namespace decof

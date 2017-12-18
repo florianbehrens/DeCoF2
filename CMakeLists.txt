@@ -1,8 +1,13 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0.2)
 project(decof2)
 
 if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
-    find_package(Boost 1.56 REQUIRED COMPONENTS system unit_test_framework)
+    find_package(Boost 1.56 COMPONENTS system thread unit_test_framework)
+
+    if (NOT ${Boost_SYSTEM_FOUND})
+        message(FATAL_ERROR "Required dependency Boost.System not found!")
+    endif()
+
     link_directories(${Boost_LIBRARY_DIR})
 endif()
 
@@ -41,5 +46,12 @@ add_custom_target(
 
 add_subdirectory(include)
 add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(example)
+
+if(${Boost_UNIT_TEST_FRAMEWORK_FOUND})
+    add_subdirectory(test)
+endif()
+
+if(${Boost_THREAD_FOUND})
+    add_subdirectory(example)
+endif()
+

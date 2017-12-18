@@ -72,7 +72,7 @@ public:
     {
         if (value_ != value) {
             value_ = value;
-            readable_parameter<T, EncodingHint>::signal(value_);
+            readable_parameter<T, EncodingHint>::emit(value_);
         }
     }
 
@@ -83,7 +83,7 @@ public:
     {
         if (value_ != value) {
             value_ = std::move(value);
-            readable_parameter<T, EncodingHint>::signal(value_);
+            readable_parameter<T, EncodingHint>::emit(value_);
         }
     }
 

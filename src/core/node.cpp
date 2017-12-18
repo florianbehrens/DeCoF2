@@ -28,13 +28,13 @@ namespace decof
 {
 
 node::node(std::string name, node *parent, userlevel_t readlevel)
- : readable_parameter<std::forward_list<std::string>>(name, parent, readlevel, Forbidden)
+ : readable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
 {}
 
 node::~node()
 {}
 
-std::forward_list<std::string> node::value() const
+std::list<std::string> node::value() const
 {
     return children();
 }
@@ -49,7 +49,7 @@ void node::add_child(object *child)
     if (child->parent_)
         child->parent()->remove_child(child);
 
-    children_.push_front(child);
+    children_.push_back(child);
     child->parent_ = this;
 }
 
@@ -100,11 +100,11 @@ object *node::find_child(const std::string &uri, char separator)
     return te;
 }
 
-std::forward_list<std::string> node::children() const
+std::list<std::string> node::children() const
 {
     auto const& func = [](object* obj) { return obj->name(); };
 
-    return std::forward_list<std::string>(
+    return std::list<std::string>(
         boost::make_transform_iterator(children_.cbegin(), func),
         boost::make_transform_iterator(children_.cend(), func)
     );

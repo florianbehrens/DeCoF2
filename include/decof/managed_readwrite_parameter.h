@@ -85,7 +85,7 @@ private:
 
         verify(value);
         value_ = value;
-        readable_parameter<T, EncodingHint>::signal(value);
+        readable_parameter<T, EncodingHint>::emit(value);
     }
 
     T value_;
