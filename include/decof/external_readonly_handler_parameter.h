@@ -20,6 +20,7 @@
 #include <functional>
 
 #include "external_readonly_parameter.h"
+#include "exceptions.h"
 
 namespace decof
 {
