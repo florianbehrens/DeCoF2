@@ -19,22 +19,20 @@
 
 #include "client_read_interface.h"
 #include "conversion.h"
+#include "encoding_hint.h"
 
 namespace decof
 {
 
-template<typename T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_read_interface : public client_read_interface
 {
 public:
+    /// Parameter value getter function.
     virtual T value() const = 0;
 
-    /// @brief Return value as runtime dynamic type.
-    /// Scalar and sequence types are wrapped in a boost::any as they are.
-    /// Tuple types are dismantled and the individual elements wrapped in a
-    /// vector of boost::anys which is, in turn, again wrapped in a boost::any.
-    virtual boost::any any_value() override final {
-        return Conversion<T>::to_any(value());
+    virtual value_t generic_value() const override final {
+        return conversion_helper<T, EncodingHint>::to_generic(value());
     }
 };
 

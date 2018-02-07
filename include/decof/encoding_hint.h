@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2017 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLI_PARSER_INCLUDES_H
-#define DECOF_CLI_PARSER_INCLUDES_H
+#ifndef DECOF_ENCODING_HINT
+#define DECOF_ENCODING_HINT
 
-#include <decof/types.h>
+namespace decof {
 
-#endif // DECOF_CLI_PARSER_INCLUDES_H
+/**
+ * @brief Encoding hints for client contexts.
+ */
+enum class encoding_hint
+{
+    none,
+    binary
+};
+
+} // namespace decof
+
+#endif // DECOF_ENCODING_HINT

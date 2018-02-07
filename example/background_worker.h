@@ -46,7 +46,7 @@ private:
     void start();
 
     decof::handler_event event_;
-    decof::managed_readonly_parameter<decof::boolean> ready_;
+    decof::managed_readonly_parameter<bool> ready_;
 };
 
 #endif // DECOF_EXAMPLE_BACKGROUND_WORKER_H

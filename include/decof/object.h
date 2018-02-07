@@ -19,8 +19,6 @@
 
 #include <string>
 
-#include <boost/any.hpp>
-
 #include "automatic_ptr.h"
 #include "userlevel.h"
 
@@ -62,7 +60,7 @@ public:
     void writelevel(userlevel_t writelevel);
 
     /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor) = 0;
+    virtual void accept(object_visitor *visitor);
 
     /// Returns a pointer to the object dictionary of this tree element or
     /// nullptr if not defined.

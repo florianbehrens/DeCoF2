@@ -20,33 +20,39 @@
 #include <ostream>
 
 #include <decof/client_context/object_visitor.h>
+#include <decof/types.h>
 
 namespace decof
 {
 
+class object;
+class event;
+class node;
+
 namespace cli
 {
 
-class object;
-
-class tree_visitor : public decof::object_visitor
+class tree_visitor : public object_visitor
 {
 public:
     explicit tree_visitor(std::ostream &out);
 
-    virtual void visit(decof::event *event) override;
-    virtual void visit(decof::node *node) override;
-    virtual void visit(decof::object *obj) override;
-    virtual void visit(decof::basic_parameter<boolean> *param) override;
-    virtual void visit(decof::basic_parameter<integer> *param) override;
-    virtual void visit(decof::basic_parameter<real> *param) override;
-    virtual void visit(decof::basic_parameter<string> *param) override;
-    virtual void visit(decof::basic_parameter<binary> *param) override;
-    virtual void visit(decof::basic_parameter<boolean_seq> *param) override;
-    virtual void visit(decof::basic_parameter<integer_seq> *param) override;
-    virtual void visit(decof::basic_parameter<real_seq> *param) override;
-    virtual void visit(decof::basic_parameter<string_seq> *param) override;
-    virtual void visit(decof::basic_parameter<binary_seq> *param) override;
+    virtual void visit(object* obj) override;
+    virtual void visit(event *event) override;
+    virtual void visit(node *node) override;
+
+    virtual void visit(object* obj, boolean_tag) override;
+    virtual void visit(object* obj, integer_tag) override;
+    virtual void visit(object* obj, real_tag) override;
+    virtual void visit(object* obj, string_tag) override;
+    virtual void visit(object* obj, binary_tag) override;
+
+    virtual void visit(object* obj, sequence_tag<boolean_tag>) override;
+    virtual void visit(object* obj, sequence_tag<integer_tag>) override;
+    virtual void visit(object* obj, sequence_tag<real_tag>) override;
+    virtual void visit(object* obj, sequence_tag<string_tag>) override;
+
+    virtual void visit(object* obj, tuple_tag) override;
 
 private:
     void write_param(decof::object *obj, const char *type);

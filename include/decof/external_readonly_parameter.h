@@ -22,6 +22,7 @@
 #include <boost/optional.hpp>
 #include <boost/signals2/connection.hpp>
 
+#include "encoding_hint.h"
 #include "object_dictionary.h"
 #include "readable_parameter.h"
 
@@ -37,19 +38,24 @@ namespace decof
 {
 
 /**
+ * @brief Readonly parameter type with an externally managed value.
+ *
  * An external_readonly_parameter may only be modified by the server side and is
  * managed by the server implementation, i.e. externally from the framework's
  * viewpoint.
  *
  * An external_readonly_parameter is the only parameter type that internally
  * uses a polling timer for monitoring.
+ *
+ * @tparam T The parameter value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class external_readonly_parameter : public readable_parameter<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class external_readonly_parameter : public readable_parameter<T, EncodingHint>
 {
 public:
     external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Normal) :
-        readable_parameter<T>(name, parent, readlevel, Forbidden)
+        readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
     {}
 
     virtual ~external_readonly_parameter() {
@@ -75,10 +81,10 @@ public:
             return boost::signals2::scoped_connection();
 
         // Connect to regular tick
-        connection_ = obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T>::notify, this));
+        connection_ = obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T, EncodingHint>::notify, this));
 
         // Call base class member function
-        return readable_parameter<T>::observe(slot);
+        return readable_parameter<T, EncodingHint>::observe(slot);
     }
 
 private:
@@ -88,7 +94,7 @@ private:
     void notify() {
         T cur_value = value();
         if (!last_value_ || *last_value_ != cur_value) {
-            readable_parameter<T>::emit(cur_value);
+            readable_parameter<T, EncodingHint>::emit(cur_value);
             last_value_ = cur_value;
         }
     }

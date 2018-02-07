@@ -33,18 +33,16 @@
 namespace decof
 {
 
-template<typename T>
-class writeonly_parameter : public basic_parameter<T>, public typed_client_write_interface<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class writeonly_parameter :
+    public basic_parameter<T, EncodingHint>,
+    public typed_client_write_interface<T, EncodingHint>
 {
 public:
     writeonly_parameter(std::string name, node *parent, userlevel_t writelevel = Normal) :
-        basic_parameter<T>(name, parent, Forbidden, writelevel)
+        basic_parameter<T, EncodingHint>(name, parent, Forbidden, writelevel)
     {}
 
-    /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor) override {
-        visitor->visit(this);
-    }
 };
 
 } // namespace decof

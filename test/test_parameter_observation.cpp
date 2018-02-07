@@ -16,15 +16,17 @@
 
 #include <functional>
 
-#include <boost/any.hpp>
-
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
 
+#include "test_helpers.h"
+
 BOOST_AUTO_TEST_SUITE(parameter_observation)
+
+using decof::value_t;
 
 struct fixture
 {
@@ -40,9 +42,9 @@ struct fixture
             decof::client_context::unobserve(uri);
         }
 
-        void set_parameter(const std::string &uri, const boost::any &any_value, char separator = ':')
+        void set_parameter(const std::string &uri, const value_t &value, char separator = ':')
         {
-            decof::client_context::set_parameter(uri, any_value, separator);
+            decof::client_context::set_parameter(uri, value, separator);
         }
 
         void tick()
@@ -51,11 +53,11 @@ struct fixture
         }
     };
 
-    struct external_readonly_parameter_t : public decof::external_readonly_parameter<decof::boolean>
+    struct external_readonly_parameter_t : public decof::external_readonly_parameter<bool>
     {
-        using decof::external_readonly_parameter<decof::boolean>::external_readonly_parameter;
+        using decof::external_readonly_parameter<bool>::external_readonly_parameter;
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return m_value;
         }
@@ -67,17 +69,17 @@ struct fixture
         bool m_value = false;
     };
 
-    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<decof::boolean>
+    struct external_readwrite_parameter_t : public decof::external_readwrite_parameter<bool>
     {
-        using decof::external_readwrite_parameter<decof::boolean>::external_readwrite_parameter;
+        using decof::external_readwrite_parameter<bool>::external_readwrite_parameter;
 
-        bool external_value(const decof::boolean &value) override
+        bool external_value(const bool &value) override
         {
             m_value = value;
             return true;
         }
 
-        decof::boolean external_value() const override
+        bool external_value() const override
         {
             return m_value;
         }
@@ -94,17 +96,17 @@ struct fixture
         my_context(new my_context_t(obj_dict))
     {}
 
-    void notify(const std::string &uri, const boost::any &value) {
+    void notify(const std::string &uri, const value_t &value) {
         notified_uri = uri;
         notified_value = value;
     }
 
     std::string notified_uri;
-    boost::any notified_value;
+    value_t notified_value;
 
     decof::object_dictionary obj_dict;
-    decof::managed_readonly_parameter<decof::boolean> managed_readonly_parameter;
-    decof::managed_readwrite_parameter<decof::boolean> managed_readwrite_parameter;
+    decof::managed_readonly_parameter<bool> managed_readonly_parameter;
+    decof::managed_readwrite_parameter<bool> managed_readwrite_parameter;
     external_readonly_parameter_t external_readonly_parameter;
     external_readwrite_parameter_t external_readwrite_parameter;
     std::shared_ptr<my_context_t> my_context;
@@ -117,27 +119,27 @@ BOOST_FIXTURE_TEST_CASE(observe_managed_readonly_parameter, fixture)
     managed_readonly_parameter.value(true);
 
     BOOST_REQUIRE_EQUAL(notified_uri, "root:managed_readonly_parameter");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(notified_value), true);
+    BOOST_REQUIRE_EQUAL(notified_value, value_t(true));
 
     my_context->unobserve("root:managed_readonly_parameter");
     managed_readonly_parameter.value(false);
 
-    BOOST_REQUIRE_NE(boost::any_cast<bool>(notified_value), false);
+    BOOST_REQUIRE_NE(notified_value, value_t{ false });
 }
 
 BOOST_FIXTURE_TEST_CASE(observe_managed_readwrite_parameter, fixture)
 {
     my_context->observe("root:managed_readwrite_parameter",
                         std::bind(&fixture::notify, this, std::placeholders::_1, std::placeholders::_2));
-    my_context->set_parameter("root:managed_readwrite_parameter", boost::any(true));
+    my_context->set_parameter("root:managed_readwrite_parameter", true);
 
     BOOST_REQUIRE_EQUAL(notified_uri, "root:managed_readwrite_parameter");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(notified_value), true);
+    BOOST_REQUIRE_EQUAL(notified_value, value_t{ true });
 
     my_context->unobserve("root:managed_readwrite_parameter");
-    my_context->set_parameter("root:managed_readwrite_parameter", boost::any(false));
+    my_context->set_parameter("root:managed_readwrite_parameter", false);
 
-    BOOST_REQUIRE_NE(boost::any_cast<bool>(notified_value), false);
+    BOOST_REQUIRE_NE(notified_value, value_t{ false });
 }
 
 BOOST_FIXTURE_TEST_CASE(observe_external_readonly_parameter, fixture)
@@ -153,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(observe_external_readonly_parameter, fixture)
     my_context->tick();
 
     BOOST_REQUIRE_EQUAL(notified_uri, "root:external_readonly_parameter");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(notified_value), true);
+    BOOST_REQUIRE_EQUAL(notified_value, value_t{ true });
 
     my_context->unobserve("root:external_readonly_parameter");
 
@@ -162,22 +164,22 @@ BOOST_FIXTURE_TEST_CASE(observe_external_readonly_parameter, fixture)
     external_readonly_parameter.m_value = false;
     my_context->tick();
 
-    BOOST_REQUIRE_NE(boost::any_cast<bool>(notified_value), false);
+    BOOST_REQUIRE_NE(notified_value, value_t{ false });
 }
 
 BOOST_FIXTURE_TEST_CASE(observe_external_readwrite_parameter, fixture)
 {
     my_context->observe("root:external_readwrite_parameter",
                         std::bind(&fixture::notify, this, std::placeholders::_1, std::placeholders::_2));
-    my_context->set_parameter("root:external_readwrite_parameter", boost::any(true));
+    my_context->set_parameter("root:external_readwrite_parameter", true);
 
     BOOST_REQUIRE_EQUAL(notified_uri, "root:external_readwrite_parameter");
-    BOOST_REQUIRE_EQUAL(boost::any_cast<bool>(notified_value), true);
+    BOOST_REQUIRE_EQUAL(notified_value, value_t{ true });
 
     my_context->unobserve("root:external_readwrite_parameter");
-    my_context->set_parameter("root:external_readwrite_parameter", boost::any(false));
+    my_context->set_parameter("root:external_readwrite_parameter", false);
 
-    BOOST_REQUIRE_NE(boost::any_cast<bool>(notified_value), false);
+    BOOST_REQUIRE_NE(notified_value, value_t{ false });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

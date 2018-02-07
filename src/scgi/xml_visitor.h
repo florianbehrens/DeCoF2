@@ -35,23 +35,24 @@ public:
     explicit xml_visitor(std::ostream &out);
     virtual ~xml_visitor();
 
-    void visit(event *ev) override;
-    void visit(node *node) override;
-    void visit(object*) override;
-    void visit(basic_parameter<boolean> *param) override;
-    void visit(basic_parameter<integer> *param) override;
-    void visit(basic_parameter<real> *param) override;
-    void visit(basic_parameter<string> *param) override;
-    void visit(basic_parameter<binary> *param) override;
-    void visit(basic_parameter<boolean_seq> *param) override;
-    void visit(basic_parameter<integer_seq> *param) override;
-    void visit(basic_parameter<real_seq> *param) override;
-    void visit(basic_parameter<string_seq> *param) override;
-    void visit(basic_parameter<binary_seq> *param) override;
+    virtual void visit(event* event) override;
+    virtual void visit(node* node) override;
+
+    virtual void visit(object* obj, boolean_tag) override;
+    virtual void visit(object* obj, integer_tag) override;
+    virtual void visit(object* obj, real_tag) override;
+    virtual void visit(object* obj, string_tag) override;
+    virtual void visit(object* obj, binary_tag) override;
+
+    virtual void visit(object* obj, sequence_tag<boolean_tag>) override;
+    virtual void visit(object* obj, sequence_tag<integer_tag>) override;
+    virtual void visit(object* obj, sequence_tag<real_tag>) override;
+    virtual void visit(object* obj, sequence_tag<string_tag>) override;
+
+    virtual void visit(object* obj, tuple_tag) override;
 
 private:
     void write_param(const object *obj, const std::string &type_str);
-    std::string userlevel_name(userlevel_t ul) const;
 
     std::ostream &out_;
     std::stack<node*> node_stack_;

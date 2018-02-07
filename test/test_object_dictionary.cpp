@@ -46,7 +46,7 @@ struct fixture
 
     decof::object_dictionary obj_dict;
     std::unique_ptr<decof::node> node1, node2;
-    decof::managed_readonly_parameter<decof::string> param;
+    decof::managed_readonly_parameter<std::string> param;
     std::shared_ptr<my_context_t> my_context;
 };
 
@@ -114,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE(get_object_dictionary, fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_const_object_dictionary, fixture)
 {
-    const decof::managed_readonly_parameter<decof::string>& rparam = param;
+    const decof::managed_readonly_parameter<std::string>& rparam = param;
     auto od = rparam.get_object_dictionary();
     BOOST_REQUIRE(od != nullptr);
     BOOST_REQUIRE_EQUAL(od->name(), std::string("root"));
@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE(get_const_object_dictionary, fixture)
 BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 {
     decof::node node("node");
-    decof::managed_readonly_parameter<decof::boolean> parameter("parameter", nullptr);
+    decof::managed_readonly_parameter<bool> parameter("parameter", nullptr);
 
     node.add_child(&parameter);
 
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 BOOST_AUTO_TEST_CASE(set_and_reset_parent)
 {
     decof::node node("node");
-    decof::managed_readonly_parameter<decof::boolean> parameter("parameter", nullptr);
+    decof::managed_readonly_parameter<bool> parameter("parameter", nullptr);
 
     parameter.reset_parent(&node);
 

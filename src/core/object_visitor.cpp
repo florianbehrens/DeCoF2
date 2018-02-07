@@ -23,64 +23,64 @@
 namespace decof
 {
 
-void object_visitor::visit(event *event)
+void object_visitor::visit(event* e)
 {
-    visit(static_cast<object*>(event));
+    visit(static_cast<object*>(e));
 }
 
-void object_visitor::visit(node *node)
+void object_visitor::visit(node* n)
 {
-    visit(static_cast<object*>(node));
+    visit(static_cast<object*>(n));
 }
 
-void object_visitor::visit(basic_parameter<boolean> *param)
+void object_visitor::visit(object *obj, boolean_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<integer> *param)
+void object_visitor::visit(object *obj, integer_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<real> *param)
+void object_visitor::visit(object *obj, real_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<string> *param)
+void object_visitor::visit(object *obj, string_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<binary> *param)
+void object_visitor::visit(object *obj, binary_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<boolean_seq> *param)
+void object_visitor::visit(object *obj, sequence_tag<boolean_tag>)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<integer_seq> *param)
+void object_visitor::visit(object *obj, sequence_tag<integer_tag>)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<real_seq> *param)
+void object_visitor::visit(object *obj, sequence_tag<real_tag>)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<string_seq> *param)
+void object_visitor::visit(object *obj, sequence_tag<string_tag>)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
-void object_visitor::visit(basic_parameter<binary_seq> *param)
+void object_visitor::visit(object *obj, tuple_tag)
 {
-    visit(static_cast<object*>(param));
+    visit(obj);
 }
 
 void object_visitor::write_indentation(std::ostream &out, const object *te)

@@ -16,6 +16,9 @@
 
 #include "browse_visitor.h"
 
+#include <boost/variant/apply_visitor.hpp>
+
+#include <decof/client_read_interface.h>
 #include <decof/node.h>
 
 #include "encoder.h"
@@ -30,27 +33,27 @@ browse_visitor::browse_visitor(std::ostream &out) :
     out_(out)
 {}
 
-void browse_visitor::visit(decof::node *node)
+void browse_visitor::visit(object* obj)
+{
+    auto param = dynamic_cast<client_read_interface*>(obj);
+    if (!param) return;
+
+    write_indentation(out_, obj);
+    out_ << (obj->parent() != nullptr ? ":" : "" )
+        << obj->name();
+
+    out_ << " = ";
+    boost::apply_visitor(encoder(out_), static_cast<const value_t>(param->generic_value()));
+
+    out_ << std::endl;
+}
+
+void browse_visitor::visit(node* node)
 {
     write_indentation(out_, node);
     if (node->parent() != nullptr)
         out_ << ":";
     out_ << node->name() << std::endl;
-}
-
-void browse_visitor::visit(decof::object *obj)
-{
-    client_read_interface *read_if = dynamic_cast<client_read_interface*>(obj);
-
-    write_indentation(out_, obj);
-
-    out_ << (obj->parent() != nullptr ? ":" : "" )
-        << obj->name();
-    if (read_if != nullptr) {
-        out_ << " = ";
-        encoder().encode_any(out_, read_if->any_value());
-    }
-    out_ << std::endl;
 }
 
 } // namespace cli

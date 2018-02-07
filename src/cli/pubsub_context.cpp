@@ -26,6 +26,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
@@ -122,13 +123,13 @@ void pubsub_context::write_handler(const error_code& error, std::size_t bytes_tr
         close();
 }
 
-void pubsub_context::notify(std::string uri, const boost::any &any_value)
+void pubsub_context::notify(std::string uri, const value_t& value)
 {
     // Cut root node name (for compatibility reasons to 'classic' DeCoF)
     if (uri != object_dictionary_.name())
         uri.erase(0, object_dictionary_.name().size() + 1);
 
-    pending_updates_.push(uri, any_value);
+    pending_updates_.push(uri, value);
     preload_writing();
 }
 
@@ -142,12 +143,12 @@ void pubsub_context::preload_writing()
     while (!pending_updates_.empty() && outbuf_.size() < socket_send_buf_size_) {
         update_container::key_type uri;
         update_container::time_point time;
-        boost::any any_value;
+        value_t value;
 
-        std::tie(uri, any_value, time) = pending_updates_.pop_front();
+        std::tie(uri, value, time) = pending_updates_.pop_front();
 
         out << "(" << iso8601_time{ time } << " '" << uri << " ";
-        encoder().encode_any(out, any_value);
+        boost::apply_visitor(encoder(out), value);
         out << ")\n";
     }
 
@@ -205,7 +206,7 @@ void pubsub_context::process_request(std::string request)
                 throw access_denied_error();
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
-            notify(object_dictionary_.name() + ":ul", boost::any(static_cast<decof::integer>(userlevel())));
+            notify(object_dictionary_.name() + ":ul", scalar_t(static_cast<decof::integer_t>(userlevel())));
         } else {
             in >> uri;
 
@@ -228,7 +229,7 @@ void pubsub_context::process_request(std::string request)
 
                 // Apply special handling for 'ul' parameter
                 if (full_uri == object_dictionary_.name() + ":ul")
-                    notify(full_uri, boost::any(static_cast<decof::integer>(userlevel())));
+                    notify(full_uri, static_cast<decof::integer_t>(userlevel()));
                 else
                     observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {

@@ -22,6 +22,7 @@
 #include <boost/any.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
@@ -112,7 +113,9 @@ void scgi_context::handle_get_request()
         browse(&visitor);
     } else {
         resp.headers["Content-Type"] = "text/plain";
-        scgi::js_value_encoder().encode_any(body_oss, get_parameter(parser_.uri, '/'));
+
+        auto const& value = get_parameter(parser_.uri, '/');
+        boost::apply_visitor(js_value_encoder(body_oss), value);
     }
 
     resp.body = std::move(body_oss.str());
@@ -122,8 +125,8 @@ void scgi_context::handle_get_request()
 void scgi_context::handle_put_request()
 {
     std::string str;
-    boost::any value;
-    std::vector<boost::any> vec;
+    value_t val;
+    sequence_t seq;
 
     boost::algorithm::trim_if(parser_.body, boost::is_space());
     std::istringstream ss(parser_.body);
@@ -131,49 +134,42 @@ void scgi_context::handle_put_request()
     try {
         if (parser_.content_type == "vnd/com.toptica.decof.boolean") {
             if (parser_.body == "true")
-                value = true;
+                val = true;
             else if (parser_.body == "false")
-                value = false;
+                val = false;
             else
                 throw invalid_value_error();
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer") {
             ss >> str;
-            value = boost::lexical_cast<decof::integer>(str);
+            val = boost::lexical_cast<integer_t>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real") {
             ss >> str;
-            value = boost::lexical_cast<decof::real>(str);
+            val = boost::lexical_cast<real_t>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
-            value = std::move(parser_.body);
-        } else if (parser_.content_type == "vnd/com.toptica.decof.binary") {
-            decof::binary bin;
-            bin.swap(parser_.body);
-            value = std::move(bin);
+            val = string_t{ std::move(parser_.body) };
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
-            vec.reserve(parser_.body.size() / sizeof(char));
             for (char c : parser_.body)
-                vec.emplace_back(boost::any(c > 0));
-            value = std::move(vec);
+                seq.emplace_back(c > 0);
+            val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.integer_seq") {
-            if (parser_.body.size() % sizeof(decof::integer))
+            if (parser_.body.size() % sizeof(integer_t))
                 throw invalid_value_error();
 
-            size_t size = parser_.body.size() / sizeof(decof::integer);
-            vec.reserve(size);
-            array_view<const int32_t> elems(reinterpret_cast<const int32_t*>(&parser_.body[0]), size);
+            size_t size = parser_.body.size() / sizeof(integer_t);
+            array_view<const integer_t> elems(reinterpret_cast<const integer_t*>(&parser_.body[0]), size);
             for (auto elem : elems)
-                vec.emplace_back(little_endian_to_native(elem));
-            value = std::move(vec);
+                seq.emplace_back(static_cast<integer_t>(little_endian_to_native(elem)));
+            val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.real_seq") {
-            if (parser_.body.size() % sizeof(decof::real))
+            if (parser_.body.size() % sizeof(decof::real_t))
                 throw invalid_value_error();
 
-            size_t size = parser_.body.size() / sizeof(decof::real);
-            vec.reserve(size);
+            size_t size = parser_.body.size() / sizeof(decof::real_t);
 
             array_view<const double> elems(reinterpret_cast<const double*>(&parser_.body[0]), size);
             for (auto elem : elems)
-                vec.emplace_back(little_endian_to_native(elem));
-            value = std::move(vec);
+                seq.emplace_back(little_endian_to_native(elem));
+            val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
             auto it = parser_.body.cbegin();
             for (; it != parser_.body.cend(); it += 2) {
@@ -182,7 +178,7 @@ void scgi_context::handle_put_request()
                 std::tie(result, it) = parser.parse(it, parser_.body.cend());
 
                 if (result == bencode_string_parser::good) {
-                    vec.push_back(boost::any(std::move(parser.data)));
+                    seq.push_back(string_t{ std::move(parser.data) });
                 } else
                     throw invalid_value_error();
 
@@ -190,37 +186,16 @@ void scgi_context::handle_put_request()
                     break;
             }
 
-            value = std::move(vec);
-        } else if (parser_.content_type == "vnd/com.toptica.decof.binary_seq") {
-            auto it = parser_.body.cbegin();
-            for (; it != parser_.body.cend(); it += 2) {
-                bencode_string_parser parser;
-                bencode_string_parser::result_type result;
-                std::tie(result, it) = parser.parse(it, parser_.body.cend());
-
-                if (result == bencode_string_parser::good) {
-                    decof::binary binary;
-                    binary.swap(parser.data);
-                    vec.push_back(boost::any(std::move(binary)));
-                } else
-                    throw invalid_value_error();
-
-                if (it == parser_.body.cend())
-                    break;
-            }
-
-            value = std::move(vec);
+            val = std::move(seq);
         } else if (parser_.content_type == "vnd/com.toptica.decof.tuple")
             throw not_implemented_error();
         else
             throw wrong_type_error();
-    } catch (boost::bad_any_cast&) {
-        throw invalid_value_error();
     } catch (boost::bad_lexical_cast&) {
         throw invalid_value_error();
     }
 
-    set_parameter(parser_.uri, value, '/');
+    set_parameter(parser_.uri, val, '/');
     send_response(response::stock_response(response::status_code::ok));
 }
 

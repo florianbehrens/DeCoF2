@@ -17,7 +17,11 @@
 #ifndef DECOF_SCGI_JS_VALUE_ENCODER_H
 #define DECOF_SCGI_JS_VALUE_ENCODER_H
 
-#include <decof/client_context/basic_value_encoder.h>
+#include <ostream>
+
+#include <boost/variant/static_visitor.hpp>
+
+#include <decof/types.h>
 
 namespace decof
 {
@@ -25,15 +29,22 @@ namespace decof
 namespace scgi
 {
 
-struct js_value_encoder : public decof::basic_value_encoder
+struct js_value_encoder : public boost::static_visitor<>
 {
-    void encode_boolean(std::ostream &out, const boolean &value) override;
-    void encode_boolean_seq(std::ostream &out, const boolean_seq &value) override;
-    void encode_integer_seq(std::ostream &out, const integer_seq &value) override;
-    void encode_real_seq(std::ostream &out, const real_seq &value) override;
-    void encode_string_seq(std::ostream &out, const string_seq &value) override;
-    void encode_binary_seq(std::ostream &out, const binary_seq &value) override;
-    void encode_tuple(std::ostream &out, const dynamic_tuple &value) override;
+    explicit js_value_encoder(std::ostream& out);
+
+    void operator()(const scalar_t& arg) const;
+    void operator()(const sequence_t& arg) const;
+    void operator()(const tuple_t& arg) const;
+
+    void operator()(const boolean_t& arg) const;
+    void operator()(const integer_t& arg) const;
+    void operator()(const real_t& arg) const;
+    void operator()(const string_t& arg) const;
+    void operator()(const binary_t& arg) const;
+
+private:
+    std::ostream& m_out;
 };
 
 } // namespace scgi

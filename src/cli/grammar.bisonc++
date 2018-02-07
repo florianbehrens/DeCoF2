@@ -33,10 +33,11 @@
 %token                  BOOLEAN INTEGER REAL STRING BINARY
 
 // Set polymorphic rules, i.e. rules return different types
-%polymorphic            ANY: boost::any; SEQ: std::vector<boost::any>;
+%polymorphic            GEN: value_t; SEQ: sequence<scalar_t>; SCL: scalar_t;
 
 // Define rule return types
-%type                   <ANY> expression scalar
+%type                   <GEN> expression
+%type                   <SCL> scalar
 %type                   <SEQ> opt_series series sequence tuple
 
 // Set start rule
@@ -47,18 +48,22 @@
 expression:
     scalar
     {
-        // Swap boost::any types $1 and result_
-        result_.swap($1);
+        // Assign $1 of type scalar_t to result_
+        result_ = std::move($1);
     }
     | sequence
     {
-        // Assign $1 of type std::vector<boost::any> to result_
-        result_ = $1;
+        // Assign $1 of type sequence<scalar_t> to result_
+        sequence_t tmp;
+        d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+        result_ = tmp;
     }
     | tuple
     {
-        // Assign $1 of type std::vector<boost::any> to result_
-        result_ = $1;
+        // Assign $1 of type sequence<scalar_t> to result_
+        tuple_t tmp;
+        d_vsp__[0].data<Tag__::SEQ>().swap(tmp);
+        result_ = tmp;
     }
     ;
 
@@ -80,14 +85,14 @@ scalar:
     | STRING
     {
         // Trim "" and unescape matched string
-        decof::string res = d_scanner.matched();
+        std::string res = d_scanner.matched();
         res.resize(backslash_escape_decoder(res.cbegin() + 1, res.cend() - 1, res.begin()));
-        $$ = res;
+        $$ = string_t{ std::move(res) };
     }
     | BINARY
     {
         // Decode matched string
-        $$ = base64decode(d_scanner.matched().substr(1));
+        $$ = binary_t{ base64decode(d_scanner.matched().substr(1)) };
     }
     ;
 
@@ -99,7 +104,7 @@ opt_series:
     }
     | series
     {
-        // Swap std::vector<boost::any> types $$ and $1
+        // Swap sequence<scalar_t> types $$ and $1
         $<SEQ>$.swap($<SEQ>1);
     }
     ;
@@ -107,12 +112,12 @@ opt_series:
 series:
     scalar
     {
-        // Initialize std::vector<boost::any> with single element from scalar rule
+        // Initialize sequence<scalar_t> with single element from scalar rule
         $<SEQ>$.push_back($1);
     }
     | series ',' scalar
     {
-        // Append boost::any $3 to std::vector<boost::any> $1 and return
+        // Append value_t $3 to sequence<scalar_t> $1 and return
         $<SEQ>1.push_back($3);
         $<SEQ>$.swap($<SEQ>1);
     }
@@ -121,7 +126,7 @@ series:
 sequence:
     '[' opt_series ']'
     {
-        // Swap std::vector<boost::any> types $$ and $2
+        // Swap sequence<scalar_t> types $$ and $2
         $<SEQ>$.swap($<SEQ>2);
     }
     ;
@@ -129,7 +134,7 @@ sequence:
 tuple:
     '{' opt_series '}'
     {
-        // Swap std::vector<boost::any> types $$ and $2
+        // Swap sequence<scalar_t> types $$ and $2
         $<SEQ>$.swap($<SEQ>2);
     }
     ;

@@ -19,3 +19,41 @@
 #define BOOST_TEST_MODULE "decof2"
 
 #include <boost/test/unit_test.hpp>
+
+#include <decof/types.h>
+
+#include "test_helpers.h"
+
+namespace decof {
+
+std::ostream& operator<<(std::ostream& out, const sequence_t& arg)
+{
+    out << '[';
+
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) out.put(',');
+        out << *it;
+    }
+
+    out << ']';
+
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const tuple_t& arg)
+{
+    out << '{';
+
+    auto it = std::cbegin(arg);
+    for (; it != std::cend(arg); ++it) {
+        if (it != std::cbegin(arg)) out.put(',');
+        out << *it;
+    }
+
+    out << '}';
+
+    return out;
+}
+
+}

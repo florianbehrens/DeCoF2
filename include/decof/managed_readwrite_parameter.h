@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "encoding_hint.h"
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"
 
@@ -36,22 +37,26 @@ namespace decof
 {
 
 /**
- * A managed_readwrite_parameter may only be modified by the client side.
+ * @brief A managed_readwrite_parameter may only be modified by the client side.
  *
  * This parameter type can be monitored efficiently.
+ *
+ * @tparam T The parameter value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class managed_readwrite_parameter : public readable_parameter<T>, public typed_client_write_interface<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class managed_readwrite_parameter :
+    public readable_parameter<T, EncodingHint>, public typed_client_write_interface<T, EncodingHint>
 {
 public:
     managed_readwrite_parameter(const std::string &name, node *parent, const T &value) :
-        readable_parameter<T>(name, parent, Normal, Normal), value_(value)
+        readable_parameter<T, EncodingHint>(name, parent, Normal, Normal), value_(value)
     {}
 
     managed_readwrite_parameter(const std::string &name, node *parent,
                                 userlevel_t readlevel = Normal, userlevel_t writelevel = Normal,
                                 const T &value = T()) :
-        readable_parameter<T>(name, parent, readlevel, writelevel), value_(value)
+        readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel), value_(value)
     {}
 
     virtual T value() const override final {
@@ -80,7 +85,7 @@ private:
 
         verify(value);
         value_ = value;
-        readable_parameter<T>::emit(value);
+        readable_parameter<T, EncodingHint>::emit(value);
     }
 
     T value_;

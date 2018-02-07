@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <iomanip>
+
 #include "endian.h"
 #include "js_value_encoder.h"
 
@@ -23,63 +25,95 @@ namespace decof
 namespace scgi
 {
 
-void js_value_encoder::encode_boolean(std::ostream &out, const boolean &value)
+namespace {
+
+/**
+ * @brief Visitor class for sequence element encoding.
+ */
+class sequence_element_encoder : public boost::static_visitor<>
 {
-    if (value == false)
-        out << "false";
-    else
-        out << "true";
+public:
+    explicit sequence_element_encoder(std::ostream& out) :
+        m_out(out)
+    {}
+
+    void operator()(const boolean_t& arg) const
+    {
+        m_out.put(static_cast<unsigned char>(arg));
+    }
+
+    void operator()(const integer_t& arg) const
+    {
+        int32_t elem_le = native_to_little_endian(arg);
+        m_out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
+    }
+
+    void operator()(const real_t& arg) const
+    {
+        double elem_le = native_to_little_endian(arg);
+        m_out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
+    }
+
+    void operator()(const string_t& arg) const
+    {
+        // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
+        m_out << arg.size() << ":" << arg << "\r\n";
+    }
+
+private:
+    std::ostream& m_out;
+};
+
+} // Anonymous namespace
+
+js_value_encoder::js_value_encoder(std::ostream& out) :
+    m_out(out)
+{}
+
+void js_value_encoder::operator()(const scalar_t &arg) const
+{
+    boost::apply_visitor(*this, arg);
 }
 
-void js_value_encoder::encode_boolean_seq(std::ostream &out, const boolean_seq &value)
+void js_value_encoder::operator()(const sequence_t& arg) const
 {
-    for (const auto &elem : value)
-        out.put(static_cast<unsigned char>(elem));
+    sequence_element_encoder enc(m_out);
+    for (const auto& elem : arg) boost::apply_visitor(enc, elem);
 }
 
-void js_value_encoder::encode_integer_seq(std::ostream &out, const integer_seq &value)
+void js_value_encoder::operator()(const tuple_t& arg) const
 {
-    for (const auto &elem : value) {
-        int32_t elem_le = native_to_little_endian(elem);
-        out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
+    for (const auto& elem : arg) {
+        boost::apply_visitor(*this, elem);
+        m_out << "\r\n";
     }
 }
 
-void js_value_encoder::encode_real_seq(std::ostream &out, const real_seq &value)
+void js_value_encoder::operator()(const boolean_t& arg) const
 {
-    for (const auto &elem : value) {
-        double elem_le = native_to_little_endian(elem);
-        out.write(reinterpret_cast<const char*>(&elem_le), sizeof(elem_le));
-    }
+    m_out << std::boolalpha << arg << std::noboolalpha;
 }
 
-void js_value_encoder::encode_string_seq(std::ostream &out, const string_seq &value)
+void js_value_encoder::operator()(const integer_t& arg) const
 {
-    // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
-    for (const auto &elem : value)
-        out << elem.size() << ":" << elem << "\r\n";
+    m_out << arg;
 }
 
-void js_value_encoder::encode_binary_seq(std::ostream &out, const binary_seq &value)
+void js_value_encoder::operator()(const real_t& arg) const
 {
-    // Bencode (see http://en.wikipedia.org/wiki/Bencode) encoder
-    for (const auto &elem : value)
-        out << elem.size() << ":" << elem << "\r\n";
+    // Use minimum value without loss of precision in conversion between binary
+    // and decimal number representation and vice versa.
+    m_out << std::setprecision(17) << arg;
 }
 
-void js_value_encoder::encode_tuple(std::ostream &out, const dynamic_tuple &value)
+void js_value_encoder::operator()(const string_t& arg) const
 {
-    for (const auto &elem : value) {
-        if (elem.type() == typeid(decof::string)) {
-            decof::string value = boost::any_cast<decof::string>(elem);
-            out << value.size() << ":" << value;
-        } else if (elem.type() == typeid(decof::binary)) {
-            decof::binary value = boost::any_cast<decof::binary>(elem);
-            out << value.size() << ":" << value;
-        } else
-            encode_any(out, elem);
-        out << "\r\n";
-    }
+    m_out << arg;
+}
+
+void js_value_encoder::operator()(const binary_t& arg) const
+{
+    m_out << arg;
 }
 
 } // namespace scgi

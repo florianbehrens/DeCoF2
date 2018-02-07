@@ -32,6 +32,23 @@ std::string node_type_str(decof::node *node)
     return ss.str();
 }
 
+std::string userlevel_name(decof::userlevel_t ul)
+{
+    static const std::map<decof::userlevel_t, const char*> userlevel_names = {
+        { decof::Internal,    "internal" },
+        { decof::Service,     "service" },
+        { decof::Maintenance, "maintenance" },
+        { decof::Normal,      "normal" },
+        { decof::Readonly,    "readonly" }
+    };
+
+    try {
+        return userlevel_names.at(ul);
+    } catch (std::out_of_range&) {}
+
+    return "invalid";
+}
+
 } // Anonymous namespace
 
 namespace decof
@@ -92,16 +109,16 @@ xml_visitor::~xml_visitor()
     out_ << "</system>\n";
 }
 
-void xml_visitor::visit(event *ev)
+void xml_visitor::visit(event* event)
 {
     if (!first_pass_) {
-        out_ << indentation() << "<cmd name=\"" << ev->name() << "\""
-            << " execlevel=\"" << userlevel_name(ev->writelevel()) << "\">"
+        out_ << indentation() << "<cmd name=\"" << event->name() << "\""
+            << " execlevel=\"" << userlevel_name(event->writelevel()) << "\">"
             << "<description> </description></cmd>\n";
     }
 }
 
-void xml_visitor::visit(node *node)
+void xml_visitor::visit(node* node)
 {
     if (first_pass_)
         node_stack_.push(node);
@@ -109,60 +126,57 @@ void xml_visitor::visit(node *node)
         write_param(node, node_type_str(node));
 }
 
-void xml_visitor::visit(object*)
-{}
-
-void xml_visitor::visit(basic_parameter<boolean> *param)
+void xml_visitor::visit(object* obj, boolean_tag)
 {
-    write_param(param, "BOOLEAN");
+    write_param(obj, "BOOLEAN");
 }
 
-void xml_visitor::visit(basic_parameter<integer> *param)
+void xml_visitor::visit(object* obj, integer_tag)
 {
-    write_param(param, "INTEGER");
+    write_param(obj, "INTEGER");
 }
 
-void xml_visitor::visit(basic_parameter<real> *param)
+void xml_visitor::visit(object* obj, real_tag)
 {
-    write_param(param, "REAL");
+    write_param(obj, "REAL");
 }
 
-void xml_visitor::visit(basic_parameter<string> *param)
+void xml_visitor::visit(object* obj, string_tag)
 {
-    write_param(param, "STRING");
+    write_param(obj, "STRING");
 }
 
-void xml_visitor::visit(basic_parameter<binary> *param)
+void xml_visitor::visit(object* obj, binary_tag)
 {
-    write_param(param, "BINARY");
+    write_param(obj, "BINARY");
 }
 
-void xml_visitor::visit(basic_parameter<boolean_seq> *param)
+void xml_visitor::visit(object* obj, sequence_tag<boolean_tag>)
 {
-    write_param(param, "BOOLEAN_SEQ");
+    write_param(obj, "BOOLEAN_SEQ");
 }
 
-void xml_visitor::visit(basic_parameter<integer_seq> *param)
+void xml_visitor::visit(object* obj, sequence_tag<integer_tag>)
 {
-    write_param(param, "INTEGER_SEQ");
+    write_param(obj, "INTEGER_SEQ");
 }
 
-void xml_visitor::visit(basic_parameter<real_seq> *param)
+void xml_visitor::visit(object* obj, sequence_tag<real_tag>)
 {
-    write_param(param, "REAL_SEQ");
+    write_param(obj, "REAL_SEQ");
 }
 
-void xml_visitor::visit(basic_parameter<string_seq> *param)
+void xml_visitor::visit(object* obj, sequence_tag<string_tag>)
 {
-    write_param(param, "STRING_SEQ");
+    write_param(obj, "STRING_SEQ");
 }
 
-void xml_visitor::visit(basic_parameter<binary_seq> *param)
+void xml_visitor::visit(object* obj, tuple_tag)
 {
-    write_param(param, "BINARY_SEQ");
+    write_param(obj, "TUPLE");
 }
 
-void xml_visitor::write_param(const object *obj, const std::string &type_str)
+void xml_visitor::write_param(const decof::object* obj, const std::string &type_str)
 {
     if (!first_pass_) {
         bool readonly = (dynamic_cast<const client_write_interface*>(obj) == nullptr);
@@ -185,23 +199,6 @@ void xml_visitor::write_param(const object *obj, const std::string &type_str)
 
         out_ << "><description> </description></param>\n";
     }
-}
-
-std::string xml_visitor::userlevel_name(userlevel_t ul) const
-{
-    static const std::map<userlevel_t, const char*> userlevel_names = {
-        { Internal,    "internal" },
-        { Service,     "service" },
-        { Maintenance, "maintenance" },
-        { Normal,      "normal" },
-        { Readonly,    "readonly" }
-    };
-
-    try {
-        return userlevel_names.at(ul);
-    } catch (std::out_of_range&) {}
-
-    return "invalid";
 }
 
 } // namespace scgi

@@ -17,11 +17,12 @@
 #ifndef DECOF_CLIENT_READ_INTERFACE_H
 #define DECOF_CLIENT_READ_INTERFACE_H
 
-#include <boost/any.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/signal_type.hpp>
 #include <boost/signals2/dummy_mutex.hpp>
+
+#include "types.h"
 
 namespace decof
 {
@@ -32,15 +33,16 @@ using boost::signals2::dummy_mutex;
 class client_read_interface
 {
 public:
-    /** @brief The signal type for object value change notifications.
+    /**
+     * @brief The signal type for object value change notifications.
      *
      * The first argument contains the object URI with the default separator
-     * ':'. The second argument contains the object value wrapped in a @a
-     * boost::any.
+     * ':'. The second argument contains the objects value.
      */
-    typedef boost::signals2::signal_type<void (const std::string&, const boost::any&), mutex_type<dummy_mutex>>::type value_change_signal_t;
+    typedef boost::signals2::signal_type<void (const std::string&, const value_t&), mutex_type<dummy_mutex>>::type value_change_signal_t;
 
-    /** @brief The slot type for object value change notifications.
+    /**
+     * @brief The slot type for object value change notifications.
      *
      * See also #value_change_signal_t.
      */
@@ -49,7 +51,7 @@ public:
     virtual ~client_read_interface() {}
 
     /// Provides the value as runtime-generic type.
-    virtual boost::any any_value() = 0;
+    virtual value_t generic_value() const = 0;
 
     /** @brief Observe parameter value.
      *

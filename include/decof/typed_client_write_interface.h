@@ -18,47 +18,22 @@
 #define DECOF_TYPED_CLIENT_WRITE_INTERFACE_H
 
 #include "client_write_interface.h"
-#include "conversion.h"
+#include "encoding_hint.h"
 #include "exceptions.h"
 
 namespace decof
 {
 
-template<typename T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_write_interface : public client_write_interface
 {
 private:
-    virtual void value(const T &value) = 0;
-    virtual void value(const boost::any& any_value) override final
-    {
-        try {
-            value(Conversion<T>::from_any(any_value));
-        } catch(boost::bad_any_cast&) {
-            throw wrong_type_error();
-        }
-    }
-};
+    /// Parameter value setter function.
+    virtual void value(const T&) = 0;
 
-// Partial template specialization for sequence types.
-template<typename T>
-class typed_client_write_interface<decof::sequence<T>> : public client_write_interface
-{
-    friend class client_context;
-
-private:
-    virtual void value(const decof::sequence<T> &value) = 0;
-    virtual void value(const boost::any& any_value) override final
+    virtual void generic_value(const value_t& value) override final
     {
-        try {
-            const std::vector<boost::any> &any_vector = boost::any_cast<const std::vector<boost::any> &>(any_value);
-            decof::sequence<T> new_value;
-            new_value.reserve(any_vector.size());
-            for (auto elem : any_vector)
-                new_value.push_back(boost::any_cast<T>(elem));
-            value(new_value);
-        } catch(boost::bad_any_cast&) {
-            throw wrong_type_error();
-        }
+        this->value(conversion_helper<T, EncodingHint>::from_generic(value));
     }
 };
 

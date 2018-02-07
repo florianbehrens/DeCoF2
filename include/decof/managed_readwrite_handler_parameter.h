@@ -19,28 +19,31 @@
 
 #include <functional>
 
+#include "encoding_hint.h"
 #include "managed_readwrite_parameter.h"
 
 namespace decof
 {
 
-/** @brief Handler-based managed readwrite parameter class.
+/**
+ * @brief Handler-based managed readwrite parameter class.
  *
  * This class is the handler version of class #managed_readwrite_parameter. It
  * supports runtime registration of callable(s) as handler function(s).
  *
- * @tparam T The value type.
+ * @tparam T The parameter value type.
+ * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T>
-class managed_readwrite_handler_parameter : public managed_readwrite_parameter<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class managed_readwrite_handler_parameter : public managed_readwrite_parameter<T, EncodingHint>
 {
 public:
-    using managed_readwrite_parameter<T>::managed_readwrite_parameter;
+    using managed_readwrite_parameter<T, EncodingHint>::managed_readwrite_parameter;
 
     managed_readwrite_handler_parameter(const std::string &name, node *parent,
                                         std::function<void(const T&)> verify_handler,
                                         const T &value) :
-        managed_readwrite_parameter<T>(name, parent, Normal, Normal, value),
+        managed_readwrite_parameter<T, EncodingHint>(name, parent, Normal, Normal, value),
         verify_handler_(verify_handler)
     {}
 
@@ -48,7 +51,7 @@ public:
                                         std::function<void(const T&)> verify_handler,
                                         userlevel_t readlevel = Normal, userlevel_t writelevel = Normal,
                                         const T &value = T()) :
-        managed_readwrite_parameter<T>(name, parent, readlevel, writelevel, value),
+        managed_readwrite_parameter<T, EncodingHint>(name, parent, readlevel, writelevel, value),
         verify_handler_(verify_handler)
     {}
 

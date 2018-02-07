@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2017 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLI_PARSER_INCLUDES_H
-#define DECOF_CLI_PARSER_INCLUDES_H
+namespace decof {
 
-#include <decof/types.h>
+// Makes BOOST_REQUIRE_EQUAL possible for sequence_t instances.
+std::ostream& operator<<(std::ostream& out, const sequence_t& arg);
 
-#endif // DECOF_CLI_PARSER_INCLUDES_H
+// Makes BOOST_REQUIRE_EQUAL possible for tuple_t instances.
+std::ostream& operator<<(std::ostream& out, const tuple_t& arg);
+
+} // namespace decof

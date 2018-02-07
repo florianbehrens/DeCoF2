@@ -90,6 +90,11 @@ void object::writelevel(userlevel_t writelevel)
     writelevel_ = writelevel;
 }
 
+void object::accept(object_visitor* visitor)
+{
+    visitor->visit(this);
+}
+
 object_dictionary *object::get_object_dictionary()
 {
     object* te = this;

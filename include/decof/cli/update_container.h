@@ -22,7 +22,7 @@
 #include <tuple>
 #include <map>
 
-#include <boost/any.hpp>
+#include <decof/types.h>
 
 namespace decof
 {
@@ -45,19 +45,19 @@ public:
 
     /** @brief Push new element to container.
      *
-     * If #uri does not already exist in the container, #any_value is pushed
-     * to the end of the sequence. Otherwise the existing uri is replaced by
-     * the new one in sequence.
+     * If @c uri does not already exist in the container, @c gen_value is
+     * pushed to the end of the sequence. Otherwise the existing element is
+     * replaced by the new one in sequence.
      *
      * @param uri The parameter URI.
-     * @param any_value The value to be published. */
-    void push(const key_type& uri, const boost::any& any_value);
+     * @param value The value to be published. */
+    void push(const key_type& uri, const value_t& value);
 
     /** Pop and return first element from container along with the time it was
      * pushed.
      * @return Tuple containing first element and timestamp.
      * @throw out_of_range if container is empty. */
-    std::tuple<key_type, boost::any, time_point> pop_front();
+    std::tuple<key_type, value_t, time_point> pop_front();
 
     bool empty() const noexcept;
 
@@ -71,7 +71,7 @@ private:
         typedef typename Map<const Key, mapped_type, std::less<Key>, std::allocator<int>>::iterator iterator;
 
         time_point time;
-        boost::any value;
+        value_t value;
         iterator next;
     };
 

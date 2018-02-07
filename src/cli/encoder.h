@@ -17,9 +17,11 @@
 #ifndef DECOF_CLI_ENCODER_H
 #define DECOF_CLI_ENCODER_H
 
-#include <string>
+#include <ostream>
 
-#include <decof/client_context/basic_value_encoder.h>
+#include <boost/variant/static_visitor.hpp>
+
+#include <decof/types.h>
 
 namespace decof
 {
@@ -27,11 +29,23 @@ namespace decof
 namespace cli
 {
 
-struct encoder : public basic_value_encoder
+class encoder : public boost::static_visitor<>
 {
-    virtual void encode_boolean(std::ostream &out, const boolean &value) override;
-    virtual void encode_string(std::ostream &out, const string &value) override;
-    virtual void encode_binary(std::ostream &out, const binary &value) override;
+public:
+    explicit encoder(std::ostream& out);
+
+    void operator()(const scalar_t& arg) const;
+    void operator()(const sequence_t& arg) const;
+    void operator()(const tuple_t& arg) const;
+
+    void operator()(const boolean_t& arg) const;
+    void operator()(const integer_t& arg) const;
+    void operator()(const real_t& arg) const;
+    void operator()(const string_t& arg) const;
+    void operator()(const binary_t& arg) const;
+
+private:
+    std::ostream& m_out;
 };
 
 } // namespace cli

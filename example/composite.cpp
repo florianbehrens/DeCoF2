@@ -28,12 +28,12 @@ composite::composite(std::string name, decof::node *parent) :
                                        std::placeholders::_1));
 }
 
-void composite::summand1_changing(const decof::integer &value)
+void composite::summand1_changing(const int& value)
 {
     sum_.value(value + summand2_.value());
 }
 
-void composite::summand2_changing(const decof::integer &value)
+void composite::summand2_changing(const int& value)
 {
     sum_.value(summand1_.value() + value);
 }

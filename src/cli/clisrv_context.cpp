@@ -28,10 +28,12 @@
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object.h>
 #include <decof/object_dictionary.h>
+#include <decof/types.h>
 
 #include "browse_visitor.h"
 #include "parser.h"
@@ -159,6 +161,7 @@ void clisrv_context::process_request(std::string request)
         uri = object_dictionary_.name() + ":" + uri;
 
     std::ostream out(&outbuf_);
+    encoder encoder(out);
 
     try {
         // Apply special handling for the 'change-ul' command
@@ -176,45 +179,47 @@ void clisrv_context::process_request(std::string request)
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
 
-            encoder().encode_integer(out, userlevel());
+            encoder(static_cast<integer_t>(userlevel()));
             out << "\n";
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
-            boost::any any_value;
+            bool value_available = false;
+            value_t value;
+
             if (ss_in.peek() != std::stringstream::traits_type::eof()) {
                 parser parser(ss_in);
                 parser.parse();
-                any_value = parser.result();
+                value = parser.result();
+                value_available = true;
             }
 
-            if ((op == "get" || op == "param-ref") && !uri.empty() && any_value.empty()) {
+            if ((op == "get" || op == "param-ref") && !uri.empty() && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::get, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
                 if (uri == object_dictionary_.name() + ":ul") {
-                    encoder().encode_integer(out, userlevel());
+                    encoder(static_cast<integer_t>(userlevel()));
                 } else {
-                    boost::any any_value = get_parameter(uri);
-                    encoder().encode_any(out, any_value);
+                    boost::apply_visitor(encoder, static_cast<const value_t>(get_parameter(uri)));
                 }
 
                 out << "\n";
-            } else if ((op == "set" || op == "param-set!") && !uri.empty() && !any_value.empty()) {
+            } else if ((op == "set" || op == "param-set!") && !uri.empty() && value_available) {
                 if (request_cb_)
                     request_cb_(request_t::set, request, remote_endpoint());
 
-                set_parameter(uri, any_value);
+                set_parameter(uri, value);
 
                 out << "0\n";
-            } else if ((op == "signal" || op == "exec") && !uri.empty() && any_value.empty()) {
+            } else if ((op == "signal" || op == "exec") && !uri.empty() && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::signal, request, remote_endpoint());
 
                 signal_event(uri);
 
                 out << "()\n";
-            } else if ((op == "browse" || op == "param-disp") && any_value.empty()) {
+            } else if ((op == "browse" || op == "param-disp") && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::browse, request, remote_endpoint());
 
@@ -228,7 +233,7 @@ void clisrv_context::process_request(std::string request)
                 browse(&visitor, root_uri);
 
                 out << temp_ss.str();
-            } else if (op == "tree" && any_value.empty()) {
+            } else if (op == "tree" && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::tree, request, remote_endpoint());
 

@@ -32,69 +32,69 @@ tree_visitor::tree_visitor(std::ostream& out) :
     out_(out)
 {}
 
-void tree_visitor::visit(decof::event *event)
-{
-    out_ << event->fq_name() << " EVENT\n";
-}
-
-void tree_visitor::visit(decof::node *node)
-{
-    out_ << node->fq_name() << " NODE\n";
-}
-
-void tree_visitor::visit(decof::object *obj)
+void tree_visitor::visit(object *obj)
 {
     out_ << obj->fq_name() << " UNKNOWN\n";
 }
 
-void tree_visitor::visit(decof::basic_parameter<boolean> *param)
+void tree_visitor::visit(event *event)
 {
-    write_param(param, "BOOLEAN");
+    out_ << event->fq_name() << " EVENT\n";
 }
 
-void tree_visitor::visit(decof::basic_parameter<integer> *param)
+void tree_visitor::visit(node *node)
 {
-    write_param(param, "INTEGER");
+    out_ << node->fq_name() << " NODE\n";
 }
 
-void tree_visitor::visit(decof::basic_parameter<real> *param)
+void tree_visitor::visit(object* obj, boolean_tag)
 {
-    write_param(param, "REAL");
+    write_param(obj, "BOOLEAN");
 }
 
-void tree_visitor::visit(decof::basic_parameter<string> *param)
+void tree_visitor::visit(object* obj, integer_tag)
 {
-    write_param(param, "STRING");
+    write_param(obj, "INTEGER");
 }
 
-void tree_visitor::visit(decof::basic_parameter<binary> *param)
+void tree_visitor::visit(object* obj, real_tag)
 {
-    write_param(param, "BINARY");
+    write_param(obj, "REAL");
 }
 
-void tree_visitor::visit(decof::basic_parameter<boolean_seq> *param)
+void tree_visitor::visit(object* obj, string_tag)
 {
-    write_param(param, "BOOLEAN_SEQ");
+    write_param(obj, "STRING");
 }
 
-void tree_visitor::visit(decof::basic_parameter<integer_seq> *param)
+void tree_visitor::visit(object* obj, binary_tag)
 {
-    write_param(param, "INTEGER_SEQ");
+    write_param(obj, "BINARY");
 }
 
-void tree_visitor::visit(decof::basic_parameter<real_seq> *param)
+void tree_visitor::visit(object* obj, sequence_tag<boolean_tag>)
 {
-    write_param(param, "REAL_SEQ");
+    write_param(obj, "BOOLEAN_SEQ");
 }
 
-void tree_visitor::visit(decof::basic_parameter<string_seq> *param)
+void tree_visitor::visit(object* obj, sequence_tag<integer_tag>)
 {
-    write_param(param, "STRING_SEQ");
+    write_param(obj, "INTEGER_SEQ");
 }
 
-void tree_visitor::visit(decof::basic_parameter<binary_seq> *param)
+void tree_visitor::visit(object* obj, sequence_tag<real_tag>)
 {
-    write_param(param, "BINARY_SEQ");
+    write_param(obj, "REAL_SEQ");
+}
+
+void tree_visitor::visit(object* obj, sequence_tag<string_tag>)
+{
+    write_param(obj, "STRING_SEQ");
+}
+
+void tree_visitor::visit(object* obj, tuple_tag)
+{
+    write_param(obj, "TUPLE");
 }
 
 void tree_visitor::write_param(decof::object *obj, const char *type)

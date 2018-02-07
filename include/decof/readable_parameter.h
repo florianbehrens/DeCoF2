@@ -22,14 +22,17 @@
 #include <decof/client_context/object_visitor.h>
 
 #include "basic_parameter.h"
+#include "encoding_hint.h"
 #include "conversion.h"
 #include "typed_client_read_interface.h"
 
 namespace decof
 {
 
-template<typename T>
-class readable_parameter : public basic_parameter<T>, public typed_client_read_interface<T>
+template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+class readable_parameter :
+    public basic_parameter<T, EncodingHint>,
+    public typed_client_read_interface<T, EncodingHint>
 {
 public:
     /// Override client_read_interface::observe.
@@ -48,21 +51,16 @@ public:
     virtual void unobserve() override {
     }
 
-    /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor) override {
-        visitor->visit(this);
-    }
-
 protected:
     // We inherit base class constructors
-    using basic_parameter<T>::basic_parameter;
+    using basic_parameter<T, EncodingHint>::basic_parameter;
 
     /** @brief Emit parameter value observation signal.
      *
      * @param value The value to be reported to the connected slot(s).
      */
     void emit(const T& value) {
-        signal_(this->fq_name(), boost::any(value));
+        signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
     }
 
     client_read_interface::value_change_signal_t signal_;
