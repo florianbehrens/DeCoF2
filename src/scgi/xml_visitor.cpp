@@ -57,11 +57,11 @@ namespace decof
 namespace scgi
 {
 
-xml_visitor::xml_visitor(std::ostream &out) :
+xml_visitor::xml_visitor(std::ostream& out, const std::string& system_name) :
     out_(out)
 {
     out_ << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        << "<system name=\"DeCoF2 server\" version=\"1.0\">\n";
+        << "<system name=\"" << system_name << "\" version=\"1.0\">\n";
 
     increment_indentation();
     out_ << indentation() << "<description> </description>\n";

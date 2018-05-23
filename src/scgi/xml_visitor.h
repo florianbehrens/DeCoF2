@@ -29,10 +29,19 @@ namespace decof
 namespace scgi
 {
 
+/**
+ * @brief Generator of XML parameter tree description.
+ */
 class xml_visitor : public object_visitor
 {
 public:
-    explicit xml_visitor(std::ostream &out);
+    /**
+     * Constructor.
+     *
+     * @param out Stream to write generated data to.
+     * @param system_name The name of the XML root node.
+     */
+    explicit xml_visitor(std::ostream& out, const std::string& system_name = "DeCoF2 server");
     virtual ~xml_visitor();
 
     virtual void visit(event* event) override;
