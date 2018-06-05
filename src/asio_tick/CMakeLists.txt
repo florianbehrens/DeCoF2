@@ -12,7 +12,6 @@ add_library(
 target_include_directories(
     decof2-asio-tick
     PUBLIC
-        ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include/decof/asio_tick
@@ -32,7 +31,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(
         decof2-asio-tick-gcov
         PUBLIC
-            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
         PRIVATE
             ${PROJECT_SOURCE_DIR}/include/decof/asio_tick

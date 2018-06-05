@@ -50,7 +50,6 @@ add_library(
 target_include_directories(
     decof2-websocket
     PUBLIC
-        ${Boost_INCLUDE_DIR}
         ${Beast_INCLUDE_DIR}
         ${RapidJSON_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
@@ -75,7 +74,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(
         decof2-websocket-gcov
         PUBLIC
-            ${Boost_INCLUDE_DIR}
             ${Beast_INCLUDE_DIR}
             ${RapidJSON_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/

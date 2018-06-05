@@ -3,10 +3,8 @@ project(decof2)
 
 option(DECOF2_WEBSOCKET "Enable Websocket support" ON)
 
-if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
-    find_package(Boost 1.56 REQUIRED COMPONENTS system unit_test_framework)
-    link_directories(${Boost_LIBRARY_DIR})
-endif()
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
 # Doxygen API documentation generation
 if(NOT DOXYGEN_FOUND)

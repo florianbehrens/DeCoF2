@@ -21,14 +21,13 @@ add_library(
 target_include_directories(
     decof2-core
     PUBLIC
-        ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include/decof/
 )
 target_link_libraries(
     decof2-core
-    ${Boost_SYSTEM_LIBRARY}
+    CONAN_PKG::boost
 )
 
 # DeCoF2 core library with gcov coverage information
@@ -41,14 +40,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(
         decof2-core-gcov
         PUBLIC
-            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
         PRIVATE
             ${PROJECT_SOURCE_DIR}/include/decof/
     )
     target_link_libraries(
         decof2-core-gcov
-        ${Boost_SYSTEM_LIBRARY}
+        CONAN_PKG::boost
     )
     target_compile_options(
         decof2-core-gcov

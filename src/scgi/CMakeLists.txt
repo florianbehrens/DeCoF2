@@ -22,7 +22,6 @@ add_library(
 target_include_directories(
     decof2-scgi
     PUBLIC
-        ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
 )
 target_link_libraries(
@@ -40,7 +39,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(
         decof2-scgi-gcov
         PUBLIC
-            ${Boost_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
     )
     target_link_libraries(
