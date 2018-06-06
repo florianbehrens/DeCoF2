@@ -28,8 +28,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         decof2-core-gcov
         decof2-scgi-gcov
         decof2-websocket-gcov
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        CONAN_PKG::boost
         gcov
         pthread
     )
@@ -40,7 +39,6 @@ else()
         decof2-core
         decof2-scgi
         decof2-websocket
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        CONAN_PKG::boost
     )
 endif()

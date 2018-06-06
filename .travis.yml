@@ -19,7 +19,7 @@ install:
 
 before_script:
   - mkdir build && cd build
-  - conan install -s compiler.version=5 ..
+  - conan install -s compiler.version=5 -s compiler.libcxx=libstdc++11 ..
 
 script:
   - cmake .. && make -j`nproc` decof2-example decof2-test && test/decof2-test

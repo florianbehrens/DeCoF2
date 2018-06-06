@@ -17,7 +17,6 @@
 #include <iostream>
 #include <thread>
 
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <decof/client_context/update_container.h>
