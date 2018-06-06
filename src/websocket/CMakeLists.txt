@@ -1,19 +1,5 @@
 include(ExternalProject)
 
-# Download and install the Beast library
-ExternalProject_Add(
-    decof2-libbeast
-    URL "https://github.com/boostorg/beast/archive/3777cb8b9c78748d0e64401316f00382d37b83be.tar.gz"
-    URL_MD5 "435f2a956c4e6f33e054972faaaa2168"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-ExternalProject_Get_Property(decof2-libbeast SOURCE_DIR)
-
-set(Beast_INCLUDE_DIR ${SOURCE_DIR}/include)
-
 # Download and install the RapidJSON library
 ExternalProject_Add(
     decof2-rapidjson
@@ -50,7 +36,6 @@ add_library(
 target_include_directories(
     decof2-websocket
     PUBLIC
-        ${Beast_INCLUDE_DIR}
         ${RapidJSON_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
 )
@@ -60,7 +45,6 @@ target_link_libraries(
 )
 add_dependencies(
     decof2-websocket
-    decof2-libbeast
     decof2-rapidjson
 )
 
@@ -74,7 +58,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(
         decof2-websocket-gcov
         PUBLIC
-            ${Beast_INCLUDE_DIR}
             ${RapidJSON_INCLUDE_DIR}
             ${PROJECT_SOURCE_DIR}/include/
     )
@@ -84,7 +67,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     )
     add_dependencies(
         decof2-websocket-gcov
-        decof2-libbeast
         decof2-rapidjson
     )
     target_compile_options(

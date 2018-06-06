@@ -18,10 +18,9 @@
 #include <ostream>
 
 #include <boost/asio/buffers_iterator.hpp>
+#include <boost/beast/websocket/error.hpp>
+#include <boost/beast/websocket/option.hpp>
 #include <boost/lexical_cast.hpp>
-
-#include <beast/websocket/error.hpp>
-#include <beast/websocket/option.hpp>
 
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
@@ -36,6 +35,8 @@ namespace decof
 
 namespace websocket
 {
+
+namespace beast = boost::beast;
 
 std::string websocket_context::connection_type() const
 {
@@ -76,7 +77,7 @@ void websocket_context::async_read_message()
     reading_active_ = true;
 
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
-    stream_.async_read(inbuf_, [self](const beast::error_code& error) {
+    stream_.async_read(inbuf_, [self](const beast::error_code& error, std::size_t) {
         self->read_handler(error);
     });
 }
@@ -86,7 +87,7 @@ void websocket_context::async_write_message()
     writing_active_ = true;
 
     auto self(std::dynamic_pointer_cast<websocket_context>(shared_from_this()));
-    stream_.async_write(outbuf_.data(), [self](const beast::error_code& error) {
+    stream_.async_write(outbuf_.data(), [self](const beast::error_code& error, std::size_t) {
         self->write_handler(error);
     });
 }
@@ -111,7 +112,7 @@ void websocket_context::read_handler(const beast::error_code& error)
     process_request();
 }
 
-void websocket_context::write_handler(const beast::error_code &error)
+void websocket_context::write_handler(const beast::error_code& error)
 {
     assert(writing_active_);
 

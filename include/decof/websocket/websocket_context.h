@@ -22,10 +22,9 @@
 #include <system_error>
 
 #include <boost/asio.hpp>
-
-#include <beast/core/error.hpp>
-#include <beast/core/multi_buffer.hpp>
-#include <beast/websocket/stream.hpp>
+#include <boost/beast/core/error.hpp>
+#include <boost/beast/core/multi_buffer.hpp>
+#include <boost/beast/websocket/stream.hpp>
 
 #include <decof/client_context/client_context.h>
 #include <decof/client_context/update_container.h>
@@ -97,7 +96,7 @@ private:
      *
      * @param error Error code.
      */
-    void read_handler(const beast::error_code& error);
+    void read_handler(const boost::beast::error_code& error);
 
     /**
      * @brief Write handler.
@@ -106,7 +105,7 @@ private:
      *
      * @param error Error code.
      */
-    void write_handler(const beast::error_code& error);
+    void write_handler(const boost::beast::error_code& error);
 
     /**
      * @brief Processes request message in inbuf_.
@@ -132,11 +131,11 @@ private:
      *
      * @param error The error as reason for the close.
      */
-    void shutdown(const beast::error_code& error);
+    void shutdown(const boost::beast::error_code& error);
 
-    beast::websocket::stream<socket_type> stream_;
-    beast::multi_buffer inbuf_;
-    beast::multi_buffer outbuf_;
+    boost::beast::websocket::stream<socket_type> stream_;
+    boost::beast::multi_buffer inbuf_;
+    boost::beast::multi_buffer outbuf_;
     update_container pending_updates_;
 
     /**
