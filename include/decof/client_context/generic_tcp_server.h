@@ -19,8 +19,9 @@
 
 #include <memory>
 
-#include <boost/asio/strand.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 
 #include <decof/object_dictionary.h>
 
@@ -86,7 +87,7 @@ private:
     object_dictionary& object_dictionary_;
     userlevel_t userlevel_;
 
-    boost::asio::strand& strand_;
+    boost::asio::io_service::strand& strand_;
     boost::asio::ip::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::socket socket_;
 };

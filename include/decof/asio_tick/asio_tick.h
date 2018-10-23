@@ -19,6 +19,7 @@
 
 #include <chrono>
 
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/steady_timer.hpp>
 
@@ -53,7 +54,7 @@ public:
 private:
     void tick_handler(const boost::system::error_code& error);
 
-    boost::asio::strand& strand_;
+    boost::asio::io_service::strand& strand_;
     boost::asio::steady_timer timer_;
     std::chrono::milliseconds interval_;
 };
