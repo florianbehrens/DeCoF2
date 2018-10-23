@@ -11,8 +11,8 @@ before_install:
   - sudo apt-get update
 
 install:
-  - sudo apt-get install g++-5 libboost-system1.58-dev libboost-test1.58-dev libboost-thread1.58-dev cmake-data cmake python-pip
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90
+  - sudo apt-get install g++-8 libboost-system1.58-dev libboost-test1.58-dev libboost-thread1.58-dev cmake-data cmake python-pip
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
   - sudo pip install -U cpp-coveralls
 
 before_script:
