@@ -125,7 +125,7 @@ void encoder::operator()(const string_t& arg) const
 
     m_out << '"';
 
-    for (const auto& ch : arg) {
+    for (const unsigned char ch : arg) {
         auto it = escape_characters.cbegin();
 
         if (ch >= 0x20 && ch <= 0x7F && ch != '\\' && ch != '\'' && ch != '\"' && ch != '\?') {
@@ -133,7 +133,7 @@ void encoder::operator()(const string_t& arg) const
         } else if ((it = escape_characters.find(ch)) != escape_characters.cend()) {
             m_out << "\\" << it->second;
         } else {
-            m_out << "\\x" << std::setw(2) << std::setfill('0') << std::hex << int(ch);
+            m_out << "\\x" << std::setw(2) << std::setfill('0') << std::hex << unsigned(ch);
         }
     }
 
