@@ -10,11 +10,11 @@ install:
   - sudo pip install -U cpp-coveralls
 
 before_script:
-  - mkdir build && cd build
+  - mkdir build
 
 script:
-  - cmake .. && make -j`nproc` decof2-example decof2-test && test/decof2-test
+  - (cd build && cmake .. && make -j`nproc` decof2-example decof2-test && test/decof2-test)
 
 after_success:
-  - cd ..
   - coveralls --include src --include include --gcov-options '\-lp'
+
