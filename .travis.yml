@@ -1,18 +1,12 @@
-dist: trusty
+dist: xenial
 
 language: cpp
 
 compiler:
   - gcc
 
-before_install:
-  - sudo add-apt-repository -y ppa:kojoley/boost # for boost >= 1.56
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test # for g++ >= 5.0
-  - sudo apt-get update
-
 install:
-  - sudo apt-get install g++-8 libboost-system1.58-dev libboost-test1.58-dev libboost-thread1.58-dev cmake-data cmake python-pip
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+  - sudo apt-get install libboost-system-dev libboost-test-dev libboost-thread-dev cmake python-pip
   - sudo pip install -U cpp-coveralls
 
 before_script:
