@@ -22,12 +22,12 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <chrono>
 #include <iomanip>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <variant>
 
 using boost::system::error_code;
 
@@ -130,7 +130,7 @@ void pubsub_context::preload_writing()
         std::tie(uri, value, time) = pending_updates_.pop_front();
 
         out << "(" << iso8601_time{time} << " '" << uri << " ";
-        boost::apply_visitor(encoder(out), value);
+        std::visit(encoder(out), value);
         out << ")\n";
     }
 

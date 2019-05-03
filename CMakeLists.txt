@@ -25,8 +25,8 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-# Set C++14 as language standard
-set(CMAKE_CXX_STANDARD 14)
+# Set C++17 as language standard
+set(CMAKE_CXX_STANDARD 17)
 
 # Remove Visual Studio 'checked iterators' and 'runtime security' warnings
 if(MSVC)

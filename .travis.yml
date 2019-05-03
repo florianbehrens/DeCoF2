@@ -5,16 +5,21 @@ language: cpp
 compiler:
   - gcc
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7 libboost-system-dev libboost-test-dev libboost-thread-dev cmake python-pip
+
 install:
-  - sudo apt-get install libboost-system-dev libboost-test-dev libboost-thread-dev cmake python-pip
   - sudo pip install -U cpp-coveralls
 
 before_script:
   - mkdir build
 
 script:
-  - (cd build && cmake .. && make -j`nproc` decof2-example decof2-test && test/decof2-test)
+  - (cd build && CC=gcc-7 CXX=g++-7 cmake .. && make -j`nproc` decof2-example decof2-test && test/decof2-test)
 
 after_success:
   - coveralls --include src --include include --gcov-options '\-lp'
-

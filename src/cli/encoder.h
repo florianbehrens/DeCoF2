@@ -25,7 +25,7 @@ namespace decof {
 
 namespace cli {
 
-class encoder : public boost::static_visitor<>
+class encoder
 {
   public:
     explicit encoder(std::ostream& out);

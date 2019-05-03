@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <ostream>
+#include <variant>
 
 using boost::system::error_code;
 
@@ -109,7 +110,7 @@ void scgi_context::handle_get_request()
         resp.headers["Content-Type"] = "text/plain";
 
         auto const& value = get_parameter(parser_.uri, '/');
-        boost::apply_visitor(js_value_encoder(body_oss), value);
+        std::visit(js_value_encoder(body_oss), value);
     }
 
     resp.body = std::move(body_oss.str());

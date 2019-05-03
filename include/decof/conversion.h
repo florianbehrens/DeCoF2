@@ -23,6 +23,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <tuple>
 #include <type_traits>
+#include <variant>
 
 namespace decof {
 
@@ -155,10 +156,10 @@ struct scalar_conversion_helper
      */
     static T from_generic(const scalar_t& arg)
     {
-        if (arg.type() != typeid(binary_t))
+        if (!std::holds_alternative<binary_t>(arg))
             throw wrong_type_error();
 
-        auto const& binary = boost::get<binary_t>(arg);
+        auto const& binary = std::get<binary_t>(arg);
 
         T retval;
         std::copy_n(binary.cbegin(), sizeof(T), reinterpret_cast<T*>(&retval));
@@ -187,10 +188,10 @@ struct scalar_conversion_helper<bool, encoding_hint::none>
 
     static bool from_generic(const scalar_t& arg)
     {
-        if (arg.type() != typeid(boolean_t))
+        if (!std::holds_alternative<boolean_t>(arg))
             throw wrong_type_error();
 
-        return boost::get<boolean_t>(arg);
+        return std::get<boolean_t>(arg);
     }
 
     /**
@@ -220,10 +221,10 @@ struct scalar_conversion_helper<
 
     static T from_generic(const scalar_t& var)
     {
-        if (var.type() == typeid(real_t)) {
-            return convert_lossless_to_integral<T>(boost::get<real_t>(var));
-        } else if (var.type() == typeid(integer_t)) {
-            return convert_lossless<T>(boost::get<integer_t>(var));
+        if (std::holds_alternative<real_t>(var)) {
+            return convert_lossless_to_integral<T>(std::get<real_t>(var));
+        } else if (std::holds_alternative<integer_t>(var)) {
+            return convert_lossless<T>(std::get<integer_t>(var));
         }
 
         throw wrong_type_error();
@@ -248,10 +249,10 @@ struct scalar_conversion_helper<
 
     static T from_generic(const scalar_t& var)
     {
-        if (var.type() == typeid(integer_t)) {
-            return convert_lossless_to_floating_point<T>(boost::get<integer_t>(var));
-        } else if (var.type() == typeid(real_t)) {
-            return convert_lossless<T>(boost::get<real_t>(var));
+        if (std::holds_alternative<integer_t>(var)) {
+            return convert_lossless_to_floating_point<T>(std::get<integer_t>(var));
+        } else if (std::holds_alternative<real_t>(var)) {
+            return convert_lossless<T>(std::get<real_t>(var));
         }
 
         throw wrong_type_error();
@@ -310,11 +311,11 @@ struct scalar_conversion_helper<std::string, encoding_hint::none>
 
     static std::string from_generic(const scalar_t& arg)
     {
-        if (arg.type() != typeid(string_t)) {
+        if (!std::holds_alternative<string_t>(arg)) {
             throw wrong_type_error();
         }
 
-        return boost::get<string_t>(arg);
+        return std::get<string_t>(arg);
     }
 
     static scalar_t to_generic(const std::string& arg)
@@ -334,10 +335,10 @@ struct scalar_conversion_helper<std::string, encoding_hint::binary>
 
     static std::string from_generic(const scalar_t& arg)
     {
-        if (arg.type() == typeid(string_t)) {
-            return boost::get<string_t>(arg);
-        } else if (arg.type() == typeid(binary_t)) {
-            return boost::get<binary_t>(arg);
+        if (std::holds_alternative<string_t>(arg)) {
+            return std::get<string_t>(arg);
+        } else if (std::holds_alternative<binary_t>(arg)) {
+            return std::get<binary_t>(arg);
         } else {
             throw wrong_type_error();
         }
@@ -360,10 +361,10 @@ struct scalar_conversion_helper<std::array<T, N>, encoding_hint::binary>
 
     static std::array<T, N> from_generic(const scalar_t& arg)
     {
-        if (arg.type() != typeid(binary_t))
+        if (!std::holds_alternative<binary_t>(arg))
             throw wrong_type_error();
 
-        const auto& binary = boost::get<binary_t>(arg);
+        const auto& binary = std::get<binary_t>(arg);
 
         if (binary.size() != N * sizeof(T))
             throw invalid_value_error();
@@ -411,10 +412,10 @@ struct scalar_conversion_helper<
 
     static T from_generic(const scalar_t& arg)
     {
-        if (arg.type() != typeid(binary_t))
+        if (!std::holds_alternative<binary_t>(arg))
             throw wrong_type_error();
 
-        auto const& binary = boost::get<binary_t>(arg);
+        auto const& binary = std::get<binary_t>(arg);
 
         if (binary.size() % sizeof(typename T::value_type) != 0)
             throw invalid_value_error();
@@ -491,10 +492,10 @@ struct conversion_helper
      */
     static T from_generic(const value_t& arg)
     {
-        if (arg.type() != typeid(scalar_t))
+        if (!std::holds_alternative<scalar_t>(arg))
             throw wrong_type_error();
 
-        return scalar_conversion_helper<T, EncodingHint>::from_generic(boost::get<scalar_t>(arg));
+        return scalar_conversion_helper<T, EncodingHint>::from_generic(std::get<scalar_t>(arg));
     }
 
     /**
@@ -519,10 +520,10 @@ struct conversion_helper<std::array<T, N>, encoding_hint::none>
 
     static std::array<T, N> from_generic(const value_t& arg)
     {
-        if (arg.type() != typeid(sequence_t))
+        if (!std::holds_alternative<sequence_t>(arg))
             throw wrong_type_error();
 
-        const auto& val = boost::get<sequence_t>(arg);
+        const auto& val = std::get<sequence_t>(arg);
         if (val.size() != N)
             throw invalid_value_error();
 
@@ -568,10 +569,10 @@ struct conversion_helper<
 
     static T from_generic(const value_t& arg)
     {
-        if (arg.type() != typeid(sequence_t))
+        if (!std::holds_alternative<sequence_t>(arg))
             throw wrong_type_error();
 
-        auto const& src       = boost::get<sequence_t>(arg);
+        auto const& src       = std::get<sequence_t>(arg);
         auto const& transform = scalar_conversion_helper<typename T::value_type>::from_generic;
 
         return T(
@@ -652,11 +653,11 @@ struct conversion_helper<std::tuple<Args...>, encoding_hint::none>
 
     static value_type from_generic(const value_t& arg)
     {
-        if (arg.type() != typeid(tuple_t))
+        if (!std::holds_alternative<tuple_t>(arg))
             throw wrong_type_error();
 
         value_type retval;
-        from_generic(retval, boost::get<tuple_t>(arg));
+        from_generic(retval, std::get<tuple_t>(arg));
         return retval;
     }
 

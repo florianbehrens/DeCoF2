@@ -30,10 +30,10 @@
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <variant>
 #include <vector>
 
 using boost::system::error_code;
@@ -188,7 +188,7 @@ void clisrv_context::process_request(std::string request)
                 if (uri == object_dictionary_.name() + ":ul") {
                     encoder(static_cast<integer_t>(userlevel()));
                 } else {
-                    boost::apply_visitor(encoder, static_cast<const value_t>(get_parameter(uri)));
+                    std::visit(encoder, static_cast<const value_t>(get_parameter(uri)));
                 }
 
                 out << "\n";

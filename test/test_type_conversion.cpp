@@ -27,6 +27,7 @@
 #include <iostream>
 #include <list>
 #include <numeric>
+#include <variant>
 #include <vector>
 
 using namespace decof;
@@ -91,13 +92,13 @@ BOOST_AUTO_TEST_CASE(conversion_from_string_to_string_t)
     std::string nominal = "Hello World";
 
     auto const gen = conversion_helper<std::string>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<string_t>(boost::get<scalar_t>(gen)));
+    BOOST_REQUIRE_NO_THROW(std::get<string_t>(std::get<scalar_t>(gen)));
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_const_char_ptr_to_string_t)
 {
     const char* nominal = "Hello World";
-    auto const actual = boost::get<string_t>(boost::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
+    auto const  actual  = std::get<string_t>(std::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
 
     BOOST_REQUIRE_EQUAL(nominal, actual);
 }
@@ -116,7 +117,7 @@ BOOST_AUTO_TEST_CASE(conversion_from_array_and_back)
 
     array_t nominal{1, 2, 3};
     auto    generic = conversion_helper<array_t>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
+    BOOST_REQUIRE_NO_THROW(std::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<array_t>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -141,7 +142,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(
 {
     T    nominal{1, 2, 3};
     auto generic = conversion_helper<T>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
+    BOOST_REQUIRE_NO_THROW(std::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<T>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -153,7 +154,7 @@ BOOST_AUTO_TEST_CASE(conversion_from_array_with_binary_encoding)
 
     array_t nominal{1, 2, 3};
     auto    generic = conversion_helper<array_t, encoding_hint::binary>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
+    BOOST_REQUIRE_NO_THROW(std::get<binary_t>(std::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<array_t, encoding_hint::binary>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -168,7 +169,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(sequence_container_to_binary_conversion, T, sequen
     std::iota(nominal.begin(), nominal.end(), 0);
 
     auto generic = conversion_helper<T, encoding_hint::binary>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
+    BOOST_REQUIRE_NO_THROW(std::get<binary_t>(std::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<T, encoding_hint::binary>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());

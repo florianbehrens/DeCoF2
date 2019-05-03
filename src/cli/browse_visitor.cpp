@@ -18,7 +18,7 @@
 #include "encoder.h"
 #include <decof/client_read_interface.h>
 #include <decof/node.h>
-#include <boost/variant/apply_visitor.hpp>
+#include <variant>
 
 namespace decof {
 
@@ -38,7 +38,7 @@ void browse_visitor::visit(object* obj)
     out_ << (obj->parent() != nullptr ? ":" : "") << obj->name();
 
     out_ << " = ";
-    boost::apply_visitor(encoder(out_), static_cast<const value_t>(param->generic_value()));
+    std::visit(encoder(out_), static_cast<const value_t>(param->generic_value()));
 
     out_ << std::endl;
 }
