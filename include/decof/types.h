@@ -17,6 +17,8 @@
 #ifndef DECOF_TYPES_H
 #define DECOF_TYPES_H
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/variant.hpp>
 #include <cctype>
 #include <cmath>
 #include <deque>
@@ -25,13 +27,10 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <boost/numeric/conversion/cast.hpp>
-#include <boost/variant.hpp>
 
 #include "exceptions.h"
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief Type tagging class.
@@ -44,7 +43,7 @@ namespace decof
  *
  * The new type behaves exactly like the original type, though.
  */
-template<typename T, size_t Id = 0>
+template <typename T, size_t Id = 0>
 struct tag : public T
 {
     using T::T;
@@ -60,9 +59,9 @@ struct tag : public T
     /**
      * @brief Implicit conversion from base type.
      */
-    tag(const T& rhs) :
-        T(rhs)
-    {}
+    tag(const T& rhs) : T(rhs)
+    {
+    }
 
     /**
      * @brief Assignment operator from base type.
@@ -95,37 +94,51 @@ struct tag : public T
     /**
      * @brief Move constructor from base type.
      */
-    tag(T&& rhs) :
-        T(std::move(rhs))
-    {}
+    tag(T&& rhs) : T(std::move(rhs))
+    {
+    }
 };
 
 /**
  * @name Tags for DeCoP parameter type identification.
  * @{
  */
-struct boolean_tag {};
-struct integer_tag {};
-struct real_tag {};
-struct string_tag {};
-struct binary_tag {};
-template<typename T>
-struct sequence_tag {};
-struct tuple_tag {};
+struct boolean_tag
+{
+};
+struct integer_tag
+{
+};
+struct real_tag
+{
+};
+struct string_tag
+{
+};
+struct binary_tag
+{
+};
+template <typename T>
+struct sequence_tag
+{
+};
+struct tuple_tag
+{
+};
 ///@}
 
 /**
  * @name DeCoP parameter type aliases.
  * @{
  */
-using boolean_t = bool;
-using integer_t = long long;
-using real_t = double;
-using string_t = tag<std::string, 0>;
-using binary_t = tag<std::string, 1>;
-using scalar_t = boost::variant<boolean_t, integer_t, real_t, string_t, binary_t>;
+using boolean_t  = bool;
+using integer_t  = long long;
+using real_t     = double;
+using string_t   = tag<std::string, 0>;
+using binary_t   = tag<std::string, 1>;
+using scalar_t   = boost::variant<boolean_t, integer_t, real_t, string_t, binary_t>;
 using sequence_t = tag<std::deque<scalar_t>, 0>;
-using tuple_t = tag<std::deque<scalar_t>, 1>;
+using tuple_t    = tag<std::deque<scalar_t>, 1>;
 ///@}
 
 /**

@@ -20,8 +20,7 @@
 #include "event.h"
 #include <functional>
 
-namespace decof
-{
+namespace decof {
 
 /** @brief Handler-based event class.
  *
@@ -30,10 +29,12 @@ namespace decof
  */
 class handler_event : public event
 {
-public:
-    explicit handler_event(std::string name, node *parent = nullptr,
-                           std::function<void()> signal_handler = nullptr,
-                           userlevel_t writelevel = Normal);
+  public:
+    explicit handler_event(
+        std::string           name,
+        node*                 parent         = nullptr,
+        std::function<void()> signal_handler = nullptr,
+        userlevel_t           writelevel     = Normal);
 
     /// @brief Set signal event handler.
     /// @param handler Handler for event signal.
@@ -41,7 +42,7 @@ public:
     /// the invocation of the respective signal is silently ignored.
     void signal_handler(std::function<void()> handler);
 
-private:
+  private:
     virtual void signal() override final;
 
     std::function<void()> signal_handler_;

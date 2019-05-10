@@ -17,21 +17,19 @@
 #ifndef DECOF_ASIO_TICK_H
 #define DECOF_ASIO_TICK_H
 
-#include <chrono>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/strand.hpp>
-#include <boost/asio/steady_timer.hpp>
 #include <decof/client_context/client_context.h>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/steady_timer.hpp>
+#include <boost/asio/strand.hpp>
+#include <chrono>
 
-namespace decof
-{
+namespace decof {
 
-namespace asio_tick
-{
+namespace asio_tick {
 
 class asio_tick_context : public decof::client_context
 {
-public:
+  public:
     /**
      * @brief Constructor.
      *
@@ -43,18 +41,19 @@ public:
      * @note The caller must make sure that the objects passed by reference to
      * this constructor outlive the constructed object!
      */
-    explicit asio_tick_context(object_dictionary& obj_dict,
-                               boost::asio::io_service::strand& strand,
-                               std::chrono::milliseconds interval = std::chrono::milliseconds(100));
+    explicit asio_tick_context(
+        object_dictionary&               obj_dict,
+        boost::asio::io_service::strand& strand,
+        std::chrono::milliseconds        interval = std::chrono::milliseconds(100));
 
     void preload() override;
 
-private:
+  private:
     void tick_handler(const boost::system::error_code& error);
 
     boost::asio::io_service::strand& strand_;
-    boost::asio::steady_timer timer_;
-    std::chrono::milliseconds interval_;
+    boost::asio::steady_timer        timer_;
+    std::chrono::milliseconds        interval_;
 };
 
 } // namespace asio_tick

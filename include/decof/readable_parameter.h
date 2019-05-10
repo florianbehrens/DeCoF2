@@ -17,26 +17,22 @@
 #ifndef DECOF_READABLE_PARAMETER_H
 #define DECOF_READABLE_PARAMETER_H
 
+#include "basic_parameter.h"
+#include "conversion.h"
+#include "encoding_hint.h"
+#include "object_visitor.h"
+#include "typed_client_read_interface.h"
 #include <boost/signals2/connection.hpp>
 
-#include <decof/client_context/object_visitor.h>
+namespace decof {
 
-#include "basic_parameter.h"
-#include "encoding_hint.h"
-#include "conversion.h"
-#include "typed_client_read_interface.h"
-
-namespace decof
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
+class readable_parameter : public basic_parameter<T, EncodingHint>, public typed_client_read_interface<T, EncodingHint>
 {
-
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
-class readable_parameter :
-    public basic_parameter<T, EncodingHint>,
-    public typed_client_read_interface<T, EncodingHint>
-{
-public:
+  public:
     /// Override client_read_interface::observe.
-    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override {
+    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override
+    {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
         emit(this->value());
         return retval;
@@ -48,10 +44,11 @@ public:
      * still other client contexts connected by calling @code
      * signal().num_slots() @endcode.
      */
-    virtual void unobserve() override {
+    virtual void unobserve() override
+    {
     }
 
-protected:
+  protected:
     // We inherit base class constructors
     using basic_parameter<T, EncodingHint>::basic_parameter;
 
@@ -59,7 +56,8 @@ protected:
      *
      * @param value The value to be reported to the connected slot(s).
      */
-    void emit(const T& value) {
+    void emit(const T& value)
+    {
         signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
     }
 

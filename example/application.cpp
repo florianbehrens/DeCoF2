@@ -15,32 +15,26 @@
  */
 
 #include "application.h"
-
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <memory>
-#include <string>
-#include <thread>
-
-#include <boost/asio/steady_timer.hpp>
-#include <boost/bind.hpp>
-
+#include "background_worker.h"
+#include "composite.h"
 #include <decof/all.h>
 #include <decof/asio_tick/asio_tick.h>
 #include <decof/cli/clisrv_context.h>
 #include <decof/cli/pubsub_context.h>
 #include <decof/client_context/generic_tcp_server.h>
 #include <decof/scgi/scgi_context.h>
-
-#include "application.h"
-#include "background_worker.h"
-#include "composite.h"
+#include <boost/asio/steady_timer.hpp>
+#include <boost/bind.hpp>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <thread>
 
 using namespace decof;
 
-namespace
-{
+namespace {
 
 DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(my_managed_readwrite_parameter, std::string);
 DECOF_DECLARE_MANAGED_READONLY_PARAMETER(my_managed_readonly_parameter, std::string);
@@ -53,13 +47,13 @@ DECOF_DECLARE_WRITEONLY_PARAMETER(cout_tuple_parameter, cout_tuple_parameter_typ
 
 struct spin_count_parameter : public managed_readonly_parameter<long long>
 {
-    spin_count_parameter(node *parent) :
-        managed_readonly_parameter<long long>("spin-count", parent, 0)
+    spin_count_parameter(node* parent) : managed_readonly_parameter<long long>("spin-count", parent, 0)
     {
         application::instance().strand().post(std::bind(&spin_count_parameter::increment, this));
     }
 
-    void increment() {
+    void increment()
+    {
         value(value() + 1);
         application::instance().strand().post(std::bind(&spin_count_parameter::increment, this));
     }
@@ -85,8 +79,8 @@ current_context_endpoint_parameter::value_type current_context_endpoint_paramete
 std::string time_parameter::external_value() const
 {
     const size_t max_length = 40;
-    char str[max_length];
-    std::time_t now = std::time(nullptr);
+    char         str[max_length];
+    std::time_t  now = std::time(nullptr);
     std::strftime(str, sizeof(str), "%c", std::localtime(&now));
     return str;
 }
@@ -96,12 +90,12 @@ void exit_event::signal()
     application::instance().strand().get_io_service().stop();
 }
 
-void cout_parameter::value(const std::string &value)
+void cout_parameter::value(const std::string& value)
 {
     std::cout << value << std::endl;
 }
 
-void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
+void cout_tuple_parameter::value(const cout_tuple_parameter_type& value)
 {
     std::cout << "Boolean value: " << std::get<0>(value) << std::endl
               << "Integer value: " << std::get<1>(value) << std::endl
@@ -111,12 +105,14 @@ void cout_tuple_parameter::value(const cout_tuple_parameter_type &value)
 
 struct ip_address_parameter : public external_readwrite_parameter<std::string>
 {
-    ip_address_parameter(std::string name, node *parent = nullptr)
-     : external_readwrite_parameter<std::string>(name, parent)
-    {}
+    ip_address_parameter(std::string name, node* parent = nullptr)
+      : external_readwrite_parameter<std::string>(name, parent)
+    {
+    }
 
-private:
-    bool external_value(const value_type &value) override {
+  private:
+    bool external_value(const value_type& value) override
+    {
         std::fstream file(filename_, std::ios_base::out | std::ios_base::trunc);
         if (file.rdstate() & std::ios_base::failbit)
             return false;
@@ -125,8 +121,9 @@ private:
         return true;
     }
 
-    std::string external_value() const override {
-        std::string str;
+    std::string external_value() const override
+    {
+        std::string  str;
         std::fstream file_(filename_, std::ios_base::in);
         std::getline(file_, str);
         return str;
@@ -167,37 +164,38 @@ private:
 //  | |-- summand2
 //  | |-- sum
 
-object_dictionary obj_dict("example");
-my_managed_readwrite_parameter enable_param("enabled", &obj_dict, "false");
-spin_count_parameter spin_count_param(&obj_dict);
-node current_context_node("current-context", &obj_dict);
+object_dictionary                  obj_dict("example");
+my_managed_readwrite_parameter     enable_param("enabled", &obj_dict, "false");
+spin_count_parameter               spin_count_param(&obj_dict);
+node                               current_context_node("current-context", &obj_dict);
 current_context_endpoint_parameter endpoint_param("endpoint", &current_context_node);
-node subnode("subnode", &obj_dict);
-time_parameter time_param("time", &subnode);
-managed_readwrite_parameter<std::vector<std::string>> leaf2_param("leaf2", &subnode, Normal, Normal, { "value1", "value2", "value3" });
-ip_address_parameter ipo_address_param("ip-address", &subnode);
-managed_readwrite_parameter<bool> boolean_param("boolean", &subnode);
-managed_readwrite_parameter<std::uint16_t> integer_param("integer", &subnode);
-managed_readwrite_parameter<float> real_param("real", &subnode);
-managed_readwrite_parameter<std::string> string_param("string", &subnode);
-managed_readwrite_parameter<std::string, encoding_hint::binary> binary_param("binary", &subnode);
-managed_readwrite_parameter<std::vector<bool>> boolean_seq_param("boolean_seq", &subnode);
-managed_readwrite_parameter<std::vector<int>> integer_seq_param("integer_seq", &subnode);
-managed_readwrite_parameter<std::vector<float>> real_seq_param("real_seq", &subnode);
-managed_readwrite_parameter<std::vector<std::string>> string_seq_param("string_seq", &subnode);
-node tuples_node("tuples", &obj_dict);
+node                               subnode("subnode", &obj_dict);
+time_parameter                     time_param("time", &subnode);
+managed_readwrite_parameter<std::vector<std::string>>
+                                                                       leaf2_param("leaf2", &subnode, Normal, Normal, {"value1", "value2", "value3"});
+ip_address_parameter                                                   ipo_address_param("ip-address", &subnode);
+managed_readwrite_parameter<bool>                                      boolean_param("boolean", &subnode);
+managed_readwrite_parameter<std::uint16_t>                             integer_param("integer", &subnode);
+managed_readwrite_parameter<float>                                     real_param("real", &subnode);
+managed_readwrite_parameter<std::string>                               string_param("string", &subnode);
+managed_readwrite_parameter<std::string, encoding_hint::binary>        binary_param("binary", &subnode);
+managed_readwrite_parameter<std::vector<bool>>                         boolean_seq_param("boolean_seq", &subnode);
+managed_readwrite_parameter<std::vector<int>>                          integer_seq_param("integer_seq", &subnode);
+managed_readwrite_parameter<std::vector<float>>                        real_seq_param("real_seq", &subnode);
+managed_readwrite_parameter<std::vector<std::string>>                  string_seq_param("string_seq", &subnode);
+node                                                                   tuples_node("tuples", &obj_dict);
 managed_readwrite_parameter<std::tuple<bool, int, float, std::string>> scalar_tuple("scalar_tuple", &tuples_node);
-node events_node("events", &obj_dict);
-exit_event exit_ev("exit", &events_node);
-node writeonly_node("writeonly", &obj_dict);
-cout_parameter cout_param("string", &writeonly_node);
-cout_tuple_parameter cout_tuple_param("tuple", &writeonly_node);
-composite comp("composite", &obj_dict);
+node                                                                   events_node("events", &obj_dict);
+exit_event                                                             exit_ev("exit", &events_node);
+node                                                                   writeonly_node("writeonly", &obj_dict);
+cout_parameter                                                         cout_param("string", &writeonly_node);
+cout_tuple_parameter                                                   cout_tuple_param("tuple", &writeonly_node);
+composite                                                              comp("composite", &obj_dict);
 auto background_work = background_worker::create("background_work", &obj_dict);
 
 } // Anonymous namespace
 
-application&application::instance()
+application& application::instance()
 {
     static application inst;
     return inst;
@@ -207,30 +205,31 @@ int application::run(int, char*[])
 {
     // Install userlevel change callback
     using cli::cli_context_base;
-    cli_context_base::install_userlevel_callback([](const client_context&, userlevel_t userlevel, const std::string& passwd) {
-        if (userlevel == Normal || userlevel == Readonly)
-            return true;
-        else if (userlevel == Maintenance && passwd == "maintenance")
-            return true;
-        else if (userlevel == Service && passwd == "service")
-            return true;
-        else if (userlevel == Internal && passwd == "internal")
-            return true;
-        return false;
-    });
+    cli_context_base::install_userlevel_callback(
+        [](const client_context&, userlevel_t userlevel, const std::string& passwd) {
+            if (userlevel == Normal || userlevel == Readonly)
+                return true;
+            else if (userlevel == Maintenance && passwd == "maintenance")
+                return true;
+            else if (userlevel == Service && passwd == "service")
+                return true;
+            else if (userlevel == Internal && passwd == "internal")
+                return true;
+            return false;
+        });
 
     // Setup request/respone CLI context
-    boost::asio::ip::tcp::endpoint cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
+    boost::asio::ip::tcp::endpoint          cmd_endpoint(boost::asio::ip::tcp::v4(), 1998);
     generic_tcp_server<cli::clisrv_context> conn_mgr_cmd(obj_dict, strand_, cmd_endpoint);
     conn_mgr_cmd.preload();
 
     // Setup publish/subscribe CLI context
-    boost::asio::ip::tcp::endpoint mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
+    boost::asio::ip::tcp::endpoint          mon_endpoint(boost::asio::ip::tcp::v4(), 1999);
     generic_tcp_server<cli::pubsub_context> conn_mgr_mon(obj_dict, strand_, mon_endpoint);
     conn_mgr_mon.preload();
 
     // Setup SCGI context
-    boost::asio::ip::tcp::endpoint scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
+    boost::asio::ip::tcp::endpoint         scgi_endpoint(boost::asio::ip::tcp::v4(), 8081);
     generic_tcp_server<scgi::scgi_context> scgi_conn_mgr(obj_dict, strand_, scgi_endpoint);
     scgi_conn_mgr.preload();
 
@@ -251,18 +250,16 @@ void application::stop()
     io_service_.stop();
 }
 
-boost::asio::io_service::strand&application::strand()
+boost::asio::io_service::strand& application::strand()
 {
     return strand_;
 }
 
-asio_executor&application::executor()
+asio_executor& application::executor()
 {
     return executor_;
 }
 
-application::application() :
-    io_service_(),
-    strand_(io_service_),
-    executor_(strand_)
-{}
+application::application() : io_service_(), strand_(io_service_), executor_(strand_)
+{
+}

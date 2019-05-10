@@ -19,8 +19,7 @@
 
 #include <stdexcept>
 
-namespace decof
-{
+namespace decof {
 
 enum error_codes {
     SUCCESS = 0,
@@ -39,13 +38,13 @@ enum error_codes {
 
 class runtime_error : public std::runtime_error
 {
-protected:
+  protected:
     explicit runtime_error(int code, const std::string& what);
 
-public:
+  public:
     int code();
 
-private:
+  private:
     int code_;
 };
 

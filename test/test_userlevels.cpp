@@ -16,9 +16,9 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <boost/test/unit_test.hpp>
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(userlevels)
 
@@ -31,45 +31,46 @@ struct fixture
         using event::event;
 
         void signal() override
-        {}
+        {
+        }
     };
 
     struct my_context_t : public client_context
     {
         using client_context::client_context;
 
-        void get_parameter(const std::string &uri, char separator = ':')
+        void get_parameter(const std::string& uri, char separator = ':')
         {
             client_context::get_parameter(uri, separator);
         }
 
-        void set_parameter(const std::string &uri, const value_t &value, char separator = ':')
+        void set_parameter(const std::string& uri, const value_t& value, char separator = ':')
         {
             client_context::set_parameter(uri, value, separator);
         }
 
-        void signal_event(const std::string &uri, char separator = ':')
+        void signal_event(const std::string& uri, char separator = ':')
         {
             client_context::signal_event(uri, separator);
         }
 
-        void observe(const std::string& uri, client_read_interface::value_change_slot_t slot,
-                     char separator = ':')
+        void observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator = ':')
         {
             client_context::observe(uri, slot, separator);
         }
     };
 
-    fixture() :
-        managed_readwrite_param("param", &obj_dict, Forbidden, Internal),
+    fixture()
+      : managed_readwrite_param("param", &obj_dict, Forbidden, Internal),
         event("event", &obj_dict),
         my_context(new my_context_t(obj_dict))
-    {}
+    {
+    }
 
-    object_dictionary obj_dict;
+    object_dictionary                 obj_dict;
     managed_readwrite_parameter<bool> managed_readwrite_param;
-    my_event_t event;
-    std::shared_ptr<my_context_t> my_context;
+    my_event_t                        event;
+    std::shared_ptr<my_context_t>     my_context;
 };
 
 BOOST_FIXTURE_TEST_CASE(read_access_denied, fixture)
@@ -81,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE(read_access_denied, fixture)
         try {
             my_context->userlevel(ul);
             my_context->get_parameter("root:param");
-        } catch (access_denied_error &) {
+        } catch (access_denied_error&) {
             read_failed = true;
         }
 
@@ -97,7 +98,7 @@ BOOST_FIXTURE_TEST_CASE(read_access_allowed, fixture)
         try {
             managed_readwrite_param.readlevel(ul);
             my_context->get_parameter("root:param");
-        } catch (access_denied_error &ex) {
+        } catch (access_denied_error& ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -107,13 +108,12 @@ BOOST_FIXTURE_TEST_CASE(observation_denied, fixture)
 {
     managed_readwrite_param.readlevel(Forbidden);
 
-    for (userlevel_t ul = Normal; ul <= Internal;
-         ul = static_cast<userlevel_t>(ul + 1)) {
+    for (userlevel_t ul = Normal; ul <= Internal; ul = static_cast<userlevel_t>(ul + 1)) {
         bool observation_failed = false;
         try {
             my_context->userlevel(ul);
             my_context->observe("root:param", [](const std::string&, const value_t&) {});
-        } catch (access_denied_error &) {
+        } catch (access_denied_error&) {
             observation_failed = true;
         }
 
@@ -125,12 +125,11 @@ BOOST_FIXTURE_TEST_CASE(observation_allowed, fixture)
 {
     my_context->userlevel(Internal);
 
-    for (userlevel_t ul = Internal; ul >= Normal;
-         ul = static_cast<userlevel_t>(ul - 1)) {
+    for (userlevel_t ul = Internal; ul >= Normal; ul = static_cast<userlevel_t>(ul - 1)) {
         try {
             managed_readwrite_param.readlevel(ul);
             my_context->observe("root:param", [](const std::string&, const value_t&) {});
-        } catch (access_denied_error &ex) {
+        } catch (access_denied_error& ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -145,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(write_access_denied, fixture)
         try {
             my_context->userlevel(ul);
             my_context->set_parameter("root:param", value_t(true));
-        } catch (access_denied_error &) {
+        } catch (access_denied_error&) {
             write_failed = true;
         }
 
@@ -161,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE(write_access_allowed, fixture)
         try {
             managed_readwrite_param.writelevel(ul);
             my_context->set_parameter("root:param", value_t(true));
-        } catch (access_denied_error &ex) {
+        } catch (access_denied_error& ex) {
             BOOST_FAIL(ex.what());
         }
     }
@@ -176,7 +175,7 @@ BOOST_FIXTURE_TEST_CASE(signal_access_denied, fixture)
         try {
             my_context->userlevel(ul);
             my_context->signal_event("root:event");
-        } catch (access_denied_error &) {
+        } catch (access_denied_error&) {
             write_failed = true;
         }
 
@@ -192,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE(signal_access_allowed, fixture)
         try {
             event.writelevel(ul);
             my_context->signal_event("root:event");
-        } catch (access_denied_error &ex) {
+        } catch (access_denied_error& ex) {
             BOOST_FAIL(ex.what());
         }
     }

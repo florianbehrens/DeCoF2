@@ -16,11 +16,11 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <memory>
-#include <boost/test/unit_test.hpp>
+#include "cli/tree_visitor.h"
 #include <decof/all.h>
 #include <decof/client_context/generic_tcp_server.h>
-#include "cli/tree_visitor.h"
+#include <boost/test/unit_test.hpp>
+#include <memory>
 
 using namespace decof;
 
@@ -40,7 +40,7 @@ struct my_context_t : public client_context
 {
     using client_context::client_context;
 
-    void browse(object_visitor *visitor, const std::string &root_uri = std::string())
+    void browse(object_visitor* visitor, const std::string& root_uri = std::string())
     {
         client_context::browse(visitor, root_uri);
     }
@@ -48,20 +48,20 @@ struct my_context_t : public client_context
 
 BOOST_AUTO_TEST_CASE(base_functions)
 {
-    object_dictionary obj_dict("root");
-    handler_event event("event", &obj_dict);
-    managed_readonly_parameter<bool> boolean_param("boolean", &obj_dict);
-    managed_readonly_parameter<int> integer_param("integer", &obj_dict);
-    managed_readonly_parameter<float> real_param("real", &obj_dict);
-    managed_readonly_parameter<std::string> string_param("string", &obj_dict);
-    managed_readonly_parameter<std::string, encoding_hint::binary> binary_param("binary", &obj_dict);
-    managed_readonly_parameter<std::vector<bool>> boolean_seq_param("boolean_seq", &obj_dict);
-    managed_readonly_parameter<std::vector<int>> integer_seq_param("integer_seq", &obj_dict);
-    managed_readonly_parameter<std::vector<float>> real_seq_param("real_seq", &obj_dict);
-    managed_readonly_parameter<std::vector<std::string>> string_seq_param("string_seq", &obj_dict);
+    object_dictionary                                                     obj_dict("root");
+    handler_event                                                         event("event", &obj_dict);
+    managed_readonly_parameter<bool>                                      boolean_param("boolean", &obj_dict);
+    managed_readonly_parameter<int>                                       integer_param("integer", &obj_dict);
+    managed_readonly_parameter<float>                                     real_param("real", &obj_dict);
+    managed_readonly_parameter<std::string>                               string_param("string", &obj_dict);
+    managed_readonly_parameter<std::string, encoding_hint::binary>        binary_param("binary", &obj_dict);
+    managed_readonly_parameter<std::vector<bool>>                         boolean_seq_param("boolean_seq", &obj_dict);
+    managed_readonly_parameter<std::vector<int>>                          integer_seq_param("integer_seq", &obj_dict);
+    managed_readonly_parameter<std::vector<float>>                        real_seq_param("real_seq", &obj_dict);
+    managed_readonly_parameter<std::vector<std::string>>                  string_seq_param("string_seq", &obj_dict);
     managed_readonly_parameter<std::tuple<bool, int, float, std::string>> tuple_param("tuple", &obj_dict);
 
-    auto my_context = std::make_shared<my_context_t>(obj_dict);
+    auto         my_context = std::make_shared<my_context_t>(obj_dict);
     test_visitor visitor;
     my_context->browse(&visitor);
     BOOST_REQUIRE_EQUAL(visitor.counter, 12);
@@ -69,22 +69,22 @@ BOOST_AUTO_TEST_CASE(base_functions)
 
 BOOST_AUTO_TEST_CASE(tree_visitor)
 {
-    object_dictionary obj_dict("root");
-    handler_event event("event", &obj_dict);
-    managed_readonly_parameter<bool> boolean_param("boolean", &obj_dict);
-    managed_readonly_parameter<int> integer_param("integer", &obj_dict);
-    managed_readonly_parameter<float> real_param("real", &obj_dict);
-    managed_readonly_parameter<std::string> string_param("string", &obj_dict);
+    object_dictionary                                              obj_dict("root");
+    handler_event                                                  event("event", &obj_dict);
+    managed_readonly_parameter<bool>                               boolean_param("boolean", &obj_dict);
+    managed_readonly_parameter<int>                                integer_param("integer", &obj_dict);
+    managed_readonly_parameter<float>                              real_param("real", &obj_dict);
+    managed_readonly_parameter<std::string>                        string_param("string", &obj_dict);
     managed_readonly_parameter<std::string, encoding_hint::binary> binary_param("binary", &obj_dict);
-    managed_readwrite_parameter<std::vector<bool>> boolean_seq_param("boolean_seq", &obj_dict);
-    managed_readwrite_parameter<std::vector<int>> integer_seq_param("integer_seq", &obj_dict);
-    managed_readwrite_parameter<std::vector<float>> real_seq_param("real_seq", &obj_dict);
-    managed_readwrite_parameter<std::vector<std::string>> string_seq_param("string_seq", &obj_dict);
+    managed_readwrite_parameter<std::vector<bool>>                 boolean_seq_param("boolean_seq", &obj_dict);
+    managed_readwrite_parameter<std::vector<int>>                  integer_seq_param("integer_seq", &obj_dict);
+    managed_readwrite_parameter<std::vector<float>>                real_seq_param("real_seq", &obj_dict);
+    managed_readwrite_parameter<std::vector<std::string>>          string_seq_param("string_seq", &obj_dict);
 
     auto my_context = std::make_shared<my_context_t>(obj_dict);
 
     std::ostringstream out;
-    cli::tree_visitor visitor(out);
+    cli::tree_visitor  visitor(out);
     my_context->browse(&visitor);
 
     auto nominal = R"lit(root NODE

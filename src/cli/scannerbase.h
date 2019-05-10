@@ -3,62 +3,53 @@
 #ifndef decofscannerBASE_H_INCLUDED
 #define decofscannerBASE_H_INCLUDED
 
-#include <limits>
-#include <iostream>
 #include <deque>
+#include <iostream>
+#include <limits>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-
 
 // $insert namespace-open
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 class scannerBase
 {
-                // idx: rule, value: tail length (NO_INCREMENTS if no tail)
+    // idx: rule, value: tail length (NO_INCREMENTS if no tail)
     typedef std::vector<int> VectorInt;
 
     static size_t const s_unavailable = std::numeric_limits<size_t>::max();
 
-    enum 
-    {
-        AT_EOF = -1
+    enum { AT_EOF = -1 };
+
+  protected:
+    enum Leave__ {};
+
+    enum class ActionType__ {
+        CONTINUE,   // transition succeeded, go on
+        ECHO_CH,    // echo ch itself (d_matched empty)
+        ECHO_FIRST, // echo d_matched[0], push back the rest
+        MATCH,      // matched a rule
+        RETURN,     // no further continuation, lex returns 0.
     };
 
-protected:
-    enum Leave__
-    {};
-
-    enum class ActionType__
-    {
-        CONTINUE,               // transition succeeded, go on
-        ECHO_CH,                // echo ch itself (d_matched empty)
-        ECHO_FIRST,             // echo d_matched[0], push back the rest
-        MATCH,                  // matched a rule
-        RETURN,                 // no further continuation, lex returns 0.
+    enum class PostEnum__ {
+        END,    // postCode called when lex__() ends
+        POP,    // postCode called after switching files
+        RETURN, // postCode called when lex__() returns
+        WIP     // postCode called when a non-returning rule
+                // was matched
     };
 
-    enum class PostEnum__
-    {
-        END,                    // postCode called when lex__() ends 
-        POP,                    // postCode called after switching files
-        RETURN,                 // postCode called when lex__() returns
-        WIP                     // postCode called when a non-returning rule
-                                // was matched
-    };
-
-public:
+  public:
     enum class StartCondition__ {
         // $insert startCondNames
         INITIAL,
     };
 
-private:
+  private:
     struct FinalData
     {
         size_t rule;
@@ -70,201 +61,188 @@ private:
         FinalData bol;
     };
 
-        // class Input encapsulates all input operations. 
-        // Its member get() returns the next input character
-// $insert inputInterface
+    // class Input encapsulates all input operations.
+    // Its member get() returns the next input character
+    // $insert inputInterface
 
     class Input
     {
         std::deque<unsigned char> d_deque;  // pending input chars
-        std::istream *d_in;                 // ptr for easy streamswitching
-        size_t d_lineNr;                    // line count
+        std::istream*             d_in;     // ptr for easy streamswitching
+        size_t                    d_lineNr; // line count
 
-        public:
-            Input();
-                                       // iStream: dynamically allocated
-            Input(std::istream *iStream, size_t lineNr = 1);
-            size_t get();                   // the next range
-            void reRead(size_t ch);         // push back 'ch' (if < 0x100)
-                                            // push back str from idx 'fmIdx'
-            void reRead(std::string const &str, size_t fmIdx);
-            size_t lineNr() const
-            {
-                return d_lineNr;
-            }
-            size_t nPending() const
-            {
-                return d_deque.size();
-            }
-            void setPending(size_t size)
-            {
-                d_deque.erase(d_deque.begin(), d_deque.end() - size);
-            }
-            void close()                    // force closing the stream
-            {
-                delete d_in;
-                d_in = 0;                   // switchStreams also closes
-            }
+      public:
+        Input();
+        // iStream: dynamically allocated
+        Input(std::istream* iStream, size_t lineNr = 1);
+        size_t get();             // the next range
+        void   reRead(size_t ch); // push back 'ch' (if < 0x100)
+                                  // push back str from idx 'fmIdx'
+        void   reRead(std::string const& str, size_t fmIdx);
+        size_t lineNr() const
+        {
+            return d_lineNr;
+        }
+        size_t nPending() const
+        {
+            return d_deque.size();
+        }
+        void setPending(size_t size)
+        {
+            d_deque.erase(d_deque.begin(), d_deque.end() - size);
+        }
+        void close() // force closing the stream
+        {
+            delete d_in;
+            d_in = 0; // switchStreams also closes
+        }
 
-        private:
-            size_t next();                  // obtain the next character
+      private:
+        size_t next(); // obtain the next character
     };
 
-protected:
+  protected:
     struct StreamStruct
     {
         std::string pushedName;
-        Input pushedInput;
+        Input       pushedInput;
     };
 
-private:
-    std::vector<StreamStruct>    d_streamStack;
+  private:
+    std::vector<StreamStruct> d_streamStack;
 
-    std::string     d_filename;             // name of the currently processed
-    static size_t   s_istreamNr;            // file. With istreams it receives
-                                            // the name "<istream #>", where
-                                            // # is the sequence number of the 
-                                            // istream (starting at 1)
-    int             d_startCondition = 0;
-    int             d_lopSC = 0;
+    std::string   d_filename;  // name of the currently processed
+    static size_t s_istreamNr; // file. With istreams it receives
+                               // the name "<istream #>", where
+                               // # is the sequence number of the
+                               // istream (starting at 1)
+    int d_startCondition = 0;
+    int d_lopSC          = 0;
 
-    size_t          d_state = 0;
-    int             d_nextState;
+    size_t                        d_state = 0;
+    int                           d_nextState;
     std::shared_ptr<std::ostream> d_out;
-    bool            d_atBOL = true;         // the matched text starts at BOL
-    Final d_final;
+    bool                          d_atBOL = true; // the matched text starts at BOL
+    Final                         d_final;
 
-                                            // only used interactively:
-    std::istream *d_in;                     // points to the input stream
+    // only used interactively:
+    std::istream*                       d_in;   // points to the input stream
     std::shared_ptr<std::istringstream> d_line; // holds line fm d_in
-    
-    Input           d_input;
-    std::string     d_matched;              // matched characters
-    std::string     d_lopMatched;           // matched lop-rule characters 
+
+    Input                 d_input;
+    std::string           d_matched;    // matched characters
+    std::string           d_lopMatched; // matched lop-rule characters
     std::string::iterator d_lopIter;
     std::string::iterator d_lopTail;
     std::string::iterator d_lopEnd;
 
-    size_t          d_lopPending;           // # pending input chars at lop1__
-    bool            d_return;               // return after a rule's action 
-    bool            d_more = false;         // set to true by more()
+    size_t d_lopPending;   // # pending input chars at lop1__
+    bool   d_return;       // return after a rule's action
+    bool   d_more = false; // set to true by more()
 
     size_t (scannerBase::*d_get)() = &scannerBase::getInput;
 
-protected:
-    std::istream   *d_in__;
-    int d_token__;                          // returned by lex__
+  protected:
+    std::istream* d_in__;
+    int           d_token__; // returned by lex__
 
+    int const (*d_dfaBase__)[36];
 
+    static int const s_dfa__[][36];
+    static int const (*s_dfaBase__[])[36];
+    enum : bool { s_interactive__ = false };
+    enum : size_t { s_rangeOfEOF__ = 33, s_finIdx__ = 34, s_nRules__ = 7, s_maxSizeofStreamStack__ = 10 };
+    static size_t const s_ranges__[];
+    static size_t const s_rf__[][2];
 
-    int     const (*d_dfaBase__)[36];
+  public:
+    scannerBase(scannerBase const& other) = delete;
+    scannerBase& operator=(scannerBase const& rhs) = delete;
 
-    static int     const s_dfa__[][36];
-    static int     const (*s_dfaBase__[])[36];
-    enum: bool { s_interactive__ = false };
-    enum: size_t {
-        s_rangeOfEOF__           = 33,
-        s_finIdx__               = 34,
-        s_nRules__               = 7,
-        s_maxSizeofStreamStack__ = 10
-    };
-    static size_t  const s_ranges__[];
-    static size_t  const s_rf__[][2];
+    bool               debug() const;
+    std::string const& filename() const;
+    std::string const& matched() const;
 
-public:
-    scannerBase(scannerBase const &other)             = delete;
-    scannerBase &operator=(scannerBase const &rhs)    = delete;
+    size_t length() const;
+    size_t lineNr() const;
 
-    bool                debug()     const;
-    std::string const  &filename()  const;
-    std::string const  &matched()   const;
+    void setDebug(bool onOff);
 
-    size_t              length()    const;
-    size_t              lineNr()    const;
+    void switchOstream(std::ostream& out);
+    void switchOstream(std::string const& outfilename);
 
-    void                setDebug(bool onOff);
+    void switchStreams(std::istream& in, std::ostream& out = std::cout);
 
-    void                switchOstream(std::ostream &out);
-    void                switchOstream(std::string const &outfilename);
+    void switchIstream(std::string const& infilename);
+    void switchStreams(std::string const& infilename, std::string const& outfilename);
 
+    // $insert interactiveDecl
 
-    void                switchStreams(std::istream &in,
-                                      std::ostream &out = std::cout);
+  protected:
+    scannerBase(std::istream& in, std::ostream& out);
+    scannerBase(std::string const& infilename, std::string const& outfilename);
 
-    void                switchIstream(std::string const &infilename);
-    void                switchStreams(std::string const &infilename,
-                                      std::string const &outfilename);
+    StartCondition__ startCondition() const; // current start condition
+    bool             popStream();
+    std::ostream&    out();
+    void             begin(StartCondition__ startCondition);
+    void             echo() const;
+    void             leave(int retValue) const;
 
+    //    `accept(n)' returns all but the first `n' characters of the current
+    // token back to the input stream, where they will be rescanned when the
+    // scanner looks for the next match.
+    //  So, it matches n of the characters in the input buffer, and so it accepts
+    //  n characters, rescanning the rest.
+    void accept(size_t nChars = 0); // former: less
+    void redo(size_t nChars = 0);   // rescan the last nChar
+                                    // characters, reducing
+                                    // length() by nChars
+    void more();
+    void push(size_t ch);              // push char to Input
+    void push(std::string const& txt); // same: chars
 
-// $insert interactiveDecl
+    std::vector<StreamStruct> const& streamStack() const;
 
-protected:
-    scannerBase(std::istream &in, std::ostream &out);
-    scannerBase(std::string const &infilename, std::string const &outfilename);
+    void pushStream(std::istream& curStream);
+    void pushStream(std::string const& curName);
 
-    StartCondition__  startCondition() const;   // current start condition
-    bool            popStream();
-    std::ostream   &out();
-    void            begin(StartCondition__ startCondition);
-    void            echo() const;
-    void            leave(int retValue) const;
-
-//    `accept(n)' returns all but the first `n' characters of the current
-// token back to the input stream, where they will be rescanned when the
-// scanner looks for the next match.
-//  So, it matches n of the characters in the input buffer, and so it accepts
-//  n characters, rescanning the rest. 
-    void            accept(size_t nChars = 0);      // former: less
-    void            redo(size_t nChars = 0);        // rescan the last nChar
-                                                    // characters, reducing
-                                                    // length() by nChars
-    void            more();
-    void            push(size_t ch);                // push char to Input
-    void            push(std::string const &txt);   // same: chars
-
-
-    std::vector<StreamStruct> const &streamStack() const;
-
-    void            pushStream(std::istream &curStream);
-    void            pushStream(std::string const &curName);
-
-
-    void            setFilename(std::string const &name);
-    void            setMatched(std::string const &text);
+    void setFilename(std::string const& name);
+    void setMatched(std::string const& text);
 
     static std::string istreamName__();
-        
-        // members used by lex__(): they end in __ and should not be used
-        // otherwise.
 
-    ActionType__    actionType__(size_t range); // next action
-    bool            return__();                 // 'return' from codeblock
-    size_t          matched__(size_t ch);       // handles a matched rule
-    size_t          getRange__(int ch);         // convert char to range
-    size_t          get__();                    // next character
-    size_t          state__() const;            // current state 
-    void            continue__(int ch);         // handles a transition
-    void            echoCh__(size_t ch);        // echoes ch, sets d_atBOL
-    void            echoFirst__(size_t ch);     // handles unknown input
-    void            updateFinals__();           // update a state's Final info
-    void            noReturn__();               // d_return to false
-    void            print__() const;            // optionally print token
-    void            pushFront__(size_t ch);     // return char to Input
-    void            reset__();                  // prepare for new cycle
-                                                // next input stream:
-    void            switchStream__(std::istream &in, size_t lineNr);   
-    void            lopf__(size_t tail);        // matched fixed size tail
-    void            lop1__(int lopSC);          // matched ab for a/b
-    void            lop2__();                   // matches the LOP's b tail
-    void            lop3__();                   // catch-all while matching b
-    void            lop4__();                   // matches the LOP's a head
+    // members used by lex__(): they end in __ and should not be used
+    // otherwise.
 
-private:
+    ActionType__ actionType__(size_t range); // next action
+    bool         return__();                 // 'return' from codeblock
+    size_t       matched__(size_t ch);       // handles a matched rule
+    size_t       getRange__(int ch);         // convert char to range
+    size_t       get__();                    // next character
+    size_t       state__() const;            // current state
+    void         continue__(int ch);         // handles a transition
+    void         echoCh__(size_t ch);        // echoes ch, sets d_atBOL
+    void         echoFirst__(size_t ch);     // handles unknown input
+    void         updateFinals__();           // update a state's Final info
+    void         noReturn__();               // d_return to false
+    void         print__() const;            // optionally print token
+    void         pushFront__(size_t ch);     // return char to Input
+    void         reset__();                  // prepare for new cycle
+                                             // next input stream:
+    void switchStream__(std::istream& in, size_t lineNr);
+    void lopf__(size_t tail); // matched fixed size tail
+    void lop1__(int lopSC);   // matched ab for a/b
+    void lop2__();            // matches the LOP's b tail
+    void lop3__();            // catch-all while matching b
+    void lop4__();            // matches the LOP's a head
+
+  private:
     size_t getInput();
     size_t getLOP();
-    void p_pushStream(std::string const &name, std::istream *streamPtr);
-    void setMatchedSize(size_t length);
-    bool knownFinalState();
+    void   p_pushStream(std::string const& name, std::istream* streamPtr);
+    void   setMatchedSize(size_t length);
+    bool   knownFinalState();
 
     template <typename ReturnType, typename ArgType>
     static ReturnType constexpr as(ArgType value);
@@ -281,12 +259,11 @@ inline ReturnType constexpr scannerBase::as(ArgType value)
 
 inline bool scannerBase::knownFinalState()
 {
-    return (d_atBOL && available(d_final.bol.rule)) ||
-           available(d_final.std.rule);
+    return (d_atBOL && available(d_final.bol.rule)) || available(d_final.std.rule);
 }
 
 inline bool constexpr scannerBase::available(size_t value)
-{   
+{
     return value != std::numeric_limits<size_t>::max();
 }
 
@@ -300,7 +277,7 @@ inline int constexpr scannerBase::SC(StartCondition__ sc)
     return as<int>(sc);
 }
 
-inline std::ostream &scannerBase::out()
+inline std::ostream& scannerBase::out()
 {
     return *d_out;
 }
@@ -310,22 +287,22 @@ inline void scannerBase::push(size_t ch)
     d_input.reRead(ch);
 }
 
-inline void scannerBase::push(std::string const &str)
+inline void scannerBase::push(std::string const& str)
 {
     d_input.reRead(str, 0);
 }
 
-inline void scannerBase::setFilename(std::string const &name)
+inline void scannerBase::setFilename(std::string const& name)
 {
     d_filename = name;
 }
 
-inline void scannerBase::setMatched(std::string const &text)
+inline void scannerBase::setMatched(std::string const& text)
 {
     d_matched = text;
 }
 
-inline std::string const &scannerBase::matched() const
+inline std::string const& scannerBase::matched() const
 {
     return d_matched;
 }
@@ -335,7 +312,7 @@ inline scannerBase::StartCondition__ scannerBase::startCondition() const
     return SC(d_startCondition);
 }
 
-inline std::string const &scannerBase::filename() const
+inline std::string const& scannerBase::filename() const
 {
     return d_filename;
 }
@@ -397,8 +374,8 @@ inline void scannerBase::noReturn__()
 }
 
 // $insert namespace-close
-}
+} // namespace cli
 
-}
+} // namespace decof
 
 #endif //  scannerBASE_H_INCLUDED

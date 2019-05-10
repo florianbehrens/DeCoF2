@@ -17,23 +17,32 @@
 #ifndef DECOF_MANAGED_READWRITE_PARAMETER_H
 #define DECOF_MANAGED_READWRITE_PARAMETER_H
 
-#include <string>
 #include "encoding_hint.h"
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"
+#include <string>
 
 /// Convenience macro for parameter declaration
-#define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)      \
-    struct type_name : public decof::managed_readwrite_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal, decof::userlevel_t writelevel = decof::Normal, const value_type &value = value_type()) : \
-            decof::managed_readwrite_parameter<value_type>(name, parent, readlevel, writelevel, value) {} \
-        type_name(std::string name, decof::node *parent, const value_type &value) : \
-            decof::managed_readwrite_parameter<value_type>(name, parent, decof::Normal, decof::Normal, value) {} \
-        virtual void verify(const value_type& value) override;                \
+#define DECOF_DECLARE_MANAGED_READWRITE_PARAMETER(type_name, value_type)                                      \
+    struct type_name : public decof::managed_readwrite_parameter<value_type>                                  \
+    {                                                                                                         \
+        type_name(                                                                                            \
+            std::string        name,                                                                          \
+            decof::node*       parent,                                                                        \
+            decof::userlevel_t readlevel  = decof::Normal,                                                    \
+            decof::userlevel_t writelevel = decof::Normal,                                                    \
+            const value_type&  value      = value_type())                                                     \
+          : decof::managed_readwrite_parameter<value_type>(name, parent, readlevel, writelevel, value)        \
+        {                                                                                                     \
+        }                                                                                                     \
+        type_name(std::string name, decof::node* parent, const value_type& value)                             \
+          : decof::managed_readwrite_parameter<value_type>(name, parent, decof::Normal, decof::Normal, value) \
+        {                                                                                                     \
+        }                                                                                                     \
+        virtual void verify(const value_type& value) override;                                                \
     }
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief A managed_readwrite_parameter may only be modified by the client side.
@@ -43,22 +52,28 @@ namespace decof
  * @tparam T The parameter value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
-class managed_readwrite_parameter :
-    public readable_parameter<T, EncodingHint>, public typed_client_write_interface<T, EncodingHint>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
+class managed_readwrite_parameter : public readable_parameter<T, EncodingHint>,
+                                    public typed_client_write_interface<T, EncodingHint>
 {
-public:
-    managed_readwrite_parameter(const std::string &name, node *parent, const T &value) :
-        readable_parameter<T, EncodingHint>(name, parent, Normal, Normal), value_(value)
-    {}
+  public:
+    managed_readwrite_parameter(const std::string& name, node* parent, const T& value)
+      : readable_parameter<T, EncodingHint>(name, parent, Normal, Normal), value_(value)
+    {
+    }
 
-    managed_readwrite_parameter(const std::string &name, node *parent,
-                                userlevel_t readlevel = Normal, userlevel_t writelevel = Normal,
-                                const T &value = T()) :
-        readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel), value_(value)
-    {}
+    managed_readwrite_parameter(
+        const std::string& name,
+        node*              parent,
+        userlevel_t        readlevel  = Normal,
+        userlevel_t        writelevel = Normal,
+        const T&           value      = T())
+      : readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel), value_(value)
+    {
+    }
 
-    virtual T value() const override final {
+    virtual T value() const override final
+    {
         return value_;
     }
 
@@ -68,16 +83,18 @@ public:
      *
      * @note Make sure the returned reference does not outlive the parameter
      * object itself. */
-    const T& value_ref() {
+    const T& value_ref()
+    {
         return value_;
     }
 
-protected:
+  protected:
     virtual void verify(const T&)
-    {}
+    {
+    }
 
-private:
-    virtual void value(const T &value) override final
+  private:
+    virtual void value(const T& value) override final
     {
         if (value_ == value)
             return;

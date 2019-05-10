@@ -17,31 +17,32 @@
 #ifndef DECOF_WRITEONLY_PARAMETER_H
 #define DECOF_WRITEONLY_PARAMETER_H
 
-#include <decof/client_context/object_visitor.h>
 #include "basic_parameter.h"
+#include "object_visitor.h"
 #include "typed_client_write_interface.h"
 
 /// Convenience macro for parameter declaration
-#define DECOF_DECLARE_WRITEONLY_PARAMETER(type_name, value_type)               \
-    struct type_name : public decof::writeonly_parameter<value_type> {         \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t writelevel = decof::Normal) : \
-            decof::writeonly_parameter<value_type>(name, parent, writelevel) {} \
-        virtual void value(const value_type &value) override;                   \
+#define DECOF_DECLARE_WRITEONLY_PARAMETER(type_name, value_type)                                        \
+    struct type_name : public decof::writeonly_parameter<value_type>                                    \
+    {                                                                                                   \
+        type_name(std::string name, decof::node* parent, decof::userlevel_t writelevel = decof::Normal) \
+          : decof::writeonly_parameter<value_type>(name, parent, writelevel)                            \
+        {                                                                                               \
+        }                                                                                               \
+        virtual void value(const value_type& value) override;                                           \
     }
 
-namespace decof
-{
+namespace decof {
 
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
-class writeonly_parameter :
-    public basic_parameter<T, EncodingHint>,
-    public typed_client_write_interface<T, EncodingHint>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
+class writeonly_parameter : public basic_parameter<T, EncodingHint>,
+                            public typed_client_write_interface<T, EncodingHint>
 {
-public:
-    writeonly_parameter(std::string name, node *parent, userlevel_t writelevel = Normal) :
-        basic_parameter<T, EncodingHint>(name, parent, Forbidden, writelevel)
-    {}
-
+  public:
+    writeonly_parameter(std::string name, node* parent, userlevel_t writelevel = Normal)
+      : basic_parameter<T, EncodingHint>(name, parent, Forbidden, writelevel)
+    {
+    }
 };
 
 } // namespace decof

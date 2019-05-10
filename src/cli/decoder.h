@@ -17,18 +17,16 @@
 #ifndef DECOF_CLI_DECODER_H
 #define DECOF_CLI_DECODER_H
 
+#include <decof/exceptions.h>
+#include <decof/types.h>
 #include <cctype>
 #include <map>
 #include <sstream>
 #include <string>
-#include <decof/exceptions.h>
-#include <decof/types.h>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 /// Base64 string decoder function.
 std::string base64decode(std::string base64);
@@ -44,9 +42,9 @@ std::string base64decode(std::string base64);
  * @note The output character sequence must have the size of the input
  * character sequence unless a @a std::back_insert_iterator or similar is used.
  */
-template<typename BeginIt, typename EndIt, typename OutIt>
-size_t backslash_escape_decoder(const BeginIt& begin, const EndIt& end, OutIt out) try
-{
+template <typename BeginIt, typename EndIt, typename OutIt>
+size_t backslash_escape_decoder(const BeginIt& begin, const EndIt& end, OutIt out)
+try {
     size_t out_count = 0;
 
     enum {
@@ -56,19 +54,17 @@ size_t backslash_escape_decoder(const BeginIt& begin, const EndIt& end, OutIt ou
         hex_digit2  //< 2nd hex digit
     } state = none;
 
-    static const std::map<char, char> escape_characters = {
-        { 'a', '\a' },
-        { 'b', '\b' },
-        { 'f', '\f' },
-        { 'n', '\n' },
-        { 'r', '\r' },
-        { 't', '\t' },
-        { 'v', '\v' },
-        { '\\', '\\' },
-        { '\'', '\'' },
-        { '"', '\"' },
-        { '?', '\?' }
-    };
+    static const std::map<char, char> escape_characters = {{'a', '\a'},
+                                                           {'b', '\b'},
+                                                           {'f', '\f'},
+                                                           {'n', '\n'},
+                                                           {'r', '\r'},
+                                                           {'t', '\t'},
+                                                           {'v', '\v'},
+                                                           {'\\', '\\'},
+                                                           {'\'', '\''},
+                                                           {'"', '\"'},
+                                                           {'?', '\?'}};
 
     auto ishexdigit = [](char c) -> bool {
         return std::isdigit(c) || (std::toupper(c) >= 'A' && std::toupper(c) <= 'F');
@@ -80,49 +76,49 @@ size_t backslash_escape_decoder(const BeginIt& begin, const EndIt& end, OutIt ou
         char ch = *it;
 
         switch (state) {
-        case none:
-            if (ch == '\\')
-                state = backslash;
-            else if (ch < 0x20 || ch > 0x7F)
-                throw parse_error();
-            else {
-                (*out++) = ch;
-                out_count += 1;
-            }
-            break;
-        case backslash:
-            if (std::toupper(ch) == 'X')
-                state = hex_digit1;
-            else {
-                // Throws std::out_of_range in case of invalid escape sequence:
-                (*out++) = escape_characters.at(ch);
-                out_count += 1;
-                state = none;
-            }
-            break;
-        case hex_digit1:
-            if (ishexdigit(ch)) {
-                hex.put(ch);
-                state = hex_digit2;
-            } else
-                throw parse_error();
-            break;
-        case hex_digit2:
-            if (ishexdigit(ch)) {
-                hex.put(ch);
+            case none:
+                if (ch == '\\')
+                    state = backslash;
+                else if (ch < 0x20 || ch > 0x7F)
+                    throw parse_error();
+                else {
+                    (*out++) = ch;
+                    out_count += 1;
+                }
+                break;
+            case backslash:
+                if (std::toupper(ch) == 'X')
+                    state = hex_digit1;
+                else {
+                    // Throws std::out_of_range in case of invalid escape sequence:
+                    (*out++) = escape_characters.at(ch);
+                    out_count += 1;
+                    state = none;
+                }
+                break;
+            case hex_digit1:
+                if (ishexdigit(ch)) {
+                    hex.put(ch);
+                    state = hex_digit2;
+                } else
+                    throw parse_error();
+                break;
+            case hex_digit2:
+                if (ishexdigit(ch)) {
+                    hex.put(ch);
 
-                int n;
-                hex >> std::hex >> n;
-                (*out++) = n;
-                out_count += 1;
+                    int n;
+                    hex >> std::hex >> n;
+                    (*out++) = n;
+                    out_count += 1;
 
-                std::stringstream tmp;
-                hex.swap(tmp);
+                    std::stringstream tmp;
+                    hex.swap(tmp);
 
-                state = none;
-            } else
-                throw parse_error();
-            break;
+                    state = none;
+                } else
+                    throw parse_error();
+                break;
         }
     }
 
@@ -130,7 +126,7 @@ size_t backslash_escape_decoder(const BeginIt& begin, const EndIt& end, OutIt ou
         throw parse_error();
 
     return out_count;
-} catch(...) {
+} catch (...) {
     throw parse_error();
 }
 

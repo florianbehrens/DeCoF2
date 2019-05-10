@@ -16,8 +16,8 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <boost/test/unit_test.hpp>
 #include <scgi/bencode_string_parser.h>
+#include <boost/test/unit_test.hpp>
 
 using namespace decof;
 
@@ -30,38 +30,38 @@ struct fixture
 
 BOOST_FIXTURE_TEST_CASE(empty_string, fixture)
 {
-    std::string str = "0:";
-    auto retval = parser.parse(str.cbegin(), str.cend());
+    std::string str    = "0:";
+    auto        retval = parser.parse(str.cbegin(), str.cend());
     BOOST_REQUIRE_EQUAL(std::get<0>(retval), scgi::bencode_string_parser::good);
     BOOST_REQUIRE(parser.data.empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(normal_string, fixture)
 {
-    std::string str = "12:Hallo Welt\r\n";
-    auto retval = parser.parse(str.cbegin(), str.cend());
+    std::string str    = "12:Hallo Welt\r\n";
+    auto        retval = parser.parse(str.cbegin(), str.cend());
     BOOST_REQUIRE_EQUAL(std::get<0>(retval), scgi::bencode_string_parser::good);
     BOOST_REQUIRE_EQUAL(parser.data, "Hallo Welt\r\n");
 }
 
 BOOST_FIXTURE_TEST_CASE(negative_string_length, fixture)
 {
-    std::string str = "-5:Hallo";
-    auto retval = parser.parse(str.cbegin(), str.cend());
+    std::string str    = "-5:Hallo";
+    auto        retval = parser.parse(str.cbegin(), str.cend());
     BOOST_REQUIRE_EQUAL(std::get<0>(retval), scgi::bencode_string_parser::bad);
 }
 
 BOOST_FIXTURE_TEST_CASE(no_string_length, fixture)
 {
-    std::string str = ":";
-    auto retval = parser.parse(str.cbegin(), str.cend());
+    std::string str    = ":";
+    auto        retval = parser.parse(str.cbegin(), str.cend());
     BOOST_REQUIRE_EQUAL(std::get<0>(retval), scgi::bencode_string_parser::bad);
 }
 
 BOOST_FIXTURE_TEST_CASE(wrong_string_length, fixture)
 {
-    std::string str = "11:Hallo Welt";
-    auto retval = parser.parse(str.cbegin(), str.cend());
+    std::string str    = "11:Hallo Welt";
+    auto        retval = parser.parse(str.cbegin(), str.cend());
     BOOST_REQUIRE_EQUAL(std::get<0>(retval), scgi::bencode_string_parser::indeterminate);
 }
 

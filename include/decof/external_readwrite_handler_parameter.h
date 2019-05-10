@@ -17,12 +17,11 @@
 #ifndef DECOF_EXTERNAL_READWRITE_HANDLER_PARAMETER_H
 #define DECOF_EXTERNAL_READWRITE_HANDLER_PARAMETER_H
 
-#include <functional>
 #include "encoding_hint.h"
 #include "external_readwrite_parameter.h"
+#include <functional>
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief External readwrite parameter class with handler registration support.
@@ -33,28 +32,29 @@ namespace decof
  * @tparam T The value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class external_readwrite_handler_parameter : public external_readwrite_parameter<T, EncodingHint>
 {
-public:
+  public:
     using external_readwrite_parameter<T, EncodingHint>::external_readwrite_parameter;
 
     /// Set external value setter handler.
-    external_readwrite_handler_parameter<T, EncodingHint> &external_value_set_handler(std::function<bool(const T&)> handler)
+    external_readwrite_handler_parameter<T, EncodingHint>&
+    external_value_set_handler(std::function<bool(const T&)> handler)
     {
         external_value_set_handler_ = handler;
         return *this;
     }
 
     /// Set external value getter handler.
-    external_readwrite_handler_parameter<T, EncodingHint> &external_value_get_handler(std::function<T()> handler)
+    external_readwrite_handler_parameter<T, EncodingHint>& external_value_get_handler(std::function<T()> handler)
     {
         external_value_get_handler_ = handler;
         return *this;
     }
 
-private:
-    virtual bool external_value(const T &value) override final
+  private:
+    virtual bool external_value(const T& value) override final
     {
         if (external_value_set_handler_)
             return external_value_set_handler_(value);
@@ -71,7 +71,7 @@ private:
     }
 
     std::function<bool(const T&)> external_value_set_handler_;
-    std::function<T()> external_value_get_handler_;
+    std::function<T()>            external_value_get_handler_;
 };
 
 } // namespace decof

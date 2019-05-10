@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include <client_context/client_context.h>
 #include "client_write_interface.h"
 #include "event.h"
 #include "exceptions.h"
 #include "object.h"
 #include "object_dictionary.h"
+#include <client_context/client_context.h>
 
-namespace decof
-{
+namespace decof {
 
 client_context::client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel)
-  : object_dictionary_(a_object_dictionary),
-    userlevel_(userlevel)
-{}
+  : object_dictionary_(a_object_dictionary), userlevel_(userlevel)
+{
+}
 
 client_context::~client_context()
-{}
+{
+}
 
 userlevel_t client_context::userlevel() const
 {
@@ -61,7 +61,8 @@ std::string client_context::remote_endpoint() const
 }
 
 void client_context::preload()
-{}
+{
+}
 
 void client_context::set_parameter(const std::string& uri, const value_t& value, char separator)
 {
@@ -70,7 +71,7 @@ void client_context::set_parameter(const std::string& uri, const value_t& value,
     if (userlevel_ == decof::Readonly)
         throw access_denied_error();
 
-    object *te = object_dictionary_.find_object(uri, separator);
+    object*                 te    = object_dictionary_.find_object(uri, separator);
     client_write_interface* param = dynamic_cast<client_write_interface*>(te);
 
     if (param == nullptr)
@@ -81,11 +82,11 @@ void client_context::set_parameter(const std::string& uri, const value_t& value,
     param->generic_value(value);
 }
 
-value_t client_context::get_parameter(const std::string &uri, char separator)
+value_t client_context::get_parameter(const std::string& uri, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object *obj = object_dictionary_.find_object(uri, separator);
+    object*                obj   = object_dictionary_.find_object(uri, separator);
     client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
 
     if (param == nullptr)
@@ -96,15 +97,15 @@ value_t client_context::get_parameter(const std::string &uri, char separator)
     return param->generic_value();
 }
 
-void client_context::signal_event(const std::string &uri, char separator)
+void client_context::signal_event(const std::string& uri, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     if (userlevel_ == decof::Readonly)
         throw access_denied_error();
 
-    object *te = object_dictionary_.find_object(uri, separator);
-    event* ev = dynamic_cast<event*>(te);
+    object* te = object_dictionary_.find_object(uri, separator);
+    event*  ev = dynamic_cast<event*>(te);
 
     if (ev == nullptr)
         throw invalid_parameter_error();
@@ -114,7 +115,7 @@ void client_context::signal_event(const std::string &uri, char separator)
     ev->signal();
 }
 
-void client_context::observe(const std::string &uri, client_read_interface::value_change_slot_t slot, char separator)
+void client_context::observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -133,7 +134,7 @@ void client_context::observe(const std::string &uri, client_read_interface::valu
         throw invalid_parameter_error();
 }
 
-void client_context::unobserve(const std::string &uri, char separator)
+void client_context::unobserve(const std::string& uri, char separator)
 {
     if (observables_.count(uri) != 0) {
         object_dictionary::context_guard cg(object_dictionary_, this);
@@ -149,7 +150,7 @@ void client_context::unobserve(const std::string &uri, char separator)
         throw not_subscribed_error();
 }
 
-void client_context::browse(object_visitor *visitor, const std::string &root_uri)
+void client_context::browse(object_visitor* visitor, const std::string& root_uri)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
@@ -157,7 +158,7 @@ void client_context::browse(object_visitor *visitor, const std::string &root_uri
     if (uri.empty())
         uri = object_dictionary_.name();
 
-    if (object *te = object_dictionary_.find_object(uri)) {
+    if (object* te = object_dictionary_.find_object(uri)) {
         // Recursively iterate over all objects beginning from root URI
         browse_object(te, visitor);
     } else
@@ -169,13 +170,13 @@ void client_context::tick()
     object_dictionary_.tick();
 }
 
-void client_context::browse_object(object *te, object_visitor *visitor)
+void client_context::browse_object(object* te, object_visitor* visitor)
 {
     te->accept(visitor);
 
     // If node browse children
-    if (node *n = dynamic_cast<node*>(te)) {
-        for (auto &child : *n) {
+    if (node* n = dynamic_cast<node*>(te)) {
+        for (auto& child : *n) {
             if (effective_userlevel() <= child->readlevel())
                 browse_object(child, visitor);
         }

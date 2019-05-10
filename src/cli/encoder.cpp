@@ -16,16 +16,16 @@
 
 #include "encoder.h"
 
-#include <map>
-#include <ostream>
-#include <iomanip>
+#include <decof/conversion.h>
+#include <decof/exceptions.h>
+#include <decof/types.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <decof/conversion.h>
-#include <decof/exceptions.h>
-#include <decof/types.h>
+#include <iomanip>
+#include <map>
+#include <ostream>
 
 namespace {
 
@@ -39,7 +39,7 @@ std::string base64_encode(const std::string& bin)
     typedef base64_from_binary<transform_width<std::string::const_iterator, 6, 8>> it_base64_t;
 
     unsigned int writePaddChars = (3 - bin.length() % 3) % 3;
-    std::string base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
+    std::string  base64(it_base64_t(bin.begin()), it_base64_t(bin.end()));
     base64.append(writePaddChars, '=');
 
     return base64;
@@ -47,15 +47,13 @@ std::string base64_encode(const std::string& bin)
 
 } // Anonymous namespace
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
-encoder::encoder(std::ostream& out) :
-    m_out(out)
-{}
+encoder::encoder(std::ostream& out) : m_out(out)
+{
+}
 
 void encoder::operator()(const scalar_t& arg) const
 {
@@ -68,7 +66,8 @@ void encoder::operator()(const sequence_t& arg) const
 
     auto it = std::cbegin(arg);
     for (; it != std::cend(arg); ++it) {
-        if (it != std::cbegin(arg)) m_out.put(',');
+        if (it != std::cbegin(arg))
+            m_out.put(',');
         boost::apply_visitor(*this, *it);
     }
 
@@ -81,7 +80,8 @@ void encoder::operator()(const tuple_t& arg) const
 
     auto it = std::cbegin(arg);
     for (; it != std::cend(arg); ++it) {
-        if (it != std::cbegin(arg)) m_out.put(',');
+        if (it != std::cbegin(arg))
+            m_out.put(',');
         boost::apply_visitor(*this, *it);
     }
 
@@ -107,19 +107,17 @@ void encoder::operator()(const real_t& arg) const
 
 void encoder::operator()(const string_t& arg) const
 {
-    static const std::map<char, char> escape_characters = {
-        { '\a', 'a' },
-        { '\b', 'b' },
-        { '\f', 'f' },
-        { '\n', 'n' },
-        { '\r', 'r' },
-        { '\t', 't' },
-        { '\v', 'v' },
-        { '\\', '\\' },
-        { '\'', '\'' },
-        { '\"', '"' },
-        { '\?', '?' }
-    };
+    static const std::map<char, char> escape_characters = {{'\a', 'a'},
+                                                           {'\b', 'b'},
+                                                           {'\f', 'f'},
+                                                           {'\n', 'n'},
+                                                           {'\r', 'r'},
+                                                           {'\t', 't'},
+                                                           {'\v', 'v'},
+                                                           {'\\', '\\'},
+                                                           {'\'', '\''},
+                                                           {'\"', '"'},
+                                                           {'\?', '?'}};
 
     m_out << '"';
 
@@ -138,7 +136,7 @@ void encoder::operator()(const string_t& arg) const
     m_out << '"';
 }
 
-void encoder::operator()(const binary_t &arg) const
+void encoder::operator()(const binary_t& arg) const
 {
     m_out << '&' << base64_encode(arg);
 }

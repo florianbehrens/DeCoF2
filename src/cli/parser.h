@@ -29,42 +29,40 @@
 #include "parserbase.h"
 
 // $insert namespace-open
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 #undef parser
-class parser: public parserBase
-{        
-public:
-    parser(std::istream &in = std::cin);
+class parser : public parserBase
+{
+  public:
+    parser(std::istream& in = std::cin);
 
-    int parse();
+    int     parse();
     value_t result() const;
 
-private:
-    void error(char const *msg);    // called on (syntax) errors
-    int lex();                      // returns the next token from the
-                                    // lexical scanner.
-    void print();                   // use, e.g., d_token, d_loc
+  private:
+    void error(char const* msg); // called on (syntax) errors
+    int  lex();                  // returns the next token from the
+                                 // lexical scanner.
+    void print();                // use, e.g., d_token, d_loc
 
     // Support functions for parse():
     void executeAction(int ruleNr);
     void errorRecovery();
-    int lookup(bool recovery);
+    int  lookup(bool recovery);
     void nextToken();
     void print__();
-    void exceptionHandler__(std::exception const &);
+    void exceptionHandler__(std::exception const&);
 
     scanner d_scanner;
     value_t result_;
 };
 
 // $insert namespace-close
-}
+} // namespace cli
 
-}
+} // namespace decof
 
 #endif // DECOF_CLI_PARSER_H

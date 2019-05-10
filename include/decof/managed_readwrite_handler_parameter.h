@@ -17,12 +17,11 @@
 #ifndef DECOF_MANAGED_READWRITE_HANDLER_PARAMETER_H
 #define DECOF_MANAGED_READWRITE_HANDLER_PARAMETER_H
 
-#include <functional>
 #include "encoding_hint.h"
 #include "managed_readwrite_parameter.h"
+#include <functional>
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief Handler-based managed readwrite parameter class.
@@ -33,26 +32,30 @@ namespace decof
  * @tparam T The parameter value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class managed_readwrite_handler_parameter : public managed_readwrite_parameter<T, EncodingHint>
 {
-public:
+  public:
     using managed_readwrite_parameter<T, EncodingHint>::managed_readwrite_parameter;
 
-    managed_readwrite_handler_parameter(const std::string &name, node *parent,
-                                        std::function<void(const T&)> verify_handler,
-                                        const T &value) :
-        managed_readwrite_parameter<T, EncodingHint>(name, parent, Normal, Normal, value),
+    managed_readwrite_handler_parameter(
+        const std::string& name, node* parent, std::function<void(const T&)> verify_handler, const T& value)
+      : managed_readwrite_parameter<T, EncodingHint>(name, parent, Normal, Normal, value),
         verify_handler_(verify_handler)
-    {}
+    {
+    }
 
-    managed_readwrite_handler_parameter(const std::string &name, node *parent,
-                                        std::function<void(const T&)> verify_handler,
-                                        userlevel_t readlevel = Normal, userlevel_t writelevel = Normal,
-                                        const T &value = T()) :
-        managed_readwrite_parameter<T, EncodingHint>(name, parent, readlevel, writelevel, value),
+    managed_readwrite_handler_parameter(
+        const std::string&            name,
+        node*                         parent,
+        std::function<void(const T&)> verify_handler,
+        userlevel_t                   readlevel  = Normal,
+        userlevel_t                   writelevel = Normal,
+        const T&                      value      = T())
+      : managed_readwrite_parameter<T, EncodingHint>(name, parent, readlevel, writelevel, value),
         verify_handler_(verify_handler)
-    {}
+    {
+    }
 
     /// Set verify handler.
     void verify_handler(std::function<void(const T&)> handler)
@@ -60,10 +63,11 @@ public:
         verify_handler_ = handler;
     }
 
-private:
-    virtual void verify(const T &value) override final
+  private:
+    virtual void verify(const T& value) override final
     {
-        if (verify_handler_) verify_handler_(value);
+        if (verify_handler_)
+            verify_handler_(value);
     }
 
     std::function<void(const T&)> verify_handler_;

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <decof/types.h>
+#include <ostream>
+
 namespace decof {
 
 // Makes BOOST_REQUIRE_EQUAL possible for sequence_t instances.

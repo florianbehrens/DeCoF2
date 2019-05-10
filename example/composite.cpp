@@ -16,16 +16,11 @@
 
 #include "composite.h"
 
-composite::composite(std::string name, decof::node *parent) :
-    node(name, parent),
-    summand1_("summand1", this),
-    summand2_("summand2", this),
-    sum_("sum", this)
+composite::composite(std::string name, decof::node* parent)
+  : node(name, parent), summand1_("summand1", this), summand2_("summand2", this), sum_("sum", this)
 {
-    summand1_.verify_handler(std::bind(&composite::summand1_changing, this,
-                                       std::placeholders::_1));
-    summand2_.verify_handler(std::bind(&composite::summand2_changing, this,
-                                       std::placeholders::_1));
+    summand1_.verify_handler(std::bind(&composite::summand1_changing, this, std::placeholders::_1));
+    summand2_.verify_handler(std::bind(&composite::summand2_changing, this, std::placeholders::_1));
 }
 
 void composite::summand1_changing(const int& value)

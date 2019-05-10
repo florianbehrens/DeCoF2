@@ -17,24 +17,22 @@
 #ifndef DECOF_CLI_CLISRV_CONTEXT_H
 #define DECOF_CLI_CLISRV_CONTEXT_H
 
-#include <functional>
-#include <string>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <functional>
+#include <string>
 
 #include <decof/cli/cli_context_base.h>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 class clisrv_context : public cli_context_base
 {
-public:
+  public:
     using strand_t = boost::asio::io_service::strand;
     using socket_t = boost::asio::ip::tcp::socket;
 
@@ -50,9 +48,9 @@ public:
 
     virtual std::string connection_type() const final;
     virtual std::string remote_endpoint() const final;
-    virtual void preload() final;
+    virtual void        preload() final;
 
-private:
+  private:
     /// Callback for boost::asio write operations.
     void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
@@ -70,8 +68,8 @@ private:
     /// Processes CLI requests.
     void process_request(std::string request);
 
-    strand_t& strand_;
-    socket_t socket_;
+    strand_t&              strand_;
+    socket_t               socket_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
 };

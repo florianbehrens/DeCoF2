@@ -17,28 +17,26 @@
 #ifndef DECOF_CLI_BROWSE_VISITOR_H
 #define DECOF_CLI_BROWSE_VISITOR_H
 
+#include <decof/object_visitor.h>
 #include <ostream>
-#include <decof/client_context/object_visitor.h>
 
-namespace decof
-{
+namespace decof {
 
 class node;
 class client_read_interface;
 
-namespace cli
-{
+namespace cli {
 
 class browse_visitor : public object_visitor
 {
-public:
-    explicit browse_visitor(std::ostream &out);
+  public:
+    explicit browse_visitor(std::ostream& out);
 
     virtual void visit(object* obj) override;
     virtual void visit(node* node) override;
 
-private:
-    std::ostream &out_;
+  private:
+    std::ostream& out_;
 };
 
 } // namespace cli

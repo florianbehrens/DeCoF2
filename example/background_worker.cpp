@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#include "background_worker.h"
-
-#include <chrono>
-#include <thread>
-
 #define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
 #define BOOST_THREAD_PROVIDES_EXECUTORS
-#include <boost/thread/future.hpp>
 
+#include "background_worker.h"
 #include "application.h"
+#include <boost/thread/future.hpp>
+#include <chrono>
+#include <thread>
 
 background_worker::ptr background_worker::create(const std::string& name, decof::node* parent)
 {
@@ -31,11 +29,12 @@ background_worker::ptr background_worker::create(const std::string& name, decof:
     return self;
 }
 
-background_worker::background_worker(const std::string& name, decof::node* parent) :
-    decof::node(name, parent),
+background_worker::background_worker(const std::string& name, decof::node* parent)
+  : decof::node(name, parent),
     event_("start", this, std::bind(&background_worker::start, this)),
     ready_("ready", this, false)
-{}
+{
+}
 
 void background_worker::start()
 {
@@ -45,9 +44,5 @@ void background_worker::start()
 
     boost::async([self]() {
         std::this_thread::sleep_for(std::chrono::seconds(5));
-    }).then(
-        application::instance().executor(),
-        [self](boost::unique_future<void>) {
-            self->ready_.value(true);
-    });
+    }).then(application::instance().executor(), [self](boost::unique_future<void>) { self->ready_.value(true); });
 }

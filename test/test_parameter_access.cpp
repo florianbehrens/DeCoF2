@@ -16,9 +16,9 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <boost/test/unit_test.hpp>
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(parameter_access)
 
@@ -30,12 +30,12 @@ struct fixture
     {
         using decof::client_context::client_context;
 
-        void get_parameter(const std::string &uri, char separator = ':')
+        void get_parameter(const std::string& uri, char separator = ':')
         {
             decof::client_context::get_parameter(uri, separator);
         }
 
-        void set_parameter(const std::string &uri, const value_t &value, char separator = ':')
+        void set_parameter(const std::string& uri, const value_t& value, char separator = ':')
         {
             decof::client_context::set_parameter(uri, value, separator);
         }
@@ -55,7 +55,7 @@ struct fixture
     {
         using decof::external_readwrite_parameter<bool>::external_readwrite_parameter;
 
-        bool external_value(const bool &value) override
+        bool external_value(const bool& value) override
         {
             return true;
         }
@@ -70,33 +70,35 @@ struct fixture
     {
         using decof::writeonly_parameter<bool>::writeonly_parameter;
 
-        void value(const bool &value) override
-        {}
+        void value(const bool& value) override
+        {
+        }
     };
 
-    fixture() :
-        managed_readwrite_parameter("managed_readwrite_parameter", &obj_dict),
+    fixture()
+      : managed_readwrite_parameter("managed_readwrite_parameter", &obj_dict),
         managed_readonly_parameter("managed_readonly_parameter", &obj_dict),
         external_readwrite_parameter("external_readwrite_parameter", &obj_dict),
         external_readonly_parameter("external_readonly_parameter", &obj_dict),
         writeonly_parameter("writeonly_parameter", &obj_dict),
         my_context(new my_context_t(obj_dict))
-    {}
+    {
+    }
 
-    decof::object_dictionary obj_dict;
+    decof::object_dictionary                 obj_dict;
     decof::managed_readwrite_parameter<bool> managed_readwrite_parameter;
-    decof::managed_readonly_parameter<bool> managed_readonly_parameter;
-    external_readwrite_parameter_t external_readwrite_parameter;
-    external_readonly_parameter_t external_readonly_parameter;
-    writeonly_parameter_t writeonly_parameter;
-    std::shared_ptr<my_context_t> my_context;
+    decof::managed_readonly_parameter<bool>  managed_readonly_parameter;
+    external_readwrite_parameter_t           external_readwrite_parameter;
+    external_readonly_parameter_t            external_readonly_parameter;
+    writeonly_parameter_t                    writeonly_parameter;
+    std::shared_ptr<my_context_t>            my_context;
 };
 
 BOOST_FIXTURE_TEST_CASE(read_managed_readwrite_parameter, fixture)
 {
     try {
         my_context->get_parameter("root:managed_readwrite_parameter");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -107,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(write_managed_readwrite_parameter, fixture)
 {
     try {
         my_context->set_parameter("root:managed_readwrite_parameter", false);
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -118,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE(read_managed_readonly_parameter, fixture)
 {
     try {
         my_context->get_parameter("root:managed_readonly_parameter");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -131,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(write_managed_readonly_parameter, fixture)
 
     try {
         my_context->set_parameter("root:managed_readonly_parameter", false);
-    } catch (decof::invalid_parameter_error &) {
+    } catch (decof::invalid_parameter_error&) {
         write_failed = true;
     }
 
@@ -142,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(read_external_readwrite_parameter, fixture)
 {
     try {
         my_context->get_parameter("root:external_readwrite_parameter");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -153,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(write_external_readwrite_parameter, fixture)
 {
     try {
         my_context->set_parameter("root:external_readwrite_parameter", false);
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -164,7 +166,7 @@ BOOST_FIXTURE_TEST_CASE(read_external_readonly_parameter, fixture)
 {
     try {
         my_context->get_parameter("root:external_readonly_parameter");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -177,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE(write_external_readonly_parameter, fixture)
 
     try {
         my_context->set_parameter("root:external_readonly_parameter", false);
-    } catch (decof::invalid_parameter_error &) {
+    } catch (decof::invalid_parameter_error&) {
         write_failed = true;
     }
 
@@ -190,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE(read_writeonly_parameter, fixture)
 
     try {
         my_context->get_parameter("root:writeonly_parameter");
-    } catch (decof::invalid_parameter_error &) {
+    } catch (decof::invalid_parameter_error&) {
         read_failed = true;
     }
 
@@ -201,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE(write_writeonly_parameter, fixture)
 {
     try {
         my_context->set_parameter("root:writeonly_parameter", false);
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");

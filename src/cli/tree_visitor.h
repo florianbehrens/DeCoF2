@@ -17,28 +17,26 @@
 #ifndef DECOF_CLI_TREE_VISITOR_H
 #define DECOF_CLI_TREE_VISITOR_H
 
-#include <ostream>
-#include <decof/client_context/object_visitor.h>
+#include <decof/object_visitor.h>
 #include <decof/types.h>
+#include <ostream>
 
-namespace decof
-{
+namespace decof {
 
 class object;
 class event;
 class node;
 
-namespace cli
-{
+namespace cli {
 
 class tree_visitor : public object_visitor
 {
-public:
-    explicit tree_visitor(std::ostream &out);
+  public:
+    explicit tree_visitor(std::ostream& out);
 
     virtual void visit(object* obj) override;
-    virtual void visit(event *event) override;
-    virtual void visit(node *node) override;
+    virtual void visit(event* event) override;
+    virtual void visit(node* node) override;
 
     virtual void visit(object* obj, boolean_tag) override;
     virtual void visit(object* obj, integer_tag) override;
@@ -53,10 +51,10 @@ public:
 
     virtual void visit(object* obj, tuple_tag) override;
 
-private:
-    void write_param(decof::object *obj, const char *type);
+  private:
+    void write_param(decof::object* obj, const char* type);
 
-    std::ostream &out_;
+    std::ostream& out_;
 };
 
 } // namespace cli

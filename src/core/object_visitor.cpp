@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#include <client_context/object_visitor.h>
+#include "object_visitor.h"
+#include "basic_parameter.h"
 #include "event.h"
 #include "node.h"
-#include "basic_parameter.h"
 
-namespace decof
-{
+namespace decof {
 
 void object_visitor::visit(event* e)
 {
@@ -32,60 +31,60 @@ void object_visitor::visit(node* n)
     visit(static_cast<object*>(n));
 }
 
-void object_visitor::visit(object *obj, boolean_tag)
+void object_visitor::visit(object* obj, boolean_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, integer_tag)
+void object_visitor::visit(object* obj, integer_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, real_tag)
+void object_visitor::visit(object* obj, real_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, string_tag)
+void object_visitor::visit(object* obj, string_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, binary_tag)
+void object_visitor::visit(object* obj, binary_tag)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence_tag<boolean_tag>)
+void object_visitor::visit(object* obj, sequence_tag<boolean_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence_tag<integer_tag>)
+void object_visitor::visit(object* obj, sequence_tag<integer_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence_tag<real_tag>)
+void object_visitor::visit(object* obj, sequence_tag<real_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, sequence_tag<string_tag>)
+void object_visitor::visit(object* obj, sequence_tag<string_tag>)
 {
     visit(obj);
 }
 
-void object_visitor::visit(object *obj, tuple_tag)
+void object_visitor::visit(object* obj, tuple_tag)
 {
     visit(obj);
 }
 
-void object_visitor::write_indentation(std::ostream &out, const object *te)
+void object_visitor::write_indentation(std::ostream& out, const object* te)
 {
     out << indentation();
-    for (object *it = te->parent(); it != nullptr; it = it->parent())
+    for (object* it = te->parent(); it != nullptr; it = it->parent())
         out << "  ";
 }
 

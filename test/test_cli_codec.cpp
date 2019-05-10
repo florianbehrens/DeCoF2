@@ -16,9 +16,9 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <string>
-#include <boost/test/unit_test.hpp>
 #include <cli/decoder.h>
+#include <boost/test/unit_test.hpp>
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(cli_codec)
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(standard_escape_sequences)
 BOOST_AUTO_TEST_CASE(hexadecimal_escape_sequences)
 {
     std::string str("\\x00\\x9F\\xA0\\xFF");
-    std::string exp{ '\x00', '\x9F', '\xA0', '\xFF' };
+    std::string exp{'\x00', '\x9F', '\xA0', '\xFF'};
     std::string res;
 
     decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), std::back_insert_iterator<std::string>(res));
@@ -44,50 +44,58 @@ BOOST_AUTO_TEST_CASE(hexadecimal_escape_sequences)
 BOOST_AUTO_TEST_CASE(invalid_character1)
 {
     std::string str("abc\x1F");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_character2)
 {
     std::string str("abc\n");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_character3)
 {
     std::string str("abc\x80");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_character4)
 {
     std::string str("abc\x80");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_escape_sequence)
 {
     // Test invalid escape sequence '\x'
     std::string str("abc\\x");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_hex_escape_sequence1)
 {
     std::string str("abc\\xG0");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(invalid_hex_escape_sequence2)
 {
     std::string str("abc\\x0G");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_CASE(backslash_as_last_char)
 {
     std::string str("abc\\");
-    BOOST_REQUIRE_THROW(decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
+    BOOST_REQUIRE_THROW(
+        decof::cli::backslash_escape_decoder(str.cbegin(), str.cend(), str.begin()), decof::parse_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

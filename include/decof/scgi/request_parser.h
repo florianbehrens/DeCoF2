@@ -20,29 +20,16 @@
 #include <map>
 #include <string>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 class request_parser
 {
-public:
+  public:
     typedef std::map<std::string, std::string> headers_type;
 
-    enum method_type
-    {
-        get,
-        post,
-        head,
-        put,
-        delete_,
-        trace,
-        options,
-        connect,
-        undefined
-    };
+    enum method_type { get, post, head, put, delete_, trace, options, connect, undefined };
 
     /// Result of parse.
     enum result_type { good, bad, indeterminate };
@@ -60,8 +47,7 @@ public:
     result_type parse(InputIterator begin, InputIterator end) noexcept
     {
         result_type result;
-        while (begin != end)
-        {
+        while (begin != end) {
             result = consume(*begin++);
             if (result == bad)
                 return bad;
@@ -69,36 +55,29 @@ public:
         return result;
     }
 
-    method_type method;
-    std::string uri;
+    method_type  method;
+    std::string  uri;
     headers_type headers;
-    std::string content_type;
-    std::string encoding;
-    std::string body;
+    std::string  content_type;
+    std::string  encoding;
+    std::string  body;
 
-private:
+  private:
     /// Handle the next character of input.
     result_type consume(char input) noexcept;
 
-    enum state
-    {
-        netstring_length,
-        header_start,
-        header_name,
-        header_value,
-        body_range
-    } state_;
+    enum state { netstring_length, header_start, header_name, header_value, body_range } state_;
 
     std::string netstring_length_str_;
-    size_t netstring_length_;
-    size_t netstring_count_;
+    size_t      netstring_length_;
+    size_t      netstring_count_;
     std::string current_header_;
     std::string current_value_;
-    size_t content_length_;
+    size_t      content_length_;
 };
 
-} // namespace decof
-
 } // namespace scgi
+
+} // namespace decof
 
 #endif // DECOF_SCGI_PARSER_H

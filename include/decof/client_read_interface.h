@@ -17,28 +17,28 @@
 #ifndef DECOF_CLIENT_READ_INTERFACE_H
 #define DECOF_CLIENT_READ_INTERFACE_H
 
+#include "types.h"
 #include <boost/signals2/connection.hpp>
+#include <boost/signals2/dummy_mutex.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/signal_type.hpp>
-#include <boost/signals2/dummy_mutex.hpp>
-#include "types.h"
 
-namespace decof
-{
+namespace decof {
 
-using boost::signals2::keywords::mutex_type;
 using boost::signals2::dummy_mutex;
+using boost::signals2::keywords::mutex_type;
 
 class client_read_interface
 {
-public:
+  public:
     /**
      * @brief The signal type for object value change notifications.
      *
      * The first argument contains the object URI with the default separator
      * ':'. The second argument contains the objects value.
      */
-    typedef boost::signals2::signal_type<void (const std::string&, const value_t&), mutex_type<dummy_mutex>>::type value_change_signal_t;
+    typedef boost::signals2::signal_type<void(const std::string&, const value_t&), mutex_type<dummy_mutex>>::type
+        value_change_signal_t;
 
     /**
      * @brief The slot type for object value change notifications.
@@ -47,7 +47,9 @@ public:
      */
     typedef value_change_signal_t::slot_type value_change_slot_t;
 
-    virtual ~client_read_interface() {}
+    virtual ~client_read_interface()
+    {
+    }
 
     /// Provides the value as runtime-generic type.
     virtual value_t generic_value() const = 0;

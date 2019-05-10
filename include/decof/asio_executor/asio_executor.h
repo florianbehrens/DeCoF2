@@ -17,10 +17,10 @@
 #ifndef DECOF_ASIO_EXECUTOR_H
 #define DECOF_ASIO_EXECUTOR_H
 
-#include <type_traits>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/thread/sync_queue.hpp>
+#include <type_traits>
 
 namespace decof {
 
@@ -28,7 +28,8 @@ namespace decof {
  * @brief Executor for Boost.Asio IO service.
  *
  * This class models the Executor concept as specified in
- * <a href="http://www.boost.org/doc/libs/1_64_0/doc/html/thread/synchronization.html#thread.synchronization.executors.ref.concept_executor">
+ * <a
+ * href="http://www.boost.org/doc/libs/1_64_0/doc/html/thread/synchronization.html#thread.synchronization.executors.ref.concept_executor">
  * Boost.Thread</a>.
  *
  * It can be used to asynchonously schedule work on the given
@@ -49,7 +50,9 @@ class asio_executor : boost::noncopyable
     template <typename F>
     struct move_wrapper : F
     {
-        move_wrapper(F&& f) : F(std::move(f)) {}
+        move_wrapper(F&& f) : F(std::move(f))
+        {
+        }
 
         move_wrapper(move_wrapper&&) = default;
         move_wrapper& operator=(move_wrapper&&) = default;
@@ -71,7 +74,7 @@ class asio_executor : boost::noncopyable
         return std::move(t);
     }
 
-public:
+  public:
     explicit asio_executor(strand& s);
 
     /**
@@ -88,7 +91,7 @@ public:
      *
      * @param callable The callable to submit.
      */
-    template<typename F>
+    template <typename F>
     void submit(F&& callable)
     {
         if (closed_)
@@ -101,8 +104,8 @@ public:
     bool closed();
     bool try_executing_one();
 
-private:
-    bool closed_{ false };
+  private:
+    bool   closed_{false};
     strand strand_;
 };
 

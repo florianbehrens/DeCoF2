@@ -16,8 +16,8 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <boost/test/unit_test.hpp>
 #include <decof/automatic_ptr.h>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(automatic_pointer)
 
@@ -28,12 +28,11 @@ struct target_t : public decof::automatic_ptr_target<target_t>
 
 struct fixture
 {
-    fixture() :
-        tgt_uptr(new target_t),
-        tgt_aptr(tgt_uptr.get())
-    {}
+    fixture() : tgt_uptr(new target_t), tgt_aptr(tgt_uptr.get())
+    {
+    }
 
-    std::unique_ptr<target_t> tgt_uptr;
+    std::unique_ptr<target_t>      tgt_uptr;
     decof::automatic_ptr<target_t> tgt_aptr;
 };
 

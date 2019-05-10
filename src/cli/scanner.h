@@ -21,47 +21,42 @@
 #include "scannerbase.h"
 
 // $insert namespace-open
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 // $insert classHead
-class scanner: public scannerBase
+class scanner : public scannerBase
 {
-    public:
-        explicit scanner(std::istream &in = std::cin,
-                                std::ostream &out = std::cout);
+  public:
+    explicit scanner(std::istream& in = std::cin, std::ostream& out = std::cout);
 
-        scanner(std::string const &infile, std::string const &outfile);
-        
-        // $insert lexFunctionDecl
-        int lex();
+    scanner(std::string const& infile, std::string const& outfile);
 
-    private:
-        int lex__();
-        int executeAction__(size_t ruleNr);
+    // $insert lexFunctionDecl
+    int lex();
 
-        void print();
-        void preCode();     // re-implement this function for code that must 
-                            // be exec'ed before the patternmatching starts
+  private:
+    int lex__();
+    int executeAction__(size_t ruleNr);
 
-        void postCode(PostEnum__);
-                            // re-implement this function for code that must 
-                            // be exec'ed after the rules's actions.
+    void print();
+    void preCode(); // re-implement this function for code that must
+                    // be exec'ed before the patternmatching starts
+
+    void postCode(PostEnum__);
+    // re-implement this function for code that must
+    // be exec'ed after the rules's actions.
 };
 
 // $insert scannerConstructors
-inline scanner::scanner(std::istream &in, std::ostream &out)
-:
-    scannerBase(in, out)
-{}
+inline scanner::scanner(std::istream& in, std::ostream& out) : scannerBase(in, out)
+{
+}
 
-inline scanner::scanner(std::string const &infile, std::string const &outfile)
-:
-    scannerBase(infile, outfile)
-{}
+inline scanner::scanner(std::string const& infile, std::string const& outfile) : scannerBase(infile, outfile)
+{
+}
 
 // $insert inlineLexFunction
 inline int scanner::lex()
@@ -69,7 +64,7 @@ inline int scanner::lex()
     return lex__();
 }
 
-inline void scanner::preCode() 
+inline void scanner::preCode()
 {
     // optionally replace by your own code
 }
@@ -79,14 +74,14 @@ inline void scanner::postCode(PostEnum__)
     // optionally replace by your own code
 }
 
-inline void scanner::print() 
+inline void scanner::print()
 {
     print__();
 }
 
 // $insert namespace-close
-}
+} // namespace cli
 
-}
+} // namespace decof
 
 #endif // DECOF_CLI_SCANNER_H

@@ -17,13 +17,12 @@
 #ifndef DECOF_EXTERNAL_READONLY_HANDLER_PARAMETER_H
 #define DECOF_EXTERNAL_READONLY_HANDLER_PARAMETER_H
 
-#include <functional>
 #include "encoding_hint.h"
 #include "exceptions.h"
 #include "external_readonly_parameter.h"
+#include <functional>
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief External readonly parameter class with handler registration support.
@@ -34,10 +33,10 @@ namespace decof
  * @tparam T The value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class external_readonly_handler_parameter : public external_readonly_parameter<T, EncodingHint>
 {
-public:
+  public:
     using external_readonly_parameter<T, EncodingHint>::external_readonly_parameter;
 
     /// Set external value getter handler.
@@ -46,7 +45,7 @@ public:
         external_value_handler_ = handler;
     }
 
-private:
+  private:
     virtual T external_value() const override final
     {
         if (external_value_handler_)

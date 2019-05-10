@@ -16,10 +16,10 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <memory>
-#include <boost/test/unit_test.hpp>
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
+#include <boost/test/unit_test.hpp>
+#include <memory>
 
 BOOST_AUTO_TEST_SUITE(object_dictionary)
 
@@ -28,32 +28,33 @@ struct fixture
     struct my_context_t : public decof::client_context
     {
         using decof::client_context::client_context;
-        
-        void get_parameter(const std::string &uri, char separator = ':')
+
+        void get_parameter(const std::string& uri, char separator = ':')
         {
             decof::client_context::get_parameter(uri, separator);
         }
     };
 
-    fixture() :
-        obj_dict("root"),
+    fixture()
+      : obj_dict("root"),
         node1(new decof::node("node1", &obj_dict)),
         node2(new decof::node("node2", node1.get())),
         param("param", node2.get(), "Hello World"),
         my_context(new my_context_t(obj_dict))
-    {}
+    {
+    }
 
-    decof::object_dictionary obj_dict;
-    std::unique_ptr<decof::node> node1, node2;
+    decof::object_dictionary                       obj_dict;
+    std::unique_ptr<decof::node>                   node1, node2;
     decof::managed_readonly_parameter<std::string> param;
-    std::shared_ptr<my_context_t> my_context;
+    std::shared_ptr<my_context_t>                  my_context;
 };
 
 BOOST_FIXTURE_TEST_CASE(find_root_object, fixture)
 {
     try {
         my_context->get_parameter("root");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -64,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(find_child_object, fixture)
 {
     try {
         my_context->get_parameter("root:node1:node2:param");
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -75,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(find_child_object_with_custom_separator, fixture)
 {
     try {
         my_context->get_parameter("root&node1&node2&param", '&');
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
         BOOST_FAIL(ex.what());
     } catch (...) {
         BOOST_FAIL("Unknown exception occurred");
@@ -114,14 +115,14 @@ BOOST_FIXTURE_TEST_CASE(get_object_dictionary, fixture)
 BOOST_FIXTURE_TEST_CASE(get_const_object_dictionary, fixture)
 {
     const decof::managed_readonly_parameter<std::string>& rparam = param;
-    auto od = rparam.get_object_dictionary();
+    auto                                                  od     = rparam.get_object_dictionary();
     BOOST_REQUIRE(od != nullptr);
     BOOST_REQUIRE_EQUAL(od->name(), std::string("root"));
 }
 
 BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 {
-    decof::node node("node");
+    decof::node                             node("node");
     decof::managed_readonly_parameter<bool> parameter("parameter", nullptr);
 
     node.add_child(&parameter);
@@ -137,7 +138,7 @@ BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 
 BOOST_AUTO_TEST_CASE(set_and_reset_parent)
 {
-    decof::node node("node");
+    decof::node                             node("node");
     decof::managed_readonly_parameter<bool> parameter("parameter", nullptr);
 
     parameter.reset_parent(&node);

@@ -15,33 +15,34 @@
  */
 
 #include "node.h"
-#include <cassert>
-#include <algorithm>
-#include <iostream>
+#include "object_visitor.h"
 #include <boost/iterator/transform_iterator.hpp>
-#include <client_context/object_visitor.h>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
 
-namespace decof
+namespace decof {
+
+node::node(std::string name, node* parent, userlevel_t readlevel)
+  : readable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
 {
-
-node::node(std::string name, node *parent, userlevel_t readlevel)
- : readable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
-{}
+}
 
 node::~node()
-{}
+{
+}
 
 std::list<std::string> node::value() const
 {
     return children();
 }
 
-void node::accept(object_visitor *visitor)
+void node::accept(object_visitor* visitor)
 {
     visitor->visit(this);
 }
 
-void node::add_child(object *child)
+void node::add_child(object* child)
 {
     if (child->parent_)
         child->parent()->remove_child(child);
@@ -50,7 +51,7 @@ void node::add_child(object *child)
     child->parent_ = this;
 }
 
-void node::remove_child(object *child)
+void node::remove_child(object* child)
 {
     children_.remove_if([child](object* obj) {
         if (obj == child) {
@@ -61,11 +62,12 @@ void node::remove_child(object *child)
     });
 }
 
-object *node::find_immediate_child(const std::string &name)
+object* node::find_immediate_child(const std::string& name)
 {
-    children_t::iterator it = std::find_if(children_.begin(), children_.end(), [name](const children_t::value_type &value) {
-        return value->name() == name;
-    });
+    children_t::iterator it =
+        std::find_if(children_.begin(), children_.end(), [name](const children_t::value_type& value) {
+            return value->name() == name;
+        });
 
     if (it != children_.end())
         return *it;
@@ -73,23 +75,23 @@ object *node::find_immediate_child(const std::string &name)
     return nullptr;
 }
 
-object *node::find_child(const std::string &uri, char separator)
+object* node::find_child(const std::string& uri, char separator)
 {
     if (uri.empty())
         return this;
 
-    std::string::size_type idx = uri.find(separator);
-    std::string child_name = uri.substr(0, idx);
-    std::string sub_uri;
+    std::string::size_type idx        = uri.find(separator);
+    std::string            child_name = uri.substr(0, idx);
+    std::string            sub_uri;
 
     if (idx != std::string::npos)
         sub_uri = uri.substr(idx + 1, uri.length());
 
     // Find immediate child element
-    object *te = find_immediate_child(child_name);
+    object* te = find_immediate_child(child_name);
 
     // Check whether child element is a node
-    node *child_node = dynamic_cast<node *>(te);
+    node* child_node = dynamic_cast<node*>(te);
     if (child_node != nullptr) {
         return child_node->find_child(sub_uri, separator);
     }
@@ -103,8 +105,7 @@ std::list<std::string> node::children() const
 
     return std::list<std::string>(
         boost::make_transform_iterator(children_.cbegin(), func),
-        boost::make_transform_iterator(children_.cend(), func)
-    );
+        boost::make_transform_iterator(children_.cend(), func));
 }
 
 node::iterator node::begin()

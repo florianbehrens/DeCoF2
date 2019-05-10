@@ -17,53 +17,51 @@
 #ifndef DECOF_SCGI_ENDIAN_H
 #define DECOF_SCGI_ENDIAN_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
-template<typename T>
-T little_endian_to_native(const T &value)
-{
-    T retval = value;
-
-    // System is big endian?
-    uint32_t test = 1;
-    if (*reinterpret_cast<const char*>(&test) != '\001') {
-        const size_t size = sizeof(T);
-        const char *input = reinterpret_cast<const char *>(&value);
-        char *output = reinterpret_cast<char *>(&retval);
-        for (size_t i = 0; i < size; ++i)
-            output[i] = input[size-1-i];
-    }
-
-    return retval;
-}
-
-template<typename T>
-T native_to_little_endian(const T &value)
+template <typename T>
+T little_endian_to_native(const T& value)
 {
     T retval = value;
 
     // System is big endian?
     uint32_t test = 1;
     if (*reinterpret_cast<const char*>(&test) != '\001') {
-        const size_t size = sizeof(T);
-        const char *input = reinterpret_cast<const char *>(&value);
-        char *output = reinterpret_cast<char *>(&retval);
+        const size_t size   = sizeof(T);
+        const char*  input  = reinterpret_cast<const char*>(&value);
+        char*        output = reinterpret_cast<char*>(&retval);
         for (size_t i = 0; i < size; ++i)
-            output[i] = input[size-1-i];
+            output[i] = input[size - 1 - i];
     }
 
     return retval;
 }
 
-} // namespace decof
+template <typename T>
+T native_to_little_endian(const T& value)
+{
+    T retval = value;
+
+    // System is big endian?
+    uint32_t test = 1;
+    if (*reinterpret_cast<const char*>(&test) != '\001') {
+        const size_t size   = sizeof(T);
+        const char*  input  = reinterpret_cast<const char*>(&value);
+        char*        output = reinterpret_cast<char*>(&retval);
+        for (size_t i = 0; i < size; ++i)
+            output[i] = input[size - 1 - i];
+    }
+
+    return retval;
+}
 
 } // namespace scgi
+
+} // namespace decof
 
 #endif // DECOF_SCGI_ENDIAN_H

@@ -17,25 +17,24 @@
 #ifndef DECOF_CLI_CONTEXT_BASE_H
 #define DECOF_CLI_CONTEXT_BASE_H
 
+#include <decof/client_context/client_context.h>
+#include <decof/userlevel.h>
 #include <functional>
 #include <string>
-#include <decof/userlevel.h>
-#include <decof/client_context/client_context.h>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 class cli_context_base : public client_context
 {
-public:
+  public:
     enum class request_t { get, set, signal, browse, tree, subscribe, unsubscribe };
 
-    using userlevel_cb_t = std::function<bool(const client_context&, userlevel_t, const std::string&)>;
+    using userlevel_cb_t     = std::function<bool(const client_context&, userlevel_t, const std::string&)>;
     using connect_event_cb_t = std::function<void(bool pubsub, bool connect, const std::string& peer_address)>;
-    using request_cb_t = std::function<void(request_t request_type, const std::string& request_string, const std::string& peer_address)>;
+    using request_cb_t =
+        std::function<void(request_t request_type, const std::string& request_string, const std::string& peer_address)>;
 
     using client_context::client_context;
 
@@ -62,10 +61,10 @@ public:
      * @param request_cb The callable to be invoked. */
     static void install_request_callback(const request_cb_t& request_cb) noexcept;
 
-protected:
-    static userlevel_cb_t userlevel_cb_;
+  protected:
+    static userlevel_cb_t     userlevel_cb_;
     static connect_event_cb_t connect_event_cb_;
-    static request_cb_t request_cb_;
+    static request_cb_t       request_cb_;
 };
 
 } // namespace cli

@@ -17,15 +17,14 @@
 #ifndef DECOF_CLIENT_CONTEXT_H
 #define DECOF_CLIENT_CONTEXT_H
 
-#include <map>
-#include <memory>
-#include <boost/signals2/connection.hpp>
 #include <decof/client_read_interface.h>
 #include <decof/types.h>
 #include <decof/userlevel.h>
+#include <boost/signals2/connection.hpp>
+#include <map>
+#include <memory>
 
-namespace decof
-{
+namespace decof {
 
 class object;
 class object_dictionary;
@@ -33,7 +32,7 @@ class object_visitor;
 
 class client_context : public std::enable_shared_from_this<client_context>
 {
-public:
+  public:
     explicit client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel = Normal);
     virtual ~client_context();
 
@@ -61,14 +60,14 @@ public:
 
     virtual void preload();
 
-protected:
-    void set_parameter(const std::string& uri, const value_t& value, char separator = ':');
+  protected:
+    void    set_parameter(const std::string& uri, const value_t& value, char separator = ':');
     value_t get_parameter(const std::string& uri, char separator = ':');
 
     /// Signal event.
     /// @param uri The event URI.
     /// @param separator Hierachy level separator charater used in URI.
-    void signal_event(const std::string &uri, char separator = ':');
+    void signal_event(const std::string& uri, char separator = ':');
 
     /** @brief Observe object.
      *
@@ -89,7 +88,7 @@ protected:
      * @param visitor Pointer to visitor object.
      * @param root_uri Root element to start browsing. If omitted browsing
      * starts at root uri. */
-    void browse(object_visitor *visitor, const std::string &root_uri = std::string());
+    void browse(object_visitor* visitor, const std::string& root_uri = std::string());
 
     /// @brief Timer tick.
     /// Call this member function regularly in order to check for value changes
@@ -98,10 +97,10 @@ protected:
 
     object_dictionary& object_dictionary_;
 
-private:
-    void browse_object(object *te, object_visitor *visitor);
+  private:
+    void browse_object(object* te, object_visitor* visitor);
 
-    userlevel_t userlevel_;
+    userlevel_t                                               userlevel_;
     std::map<std::string, boost::signals2::scoped_connection> observables_;
 };
 

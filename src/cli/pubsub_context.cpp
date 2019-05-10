@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
+#include "encoder.h"
 #include <decof/cli/pubsub_context.h>
-#include <chrono>
-#include <iomanip>
-#include <limits>
-#include <string>
-#include <sstream>
+#include <decof/exceptions.h>
+#include <decof/object_dictionary.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <decof/exceptions.h>
-#include <decof/object_dictionary.h>
-#include "encoder.h"
+#include <chrono>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+#include <string>
 
 using boost::system::error_code;
 
@@ -47,16 +47,12 @@ std::ostream& operator<<(std::ostream& out, const iso8601_time& arg)
 
 } // Anonymous namespace
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
-pubsub_context::pubsub_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
-    cli_context_base(od, userlevel),
-    strand_(strand),
-    socket_(std::move(socket))
+pubsub_context::pubsub_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel)
+  : cli_context_base(od, userlevel), strand_(strand), socket_(std::move(socket))
 {
     if (connect_event_cb_)
         connect_event_cb_(true, true, remote_endpoint());
@@ -81,21 +77,18 @@ void pubsub_context::preload()
 {
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
 
-    boost::asio::async_read_until(
-        socket_,
-        inbuf_,
-        '\n',
-        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
+    boost::asio::async_read_until(socket_, inbuf_, '\n', strand_.wrap([self](const error_code& err, std::size_t bytes) {
+        self->read_handler(err, bytes);
+    }));
 }
 
-void pubsub_context::read_handler(const error_code &error, std::size_t bytes_transferred)
+void pubsub_context::read_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         boost::asio::streambuf::const_buffers_type bufs = inbuf_.data();
 
-        process_request(std::string(
-            boost::asio::buffers_begin(bufs),
-            boost::asio::buffers_begin(bufs) + bytes_transferred));
+        process_request(
+            std::string(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes_transferred));
         inbuf_.consume(bytes_transferred);
 
         preload();
@@ -130,13 +123,13 @@ void pubsub_context::preload_writing()
     std::ostream out(&outbuf_);
 
     while (!pending_updates_.empty() && outbuf_.size() < socket_send_buf_size_) {
-        update_container::key_type uri;
+        update_container::key_type   uri;
         update_container::time_point time;
-        value_t value;
+        value_t                      value;
 
         std::tie(uri, value, time) = pending_updates_.pop_front();
 
-        out << "(" << iso8601_time{ time } << " '" << uri << " ";
+        out << "(" << iso8601_time{time} << " '" << uri << " ";
         boost::apply_visitor(encoder(out), value);
         out << ")\n";
     }
@@ -146,10 +139,9 @@ void pubsub_context::preload_writing()
 
     auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
 
-    boost::asio::async_write(
-        socket_,
-        outbuf_,
-        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
+    boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
+        self->write_handler(err, bytes);
+    }));
 
     writing_active_ = true;
 }
@@ -179,12 +171,12 @@ void pubsub_context::process_request(std::string request)
         std::string trimmed_request = boost::algorithm::trim_copy_if(request, boost::is_any_of(" \f\n\r\t\v()"));
 
         std::stringstream in(trimmed_request);
-        std::string command;
+        std::string       command;
 
         in >> command;
 
         if (command == "change-ul") {
-            int ul = std::numeric_limits<int>::max();
+            int         ul = std::numeric_limits<int>::max();
             std::string password;
 
             in >> ul >> std::ws;
@@ -209,7 +201,8 @@ void pubsub_context::process_request(std::string request)
             // Prepend root node name if not present (for compatibility reasons to
             // 'classic' DeCoF)
             std::string full_uri = uri;
-            if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
+            if (uri != object_dictionary_.name() &&
+                !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
                 full_uri = object_dictionary_.name() + ":" + uri;
 
             if (command == "subscribe" || command == "add") {
@@ -220,7 +213,9 @@ void pubsub_context::process_request(std::string request)
                 if (full_uri == object_dictionary_.name() + ":ul")
                     notify(full_uri, static_cast<decof::integer_t>(userlevel()));
                 else
-                    observe(full_uri, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+                    observe(
+                        full_uri,
+                        std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
             } else if (command == "unsubscribe" || command == "remove") {
                 if (request_cb_)
                     request_cb_(request_t::unsubscribe, request, remote_endpoint());
@@ -231,17 +226,17 @@ void pubsub_context::process_request(std::string request)
         }
     } catch (invalid_parameter_error& ex) {
         std::ostream out(&outbuf_);
-        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
+        out << "(Error: " << ex.code() << " (" << iso8601_time{std::chrono::system_clock::now()}
             << " 'COMMAND_ERROR) Parameter '" << uri << " not found)\n";
         preload_writing();
     } catch (runtime_error& ex) {
         std::ostream out(&outbuf_);
-        out << "(Error: " << ex.code() << " (" << iso8601_time{ std::chrono::system_clock::now() }
-            << " 'COMMAND_ERROR) " << ex.what() << "\n";
+        out << "(Error: " << ex.code() << " (" << iso8601_time{std::chrono::system_clock::now()} << " 'COMMAND_ERROR) "
+            << ex.what() << "\n";
         preload_writing();
     } catch (...) {
         std::ostream out(&outbuf_);
-        out << "(Error: " << UNKNOWN_ERROR << " (" << iso8601_time{ std::chrono::system_clock::now() }
+        out << "(Error: " << UNKNOWN_ERROR << " (" << iso8601_time{std::chrono::system_clock::now()}
             << " 'COMMAND_ERROR) Unknown error\n";
         preload_writing();
     }

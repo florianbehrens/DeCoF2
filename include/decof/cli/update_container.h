@@ -17,25 +17,24 @@
 #ifndef DECOF_CLI_UPDATE_CONTAINER_H
 #define DECOF_CLI_UPDATE_CONTAINER_H
 
+#include <decof/types.h>
 #include <chrono>
+#include <map>
 #include <string>
 #include <tuple>
-#include <map>
-#include <decof/types.h>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 /** Container for ordered storage of publish updates of pubsub pattern.
  */
-class update_container {
-public:
+class update_container
+{
+  public:
     typedef std::chrono::time_point<std::chrono::system_clock> time_point;
-    typedef std::string key_type;
-    typedef std::out_of_range out_of_range;
+    typedef std::string                                        key_type;
+    typedef std::out_of_range                                  out_of_range;
 
     update_container();
 
@@ -60,22 +59,20 @@ public:
 
     bool empty() const noexcept;
 
-private:
-    template<
-        template <typename K, typename V, typename C, typename A> class Map,
-        typename Key
-    >
-    struct mapped_type {
-    public:
+  private:
+    template <template <typename K, typename V, typename C, typename A> class Map, typename Key>
+    struct mapped_type
+    {
+      public:
         typedef typename Map<const Key, mapped_type, std::less<Key>, std::allocator<int>>::iterator iterator;
 
         time_point time;
-        value_t value;
-        iterator next;
+        value_t    value;
+        iterator   next;
     };
 
     typedef std::map<key_type, mapped_type<std::map, key_type>> container_type;
-    container_type updates_;
+    container_type                                              updates_;
 
     /// Remember iterator to oldest element in #updates_.
     /// @note Only call methods of #container_type that don't invalidate

@@ -15,15 +15,13 @@
  */
 
 #include "object_dictionary.h"
-#include <boost/algorithm/string.hpp>
+#include "object_visitor.h"
 #include <client_context/client_context.h>
-#include <client_context/object_visitor.h>
+#include <boost/algorithm/string.hpp>
 
-namespace decof
-{
+namespace decof {
 
-object_dictionary::context_guard::context_guard(object_dictionary& od, client_context* cc) :
-    object_dictionary_(od)
+object_dictionary::context_guard::context_guard(object_dictionary& od, client_context* cc) : object_dictionary_(od)
 {
     object_dictionary_.set_current_context(cc);
 }
@@ -33,9 +31,9 @@ object_dictionary::context_guard::~context_guard()
     object_dictionary_.set_current_context(nullptr);
 }
 
-object_dictionary::object_dictionary(const std::string &root_uri)
- : node(root_uri, nullptr)
-{}
+object_dictionary::object_dictionary(const std::string& root_uri) : node(root_uri, nullptr)
+{
+}
 
 void object_dictionary::add_context(std::shared_ptr<client_context> client_context)
 {
@@ -49,8 +47,8 @@ void object_dictionary::remove_context(std::shared_ptr<client_context> client_co
 
 const std::shared_ptr<client_context> object_dictionary::current_context() const
 {
-// FIXME
-//    assert(current_context_ != nullptr);
+    // FIXME
+    //    assert(current_context_ != nullptr);
     return current_context_;
 }
 
@@ -59,7 +57,7 @@ object_dictionary::tick_connection object_dictionary::register_for_tick(object_d
     return tick_signal_.connect(slot);
 }
 
-object *object_dictionary::find_object(const std::string &curi, char separator)
+object* object_dictionary::find_object(const std::string& curi, char separator)
 {
     std::string uri(curi);
 
@@ -78,10 +76,11 @@ object *object_dictionary::find_object(const std::string &curi, char separator)
     return nullptr;
 }
 
-void object_dictionary::set_current_context(client_context *client_context)
+void object_dictionary::set_current_context(client_context* client_context)
 {
-    assert((current_context_ == nullptr && client_context != nullptr) ||
-           (current_context_ != nullptr && client_context == nullptr));
+    assert(
+        (current_context_ == nullptr && client_context != nullptr) ||
+        (current_context_ != nullptr && client_context == nullptr));
     if (client_context != nullptr)
         current_context_ = client_context->shared_from_this();
     else

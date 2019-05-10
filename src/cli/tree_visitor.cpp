@@ -15,32 +15,30 @@
  */
 
 #include "tree_visitor.h"
+#include "encoder.h"
 #include <decof/event.h>
 #include <decof/node.h>
 #include <decof/object.h>
-#include "encoder.h"
 
-namespace decof
+namespace decof {
+
+namespace cli {
+
+tree_visitor::tree_visitor(std::ostream& out) : out_(out)
 {
+}
 
-namespace cli
-{
-
-tree_visitor::tree_visitor(std::ostream& out) :
-    out_(out)
-{}
-
-void tree_visitor::visit(object *obj)
+void tree_visitor::visit(object* obj)
 {
     out_ << obj->fq_name() << " UNKNOWN\n";
 }
 
-void tree_visitor::visit(event *event)
+void tree_visitor::visit(event* event)
 {
     out_ << event->fq_name() << " EVENT\n";
 }
 
-void tree_visitor::visit(node *node)
+void tree_visitor::visit(node* node)
 {
     out_ << node->fq_name() << " NODE\n";
 }
@@ -95,7 +93,7 @@ void tree_visitor::visit(object* obj, tuple_tag)
     write_param(obj, "TUPLE");
 }
 
-void tree_visitor::write_param(decof::object *obj, const char *type)
+void tree_visitor::write_param(decof::object* obj, const char* type)
 {
     out_ << obj->fq_name() << " PARAM " << (obj->writelevel() == Forbidden ? "RO" : "RW") << " " << type << "\n";
 }

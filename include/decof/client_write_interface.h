@@ -30,10 +30,12 @@ class client_write_interface
 {
     friend class client_context;
 
-public:
-    virtual ~client_write_interface() {}
+  public:
+    virtual ~client_write_interface()
+    {
+    }
 
-private:
+  private:
     /// @brief Generic parameter value setter.
     virtual void generic_value(const value_t& value) = 0;
 };

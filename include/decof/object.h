@@ -17,12 +17,11 @@
 #ifndef DECOF_OBJECT_H
 #define DECOF_OBJECT_H
 
-#include <string>
 #include "automatic_ptr.h"
 #include "userlevel.h"
+#include <string>
 
-namespace decof
-{
+namespace decof {
 
 class node;
 class object_dictionary;
@@ -37,29 +36,29 @@ class object
 {
     friend class node;
 
-public:
-    object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel);
+  public:
+    object(std::string name, node* parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
 
     object(object&) = delete;
-    object &operator=(object &) = delete;
+    object& operator=(object&) = delete;
 
     std::string name() const;
-    void name(std::string name);
+    void        name(std::string name);
 
     std::string fq_name() const;
 
-    node *parent() const;
-    void reset_parent(node *parent = nullptr);
+    node* parent() const;
+    void  reset_parent(node* parent = nullptr);
 
     userlevel_t readlevel() const;
-    void readlevel(userlevel_t readlevel);
+    void        readlevel(userlevel_t readlevel);
 
     userlevel_t writelevel() const;
-    void writelevel(userlevel_t writelevel);
+    void        writelevel(userlevel_t writelevel);
 
     /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor);
+    virtual void accept(object_visitor* visitor);
 
     /// Returns a pointer to the object dictionary of this tree element or
     /// nullptr if not defined.
@@ -69,11 +68,11 @@ public:
     /// element or nullptr if not defined.
     const object_dictionary* get_object_dictionary() const;
 
-private:
-    std::string name_;
+  private:
+    std::string         name_;
     automatic_ptr<node> parent_;
-    userlevel_t readlevel_;
-    userlevel_t writelevel_;
+    userlevel_t         readlevel_;
+    userlevel_t         writelevel_;
 };
 
 } // namespace decof

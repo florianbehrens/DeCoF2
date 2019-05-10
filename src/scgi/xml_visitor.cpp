@@ -15,15 +15,15 @@
  */
 
 #include "xml_visitor.h"
-#include <map>
 #include <decof/client_write_interface.h>
 #include <decof/event.h>
 #include <decof/node.h>
+#include <map>
+#include <sstream>
 
-namespace
-{
+namespace {
 
-std::string node_type_str(decof::node *node)
+std::string node_type_str(decof::node* node)
 {
     std::stringstream ss;
     ss << node->name() << std::hex << std::uppercase << node;
@@ -32,34 +32,30 @@ std::string node_type_str(decof::node *node)
 
 std::string userlevel_name(decof::userlevel_t ul)
 {
-    static const std::map<decof::userlevel_t, const char*> userlevel_names = {
-        { decof::Internal,    "internal" },
-        { decof::Service,     "service" },
-        { decof::Maintenance, "maintenance" },
-        { decof::Normal,      "normal" },
-        { decof::Readonly,    "readonly" }
-    };
+    static const std::map<decof::userlevel_t, const char*> userlevel_names = {{decof::Internal, "internal"},
+                                                                              {decof::Service, "service"},
+                                                                              {decof::Maintenance, "maintenance"},
+                                                                              {decof::Normal, "normal"},
+                                                                              {decof::Readonly, "readonly"}};
 
     try {
         return userlevel_names.at(ul);
-    } catch (std::out_of_range&) {}
+    } catch (std::out_of_range&) {
+    }
 
     return "invalid";
 }
 
 } // Anonymous namespace
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
-xml_visitor::xml_visitor(std::ostream& out, const std::string& system_name) :
-    out_(out)
+xml_visitor::xml_visitor(std::ostream& out, const std::string& system_name) : out_(out)
 {
     out_ << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        << "<system name=\"" << system_name << "\" version=\"1.0\">\n";
+         << "<system name=\"" << system_name << "\" version=\"1.0\">\n";
 
     increment_indentation();
     out_ << indentation() << "<description> </description>\n";
@@ -82,18 +78,19 @@ xml_visitor::~xml_visitor()
 
         // Generate artificial 'ul' parameter and 'change-ul' command
         if (node->parent() == nullptr) {
-            out_ << indentation() << "<param name=\"ul\" type=\"INTEGER\" mode=\"readonly\"><description> </description></param>\n";
-            out_ << indentation() <<
-                    "<cmd name=\"change-ul\">"
-                        "<description> </description>"
-                        "<ret type=\"INTEGER\" />"
-                        "<arg name=\"ul\" type=\"INTEGER\" />"
-                        "<arg name=\"passwd\" type=\"STRING\" />"
+            out_ << indentation()
+                 << "<param name=\"ul\" type=\"INTEGER\" mode=\"readonly\"><description> </description></param>\n";
+            out_ << indentation()
+                 << "<cmd name=\"change-ul\">"
+                    "<description> </description>"
+                    "<ret type=\"INTEGER\" />"
+                    "<arg name=\"ul\" type=\"INTEGER\" />"
+                    "<arg name=\"passwd\" type=\"STRING\" />"
                     "</cmd>\n";
         }
 
         // Iterate child parameters
-        for (auto &child : *node)
+        for (auto& child : *node)
             child->accept(this);
 
         decrement_indentation();
@@ -111,8 +108,8 @@ void xml_visitor::visit(event* event)
 {
     if (!first_pass_) {
         out_ << indentation() << "<cmd name=\"" << event->name() << "\""
-            << " execlevel=\"" << userlevel_name(event->writelevel()) << "\">"
-            << "<description> </description></cmd>\n";
+             << " execlevel=\"" << userlevel_name(event->writelevel()) << "\">"
+             << "<description> </description></cmd>\n";
     }
 }
 
@@ -174,12 +171,13 @@ void xml_visitor::visit(object* obj, tuple_tag)
     write_param(obj, "TUPLE");
 }
 
-void xml_visitor::write_param(const decof::object* obj, const std::string &type_str)
+void xml_visitor::write_param(const decof::object* obj, const std::string& type_str)
 {
     if (!first_pass_) {
         bool readonly = (dynamic_cast<const client_write_interface*>(obj) == nullptr);
 
-        out_ << indentation() << "<param name=\"" << obj->name() << "\" " << "type=\"" << type_str << "\"";
+        out_ << indentation() << "<param name=\"" << obj->name() << "\" "
+             << "type=\"" << type_str << "\"";
 
         if (dynamic_cast<const decof::node*>(obj) == nullptr) {
             out_ << std::string(" mode=\"");
@@ -193,7 +191,8 @@ void xml_visitor::write_param(const decof::object* obj, const std::string &type_
         }
 
         if (readonly == false)
-            out_ << " readlevel=\"" << userlevel_name(obj->readlevel()) << "\" writelevel=\"" << userlevel_name(obj->writelevel()) << "\"";
+            out_ << " readlevel=\"" << userlevel_name(obj->readlevel()) << "\" writelevel=\""
+                 << userlevel_name(obj->writelevel()) << "\"";
 
         out_ << "><description> </description></param>\n";
     }

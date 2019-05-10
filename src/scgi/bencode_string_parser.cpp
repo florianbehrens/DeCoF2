@@ -15,15 +15,13 @@
  */
 
 #include "bencode_string_parser.h"
+#include <boost/lexical_cast.hpp>
 #include <cassert>
 #include <cctype>
-#include <boost/lexical_cast.hpp>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 bencode_string_parser::bencode_string_parser()
 {
@@ -40,27 +38,26 @@ void bencode_string_parser::reset()
 bencode_string_parser::result_type bencode_string_parser::consume(char input) noexcept
 {
     try {
-        switch (state_)
-        {
-        case string_length:
-            if (std::isdigit(input))
-                length_str_.push_back(input);
-            else if (input == ':') {
-                length_ = boost::lexical_cast<size_t>(length_str_);
-                state_ = string;
+        switch (state_) {
+            case string_length:
+                if (std::isdigit(input))
+                    length_str_.push_back(input);
+                else if (input == ':') {
+                    length_ = boost::lexical_cast<size_t>(length_str_);
+                    state_  = string;
+                    if (length_ == 0)
+                        return good;
+                } else
+                    return bad;
+                break;
+            case string:
+                data.push_back(input);
+                length_ -= 1;
                 if (length_ == 0)
                     return good;
-            } else
-                return bad;
-            break;
-        case string:
-            data.push_back(input);
-            length_ -= 1;
-            if (length_ == 0)
-                return good;
-            break;
-        default:
-            assert(false);
+                break;
+            default:
+                assert(false);
         }
     } catch (...) {
         return bad;

@@ -17,30 +17,32 @@
 #ifndef DECOF_GENERIC_TCP_SERVER_H
 #define DECOF_GENERIC_TCP_SERVER_H
 
-#include <memory>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/strand.hpp>
-#include <decof/object_dictionary.h>
 #include "client_context.h"
+#include <decof/object_dictionary.h>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/strand.hpp>
+#include <memory>
 
-namespace decof
-{
+namespace decof {
 
-template<typename Context>
+template <typename Context>
 class generic_tcp_server
 {
-public:
+  public:
     /// Note that the callback function takes ownership of the provided socket object.
-    generic_tcp_server(object_dictionary& obj_dict,
-                       boost::asio::io_service::strand& strand,
-                       const boost::asio::ip::tcp::endpoint& endpoint, userlevel_t userlevel = Normal) :
-        object_dictionary_(obj_dict),
+    generic_tcp_server(
+        object_dictionary&                    obj_dict,
+        boost::asio::io_service::strand&      strand,
+        const boost::asio::ip::tcp::endpoint& endpoint,
+        userlevel_t                           userlevel = Normal)
+      : object_dictionary_(obj_dict),
         userlevel_(userlevel),
         strand_(strand),
         acceptor_(strand.get_io_service(), endpoint),
         socket_(strand.get_io_service())
-    {}
+    {
+    }
 
     /// Returns the listening port.
     /// This is identical to the port given in constructor if non-zero.
@@ -58,11 +60,10 @@ public:
     void async_accept()
     {
         acceptor_.async_accept(
-            socket_,
-            strand_.wrap(std::bind(&generic_tcp_server::accept_handler, this, std::placeholders::_1)));
+            socket_, strand_.wrap(std::bind(&generic_tcp_server::accept_handler, this, std::placeholders::_1)));
     }
 
-private:
+  private:
     void accept_handler(boost::system::error_code error)
     {
         // Check whether the server was stopped by a signal before this completion
@@ -82,11 +83,11 @@ private:
     }
 
     object_dictionary& object_dictionary_;
-    userlevel_t userlevel_;
+    userlevel_t        userlevel_;
 
     boost::asio::io_service::strand& strand_;
-    boost::asio::ip::tcp::acceptor acceptor_;
-    boost::asio::ip::tcp::socket socket_;
+    boost::asio::ip::tcp::acceptor   acceptor_;
+    boost::asio::ip::tcp::socket     socket_;
 };
 
 } // namespace decof

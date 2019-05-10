@@ -18,11 +18,10 @@
 #include "node.h"
 #include "object_dictionary.h"
 
-namespace decof
-{
+namespace decof {
 
-object::object(std::string name, node *parent, userlevel_t readlevel, userlevel_t writelevel)
- : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
+object::object(std::string name, node* parent, userlevel_t readlevel, userlevel_t writelevel)
+  : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
     assert(readlevel != Readonly);
     assert(writelevel != Readonly);
@@ -55,12 +54,12 @@ std::string object::fq_name() const
     return parent_->fq_name() + std::string(":") + name_;
 }
 
-node *object::parent() const
+node* object::parent() const
 {
     return parent_.get();
 }
 
-void object::reset_parent(node *parent)
+void object::reset_parent(node* parent)
 {
     if (parent_)
         parent_->remove_child(this);
@@ -94,7 +93,7 @@ void object::accept(object_visitor* visitor)
     visitor->visit(this);
 }
 
-object_dictionary *object::get_object_dictionary()
+object_dictionary* object::get_object_dictionary()
 {
     object* te = this;
     while (te->parent() != nullptr)
@@ -103,7 +102,7 @@ object_dictionary *object::get_object_dictionary()
     return dynamic_cast<object_dictionary*>(te);
 }
 
-const object_dictionary *object::get_object_dictionary() const
+const object_dictionary* object::get_object_dictionary() const
 {
     const object* te = this;
     while (te->parent() != nullptr)

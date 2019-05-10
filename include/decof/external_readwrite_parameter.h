@@ -17,23 +17,30 @@
 #ifndef EXTERNAL_READWRITE_PARAMETER_H
 #define EXTERNAL_READWRITE_PARAMETER_H
 
-#include <string>
 #include "encoding_hint.h"
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"
+#include <string>
 
 /// Convenience macro for parameter declaration
-#define DECOF_DECLARE_EXTERNAL_READWRITE_PARAMETER(type_name, value_type)     \
-    struct type_name : public decof::external_readwrite_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Readonly, decof::userlevel_t writelevel = decof::Normal) : \
-            decof::external_readwrite_parameter<value_type>(name, parent, readlevel, writelevel) {} \
-        private:                                                              \
-            virtual bool external_value(const value_type &value) override;\
-            virtual value_type external_value() override;                 \
+#define DECOF_DECLARE_EXTERNAL_READWRITE_PARAMETER(type_name, value_type)                        \
+    struct type_name : public decof::external_readwrite_parameter<value_type>                    \
+    {                                                                                            \
+        type_name(                                                                               \
+            std::string        name,                                                             \
+            decof::node*       parent,                                                           \
+            decof::userlevel_t readlevel  = decof::Readonly,                                     \
+            decof::userlevel_t writelevel = decof::Normal)                                       \
+          : decof::external_readwrite_parameter<value_type>(name, parent, readlevel, writelevel) \
+        {                                                                                        \
+        }                                                                                        \
+                                                                                                 \
+      private:                                                                                   \
+        virtual bool       external_value(const value_type& value) override;                     \
+        virtual value_type external_value() override;                                            \
     }
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief Readwrite parameter type with an externally managed value.
@@ -47,27 +54,31 @@ namespace decof
  * @tparam T The parameter value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
-class external_readwrite_parameter :
-    public readable_parameter<T, EncodingHint>, public typed_client_write_interface<T, EncodingHint>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
+class external_readwrite_parameter : public readable_parameter<T, EncodingHint>,
+                                     public typed_client_write_interface<T, EncodingHint>
 {
-public:
-    external_readwrite_parameter(std::string name, node *parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal) :
-        readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel)
-    {}
+  public:
+    external_readwrite_parameter(
+        std::string name, node* parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal)
+      : readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel)
+    {
+    }
 
-    virtual T value() const override final {
+    virtual T value() const override final
+    {
         return external_value();
     }
 
-private:
-    virtual void value(const T &value) override final {
+  private:
+    virtual void value(const T& value) override final
+    {
         if (external_value(value) == true)
             readable_parameter<T, EncodingHint>::emit(value);
     }
 
-    virtual bool external_value(const T &value) = 0;
-    virtual T external_value() const = 0;
+    virtual bool external_value(const T& value) = 0;
+    virtual T    external_value() const         = 0;
 };
 
 } // namespace decof

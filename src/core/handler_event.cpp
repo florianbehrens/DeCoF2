@@ -16,23 +16,23 @@
 
 #include "handler_event.h"
 
-namespace decof
+namespace decof {
+
+handler_event::handler_event(
+    std::string name, node* parent, std::function<void()> signal_handler, userlevel_t writelevel)
+  : event(name, parent, writelevel), signal_handler_(signal_handler)
 {
+}
 
-handler_event::handler_event(std::string name, node *parent, std::function<void ()> signal_handler,
-                             userlevel_t writelevel) :
-    event(name, parent, writelevel),
-    signal_handler_(signal_handler)
-{}
-
-void handler_event::signal_handler(std::function<void ()> handler)
+void handler_event::signal_handler(std::function<void()> handler)
 {
     signal_handler_ = handler;
 }
 
 void handler_event::signal()
 {
-    if (signal_handler_) signal_handler_();
+    if (signal_handler_)
+        signal_handler_();
 }
 
 } // namespace decof

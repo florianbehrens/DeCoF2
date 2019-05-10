@@ -20,18 +20,16 @@
 #include <string>
 #include <tuple>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 /// @brief Bencode string parser.
 ///
 /// See the bencode string specification at http://en.wikipedia.org/wiki/Bencode.
 class bencode_string_parser
 {
-public:
+  public:
     /// Result of parse.
     enum result_type { good, bad, indeterminate };
 
@@ -44,7 +42,7 @@ public:
     ///
     /// @returns #good when a complete value has been parsed, #bad if the
     /// data is invalid, #indeterminate when more data is required.
-    template<typename InputIterator>
+    template <typename InputIterator>
     std::tuple<result_type, InputIterator> parse(InputIterator begin, InputIterator end) noexcept
     {
         result_type result = indeterminate;
@@ -57,18 +55,14 @@ public:
     /// The parsed string data.
     std::string data;
 
-private:
+  private:
     /// Handle the next character of input.
     result_type consume(char input) noexcept;
 
-    enum state
-    {
-        string_length,
-        string
-    } state_;
+    enum state { string_length, string } state_;
 
     std::string length_str_;
-    size_t length_;
+    size_t      length_;
 };
 
 } // namespace scgi

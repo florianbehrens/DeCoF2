@@ -14,34 +14,31 @@
  * limitations under the License.
  */
 
-#include <decof/scgi/scgi_context.h>
-#include <ostream>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/any.hpp>
-#include <boost/asio/write.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <decof/exceptions.h>
-#include <decof/object_dictionary.h>
 #include "array_view.h"
 #include "bencode_string_parser.h"
 #include "endian.h"
 #include "js_value_encoder.h"
 #include "xml_visitor.h"
+#include <decof/exceptions.h>
+#include <decof/object_dictionary.h>
+#include <decof/scgi/scgi_context.h>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/any.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <ostream>
 
 using boost::system::error_code;
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
-scgi_context::scgi_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
-    client_context(od, userlevel),
-    strand_(strand),
-    socket_(std::move(socket))
-{}
+scgi_context::scgi_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel)
+  : client_context(od, userlevel), strand_(strand), socket_(std::move(socket))
+{
+}
 
 std::string scgi_context::connection_type() const
 {
@@ -57,9 +54,9 @@ void scgi_context::preload()
 {
     auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
 
-    socket_.async_read_some(
-        boost::asio::buffer(inbuf_),
-        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
+    socket_.async_read_some(boost::asio::buffer(inbuf_), strand_.wrap([self](const error_code& err, std::size_t bytes) {
+        self->read_handler(err, bytes);
+    }));
 }
 
 void scgi_context::read_handler(const error_code& error, std::size_t bytes_transferred)
@@ -69,7 +66,8 @@ void scgi_context::read_handler(const error_code& error, std::size_t bytes_trans
             auto result = parser_.parse(inbuf_.data(), inbuf_.data() + bytes_transferred);
 
             if (result == request_parser::good) {
-                remote_endpoint_ = std::string("scgi://") + parser_.headers.at("REMOTE_ADDR") + ":" + parser_.headers.at("REMOTE_PORT");
+                remote_endpoint_ = std::string("scgi://") + parser_.headers.at("REMOTE_ADDR") + ":" +
+                    parser_.headers.at("REMOTE_PORT");
 
                 if (parser_.method == request_parser::method_type::get)
                     handle_get_request();
@@ -101,7 +99,7 @@ void scgi_context::read_handler(const error_code& error, std::size_t bytes_trans
 void scgi_context::handle_get_request()
 {
     std::ostringstream body_oss;
-    response resp = response::stock_response(response::status_code::ok);
+    response           resp = response::stock_response(response::status_code::ok);
 
     if (parser_.uri == "/browse" || parser_.uri == "/browse/") {
         resp.headers["Content-Type"] = "text/xml";
@@ -121,8 +119,8 @@ void scgi_context::handle_get_request()
 void scgi_context::handle_put_request()
 {
     std::string str;
-    value_t val;
-    sequence_t seq;
+    value_t     val;
+    sequence_t  seq;
 
     boost::algorithm::trim_if(parser_.body, boost::is_space());
     std::istringstream ss(parser_.body);
@@ -142,7 +140,7 @@ void scgi_context::handle_put_request()
             ss >> str;
             val = boost::lexical_cast<real_t>(str);
         } else if (parser_.content_type == "vnd/com.toptica.decof.string") {
-            val = string_t{ std::move(parser_.body) };
+            val = string_t{std::move(parser_.body)};
         } else if (parser_.content_type == "vnd/com.toptica.decof.boolean_seq") {
             for (char c : parser_.body)
                 seq.emplace_back(c > 0);
@@ -151,7 +149,7 @@ void scgi_context::handle_put_request()
             if (parser_.body.size() % sizeof(integer_t))
                 throw invalid_value_error();
 
-            size_t size = parser_.body.size() / sizeof(integer_t);
+            size_t                      size = parser_.body.size() / sizeof(integer_t);
             array_view<const integer_t> elems(reinterpret_cast<const integer_t*>(&parser_.body[0]), size);
             for (auto elem : elems)
                 seq.emplace_back(static_cast<integer_t>(little_endian_to_native(elem)));
@@ -169,12 +167,12 @@ void scgi_context::handle_put_request()
         } else if (parser_.content_type == "vnd/com.toptica.decof.string_seq") {
             auto it = parser_.body.cbegin();
             for (; it != parser_.body.cend(); it += 2) {
-                bencode_string_parser parser;
+                bencode_string_parser              parser;
                 bencode_string_parser::result_type result;
                 std::tie(result, it) = parser.parse(it, parser_.body.cend());
 
                 if (result == bencode_string_parser::good) {
-                    seq.push_back(string_t{ std::move(parser.data) });
+                    seq.push_back(string_t{std::move(parser.data)});
                 } else
                     throw invalid_value_error();
 
@@ -201,20 +199,19 @@ void scgi_context::handle_post_request()
     send_response(response::stock_response(response::status_code::ok));
 }
 
-void scgi_context::send_response(const response &resp)
+void scgi_context::send_response(const response& resp)
 {
     std::ostream out(&outbuf_);
     out << resp;
 
     auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
 
-    boost::asio::async_write(
-        socket_,
-        outbuf_,
-        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
+    boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
+        self->write_handler(err, bytes);
+    }));
 }
 
-void scgi_context::write_handler(const error_code &error, std::size_t bytes_transferred)
+void scgi_context::write_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error)
         preload();
@@ -234,6 +231,6 @@ void scgi_context::disconnect()
     object_dictionary_.remove_context(sptr);
 }
 
-} // namespace decof
-
 } // namespace scgi
+
+} // namespace decof

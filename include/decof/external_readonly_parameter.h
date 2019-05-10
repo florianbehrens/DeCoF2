@@ -17,23 +17,25 @@
 #ifndef DECOF_EXTERNAL_READONLY_PARAMETER_H
 #define DECOF_EXTERNAL_READONLY_PARAMETER_H
 
-#include <string>
-#include <boost/optional.hpp>
-#include <boost/signals2/connection.hpp>
 #include "encoding_hint.h"
 #include "object_dictionary.h"
 #include "readable_parameter.h"
+#include <boost/optional.hpp>
+#include <boost/signals2/connection.hpp>
+#include <string>
 
 /// Convenience macro for parameter declaration
-#define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)      \
-    struct type_name : public decof::external_readonly_parameter<value_type> { \
-        type_name(std::string name, decof::node *parent, decof::userlevel_t readlevel = decof::Normal) : \
-            decof::external_readonly_parameter<value_type>(name, parent, readlevel) {} \
-        virtual value_type external_value() const override;                   \
+#define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)                               \
+    struct type_name : public decof::external_readonly_parameter<value_type>                           \
+    {                                                                                                  \
+        type_name(std::string name, decof::node* parent, decof::userlevel_t readlevel = decof::Normal) \
+          : decof::external_readonly_parameter<value_type>(name, parent, readlevel)                    \
+        {                                                                                              \
+        }                                                                                              \
+        virtual value_type external_value() const override;                                            \
     }
 
-namespace decof
-{
+namespace decof {
 
 /**
  * @brief Readonly parameter type with an externally managed value.
@@ -48,19 +50,22 @@ namespace decof
  * @tparam T The parameter value type.
  * @tparam EncodingHint A hint for value encoding.
  */
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class external_readonly_parameter : public readable_parameter<T, EncodingHint>
 {
-public:
-    external_readonly_parameter(std::string name, node *parent, userlevel_t readlevel = Normal) :
-        readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
-    {}
+  public:
+    external_readonly_parameter(std::string name, node* parent, userlevel_t readlevel = Normal)
+      : readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
+    {
+    }
 
-    virtual ~external_readonly_parameter() {
+    virtual ~external_readonly_parameter()
+    {
         connection_.disconnect();
     }
 
-    virtual T value() const override final {
+    virtual T value() const override final
+    {
         return external_value();
     }
 
@@ -68,28 +73,32 @@ public:
     /// In cases where a value change information is obtained by external means,
     /// (e.g., from a select() on a file descriptor) calling this member
     /// function results in a value update for subscribers.
-    void value_changed() {
+    void value_changed()
+    {
         notify();
     }
 
-    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override final {
+    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override final
+    {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();
         if (obj_dict == nullptr)
             return boost::signals2::scoped_connection();
 
         // Connect to regular tick
-        connection_ = obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T, EncodingHint>::notify, this));
+        connection_ =
+            obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T, EncodingHint>::notify, this));
 
         // Call base class member function
         return readable_parameter<T, EncodingHint>::observe(slot);
     }
 
-private:
+  private:
     virtual T external_value() const = 0;
 
     /// Slot member function for regular tick.
-    void notify() {
+    void notify()
+    {
         T cur_value = value();
         if (!last_value_ || *last_value_ != cur_value) {
             readable_parameter<T, EncodingHint>::emit(cur_value);
@@ -98,7 +107,7 @@ private:
     }
 
     boost::signals2::scoped_connection connection_;
-    boost::optional<T> last_value_;
+    boost::optional<T>                 last_value_;
 };
 
 } // namespace decof

@@ -17,25 +17,23 @@
 #ifndef DECOF_SCGI_CONTEXT_H
 #define DECOF_SCGI_CONTEXT_H
 
-#include <array>
-#include <string>
+#include "request_parser.h"
+#include "response.h"
+#include <decof/client_context/client_context.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
-#include <decof/client_context/client_context.h>
-#include "request_parser.h"
-#include "response.h"
+#include <array>
+#include <string>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 class scgi_context final : public client_context
 {
-public:
+  public:
     using strand_t = boost::asio::io_service::strand;
     using socket_t = boost::asio::ip::tcp::socket;
 
@@ -51,9 +49,9 @@ public:
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void preload() final;
+    void        preload() final;
 
-private:
+  private:
     /** @brief Callback for boost::asio read operations.
      *
      * Parses and evaluates SCGI requests. */
@@ -76,7 +74,7 @@ private:
     void handle_post_request();
 
     /// Sends the given reply to the client.
-    void send_response(const response &resp);
+    void send_response(const response& resp);
 
     /// Callback for boost::asio write operations.
     void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
@@ -85,11 +83,11 @@ private:
     void disconnect();
 
     strand_t& strand_;
-    socket_t socket_;
+    socket_t  socket_;
 
-    static const size_t inbuf_size_ = 1500;
+    static const size_t           inbuf_size_ = 1500;
     std::array<char, inbuf_size_> inbuf_;
-    boost::asio::streambuf outbuf_;
+    boost::asio::streambuf        outbuf_;
 
     /// The remote endpoint (HTTP client) as taken from the SCGI request.
     std::string remote_endpoint_;
@@ -97,8 +95,8 @@ private:
     request_parser parser_;
 };
 
-} // namespace decof
-
 } // namespace scgi
+
+} // namespace decof
 
 #endif // DECOF_SCGI_CONTEXT_H

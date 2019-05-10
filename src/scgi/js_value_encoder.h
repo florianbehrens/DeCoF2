@@ -17,15 +17,13 @@
 #ifndef DECOF_SCGI_JS_VALUE_ENCODER_H
 #define DECOF_SCGI_JS_VALUE_ENCODER_H
 
-#include <ostream>
-#include <boost/variant/static_visitor.hpp>
 #include <decof/types.h>
+#include <boost/variant/static_visitor.hpp>
+#include <ostream>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 struct js_value_encoder : public boost::static_visitor<>
 {
@@ -41,7 +39,7 @@ struct js_value_encoder : public boost::static_visitor<>
     void operator()(const string_t& arg) const;
     void operator()(const binary_t& arg) const;
 
-private:
+  private:
     std::ostream& m_out;
 };
 

@@ -17,11 +17,10 @@
 #ifndef DECOF_WRITEONLY_HANDLER_PARAMETER_H
 #define DECOF_WRITEONLY_HANDLER_PARAMETER_H
 
-#include <functional>
 #include "writeonly_parameter.h"
+#include <functional>
 
-namespace decof
-{
+namespace decof {
 
 /** @brief Writeonly parameter class with handler registration support.
  *
@@ -30,20 +29,23 @@ namespace decof
  *
  * @tparam T The value type.
  */
-template<typename T>
+template <typename T>
 class writeonly_handler_parameter : public writeonly_parameter<T>
 {
-public:
+  public:
     using writeonly_parameter<T>::writeonly_parameter;
 
     /// Set external value setter handler.
-    void value_handler(std::function<void(const T&)> handler) {
+    void value_handler(std::function<void(const T&)> handler)
+    {
         value_handler_ = handler;
     }
 
-private:
-    virtual void value(const T &value) override final {
-        if (value_handler_) return value_handler_(value);
+  private:
+    virtual void value(const T& value) override final
+    {
+        if (value_handler_)
+            return value_handler_(value);
     }
 
     std::function<void(const T&)> value_handler_;

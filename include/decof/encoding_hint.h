@@ -22,11 +22,7 @@ namespace decof {
 /**
  * @brief Encoding hints for client contexts.
  */
-enum class encoding_hint
-{
-    none,
-    binary
-};
+enum class encoding_hint { none, binary };
 
 } // namespace decof
 

@@ -15,16 +15,15 @@
  */
 
 #include "event.h"
-#include <client_context/object_visitor.h>
+#include "object_visitor.h"
 
-namespace decof
+namespace decof {
+
+event::event(std::string name, node* parent, userlevel_t writelevel) : object(name, parent, Forbidden, writelevel)
 {
+}
 
-event::event(std::string name, node *parent, userlevel_t writelevel) :
-    object(name, parent, Forbidden, writelevel)
-{}
-
-void event::accept(object_visitor *visitor)
+void event::accept(object_visitor* visitor)
 {
     visitor->visit(this);
 }

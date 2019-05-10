@@ -21,13 +21,12 @@
 #include "encoding_hint.h"
 #include "exceptions.h"
 
-namespace decof
-{
+namespace decof {
 
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_write_interface : public client_write_interface
 {
-private:
+  private:
     /// Parameter value setter function.
     virtual void value(const T&) = 0;
 

@@ -17,43 +17,40 @@
 #include <decof/cli/update_container.h>
 #include <cassert>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
-update_container::update_container() :
-    front_(updates_.end()),
-    back_(updates_.end())
-{}
+update_container::update_container() : front_(updates_.end()), back_(updates_.end())
+{
+}
 
 void update_container::push(const key_type& uri, const value_t& value)
 {
     // Make sure iterators are either both invalid or both valid.
-    assert((front_ == updates_.end() && back_ == updates_.end()) ||
-           (front_ != updates_.end() && back_ != updates_.end()));
+    assert(
+        (front_ == updates_.end() && back_ == updates_.end()) || (front_ != updates_.end() && back_ != updates_.end()));
 
-    bool is_new;
+    bool                     is_new;
     container_type::iterator current;
 
     std::tie(current, is_new) = updates_.emplace(uri, container_type::mapped_type());
 
     current->second.value = value;
-    current->second.time = std::chrono::system_clock::now();
+    current->second.time  = std::chrono::system_clock::now();
 
     if (is_new) {
         current->second.next = updates_.end();
 
         if (front_ == updates_.end()) {
             // First element: Initialize iterators
-            back_ = current;
+            back_  = current;
             front_ = current;
         } else {
             // Additional element: Update next pointer of previous element
             // and let back_ iterator point to tail.
             back_->second.next = current;
-            back_ = current;
+            back_              = current;
         }
     }
 }
@@ -63,17 +60,18 @@ std::tuple<update_container::key_type, value_t, update_container::time_point> up
     if (front_ == updates_.end())
         throw std::out_of_range("Container empty");
 
-    auto retval = std::make_tuple(std::move(front_->first), std::move(front_->second.value), std::move(front_->second.time));
+    auto retval =
+        std::make_tuple(std::move(front_->first), std::move(front_->second.value), std::move(front_->second.time));
 
     auto it = front_;
-    front_ = it->second.next;
+    front_  = it->second.next;
     updates_.erase(it);
     if (front_ == updates_.end())
         back_ = updates_.end();
 
     // Make sure iterators are either both invalid or both valid.
-    assert((front_ == updates_.end() && back_ == updates_.end()) ||
-           (front_ != updates_.end() && back_ != updates_.end()));
+    assert(
+        (front_ == updates_.end() && back_ == updates_.end()) || (front_ != updates_.end() && back_ != updates_.end()));
 
     return retval;
 }

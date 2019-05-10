@@ -17,11 +17,11 @@
 #ifndef DECOF_EXAMPLE_BACKGROUND_WORKER_H
 #define DECOF_EXAMPLE_BACKGROUND_WORKER_H
 
-#include <memory>
-#include <thread>
 #include <decof/handler_event.h>
 #include <decof/managed_readonly_parameter.h>
 #include <decof/node.h>
+#include <memory>
+#include <thread>
 
 /**
  * @brief Background worker example.
@@ -30,21 +30,19 @@
  * @c std::this_thread::sleep_for) in a background thread andupdates a parameter
  * as a result using a Boost.Thread executor.
  */
-class background_worker final :
-    public decof::node,
-    public std::enable_shared_from_this<background_worker>
+class background_worker final : public decof::node, public std::enable_shared_from_this<background_worker>
 {
-public:
+  public:
     using ptr = std::shared_ptr<background_worker>;
 
     /// Factory method.
     static ptr create(const std::string& name, decof::node* parent = nullptr);
 
-private:
+  private:
     explicit background_worker(const std::string& name, decof::node* parent = nullptr);
     void start();
 
-    decof::handler_event event_;
+    decof::handler_event                    event_;
     decof::managed_readonly_parameter<bool> ready_;
 };
 

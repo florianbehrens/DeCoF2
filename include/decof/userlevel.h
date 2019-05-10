@@ -19,11 +19,9 @@
 
 #include <limits>
 
-namespace decof
-{
+namespace decof {
 
-enum userlevel_t
-{
+enum userlevel_t {
     Minimum     = 0,
     Internal    = Minimum,
     Service     = 1,

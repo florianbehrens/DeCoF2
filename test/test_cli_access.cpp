@@ -17,8 +17,8 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <decof/all.h>
-#include <decof/client_context/generic_tcp_server.h>
 #include <decof/cli/clisrv_context.h>
+#include <decof/client_context/generic_tcp_server.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/read_until.hpp>
@@ -34,8 +34,8 @@ namespace asio = boost::asio;
 
 struct fixture
 {
-    fixture() :
-        io_service(),
+    fixture()
+      : io_service(),
         strand(io_service),
         client_sock(io_service),
         od("test"),
@@ -57,26 +57,25 @@ struct fixture
         client_sock.close();
     }
 
-    asio::io_service io_service;
-    asio::io_service::strand strand;
+    asio::io_service             io_service;
+    asio::io_service::strand     strand;
     boost::asio::ip::tcp::socket client_sock;
 
-    object_dictionary od;
+    object_dictionary                       od;
     generic_tcp_server<cli::clisrv_context> server;
 
     asio::streambuf buf;
-    std::istream is;
-    std::string str;
+    std::istream    is;
+    std::string     str;
 };
 
 BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
 {
-    int userlevel = Forbidden;
+    int                              userlevel = Forbidden;
     managed_readonly_parameter<bool> dummy("dummy", &od, true);
 
-    cli::cli_context_base::install_userlevel_callback([](const client_context&, userlevel_t, const std::string&) {
-        return true;
-    });
+    cli::cli_context_base::install_userlevel_callback(
+        [](const client_context&, userlevel_t, const std::string&) { return true; });
 
     {
         // Read initial userlevel
@@ -92,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE(change_userlevel, fixture)
 
     {
         // Change userlevel to Internal
-        int retval;
+        int               retval;
         std::stringstream out;
         out << "(exec 'change-ul " << Internal << " \"passwd\")\n";
 
@@ -251,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE(binary_readwrite, fixture)
 
 BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
 {
-    managed_readonly_parameter<std::vector<bool>> boolean_seq_ro("boolean_seq_ro", &od, { true, false, true, false });
+    managed_readonly_parameter<std::vector<bool>> boolean_seq_ro("boolean_seq_ro", &od, {true, false, true, false});
     client_sock.write_some(asio::buffer(std::string("get test:boolean_seq_ro\n")));
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -262,36 +261,27 @@ BOOST_FIXTURE_TEST_CASE(boolean_seq_readonly, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<bool> current = boolean_seq_ro.value();
-    const std::vector<bool> expected = { true, false, true, false };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<bool> current  = boolean_seq_ro.value();
+    const std::vector<bool> expected = {true, false, true, false};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(boolean_seq_readwrite, fixture)
 {
-    managed_readwrite_parameter<std::vector<bool>> boolean_seq_rw("boolean_seq_rw", &od, { true, false, true, false });
+    managed_readwrite_parameter<std::vector<bool>> boolean_seq_rw("boolean_seq_rw", &od, {true, false, true, false});
     client_sock.write_some(asio::buffer(std::string("set test:boolean_seq_rw [#f,#t,#f,#t]\n")));
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<bool> current = boolean_seq_rw.value();
-    const std::vector<bool> expected = { false, true, false, true };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<bool> current  = boolean_seq_rw.value();
+    const std::vector<bool> expected = {false, true, false, true};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
 {
-    managed_readonly_parameter<std::vector<int>> integer_seq_ro("integer_seq_ro", &od, {
-        std::numeric_limits<int>::min(), std::numeric_limits<int>::max()
-    });
+    managed_readonly_parameter<std::vector<int>> integer_seq_ro(
+        "integer_seq_ro", &od, {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()});
 
     client_sock.write_some(asio::buffer(std::string("get test:integer_seq_ro\n")));
     io_service.poll();
@@ -303,16 +293,10 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readonly, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<int> current = integer_seq_ro.value();
-    const std::vector<int> expected = {
-        std::numeric_limits<int>::min(), std::numeric_limits<int>::max()
-    };
+    const std::vector<int> current  = integer_seq_ro.value();
+    const std::vector<int> expected = {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()};
 
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(integer_seq_readwrite, fixture)
@@ -323,21 +307,15 @@ BOOST_FIXTURE_TEST_CASE(integer_seq_readwrite, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<int> current = integer_seq_rw.value();
-    const std::vector<int> expected = {
-        std::numeric_limits<int>::min(), std::numeric_limits<int>::max()
-    };
+    const std::vector<int> current  = integer_seq_rw.value();
+    const std::vector<int> expected = {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()};
 
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
 {
-    managed_readonly_parameter<std::vector<double>> real_seq_ro("real_seq_ro", &od, { -1.23, 1.23 });
+    managed_readonly_parameter<std::vector<double>> real_seq_ro("real_seq_ro", &od, {-1.23, 1.23});
     client_sock.write_some(asio::buffer(std::string("get test:real_seq_ro\n")));
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -348,13 +326,9 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readonly, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<double> current = real_seq_ro.value();
-    const std::vector<double> expected = { -1.23, 1.23 };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<double> current  = real_seq_ro.value();
+    const std::vector<double> expected = {-1.23, 1.23};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(real_seq_readwrite, fixture)
@@ -364,18 +338,14 @@ BOOST_FIXTURE_TEST_CASE(real_seq_readwrite, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<double> current = real_seq_rw.value();
-    const std::vector<double> expected = { -1.23, 1.23 };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<double> current  = real_seq_rw.value();
+    const std::vector<double> expected = {-1.23, 1.23};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
 {
-    managed_readonly_parameter<std::vector<std::string>> string_seq_ro("string_seq_ro", &od, { "Hello", "World" });
+    managed_readonly_parameter<std::vector<std::string>> string_seq_ro("string_seq_ro", &od, {"Hello", "World"});
     client_sock.write_some(asio::buffer(std::string("get test:string_seq_ro\n")));
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
@@ -386,13 +356,9 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readonly, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<std::string> current = string_seq_ro.value();
-    const std::vector<std::string> expected = { "Hello", "World" };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<std::string> current  = string_seq_ro.value();
+    const std::vector<std::string> expected = {"Hello", "World"};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 BOOST_FIXTURE_TEST_CASE(string_seq_readwrite, fixture)
@@ -402,13 +368,9 @@ BOOST_FIXTURE_TEST_CASE(string_seq_readwrite, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const std::vector<std::string> current = string_seq_rw.value();
-    const std::vector<std::string> expected = { "Hello", "World" };
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        current.cbegin(),
-        current.cend(),
-        expected.cbegin(),
-        expected.cend());
+    const std::vector<std::string> current  = string_seq_rw.value();
+    const std::vector<std::string> expected = {"Hello", "World"};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(current.cbegin(), current.cend(), expected.cbegin(), expected.cend());
 }
 
 typedef std::tuple<bool, int, double, std::string> full_tuple;
@@ -426,7 +388,7 @@ BOOST_FIXTURE_TEST_CASE(tuple_readonly, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const full_tuple current = tuple_ro.value();
+    const full_tuple current  = tuple_ro.value();
     const full_tuple expected = std::make_tuple(true, -1, -1.23, "Hello World");
     BOOST_REQUIRE(current == expected);
 }
@@ -438,7 +400,7 @@ BOOST_FIXTURE_TEST_CASE(tuple_readwrite, fixture)
     io_service.poll();
     asio::read_until(client_sock, buf, std::string("\n"));
 
-    const full_tuple current = tuple_rw.value();
+    const full_tuple current  = tuple_rw.value();
     const full_tuple expected = std::make_tuple(true, -1, -1.23, "Hello World");
     BOOST_REQUIRE(current == expected);
 }

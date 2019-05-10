@@ -20,9 +20,9 @@
 #include "conversion.h"
 #include "encoding_hint.h"
 #include "object.h"
+#include "object_visitor.h"
 
-namespace decof
-{
+namespace decof {
 
 /** @brief Basic parameter type.
  *
@@ -31,17 +31,18 @@ namespace decof
  * A basic_parameter adds to the #object class the concept of a parameter
  * value of a certain type. It does not contain any accessing functions.
  */
-template<typename T, encoding_hint EncodingHint>
+template <typename T, encoding_hint EncodingHint>
 class basic_parameter : public object
 {
-public:
+  public:
     typedef T value_type;
 
-    virtual void accept(object_visitor *visitor) override {
+    virtual void accept(object_visitor* visitor) override
+    {
         visitor->visit(this, typename conversion_helper<T, EncodingHint>::type_tag());
     }
 
-protected:
+  protected:
     // We inherit base class constructors
     using object::object;
 };

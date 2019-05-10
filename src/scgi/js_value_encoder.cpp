@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#include <iomanip>
-#include "endian.h"
 #include "js_value_encoder.h"
+#include "endian.h"
+#include <iomanip>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 namespace {
 
@@ -31,10 +29,10 @@ namespace {
  */
 class sequence_element_encoder : public boost::static_visitor<>
 {
-public:
-    explicit sequence_element_encoder(std::ostream& out) :
-        m_out(out)
-    {}
+  public:
+    explicit sequence_element_encoder(std::ostream& out) : m_out(out)
+    {
+    }
 
     void operator()(const boolean_t& arg) const
     {
@@ -59,17 +57,17 @@ public:
         m_out << arg.size() << ":" << arg << "\r\n";
     }
 
-private:
+  private:
     std::ostream& m_out;
 };
 
 } // Anonymous namespace
 
-js_value_encoder::js_value_encoder(std::ostream& out) :
-    m_out(out)
-{}
+js_value_encoder::js_value_encoder(std::ostream& out) : m_out(out)
+{
+}
 
-void js_value_encoder::operator()(const scalar_t &arg) const
+void js_value_encoder::operator()(const scalar_t& arg) const
 {
     boost::apply_visitor(*this, arg);
 }
@@ -77,7 +75,8 @@ void js_value_encoder::operator()(const scalar_t &arg) const
 void js_value_encoder::operator()(const sequence_t& arg) const
 {
     sequence_element_encoder enc(m_out);
-    for (const auto& elem : arg) boost::apply_visitor(enc, elem);
+    for (const auto& elem : arg)
+        boost::apply_visitor(enc, elem);
 }
 
 void js_value_encoder::operator()(const tuple_t& arg) const

@@ -19,10 +19,9 @@
 
 #include <memory>
 
-namespace decof
-{
+namespace decof {
 
-template<typename T>
+template <typename T>
 class automatic_ptr;
 
 /** @brief Base class for target objects used with #automatic_ptr.
@@ -30,33 +29,33 @@ class automatic_ptr;
  * @tparam T The target object type, i.e., the class that derives from
  * #automatic_ptr_target.
  */
-template<typename T>
+template <typename T>
 class automatic_ptr_target
 {
     friend class automatic_ptr<T>;
 
-    template<typename U>
+    template <typename U>
     struct basic_null_deleter
     {
         void operator()(U*)
-        {}
+        {
+        }
     };
 
     using null_deleter = basic_null_deleter<T>;
 
-protected:
-    automatic_ptr_target() :
-        ptr_(static_cast<T*>(this), null_deleter())
-    {}
+  protected:
+    automatic_ptr_target() : ptr_(static_cast<T*>(this), null_deleter())
+    {
+    }
 
     virtual ~automatic_ptr_target() = default;
 
-    automatic_ptr_target(const automatic_ptr_target&) :
-        ptr_(static_cast<T*>(this), null_deleter())
-    {}
+    automatic_ptr_target(const automatic_ptr_target&) : ptr_(static_cast<T*>(this), null_deleter())
+    {
+    }
 
-    automatic_ptr_target(automatic_ptr_target&& rhs) :
-        ptr_(static_cast<T*>(this), null_deleter())
+    automatic_ptr_target(automatic_ptr_target&& rhs) : ptr_(static_cast<T*>(this), null_deleter())
     {
         rhs.ptr_.reset();
     }
@@ -72,7 +71,7 @@ protected:
         return *this;
     }
 
-private:
+  private:
     std::shared_ptr<T> ptr_;
 };
 
@@ -81,52 +80,58 @@ private:
  *
  * This pointer requires the target type be derived from #automatic_ptr_target.
  */
-template<typename T>
+template <typename T>
 class automatic_ptr final
 {
-public:
+  public:
     /// Default construction.
     /// @post #get() returns nullptr, #operator bool returns false.
-    automatic_ptr() noexcept = default;
+    automatic_ptr() noexcept                     = default;
     automatic_ptr(const automatic_ptr&) noexcept = default;
 
-    explicit automatic_ptr(const automatic_ptr_target<T>* target) noexcept :
-        ptr_(target ? target->ptr_ : nullptr)
-    {}
+    explicit automatic_ptr(const automatic_ptr_target<T>* target) noexcept : ptr_(target ? target->ptr_ : nullptr)
+    {
+    }
 
     automatic_ptr& operator=(const automatic_ptr& rhs) noexcept = default;
-    automatic_ptr& operator=(const automatic_ptr_target<T>* target) noexcept {
+    automatic_ptr& operator                                     =(const automatic_ptr_target<T>* target) noexcept
+    {
         ptr_ = target ? target->ptr_ : nullptr;
         return *this;
     }
 
     /// Returns whether the target object is alive.
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return !ptr_.expired();
     }
 
     /// Returns the stored pointer.
-    T* get() const noexcept {
+    T* get() const noexcept
+    {
         return ptr_.lock().get();
     }
 
     /// Dereferences the stored pointer.
-    T* operator->() const noexcept {
+    T* operator->() const noexcept
+    {
         return get();
     }
 
     /// Dereferences the stored pointer.
-    T& operator*() const noexcept {
+    T& operator*() const noexcept
+    {
         return *get();
     }
 
     /// Resets the stored pointer.
     /// @post #get() returns nullptr.
-    void reset() noexcept {
+    void reset() noexcept
+    {
         ptr_.reset();
     }
 
-private:
+  private:
     std::weak_ptr<T> ptr_;
 };
 

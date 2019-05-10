@@ -21,17 +21,17 @@
 #include "conversion.h"
 #include "encoding_hint.h"
 
-namespace decof
-{
+namespace decof {
 
-template<typename T, encoding_hint EncodingHint = encoding_hint::none>
+template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class typed_client_read_interface : public client_read_interface
 {
-public:
+  public:
     /// Parameter value getter function.
     virtual T value() const = 0;
 
-    virtual value_t generic_value() const override final {
+    virtual value_t generic_value() const override final
+    {
         return conversion_helper<T, EncodingHint>::to_generic(value());
     }
 };

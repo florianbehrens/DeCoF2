@@ -17,13 +17,12 @@
 #ifndef DECOF_OBJECT_DICTIONARY_H
 #define DECOF_OBJECT_DICTIONARY_H
 
-#include <memory>
+#include "node.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/signal.hpp>
-#include "node.h"
+#include <memory>
 
-namespace decof
-{
+namespace decof {
 
 class client_context;
 
@@ -32,29 +31,29 @@ class object_dictionary : public node
 {
     friend class client_context;
 
-public:
-    typedef boost::signals2::signal<void ()> tick_type;
-    typedef tick_type::slot_type tick_slot_type;
+  public:
+    typedef boost::signals2::signal<void()>    tick_type;
+    typedef tick_type::slot_type               tick_slot_type;
     typedef boost::signals2::scoped_connection tick_connection;
 
     class context_guard
     {
-    public:
-        context_guard(object_dictionary& od, client_context *cc);
+      public:
+        context_guard(object_dictionary& od, client_context* cc);
         ~context_guard();
 
         context_guard(const context_guard&) = delete;
         context_guard& operator=(const context_guard&) = delete;
 
-    private:
-        object_dictionary& object_dictionary_;
+      private:
+        object_dictionary&    object_dictionary_;
         const client_context* client_context_;
     };
 
-    object_dictionary(const std::string &root_uri = "root");
+    object_dictionary(const std::string& root_uri = "root");
 
-    void add_context(std::shared_ptr<client_context> client_context);
-    void remove_context(std::shared_ptr<client_context> client_context);
+    void                                  add_context(std::shared_ptr<client_context> client_context);
+    void                                  remove_context(std::shared_ptr<client_context> client_context);
     const std::shared_ptr<client_context> current_context() const;
 
     /// @brief Registers a timer observer.
@@ -63,16 +62,16 @@ public:
     /// @return A @a boost::signals2 connection object.
     tick_connection register_for_tick(tick_slot_type slot);
 
-private:
-    object* find_object(const std::string &curi, char separator = ':');
+  private:
+    object* find_object(const std::string& curi, char separator = ':');
 
     void set_current_context(client_context* client_context);
 
     void tick();
 
     std::list<std::shared_ptr<client_context>> client_contexts_;
-    std::shared_ptr<client_context> current_context_;
-    tick_type tick_signal_;
+    std::shared_ptr<client_context>            current_context_;
+    tick_type                                  tick_signal_;
 };
 
 } // namespace decof

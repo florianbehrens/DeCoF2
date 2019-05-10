@@ -17,17 +17,17 @@
 #ifndef DECOF_EXAMPLE_APPLICATION_H
 #define DECOF_EXAMPLE_APPLICATION_H
 
-#include <memory>
+#include <decof/asio_executor/asio_executor.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-#include <decof/asio_executor/asio_executor.h>
+#include <memory>
 
 /**
  * @brief Singleton class representing the application global state.
  */
 class application
 {
-public:
+  public:
     static application& instance();
 
     /**
@@ -44,14 +44,14 @@ public:
     void stop();
 
     boost::asio::io_service::strand& strand();
-    decof::asio_executor& executor();
+    decof::asio_executor&            executor();
 
-private:
+  private:
     explicit application();
 
-    boost::asio::io_service io_service_;
+    boost::asio::io_service         io_service_;
     boost::asio::io_service::strand strand_;
-    decof::asio_executor executor_;
+    decof::asio_executor            executor_;
 };
 
 #endif // DECOF_EXAMPLE_APPLICATION_H

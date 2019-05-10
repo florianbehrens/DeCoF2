@@ -17,23 +17,21 @@
 #ifndef DECOF_SCGI_XML_VISITOR_H
 #define DECOF_SCGI_XML_VISITOR_H
 
-#include <stack>
-#include <ostream>
-#include <decof/client_context/object_visitor.h>
+#include <decof/object_visitor.h>
 #include <decof/userlevel.h>
+#include <ostream>
+#include <stack>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 /**
  * @brief Generator of XML parameter tree description.
  */
 class xml_visitor : public object_visitor
 {
-public:
+  public:
     /**
      * Constructor.
      *
@@ -59,12 +57,12 @@ public:
 
     virtual void visit(object* obj, tuple_tag) override;
 
-private:
-    void write_param(const object *obj, const std::string &type_str);
+  private:
+    void write_param(const object* obj, const std::string& type_str);
 
-    std::ostream &out_;
+    std::ostream&     out_;
     std::stack<node*> node_stack_;
-    bool first_pass_ = true;
+    bool              first_pass_ = true;
 };
 
 } // namespace scgi

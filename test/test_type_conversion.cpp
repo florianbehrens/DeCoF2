@@ -16,10 +16,11 @@
 
 #define BOOST_TEST_DYN_LINK
 
-#include <decof/types.h>
+#include "test_helpers.h"
 #include <decof/conversion.h>
-#include <boost/test/unit_test.hpp>
+#include <decof/types.h>
 #include <boost/mpl/list.hpp>
+#include <boost/test/unit_test.hpp>
 #include <array>
 #include <deque>
 #include <forward_list>
@@ -27,7 +28,6 @@
 #include <list>
 #include <numeric>
 #include <vector>
-#include "test_helpers.h"
 
 using namespace decof;
 
@@ -35,8 +35,14 @@ BOOST_AUTO_TEST_SUITE(type_conversion)
 
 using decof_types = boost::mpl::list<
     bool,
-    short, unsigned short, int, unsigned int, long, unsigned long,
-    float, double,
+    short,
+    unsigned short,
+    int,
+    unsigned int,
+    long,
+    unsigned long,
+    float,
+    double,
     std::string,
     std::array<int, 3>,
     std::vector<bool>,
@@ -62,10 +68,10 @@ BOOST_AUTO_TEST_CASE(integral_type_convertible_to_floating_point)
 {
     const integer_t nominal = (1ll << std::numeric_limits<float>::digits) - 1;
 
-    value_t val_min{ -nominal };
+    value_t val_min{-nominal};
     BOOST_REQUIRE_EQUAL(conversion_helper<float>::from_generic(val_min), -nominal);
 
-    value_t val_max{ nominal };
+    value_t val_max{nominal};
     BOOST_REQUIRE_EQUAL(conversion_helper<float>::from_generic(val_max), nominal);
 }
 
@@ -73,10 +79,10 @@ BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integral)
 {
     const long long nominal = (1ll << std::numeric_limits<real_t>::digits) - 1;
 
-    value_t val_min{ static_cast<real_t>(-nominal) };
+    value_t val_min{static_cast<real_t>(-nominal)};
     BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_min), -nominal);
 
-    value_t val_max{ static_cast<real_t>(nominal) };
+    value_t val_max{static_cast<real_t>(nominal)};
     BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_max), nominal);
 }
 
@@ -98,9 +104,9 @@ BOOST_AUTO_TEST_CASE(conversion_from_const_char_ptr_to_string_t)
 
 BOOST_AUTO_TEST_CASE(conversion_from_string_t_to_string)
 {
-    std::string nominal{ "Hello World" };
-    value_t gen{ string_t{ nominal } };
-    auto const actual = conversion_helper<std::string>::from_generic(gen);
+    std::string nominal{"Hello World"};
+    value_t     gen{string_t{nominal}};
+    auto const  actual = conversion_helper<std::string>::from_generic(gen);
     BOOST_REQUIRE_EQUAL(nominal, actual);
 }
 
@@ -108,64 +114,53 @@ BOOST_AUTO_TEST_CASE(conversion_from_array_and_back)
 {
     using array_t = std::array<int, 3>;
 
-    array_t nominal{ 1, 2, 3 };
-    auto generic = conversion_helper<array_t>::to_generic(nominal);
+    array_t nominal{1, 2, 3};
+    auto    generic = conversion_helper<array_t>::to_generic(nominal);
     BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<array_t>::from_generic(generic);
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        nominal.cbegin(), nominal.cend(),
-        actual.cbegin(), actual.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_array_with_invalid_value_size_throws)
 {
-    std::array<int, 3> long_array{ 1, 2, 3 };
+    std::array<int, 3> long_array{1, 2, 3};
     std::array<int, 2> short_array;
 
     BOOST_REQUIRE_THROW(
-        conversion_helper<decltype(short_array)>::from_generic(conversion_helper<decltype(long_array)>::to_generic(long_array)),
+        conversion_helper<decltype(short_array)>::from_generic(
+            conversion_helper<decltype(long_array)>::to_generic(long_array)),
         invalid_value_error);
 }
 
-using sequence_container_but_not_string_types = boost::mpl::list<
-    std::vector<int>,
-    std::deque<int>,
-    std::forward_list<int>,
-    std::list<int>>;
+using sequence_container_but_not_string_types =
+    boost::mpl::list<std::vector<int>, std::deque<int>, std::forward_list<int>, std::list<int>>;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(conversion_from_sequence_container_but_not_string_and_back, T, sequence_container_but_not_string_types)
+BOOST_AUTO_TEST_CASE_TEMPLATE(
+    conversion_from_sequence_container_but_not_string_and_back, T, sequence_container_but_not_string_types)
 {
-    T nominal{ 1, 2, 3 };
+    T    nominal{1, 2, 3};
     auto generic = conversion_helper<T>::to_generic(nominal);
     BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<T>::from_generic(generic);
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        nominal.cbegin(), nominal.cend(),
-        actual.cbegin(), actual.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_array_with_binary_encoding)
 {
     using array_t = std::array<int, 3>;
 
-    array_t nominal{ 1, 2, 3 };
-    auto generic = conversion_helper<array_t, encoding_hint::binary>::to_generic(nominal);
+    array_t nominal{1, 2, 3};
+    auto    generic = conversion_helper<array_t, encoding_hint::binary>::to_generic(nominal);
     BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<array_t, encoding_hint::binary>::from_generic(generic);
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        nominal.cbegin(), nominal.cend(),
-        actual.cbegin(), actual.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
 }
 
-using sequence_container_types = boost::mpl::list<
-    std::string,
-    std::vector<int>,
-    std::deque<int>,
-    std::forward_list<int>,
-    std::list<int>>;
+using sequence_container_types =
+    boost::mpl::list<std::string, std::vector<int>, std::deque<int>, std::forward_list<int>, std::list<int>>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(sequence_container_to_binary_conversion, T, sequence_container_types)
 {
@@ -176,9 +171,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(sequence_container_to_binary_conversion, T, sequen
     BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<T, encoding_hint::binary>::from_generic(generic);
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        nominal.cbegin(), nominal.cend(),
-        actual.cbegin(), actual.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

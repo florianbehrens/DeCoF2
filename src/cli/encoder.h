@@ -17,19 +17,17 @@
 #ifndef DECOF_CLI_ENCODER_H
 #define DECOF_CLI_ENCODER_H
 
-#include <ostream>
-#include <boost/variant/static_visitor.hpp>
 #include <decof/types.h>
+#include <boost/variant/static_visitor.hpp>
+#include <ostream>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 class encoder : public boost::static_visitor<>
 {
-public:
+  public:
     explicit encoder(std::ostream& out);
 
     void operator()(const scalar_t& arg) const;
@@ -42,7 +40,7 @@ public:
     void operator()(const string_t& arg) const;
     void operator()(const binary_t& arg) const;
 
-private:
+  private:
     std::ostream& m_out;
 };
 

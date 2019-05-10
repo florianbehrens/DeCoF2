@@ -17,11 +17,10 @@
 #ifndef DECOF_OBJECT_VISITOR_H
 #define DECOF_OBJECT_VISITOR_H
 
-#include <sstream>
 #include <decof/types.h>
+#include <ostream>
 
-namespace decof
-{
+namespace decof {
 
 // Forward declarations
 class event;
@@ -33,12 +32,16 @@ class object;
  * pattern. */
 class object_visitor
 {
-public:
+  public:
+    virtual ~object_visitor() = default;
+
     /**
      * @name Language type visitor functions.
      * @{
      */
-    virtual void visit(object*) {}
+    virtual void visit(object*)
+    {
+    }
     virtual void visit(event* e);
     virtual void visit(node* n);
     ///@}
@@ -61,8 +64,8 @@ public:
     virtual void visit(object* obj, tuple_tag);
     ///@}
 
-protected:
-    void write_indentation(std::ostream &out, const object *te);
+  protected:
+    void        write_indentation(std::ostream& out, const object* te);
     std::string indentation();
 
     void increment_indentation(size_t levels = 1u);

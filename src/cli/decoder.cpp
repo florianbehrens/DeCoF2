@@ -16,14 +16,12 @@
 
 #include "decoder.h"
 #include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
 #include <boost/archive/iterators/remove_whitespace.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
 std::string base64decode(std::string base64)
 {

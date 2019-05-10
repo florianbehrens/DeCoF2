@@ -18,9 +18,9 @@
 
 namespace decof {
 
-asio_executor::asio_executor(asio_executor::strand& s) :
-    strand_(s)
-{}
+asio_executor::asio_executor(asio_executor::strand& s) : strand_(s)
+{
+}
 
 void asio_executor::close()
 {

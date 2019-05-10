@@ -19,8 +19,9 @@ add_custom_target(
         managed_readwrite_handler_parameter.h
         managed_readwrite_parameter.h
         node.h
-        object_dictionary.h
         object.h
+        object_dictionary.h
+        object_visitor.h
         readable_parameter.h
         typed_client_read_interface.h
         typed_client_write_interface.h

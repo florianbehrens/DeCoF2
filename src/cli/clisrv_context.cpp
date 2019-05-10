@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+#include "browse_visitor.h"
+#include "encoder.h"
+#include "parser.h"
+#include "tree_visitor.h"
 #include <decof/cli/clisrv_context.h>
-#include <limits>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <decof/exceptions.h>
+#include <decof/object.h>
+#include <decof/object_dictionary.h>
+#include <decof/types.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
@@ -27,34 +31,25 @@
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <decof/exceptions.h>
-#include <decof/object.h>
-#include <decof/object_dictionary.h>
-#include <decof/types.h>
-#include "browse_visitor.h"
-#include "parser.h"
-#include "encoder.h"
-#include "tree_visitor.h"
+#include <limits>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using boost::system::error_code;
 
-namespace
-{
+namespace {
 
 const std::string prompt("> ");
 
 } // anonymous namespace
 
-namespace decof
-{
+namespace decof {
 
-namespace cli
-{
+namespace cli {
 
-clisrv_context::clisrv_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel) :
-    cli_context_base(od, userlevel),
-    strand_(strand),
-    socket_(std::move(socket))
+clisrv_context::clisrv_context(strand_t& strand, socket_t&& socket, object_dictionary& od, userlevel_t userlevel)
+  : cli_context_base(od, userlevel), strand_(strand), socket_(std::move(socket))
 {
     if (connect_event_cb_)
         connect_event_cb_(false, true, remote_endpoint());
@@ -78,42 +73,38 @@ void clisrv_context::preload()
 
     auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
 
-    boost::asio::async_write(
-        socket_,
-        outbuf_,
-        strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
+    boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
+        self->write_handler(err, bytes);
+    }));
 }
 
-void clisrv_context::write_handler(const error_code &error, std::size_t bytes_transferred)
+void clisrv_context::write_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
 
         boost::asio::async_read_until(
-            socket_,
-            inbuf_,
-            '\n',
-            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->read_handler(err, bytes); }));
+            socket_, inbuf_, '\n', strand_.wrap([self](const error_code& err, std::size_t bytes) {
+                self->read_handler(err, bytes);
+            }));
     } else
         disconnect();
 }
 
-void clisrv_context::read_handler(const error_code &error, std::size_t bytes_transferred)
+void clisrv_context::read_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
         auto bufs = inbuf_.data();
-        process_request(std::string(boost::asio::buffers_begin(bufs),
-                                    boost::asio::buffers_begin(bufs) + bytes_transferred));
+        process_request(
+            std::string(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes_transferred));
         inbuf_.consume(bytes_transferred);
 
         auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
 
-        boost::asio::async_write(
-            socket_,
-            outbuf_,
-            strand_.wrap([self](const error_code& err, std::size_t bytes) { self->write_handler(err, bytes); }));
-    }
-    else
+        boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
+            self->write_handler(err, bytes);
+        }));
+    } else
         disconnect();
 }
 
@@ -142,7 +133,7 @@ void clisrv_context::process_request(std::string request)
         return;
 
     // Read operation and uri
-    std::string op, uri;
+    std::string       op, uri;
     std::stringstream ss_in(trimmed_request);
     ss_in >> op >> uri;
     std::transform(op.begin(), op.end(), op.begin(), ::tolower);
@@ -157,13 +148,13 @@ void clisrv_context::process_request(std::string request)
         uri = object_dictionary_.name() + ":" + uri;
 
     std::ostream out(&outbuf_);
-    encoder encoder(out);
+    encoder      encoder(out);
 
     try {
         // Apply special handling for the 'change-ul' command
         // (exec 'change-ul <userlevel> "<passwd>")
         if (op == "exec" && uri == object_dictionary_.name() + ":change-ul") {
-            int ul = std::numeric_limits<int>::max();
+            int         ul = std::numeric_limits<int>::max();
             std::string password;
 
             ss_in >> ul >> std::ws;
@@ -179,13 +170,13 @@ void clisrv_context::process_request(std::string request)
             out << "\n";
         } else {
             // Parse optional value string using flexc++/bisonc++ parser
-            bool value_available = false;
+            bool    value_available = false;
             value_t value;
 
             if (ss_in.peek() != std::stringstream::traits_type::eof()) {
                 parser parser(ss_in);
                 parser.parse();
-                value = parser.result();
+                value           = parser.result();
                 value_available = true;
             }
 
@@ -225,7 +216,7 @@ void clisrv_context::process_request(std::string request)
                     root_uri = uri;
 
                 std::ostringstream temp_ss;
-                browse_visitor visitor(temp_ss);
+                browse_visitor     visitor(temp_ss);
                 browse(&visitor, root_uri);
 
                 out << temp_ss.str();
@@ -238,7 +229,7 @@ void clisrv_context::process_request(std::string request)
                     root_uri = uri;
 
                 std::ostringstream temp_ss;
-                tree_visitor visitor(temp_ss);
+                tree_visitor       visitor(temp_ss);
                 browse(&visitor, root_uri);
 
                 out << temp_ss.str();
@@ -248,7 +239,8 @@ void clisrv_context::process_request(std::string request)
     } catch (runtime_error& ex) {
         out << "ERROR " << ex.code() << ": " << ex.what() << "\n";
     } catch (...) {
-        out << "ERROR " << UNKNOWN_ERROR << ": " << "Unknown error\n";
+        out << "ERROR " << UNKNOWN_ERROR << ": "
+            << "Unknown error\n";
     }
 
     out << prompt;

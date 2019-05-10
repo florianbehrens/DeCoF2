@@ -23,16 +23,16 @@ class composite final : public decof::node
 {
     friend class sum_type;
 
-public:
-    explicit composite(std::string name, node *parent = nullptr);
+  public:
+    explicit composite(std::string name, node* parent = nullptr);
 
-private:
+  private:
     void summand1_changing(const int& value);
     void summand2_changing(const int& value);
 
     decof::managed_readwrite_handler_parameter<int> summand1_;
     decof::managed_readwrite_handler_parameter<int> summand2_;
-    decof::managed_readonly_parameter<int> sum_;
+    decof::managed_readonly_parameter<int>          sum_;
 };
 
 #endif // DECOF_EXAMPLE_COMPOSITE_H

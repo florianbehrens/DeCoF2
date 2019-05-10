@@ -15,18 +15,16 @@
  */
 
 #include <decof/scgi/request_parser.h>
-#include <cctype>
-#include <string>
-#include <vector>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
+#include <cctype>
+#include <string>
+#include <vector>
 
-namespace decof
-{
+namespace decof {
 
-namespace scgi
-{
+namespace scgi {
 
 request_parser::request_parser()
 {
@@ -48,96 +46,99 @@ void request_parser::reset()
 
 request_parser::result_type request_parser::consume(char input) noexcept
 {
-    try
-    {
+    try {
         netstring_count_ += 1;
 
-        switch (state_)
-        {
-        case netstring_length:
-            if (std::isdigit(input))
-                netstring_length_str_.push_back(input);
-            else if (input == ':') {
-                netstring_length_ = boost::lexical_cast<size_t>(netstring_length_str_);
-                netstring_count_ = 0;
-                state_ = header_start;
-            } else
-                return bad;
-            break;
-        case header_start:
-        case header_name:
-            if (state_ == header_start && input == ',') {
-                if (netstring_length_ == netstring_count_ - 1) {
-                    if (content_length_ > 0)
-                        state_ = body_range;
-                    else
+        switch (state_) {
+            case netstring_length:
+                if (std::isdigit(input))
+                    netstring_length_str_.push_back(input);
+                else if (input == ':') {
+                    netstring_length_ = boost::lexical_cast<size_t>(netstring_length_str_);
+                    netstring_count_  = 0;
+                    state_            = header_start;
+                } else
+                    return bad;
+                break;
+            case header_start:
+            case header_name:
+                if (state_ == header_start && input == ',') {
+                    if (netstring_length_ == netstring_count_ - 1) {
+                        if (content_length_ > 0)
+                            state_ = body_range;
+                        else
+                            return good;
+                    } else
+                        return bad;
+                } else if (netstring_count_ < netstring_length_) {
+                    if (input == '\0') {
+                        if (current_header_.size() > 0)
+                            state_ = header_value;
+                        else
+                            return bad;
+                    } else
+                        current_header_.push_back(input);
+                } else
+                    return bad;
+                break;
+            case header_value:
+                if (netstring_count_ <= netstring_length_) {
+                    if (input == '\0') {
+                        // Check whether first header is CONTENT_LENGTH
+                        if (headers.empty()) {
+                            if (current_header_ == "CONTENT_LENGTH")
+                                content_length_ = boost::lexical_cast<size_t>(current_value_);
+                            else
+                                return bad;
+                        }
+
+                        // Check if 2nd header is SCGI
+                        if (headers.size() == 1 && !(current_header_ == "SCGI" && current_value_ == "1"))
+                            return bad;
+
+                        if (current_header_ == "REQUEST_METHOD") {
+                            if (current_value_ == "GET")
+                                method = method_type::get;
+                            else if (current_value_ == "PUT")
+                                method = method_type::put;
+                            else if (current_value_ == "POST")
+                                method = method_type::post;
+                        } else if (current_header_ == "REQUEST_URI") {
+                            uri = current_value_;
+                        } else if (current_header_ == "CONTENT_TYPE") {
+                            // Split content type value into parts
+                            std::vector<std::string> content_type_values;
+                            boost::algorithm::split(
+                                content_type_values,
+                                current_value_,
+                                boost::is_any_of("; \t"),
+                                boost::algorithm::token_compress_on);
+                            try {
+                                content_type = content_type_values.at(0);
+                                encoding     = content_type_values.at(1);
+                            } catch (std::out_of_range&) {
+                            }
+                        }
+
+                        headers[current_header_].swap(current_value_);
+                        current_header_.clear();
+                        current_value_.clear();
+
+                        state_ = header_start;
+                    } else
+                        current_value_.push_back(input);
+                } else
+                    return bad;
+                break;
+            case body_range:
+                if (body.size() <= content_length_) {
+                    body.push_back(input);
+
+                    if (body.size() == content_length_)
                         return good;
                 } else
                     return bad;
-            } else if (netstring_count_ < netstring_length_) {
-                if (input == '\0') {
-                    if (current_header_.size() > 0)
-                        state_ = header_value;
-                    else
-                        return bad;
-                } else
-                    current_header_.push_back(input);
-            } else
-                return bad;
-            break;
-        case header_value:
-            if (netstring_count_ <= netstring_length_) {
-                if (input == '\0') {
-                    // Check whether first header is CONTENT_LENGTH
-                    if (headers.empty()) {
-                        if (current_header_ == "CONTENT_LENGTH")
-                            content_length_ = boost::lexical_cast<size_t>(current_value_);
-                        else
-                            return bad;
-                    }
-
-                    // Check if 2nd header is SCGI
-                    if (headers.size() == 1 && !(current_header_ == "SCGI" && current_value_ == "1"))
-                        return bad;
-
-                    if (current_header_ == "REQUEST_METHOD") {
-                        if (current_value_ == "GET")
-                            method = method_type::get;
-                        else if (current_value_ == "PUT")
-                            method = method_type::put;
-                        else if (current_value_ == "POST")
-                            method = method_type::post;
-                    } else if (current_header_ == "REQUEST_URI") {
-                        uri = current_value_;
-                    } else if (current_header_ == "CONTENT_TYPE") {
-                        // Split content type value into parts
-                        std::vector<std::string> content_type_values;
-                        boost::algorithm::split(content_type_values, current_value_, boost::is_any_of("; \t"), boost::algorithm::token_compress_on);
-                        try {
-                            content_type = content_type_values.at(0);
-                            encoding = content_type_values.at(1);
-                        } catch (std::out_of_range&) {}
-                    }
-
-                    headers[current_header_].swap(current_value_);
-                    current_header_.clear();
-                    current_value_.clear();
-
-                    state_ = header_start;
-                } else
-                    current_value_.push_back(input);
-            } else
-                return bad;
-            break;
-        case body_range:
-            if (body.size() <= content_length_) {
-                body.push_back(input);
-
-                if (body.size() == content_length_)
-                    return good;
-            } else
-                return bad;
-            break;
+                break;
         }
     } catch (...) {
         return bad;
@@ -146,6 +147,6 @@ request_parser::result_type request_parser::consume(char input) noexcept
     return indeterminate;
 }
 
-} // namespace decof
-
 } // namespace scgi
+
+} // namespace decof

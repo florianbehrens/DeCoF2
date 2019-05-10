@@ -17,29 +17,27 @@
 #ifndef DECOF_CLI_PUBSUB_CONTEXT_H
 #define DECOF_CLI_PUBSUB_CONTEXT_H
 
-#include <string>
+#include "update_container.h"
+#include <decof/cli/cli_context_base.h>
+#include <decof/types.h>
+#include <decof/userlevel.h>
 #include <boost/any.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
-#include <decof/types.h>
-#include <decof/userlevel.h>
-#include <decof/cli/cli_context_base.h>
-#include "update_container.h"
+#include <string>
 
-namespace decof
-{
+namespace decof {
 
 // Forward declaration(s)
 class object_dictionary;
 
-namespace cli
-{
+namespace cli {
 
 class pubsub_context : public cli_context_base
 {
-public:
+  public:
     using strand_t = boost::asio::io_service::strand;
     using socket_t = boost::asio::ip::tcp::socket;
 
@@ -55,9 +53,9 @@ public:
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void preload() final;
+    void        preload() final;
 
-private:
+  private:
     /// Callback for read operations.
     void read_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
@@ -83,15 +81,15 @@ private:
     /// Processes CLI requests.
     void process_request(std::string request);
 
-    strand_t& strand_;
-    socket_t socket_;
+    strand_t&              strand_;
+    socket_t               socket_;
     boost::asio::streambuf inbuf_;
     boost::asio::streambuf outbuf_;
 
     size_t socket_send_buf_size_;
 
     update_container pending_updates_;
-    bool writing_active_ = false;
+    bool             writing_active_ = false;
 };
 
 } // namespace cli

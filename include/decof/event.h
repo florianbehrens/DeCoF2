@@ -20,23 +20,22 @@
 #include "object.h"
 
 // Macro for simple event declaration.
-#define DECOF_DECLARE_EVENT(name)                                             \
-    struct name : public decof::event                                         \
-    {                                                                         \
-        using event::event;                                                   \
-        virtual void signal() override final;                                 \
+#define DECOF_DECLARE_EVENT(name)             \
+    struct name : public decof::event         \
+    {                                         \
+        using event::event;                   \
+        virtual void signal() override final; \
     }
 
-namespace decof
-{
+namespace decof {
 
 class event : public object
 {
-public:
-    explicit event(std::string name, node *parent = nullptr, userlevel_t writelevel = Normal);
+  public:
+    explicit event(std::string name, node* parent = nullptr, userlevel_t writelevel = Normal);
 
     /// Visitor pattern accept method
-    virtual void accept(object_visitor *visitor) override final;
+    virtual void accept(object_visitor* visitor) override final;
 
     virtual void signal() = 0;
 };
