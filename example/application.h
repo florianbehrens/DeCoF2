@@ -18,10 +18,8 @@
 #define DECOF_EXAMPLE_APPLICATION_H
 
 #include <memory>
-
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-
 #include <decof/asio_executor/asio_executor.h>
 
 /**

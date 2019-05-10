@@ -21,7 +21,6 @@
 #include <map>
 #include <sstream>
 #include <string>
-
 #include <decof/exceptions.h>
 #include <decof/types.h>
 

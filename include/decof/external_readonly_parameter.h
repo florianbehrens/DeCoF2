@@ -18,10 +18,8 @@
 #define DECOF_EXTERNAL_READONLY_PARAMETER_H
 
 #include <string>
-
 #include <boost/optional.hpp>
 #include <boost/signals2/connection.hpp>
-
 #include "encoding_hint.h"
 #include "object_dictionary.h"
 #include "readable_parameter.h"

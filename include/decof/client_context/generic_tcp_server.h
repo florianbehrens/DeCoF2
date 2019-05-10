@@ -18,13 +18,10 @@
 #define DECOF_GENERIC_TCP_SERVER_H
 
 #include <memory>
-
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-
 #include <decof/object_dictionary.h>
-
 #include "client_context.h"
 
 namespace decof

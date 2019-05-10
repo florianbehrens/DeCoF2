@@ -15,10 +15,8 @@
  */
 
 #include "bencode_string_parser.h"
-
 #include <cassert>
 #include <cctype>
-
 #include <boost/lexical_cast.hpp>
 
 namespace decof

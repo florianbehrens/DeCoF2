@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+#define BOOST_TEST_DYN_LINK
+
 #include <iostream>
 #include <thread>
-
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-
 #include <decof/cli/update_container.h>
 #include <decof/types.h>
 

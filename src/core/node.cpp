@@ -15,13 +15,10 @@
  */
 
 #include "node.h"
-
 #include <cassert>
 #include <algorithm>
 #include <iostream>
-
 #include <boost/iterator/transform_iterator.hpp>
-
 #include <client_context/object_visitor.h>
 
 namespace decof

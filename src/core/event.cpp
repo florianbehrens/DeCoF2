@@ -15,7 +15,6 @@
  */
 
 #include "event.h"
-
 #include <client_context/object_visitor.h>
 
 namespace decof

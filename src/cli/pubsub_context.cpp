@@ -15,22 +15,18 @@
  */
 
 #include <decof/cli/pubsub_context.h>
-
 #include <chrono>
 #include <iomanip>
 #include <limits>
 #include <string>
 #include <sstream>
-
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
-
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
-
 #include "encoder.h"
 
 using boost::system::error_code;

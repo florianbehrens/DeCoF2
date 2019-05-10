@@ -18,7 +18,6 @@
 #define DECOF_WRITEONLY_HANDLER_PARAMETER_H
 
 #include <functional>
-
 #include "writeonly_parameter.h"
 
 namespace decof

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-#include <functional>
-
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
 
+#include <functional>
+#include <boost/test/unit_test.hpp>
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
-
 #include "test_helpers.h"
 
 BOOST_AUTO_TEST_SUITE(parameter_observation)

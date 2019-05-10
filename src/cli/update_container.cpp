@@ -15,7 +15,6 @@
  */
 
 #include <decof/cli/update_container.h>
-
 #include <cassert>
 
 namespace decof

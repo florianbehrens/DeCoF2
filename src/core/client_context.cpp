@@ -15,7 +15,6 @@
  */
 
 #include <client_context/client_context.h>
-
 #include "client_write_interface.h"
 #include "event.h"
 #include "exceptions.h"

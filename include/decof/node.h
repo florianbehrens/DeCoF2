@@ -20,7 +20,6 @@
 #include <list>
 #include <memory>
 #include <string>
-
 #include "automatic_ptr.h"
 #include "readable_parameter.h"
 #include "types.h"

@@ -18,7 +18,6 @@
 #define DECOF_CLI_TREE_VISITOR_H
 
 #include <ostream>
-
 #include <decof/client_context/object_visitor.h>
 #include <decof/types.h>
 

@@ -19,7 +19,6 @@
 
 #include <functional>
 #include <string>
-
 #include <decof/userlevel.h>
 #include <decof/client_context/client_context.h>
 

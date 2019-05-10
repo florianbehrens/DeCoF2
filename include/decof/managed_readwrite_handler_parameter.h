@@ -18,7 +18,6 @@
 #define DECOF_MANAGED_READWRITE_HANDLER_PARAMETER_H
 
 #include <functional>
-
 #include "encoding_hint.h"
 #include "managed_readwrite_parameter.h"
 

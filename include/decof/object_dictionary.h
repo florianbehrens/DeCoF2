@@ -18,10 +18,8 @@
 #define DECOF_OBJECT_DICTIONARY_H
 
 #include <memory>
-
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/signal.hpp>
-
 #include "node.h"
 
 namespace decof

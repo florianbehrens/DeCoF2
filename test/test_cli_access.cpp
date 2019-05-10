@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include <sstream>
-#include <string>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/asio/read_until.hpp>
-
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
 
 #include <decof/all.h>
 #include <decof/client_context/generic_tcp_server.h>
 #include <decof/cli/clisrv_context.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <sstream>
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(cli_access)
 

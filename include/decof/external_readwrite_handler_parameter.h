@@ -18,7 +18,6 @@
 #define DECOF_EXTERNAL_READWRITE_HANDLER_PARAMETER_H
 
 #include <functional>
-
 #include "encoding_hint.h"
 #include "external_readwrite_parameter.h"
 

@@ -19,12 +19,10 @@
 #include <map>
 #include <ostream>
 #include <iomanip>
-
 #include <boost/algorithm/string/join.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
 #include <boost/variant/apply_visitor.hpp>
-
 #include <decof/conversion.h>
 #include <decof/exceptions.h>
 #include <decof/types.h>

@@ -15,12 +15,9 @@
  */
 
 #include "browse_visitor.h"
-
 #include <boost/variant/apply_visitor.hpp>
-
 #include <decof/client_read_interface.h>
 #include <decof/node.h>
-
 #include "encoder.h"
 
 namespace decof

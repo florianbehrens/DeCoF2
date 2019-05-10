@@ -25,7 +25,6 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/variant.hpp>
 

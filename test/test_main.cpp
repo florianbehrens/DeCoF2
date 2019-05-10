@@ -19,9 +19,7 @@
 #define BOOST_TEST_MODULE "decof2"
 
 #include <boost/test/unit_test.hpp>
-
 #include <decof/types.h>
-
 #include "test_helpers.h"
 
 namespace decof {

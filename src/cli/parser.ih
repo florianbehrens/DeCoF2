@@ -18,7 +18,6 @@
 #define DECOF_CLI_PARSER_IH
 
 #include <iterator>
-
 #include <decof/exceptions.h>
 
 // $insert class.h

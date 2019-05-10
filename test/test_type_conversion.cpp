@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
+#define BOOST_TEST_DYN_LINK
+
 #include <decof/types.h>
 #include <decof/conversion.h>
-
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
-
 #include <array>
 #include <deque>
 #include <forward_list>
@@ -28,7 +27,6 @@
 #include <list>
 #include <numeric>
 #include <vector>
-
 #include "test_helpers.h"
 
 using namespace decof;

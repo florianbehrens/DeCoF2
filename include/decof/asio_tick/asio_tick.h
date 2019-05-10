@@ -18,11 +18,9 @@
 #define DECOF_ASIO_TICK_H
 
 #include <chrono>
-
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/steady_timer.hpp>
-
 #include <decof/client_context/client_context.h>
 
 namespace decof

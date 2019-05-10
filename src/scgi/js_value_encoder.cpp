@@ -15,7 +15,6 @@
  */
 
 #include <iomanip>
-
 #include "endian.h"
 #include "js_value_encoder.h"
 

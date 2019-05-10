@@ -15,9 +15,7 @@
  */
 
 #include "object_dictionary.h"
-
 #include <boost/algorithm/string.hpp>
-
 #include <client_context/client_context.h>
 #include <client_context/object_visitor.h>
 

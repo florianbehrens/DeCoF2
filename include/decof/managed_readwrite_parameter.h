@@ -18,7 +18,6 @@
 #define DECOF_MANAGED_READWRITE_PARAMETER_H
 
 #include <string>
-
 #include "encoding_hint.h"
 #include "readable_parameter.h"
 #include "typed_client_write_interface.h"

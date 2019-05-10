@@ -18,7 +18,6 @@
 #define DECOF_OBJECT_H
 
 #include <string>
-
 #include "automatic_ptr.h"
 #include "userlevel.h"
 

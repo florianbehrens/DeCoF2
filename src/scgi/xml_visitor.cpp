@@ -15,9 +15,7 @@
  */
 
 #include "xml_visitor.h"
-
 #include <map>
-
 #include <decof/client_write_interface.h>
 #include <decof/event.h>
 #include <decof/node.h>

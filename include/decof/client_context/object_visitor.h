@@ -18,7 +18,6 @@
 #define DECOF_OBJECT_VISITOR_H
 
 #include <sstream>
-
 #include <decof/types.h>
 
 namespace decof

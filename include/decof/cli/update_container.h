@@ -21,7 +21,6 @@
 #include <string>
 #include <tuple>
 #include <map>
-
 #include <decof/types.h>
 
 namespace decof

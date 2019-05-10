@@ -18,7 +18,6 @@
 #define DECOF_EXTERNAL_READONLY_HANDLER_PARAMETER_H
 
 #include <functional>
-
 #include "encoding_hint.h"
 #include "exceptions.h"
 #include "external_readonly_parameter.h"

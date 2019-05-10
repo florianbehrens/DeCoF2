@@ -18,7 +18,6 @@
 #define MANAGED_READONLY_PARAMETER_H
 
 #include <string>
-
 #include "encoding_hint.h"
 #include "readable_parameter.h"
 

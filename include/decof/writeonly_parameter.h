@@ -18,7 +18,6 @@
 #define DECOF_WRITEONLY_PARAMETER_H
 
 #include <decof/client_context/object_visitor.h>
-
 #include "basic_parameter.h"
 #include "typed_client_write_interface.h"
 

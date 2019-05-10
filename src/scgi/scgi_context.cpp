@@ -15,18 +15,14 @@
  */
 
 #include <decof/scgi/scgi_context.h>
-
 #include <ostream>
-
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
-
 #include <decof/exceptions.h>
 #include <decof/object_dictionary.h>
-
 #include "array_view.h"
 #include "bencode_string_parser.h"
 #include "endian.h"

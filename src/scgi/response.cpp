@@ -15,7 +15,6 @@
  */
 
 #include <decof/scgi/response.h>
-
 #include <map>
 #include <sstream>
 

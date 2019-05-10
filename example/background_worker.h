@@ -19,7 +19,6 @@
 
 #include <memory>
 #include <thread>
-
 #include <decof/handler_event.h>
 #include <decof/managed_readonly_parameter.h>
 #include <decof/node.h>

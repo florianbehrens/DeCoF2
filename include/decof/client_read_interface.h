@@ -21,7 +21,6 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/signal_type.hpp>
 #include <boost/signals2/dummy_mutex.hpp>
-
 #include "types.h"
 
 namespace decof

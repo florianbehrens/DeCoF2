@@ -18,7 +18,6 @@
 #define DECOF_HANDLER_EVENT_H
 
 #include "event.h"
-
 #include <functional>
 
 namespace decof

@@ -15,7 +15,6 @@
  */
 
 #include "object.h"
-
 #include "node.h"
 #include "object_dictionary.h"
 

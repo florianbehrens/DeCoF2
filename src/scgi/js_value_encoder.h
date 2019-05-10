@@ -18,9 +18,7 @@
 #define DECOF_SCGI_JS_VALUE_ENCODER_H
 
 #include <ostream>
-
 #include <boost/variant/static_visitor.hpp>
-
 #include <decof/types.h>
 
 namespace decof

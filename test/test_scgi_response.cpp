@@ -15,8 +15,8 @@
  */
 
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
 
+#include <boost/test/unit_test.hpp>
 #include <decof/scgi/response.h>
 
 BOOST_AUTO_TEST_SUITE(scgi_response)

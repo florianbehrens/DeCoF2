@@ -15,12 +15,10 @@
  */
 
 #include <decof/cli/clisrv_context.h>
-
 #include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
-
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
@@ -29,12 +27,10 @@
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
-
 #include <decof/exceptions.h>
 #include <decof/object.h>
 #include <decof/object_dictionary.h>
 #include <decof/types.h>
-
 #include "browse_visitor.h"
 #include "parser.h"
 #include "encoder.h"

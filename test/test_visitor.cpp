@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-#include <memory>
-
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
 
+#include <memory>
+#include <boost/test/unit_test.hpp>
 #include <decof/all.h>
 #include <decof/client_context/generic_tcp_server.h>
-
 #include "cli/tree_visitor.h"
 
 using namespace decof;

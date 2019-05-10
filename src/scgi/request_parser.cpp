@@ -15,11 +15,9 @@
  */
 
 #include <decof/scgi/request_parser.h>
-
 #include <cctype>
 #include <string>
 #include <vector>
-
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>

@@ -19,9 +19,7 @@
 
 #include <map>
 #include <memory>
-
 #include <boost/signals2/connection.hpp>
-
 #include <decof/client_read_interface.h>
 #include <decof/types.h>
 #include <decof/userlevel.h>

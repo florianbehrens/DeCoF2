@@ -15,11 +15,9 @@
  */
 
 #include "tree_visitor.h"
-
 #include <decof/event.h>
 #include <decof/node.h>
 #include <decof/object.h>
-
 #include "encoder.h"
 
 namespace decof

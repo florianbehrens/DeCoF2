@@ -18,18 +18,14 @@
 #define DECOF_CLI_PUBSUB_CONTEXT_H
 
 #include <string>
-
 #include <boost/any.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
-
 #include <decof/types.h>
 #include <decof/userlevel.h>
-
 #include <decof/cli/cli_context_base.h>
-
 #include "update_container.h"
 
 namespace decof

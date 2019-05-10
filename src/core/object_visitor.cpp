@@ -15,7 +15,6 @@
  */
 
 #include <client_context/object_visitor.h>
-
 #include "event.h"
 #include "node.h"
 #include "basic_parameter.h"

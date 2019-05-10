@@ -18,9 +18,7 @@
 #define DECOF_CLI_ENCODER_H
 
 #include <ostream>
-
 #include <boost/variant/static_visitor.hpp>
-
 #include <decof/types.h>
 
 namespace decof

@@ -19,7 +19,6 @@
 
 #include <stack>
 #include <ostream>
-
 #include <decof/client_context/object_visitor.h>
 #include <decof/userlevel.h>
 

@@ -19,9 +19,7 @@
 
 #include <tuple>
 #include <type_traits>
-
 #include <boost/iterator/transform_iterator.hpp>
-
 #include "encoding_hint.h"
 #include "exceptions.h"
 #include "types.h"
