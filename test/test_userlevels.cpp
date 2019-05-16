@@ -54,7 +54,7 @@ struct fixture
             client_context::signal_event(uri, separator);
         }
 
-        void observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator = ':')
+        void observe(const std::string& uri, value_change_slot slot, char separator = ':')
         {
             client_context::observe(uri, slot, separator);
         }

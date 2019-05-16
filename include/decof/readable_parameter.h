@@ -18,6 +18,7 @@
 #define DECOF_READABLE_PARAMETER_H
 
 #include "basic_parameter.h"
+#include "client_observe_interface.h"
 #include "conversion.h"
 #include "encoding_hint.h"
 #include "object_visitor.h"
@@ -27,11 +28,13 @@
 namespace decof {
 
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class readable_parameter : public basic_parameter<T, EncodingHint>, public typed_client_read_interface<T, EncodingHint>
+class readable_parameter : public basic_parameter<T, EncodingHint>,
+                           public typed_client_read_interface<T, EncodingHint>,
+                           public client_observe_interface
 {
   public:
     /// Override client_read_interface::observe.
-    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override
+    virtual boost::signals2::scoped_connection observe(value_change_slot slot) override
     {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
         emit(this->value());
@@ -61,7 +64,7 @@ class readable_parameter : public basic_parameter<T, EncodingHint>, public typed
         signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
     }
 
-    client_read_interface::value_change_signal_t signal_;
+    value_change_signal signal_;
 };
 
 } // namespace decof

@@ -115,23 +115,28 @@ void client_context::signal_event(const std::string& uri, char separator)
     ev->signal();
 }
 
-void client_context::observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator)
+void client_context::observe(const std::string& uri, value_change_slot slot, char separator)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     auto obj = object_dictionary_.find_object(uri, separator);
 
-    if (client_read_interface* param = dynamic_cast<client_read_interface*>(obj)) {
-        if (effective_userlevel() > obj->readlevel())
+    if (auto observable = dynamic_cast<client_observe_interface*>(obj)) {
+        if (effective_userlevel() > obj->readlevel()) {
             throw access_denied_error();
+        }
 
-        if (observables_.count(uri) == 0)
-            observables_[uri] = param->observe(slot);
-        else
-            // TODO: Raise error or deliver value?
-            slot(uri, param->generic_value());
-    } else
+        if (observables_.count(uri) == 0) {
+            observables_[uri] = observable->observe(slot);
+        } else {
+            if (client_read_interface* readable = dynamic_cast<client_read_interface*>(obj)) {
+                // TODO: Raise error or deliver value?
+                slot(uri, readable->generic_value());
+            }
+        }
+    } else {
         throw invalid_parameter_error();
+    }
 }
 
 void client_context::unobserve(const std::string& uri, char separator)
@@ -141,13 +146,15 @@ void client_context::unobserve(const std::string& uri, char separator)
 
         auto obj = object_dictionary_.find_object(uri, separator);
 
-        if (client_read_interface* param = dynamic_cast<client_read_interface*>(obj)) {
+        if (auto observable = dynamic_cast<client_observe_interface*>(obj)) {
             observables_.erase(uri);
-            param->unobserve();
-        } else
+            observable->unobserve();
+        } else {
             throw invalid_parameter_error();
-    } else
+        }
+    } else {
         throw not_subscribed_error();
+    }
 }
 
 void client_context::browse(object_visitor* visitor, const std::string& root_uri)

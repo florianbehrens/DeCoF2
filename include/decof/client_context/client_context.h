@@ -17,6 +17,7 @@
 #ifndef DECOF_CLIENT_CONTEXT_H
 #define DECOF_CLIENT_CONTEXT_H
 
+#include <decof/client_observe_interface.h>
 #include <decof/client_read_interface.h>
 #include <decof/types.h>
 #include <decof/userlevel.h>
@@ -75,7 +76,7 @@ class client_context : public std::enable_shared_from_this<client_context>
      * @param slot The slot to be called on object updates.
      * @param separator The separator character.
      */
-    void observe(const std::string& uri, client_read_interface::value_change_slot_t slot, char separator = ':');
+    void observe(const std::string& uri, value_change_slot slot, char separator = ':');
 
     /** @brief Terminate object observation.
      *

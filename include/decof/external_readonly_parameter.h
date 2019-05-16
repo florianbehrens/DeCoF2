@@ -78,7 +78,7 @@ class external_readonly_parameter : public readable_parameter<T, EncodingHint>
         notify();
     }
 
-    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override final
+    virtual boost::signals2::scoped_connection observe(value_change_slot slot) override final
     {
         // Check for object dictionary
         object_dictionary* obj_dict = this->get_object_dictionary();

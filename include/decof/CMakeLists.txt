@@ -4,6 +4,7 @@ add_custom_target(
         all.h
         automatic_ptr.h
         basic_parameter.h
+        client_observe_interface.h
         client_read_interface.h
         client_write_interface.h
         conversion.h
