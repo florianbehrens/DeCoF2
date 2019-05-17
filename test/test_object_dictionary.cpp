@@ -52,35 +52,17 @@ struct fixture
 
 BOOST_FIXTURE_TEST_CASE(find_root_object, fixture)
 {
-    try {
-        my_context->get_parameter("root");
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
-    }
+    my_context->get_parameter("root");
 }
 
 BOOST_FIXTURE_TEST_CASE(find_child_object, fixture)
 {
-    try {
-        my_context->get_parameter("root:node1:node2:param");
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
-    }
+    my_context->get_parameter("root:node1:node2:param");
 }
 
 BOOST_FIXTURE_TEST_CASE(find_child_object_with_custom_separator, fixture)
 {
-    try {
-        my_context->get_parameter("root&node1&node2&param", '&');
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
-    }
+    my_context->get_parameter("root&node1&node2&param", '&');
 }
 
 BOOST_FIXTURE_TEST_CASE(delete_middle_node, fixture)
