@@ -16,10 +16,11 @@
 
 #include "node.h"
 #include "object_visitor.h"
-#include <boost/iterator/transform_iterator.hpp>
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+#include <iterator>
+#include <list>
+#include <string_view>
 
 namespace decof {
 
@@ -101,11 +102,10 @@ object* node::find_descendant_object(std::string_view uri, char separator)
 
 std::list<std::string> node::children() const
 {
-    auto const& func = [](object* obj) { return obj->name(); };
-
-    return std::list<std::string>(
-        boost::make_transform_iterator(children_.cbegin(), func),
-        boost::make_transform_iterator(children_.cend(), func));
+    std::list<std::string> retval;
+    std::transform(
+        children_.cbegin(), children_.cend(), std::back_inserter(retval), [](object* obj) { return obj->name(); });
+    return retval;
 }
 
 node::iterator node::begin()

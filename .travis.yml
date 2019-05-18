@@ -9,8 +9,9 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - sourceline: ppa:mhier/libboost-latest
     packages:
-      - g++-7 libboost-system-dev libboost-test-dev libboost-thread-dev cmake python-pip
+      - g++-7 libboost1.68-dev cmake python-pip
 
 install:
   - sudo pip install -U cpp-coveralls

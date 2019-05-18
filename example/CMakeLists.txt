@@ -16,6 +16,7 @@ target_link_libraries(
     decof2-asio-tick
     decof2-cli
     decof2-scgi
+    ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
 )
 
