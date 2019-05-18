@@ -20,8 +20,8 @@
 #include "encoding_hint.h"
 #include "object_dictionary.h"
 #include "readable_parameter.h"
-#include <boost/optional.hpp>
 #include <boost/signals2/connection.hpp>
+#include <optional>
 #include <string>
 
 /// Convenience macro for parameter declaration
@@ -107,7 +107,7 @@ class external_readonly_parameter : public readable_parameter<T, EncodingHint>
     }
 
     boost::signals2::scoped_connection connection_;
-    boost::optional<T>                 last_value_;
+    std::optional<T>                   last_value_;
 };
 
 } // namespace decof
