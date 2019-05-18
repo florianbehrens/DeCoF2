@@ -62,7 +62,7 @@ void node::remove_child(object* child)
     });
 }
 
-object* node::find_immediate_child(const std::string& name)
+object* node::find_child(std::string_view name)
 {
     children_t::iterator it =
         std::find_if(children_.begin(), children_.end(), [name](const children_t::value_type& value) {
@@ -75,28 +75,28 @@ object* node::find_immediate_child(const std::string& name)
     return nullptr;
 }
 
-object* node::find_child(const std::string& uri, char separator)
+object* node::find_descendant_object(std::string_view uri, char separator)
 {
-    if (uri.empty())
-        return this;
+    auto    sep_idx = uri.find(separator);
+    object* obj     = find_child(uri.substr(0, sep_idx));
 
-    std::string::size_type idx        = uri.find(separator);
-    std::string            child_name = uri.substr(0, idx);
-    std::string            sub_uri;
+    uri.remove_prefix(std::min(sep_idx, uri.size()));
 
-    if (idx != std::string::npos)
-        sub_uri = uri.substr(idx + 1, uri.length());
-
-    // Find immediate child element
-    object* te = find_immediate_child(child_name);
-
-    // Check whether child element is a node
-    node* child_node = dynamic_cast<node*>(te);
-    if (child_node != nullptr) {
-        return child_node->find_child(sub_uri, separator);
+    if (uri.size() == 0) {
+        return obj;
     }
 
-    return te;
+    uri.remove_prefix(1);
+
+    if (uri.size() == 0) {
+        return nullptr;
+    }
+
+    if (auto child_node = dynamic_cast<node*>(obj)) {
+        return child_node->find_descendant_object(uri, separator);
+    }
+
+    return nullptr;
 }
 
 std::list<std::string> node::children() const

@@ -21,6 +21,8 @@
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/signal.hpp>
 #include <memory>
+#include <string>
+#include <string_view>
 
 namespace decof {
 
@@ -62,9 +64,21 @@ class object_dictionary : public node
     /// @return A @a boost::signals2 connection object.
     tick_connection register_for_tick(tick_slot_type slot);
 
-  private:
-    object* find_object(const std::string& curi, char separator = ':');
+    /**
+     * @brief Find object with given URI.
+     *
+     * Returns a pointer to the object corresponding to the given URI and
+     * separator if existing, otherwise @c nullptr.
+     *
+     * A leading separator character is optional.
+     *
+     * @param uri The URI to the requested object.
+     * @param separator The separator character used with the URI.
+     * @return Pointer to the requested object if existing or @c nullptr.
+     */
+    object* find_object(std::string_view uri, char separator = ':');
 
+  private:
     void set_current_context(client_context* client_context);
 
     void tick();

@@ -17,7 +17,9 @@
 #include "object_dictionary.h"
 #include "object_visitor.h"
 #include <client_context/client_context.h>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <cassert>
+#include <string_view>
 
 namespace decof {
 
@@ -57,23 +59,29 @@ object_dictionary::tick_connection object_dictionary::register_for_tick(object_d
     return tick_signal_.connect(slot);
 }
 
-object* object_dictionary::find_object(const std::string& curi, char separator)
+object* object_dictionary::find_object(std::string_view uri, char separator)
 {
-    std::string uri(curi);
-
-    // Ignore leading separator character
-    if (uri.length() > 0 && uri[0] == separator)
-        uri = curi.substr(1);
-
-    if (uri == name())
-        return this;
-
-    if (boost::algorithm::starts_with(uri, name() + separator)) {
-        std::string sub_uri = uri.substr(uri.find(separator) + 1);
-        return find_child(sub_uri, separator);
+    if (uri.empty()) {
+        return nullptr;
     }
 
-    return nullptr;
+    if (uri[0] == separator) {
+        uri.remove_prefix(1);
+    }
+
+    auto sep_idx = uri.find(separator);
+
+    if (name() != uri.substr(0, sep_idx)) {
+        return nullptr;
+    }
+
+    if (sep_idx == std::string_view::npos) {
+        return this;
+    }
+
+    uri.remove_prefix(sep_idx + 1);
+
+    return find_descendant_object(uri, separator);
 }
 
 void object_dictionary::set_current_context(client_context* client_context)
