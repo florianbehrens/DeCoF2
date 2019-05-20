@@ -21,6 +21,11 @@
 #include "exceptions.h"
 #include "transform_iterator.h"
 #include "types.h"
+#include <boost/numeric/conversion/cast.hpp>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
 #include <tuple>
 #include <type_traits>
 #include <variant>

@@ -17,16 +17,9 @@
 #ifndef DECOF_TYPES_H
 #define DECOF_TYPES_H
 
-#include "exceptions.h"
-#include <boost/numeric/conversion/cast.hpp>
-#include <cctype>
-#include <cmath>
+#include <cstddef>
 #include <deque>
-#include <limits>
-#include <ostream>
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <variant>
 
 namespace decof {
@@ -42,7 +35,7 @@ namespace decof {
  *
  * The new type behaves exactly like the original type, though.
  */
-template <typename T, size_t Id = 0>
+template <typename T, std::size_t Id = 0>
 struct tag : public T
 {
     using T::T;
