@@ -24,6 +24,7 @@ add_custom_target(
         object_dictionary.h
         object_visitor.h
         readable_parameter.h
+        transform_iterator.h
         typed_client_read_interface.h
         typed_client_write_interface.h
         types.h

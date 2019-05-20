@@ -19,8 +19,8 @@
 
 #include "encoding_hint.h"
 #include "exceptions.h"
+#include "transform_iterator.h"
 #include "types.h"
-#include <boost/iterator/transform_iterator.hpp>
 #include <tuple>
 #include <type_traits>
 #include <variant>
@@ -397,8 +397,8 @@ struct scalar_conversion_helper<
     typename std::enable_if<
         std::is_constructible<
             T,
-            sequence_t::const_iterator, // Should be a boost::transform_iterator!
-            sequence_t::const_iterator  // Should be a boost::transform_iterator!
+            sequence_t::const_iterator, // Should be a transform_iterator!
+            sequence_t::const_iterator  // Should be a transform_iterator!
             >::value &&
         std::is_same< // has T::const_iterator T::cbegin() method?
             decltype(std::declval<T>().cbegin()),
@@ -554,8 +554,8 @@ struct conversion_helper<
     typename std::enable_if<
         std::is_constructible<
             T,
-            sequence_t::const_iterator, // Should be a boost::transform_iterator!
-            sequence_t::const_iterator  // Should be a boost::transform_iterator!
+            sequence_t::const_iterator, // Should be a transform_iterator!
+            sequence_t::const_iterator  // Should be a transform_iterator!
             >::value &&
         std::is_same< // has T::const_iterator T::cbegin() method?
             decltype(std::declval<T>().cbegin()),
@@ -575,18 +575,14 @@ struct conversion_helper<
         auto const& src       = std::get<sequence_t>(arg);
         auto const& transform = scalar_conversion_helper<typename T::value_type>::from_generic;
 
-        return T(
-            boost::make_transform_iterator(src.cbegin(), transform),
-            boost::make_transform_iterator(src.cend(), transform));
+        return T(transform_iterator(src.cbegin(), transform), transform_iterator(src.cend(), transform));
     }
 
     static value_t to_generic(const T& arg)
     {
         auto const& transform = scalar_conversion_helper<typename T::value_type>::to_generic;
 
-        return sequence_t(
-            boost::make_transform_iterator(arg.cbegin(), transform),
-            boost::make_transform_iterator(arg.cend(), transform));
+        return sequence_t(transform_iterator(arg.cbegin(), transform), transform_iterator(arg.cend(), transform));
     }
 };
 
