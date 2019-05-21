@@ -144,8 +144,16 @@ void clisrv_context::process_request(std::string request)
 
     // Prepend root node name if not present (for compatibility reasons to
     // 'classic' DeCoF)
-    if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
-        uri = object_dictionary_.name() + ":" + uri;
+    if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":")) {
+        auto new_uri = object_dictionary_.name();
+
+        if (!uri.empty()) {
+            new_uri.push_back(':');
+            new_uri.append(uri);
+        }
+
+        uri.swap(new_uri);
+    }
 
     std::ostream out(&outbuf_);
     encoder      encoder(out);
