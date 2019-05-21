@@ -24,7 +24,8 @@
 
 namespace decof {
 
-object_dictionary::context_guard::context_guard(object_dictionary& od, client_context* cc) : object_dictionary_(od)
+object_dictionary::context_guard::context_guard(object_dictionary& od, basic_client_context* cc)
+  : object_dictionary_(od)
 {
     object_dictionary_.set_current_context(cc);
 }
@@ -38,7 +39,7 @@ object_dictionary::object_dictionary(const std::string& root_uri) : node(root_ur
 {
 }
 
-const client_context* object_dictionary::current_context() const
+const basic_client_context* object_dictionary::current_context() const
 {
     return current_context_;
 }
@@ -78,7 +79,7 @@ object* object_dictionary::find_object(std::string_view uri, char separator)
     return find_descendant_object(uri, separator);
 }
 
-void object_dictionary::set_current_context(client_context* client_context)
+void object_dictionary::set_current_context(basic_client_context* client_context)
 {
     current_context_ = client_context;
 }

@@ -24,7 +24,7 @@
 
 namespace decof {
 
-class client_context;
+class basic_client_context;
 class tick_interface;
 
 /**
@@ -42,20 +42,20 @@ class object_dictionary : public node
     class context_guard
     {
       public:
-        context_guard(object_dictionary& od, client_context* cc);
+        context_guard(object_dictionary& od, basic_client_context* cc);
         ~context_guard();
 
         context_guard(const context_guard&) = delete;
         context_guard& operator=(const context_guard&) = delete;
 
       private:
-        object_dictionary&    object_dictionary_;
-        const client_context* client_context_;
+        object_dictionary&          object_dictionary_;
+        const basic_client_context* client_context_;
     };
 
     object_dictionary(const std::string& root_uri = "root");
 
-    const client_context* current_context() const;
+    const basic_client_context* current_context() const;
 
     /**
      * @brief Register a tick target at the tick source.
@@ -87,11 +87,11 @@ class object_dictionary : public node
     object* find_object(std::string_view uri, char separator = ':');
 
   private:
-    void set_current_context(client_context* client_context);
+    void set_current_context(basic_client_context* client_context);
 
     void tick();
 
-    client_context*            current_context_{nullptr};
+    basic_client_context*      current_context_{nullptr};
     std::list<tick_interface*> tick_targets_;
 };
 

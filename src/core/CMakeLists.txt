@@ -1,5 +1,6 @@
 set(
     DECOF2_CORE_SRC
+    basic_client_context.cpp
     client_context.cpp
     event.cpp
     exceptions.cpp

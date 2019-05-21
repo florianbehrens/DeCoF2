@@ -55,3 +55,4 @@ if(${Boost_THREAD_FOUND})
     add_subdirectory(example)
 endif()
 
+add_subdirectory(simple)

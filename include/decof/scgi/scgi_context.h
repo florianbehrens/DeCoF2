@@ -50,7 +50,8 @@ class scgi_context final : public client_context, public std::enable_shared_from
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void        preload() final;
+
+    void preload();
 
   private:
     /** @brief Callback for boost::asio read operations.

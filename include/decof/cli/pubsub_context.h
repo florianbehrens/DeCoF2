@@ -54,7 +54,8 @@ class pubsub_context : public cli_context_base, public std::enable_shared_from_t
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void        preload() final;
+
+    void preload();
 
   private:
     /// Callback for read operations.

@@ -46,7 +46,7 @@ class asio_tick_context : public decof::client_context
         boost::asio::io_service::strand& strand,
         std::chrono::milliseconds        interval = std::chrono::milliseconds(100));
 
-    void preload() override;
+    void preload();
 
   private:
     void tick_handler(const boost::system::error_code& error);

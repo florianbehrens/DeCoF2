@@ -28,7 +28,7 @@ namespace decof {
  * private. */
 class client_write_interface
 {
-    friend class client_context;
+    friend class basic_client_context;
 
   public:
     virtual ~client_write_interface() = default;
