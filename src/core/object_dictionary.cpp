@@ -38,20 +38,8 @@ object_dictionary::object_dictionary(const std::string& root_uri) : node(root_ur
 {
 }
 
-void object_dictionary::add_context(std::shared_ptr<client_context> client_context)
+const client_context* object_dictionary::current_context() const
 {
-    client_contexts_.push_back(client_context);
-}
-
-void object_dictionary::remove_context(std::shared_ptr<client_context> client_context)
-{
-    client_contexts_.remove(client_context);
-}
-
-const std::shared_ptr<client_context> object_dictionary::current_context() const
-{
-    // FIXME
-    //    assert(current_context_ != nullptr);
     return current_context_;
 }
 
@@ -92,13 +80,7 @@ object* object_dictionary::find_object(std::string_view uri, char separator)
 
 void object_dictionary::set_current_context(client_context* client_context)
 {
-    assert(
-        (current_context_ == nullptr && client_context != nullptr) ||
-        (current_context_ != nullptr && client_context == nullptr));
-    if (client_context != nullptr)
-        current_context_ = client_context->shared_from_this();
-    else
-        current_context_.reset();
+    current_context_ = client_context;
 }
 
 void object_dictionary::tick()

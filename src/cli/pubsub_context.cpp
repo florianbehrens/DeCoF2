@@ -75,8 +75,7 @@ std::string pubsub_context::remote_endpoint() const
 
 void pubsub_context::preload()
 {
-    auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_read_until(socket_, inbuf_, '\n', strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->read_handler(err, bytes);
     }));
@@ -137,8 +136,7 @@ void pubsub_context::preload_writing()
     if (outbuf_.size() == 0)
         return;
 
-    auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->write_handler(err, bytes);
     }));
@@ -155,11 +153,6 @@ void pubsub_context::close()
         return;
 
     socket_.close();
-
-    // Remove this client context from object dictionary. Because it is a
-    // shared pointer, it gets deleted after leaving function scope.
-    auto sptr = shared_from_this();
-    object_dictionary_.remove_context(sptr);
 }
 
 void pubsub_context::process_request(std::string request)

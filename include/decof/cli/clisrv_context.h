@@ -22,6 +22,7 @@
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <functional>
+#include <memory>
 #include <string>
 
 #include <decof/cli/cli_context_base.h>
@@ -30,7 +31,7 @@ namespace decof {
 
 namespace cli {
 
-class clisrv_context : public cli_context_base
+class clisrv_context : public cli_context_base, public std::enable_shared_from_this<clisrv_context>
 {
   public:
     using strand_t = boost::asio::io_service::strand;

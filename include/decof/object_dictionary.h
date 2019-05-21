@@ -19,7 +19,6 @@
 
 #include "node.h"
 #include <list>
-#include <memory>
 #include <string>
 #include <string_view>
 
@@ -56,9 +55,7 @@ class object_dictionary : public node
 
     object_dictionary(const std::string& root_uri = "root");
 
-    void                                  add_context(std::shared_ptr<client_context> client_context);
-    void                                  remove_context(std::shared_ptr<client_context> client_context);
-    const std::shared_ptr<client_context> current_context() const;
+    const client_context* current_context() const;
 
     /**
      * @brief Register a tick target at the tick source.
@@ -94,9 +91,8 @@ class object_dictionary : public node
 
     void tick();
 
-    std::list<std::shared_ptr<client_context>> client_contexts_;
-    std::shared_ptr<client_context>            current_context_;
-    std::list<tick_interface*>                 tick_targets_;
+    client_context*            current_context_{nullptr};
+    std::list<tick_interface*> tick_targets_;
 };
 
 } // namespace decof

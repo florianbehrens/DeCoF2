@@ -71,8 +71,7 @@ void clisrv_context::preload()
     std::ostream out(&outbuf_);
     out << "DeCoF command line\n" << prompt;
 
-    auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->write_handler(err, bytes);
     }));
@@ -81,8 +80,7 @@ void clisrv_context::preload()
 void clisrv_context::write_handler(const error_code& error, std::size_t bytes_transferred)
 {
     if (!error) {
-        auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-
+        auto self = shared_from_this();
         boost::asio::async_read_until(
             socket_, inbuf_, '\n', strand_.wrap([self](const error_code& err, std::size_t bytes) {
                 self->read_handler(err, bytes);
@@ -99,8 +97,7 @@ void clisrv_context::read_handler(const error_code& error, std::size_t bytes_tra
             std::string(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes_transferred));
         inbuf_.consume(bytes_transferred);
 
-        auto self(std::dynamic_pointer_cast<clisrv_context>(shared_from_this()));
-
+        auto self = shared_from_this();
         boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
             self->write_handler(err, bytes);
         }));
@@ -116,11 +113,6 @@ void clisrv_context::disconnect()
     error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
-
-    // Remove this client context from object dictionary. Because it is a
-    // shared pointer, it gets deleted after leaving function scope.
-    auto sptr = shared_from_this();
-    object_dictionary_.remove_context(sptr);
 }
 
 void clisrv_context::process_request(std::string request)

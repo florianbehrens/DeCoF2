@@ -23,7 +23,6 @@
 #include <decof/userlevel.h>
 #include <boost/signals2/connection.hpp>
 #include <map>
-#include <memory>
 
 namespace decof {
 
@@ -31,7 +30,7 @@ class object;
 class object_dictionary;
 class object_visitor;
 
-class client_context : public std::enable_shared_from_this<client_context>
+class client_context
 {
   public:
     explicit client_context(object_dictionary& a_object_dictionary, userlevel_t userlevel = Normal);
