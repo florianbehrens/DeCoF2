@@ -65,6 +65,18 @@ BOOST_AUTO_TEST_CASE(empty_value_t_throws)
     BOOST_REQUIRE_THROW(conversion_helper<int>::from_generic(empty), wrong_type_error);
 }
 
+BOOST_AUTO_TEST_CASE(invalid_integral_conversions)
+{
+    value_t val1{integer_t{-1}};
+    BOOST_REQUIRE_THROW(conversion_helper<unsigned int>::from_generic(val1), invalid_value_error);
+
+    auto val2 = static_cast<unsigned long long>(std::numeric_limits<long long>::max()) + 1;
+    BOOST_REQUIRE_THROW(conversion_helper<unsigned long long>::to_generic(val2), invalid_value_error);
+
+    value_t val3{integer_t{static_cast<unsigned int>(std::numeric_limits<int>::max()) + 1}};
+    BOOST_REQUIRE_THROW(conversion_helper<int>::from_generic(val3), invalid_value_error);
+}
+
 BOOST_AUTO_TEST_CASE(integral_type_convertible_to_floating_point)
 {
     const integer_t nominal = (1ll << std::numeric_limits<float>::digits) - 1;
@@ -85,6 +97,15 @@ BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integral)
 
     value_t val_max{static_cast<real_t>(nominal)};
     BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_max), nominal);
+}
+
+BOOST_AUTO_TEST_CASE(invalid_floating_point_to_integral_conversions)
+{
+    value_t val_min{static_cast<double>(std::numeric_limits<int32_t>::min()) - 1.0};
+    BOOST_REQUIRE_THROW(conversion_helper<int32_t>::from_generic(val_min), invalid_value_error);
+
+    value_t val_max{static_cast<double>(std::numeric_limits<int32_t>::max()) + 1.0};
+    BOOST_REQUIRE_THROW(conversion_helper<int32_t>::from_generic(val_max), invalid_value_error);
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_string_to_string_t)

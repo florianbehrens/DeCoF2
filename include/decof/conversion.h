@@ -21,7 +21,6 @@
 #include "exceptions.h"
 #include "transform_iterator.h"
 #include "types.h"
-#include <boost/numeric/conversion/cast.hpp>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -33,7 +32,8 @@
 namespace decof {
 
 /**
- * @brief Converts an integer number losslessly to type T or throws.
+ * @brief Converts an integer number losslessly to a floating point type T or
+ * throws.
  *
  * @param i Integer value to convert losslessly to type T.
  * @throw invalid_value_error if conversion is not lossless.
@@ -41,28 +41,14 @@ namespace decof {
 template <typename T>
 T convert_lossless_to_floating_point(integer_t i)
 {
+    static_assert(std::is_floating_point_v<T>, "Type T is not a floating point type");
+
     auto const limit = (1ll << std::numeric_limits<T>::digits);
 
     if (i > limit || i < -limit)
         throw invalid_value_error();
 
     return static_cast<T>(i);
-}
-
-/**
- * @brief Converts an input type From losslessly to type To or throws.
- *
- * @param from Value to convert losslessly to type To.
- * @throw invalid_value_error if conversion is not lossless.
- */
-template <typename To, typename From>
-inline To convert_lossless(const From& from)
-{
-    try {
-        return boost::numeric_cast<To>(from);
-    } catch (boost::bad_numeric_cast&) {
-        throw invalid_value_error();
-    }
 }
 
 /**
@@ -74,15 +60,69 @@ inline To convert_lossless(const From& from)
 template <typename T>
 inline T convert_lossless_to_integral(real_t r)
 {
-    if (std::floor(r) == r) {
-        try {
-            return boost::numeric_cast<T>(r);
-        } catch (boost::bad_numeric_cast&) {
+    static_assert(std::is_integral_v<T>, "Type T is not an integral type");
+
+    if (std::trunc(r) != r || r < std::numeric_limits<T>::lowest() || r > std::numeric_limits<T>::max()) {
+        throw invalid_value_error();
+    }
+
+    return static_cast<T>(r);
+}
+
+/**
+ * @brief Converts an integral input type From losslessly to an integral type
+ * To or throws.
+ *
+ * @param from Value to convert losslessly to type To.
+ * @throw invalid_value_error if conversion is not lossless.
+ */
+template <typename To, typename From>
+inline To convert_lossless_integer(const From& from)
+{
+    static_assert(std::is_integral_v<From>, "Type From is not an integral type");
+    static_assert(std::is_integral_v<To>, "Type To is not an integral type");
+
+    auto lowest = std::numeric_limits<To>::lowest();
+    auto max    = std::numeric_limits<To>::max();
+
+    if constexpr (std::is_unsigned_v<To> && std::is_signed_v<From>) {
+        if (from < 0 || static_cast<std::make_unsigned_t<From>>(from) > max) {
+            throw invalid_value_error();
+        }
+    } else if constexpr (std::is_signed_v<To> && std::is_unsigned_v<From>) {
+        if (from > static_cast<std::make_unsigned_t<To>>(max)) {
             throw invalid_value_error();
         }
     } else {
+        if (from < lowest || from > max) {
+            throw invalid_value_error();
+        }
+    }
+
+    return static_cast<To>(from);
+}
+
+/**
+ * @brief Converts a floating point input type From to a floating point type
+ * To with range checking or throws.
+ *
+ * @param from Value to convert to type To.
+ * @throw invalid_value_error if from does not fit into type To.
+ */
+template <typename To, typename From>
+inline To convert_floating_point_with_range_checking(const From& from)
+{
+    static_assert(std::is_floating_point_v<From>, "Type From is not a floating point type");
+    static_assert(std::is_floating_point_v<To>, "Type To is not a floating point type");
+
+    auto lowest = std::numeric_limits<To>::lowest();
+    auto max    = std::numeric_limits<To>::max();
+
+    if (from < lowest || from > max) {
         throw invalid_value_error();
     }
+
+    return static_cast<To>(from);
 }
 
 /**
@@ -229,7 +269,7 @@ struct scalar_conversion_helper<
         if (std::holds_alternative<real_t>(var)) {
             return convert_lossless_to_integral<T>(std::get<real_t>(var));
         } else if (std::holds_alternative<integer_t>(var)) {
-            return convert_lossless<T>(std::get<integer_t>(var));
+            return convert_lossless_integer<T>(std::get<integer_t>(var));
         }
 
         throw wrong_type_error();
@@ -237,7 +277,7 @@ struct scalar_conversion_helper<
 
     static scalar_t to_generic(const T& arg)
     {
-        return scalar_t{convert_lossless<integer_t>(arg)};
+        return scalar_t{convert_lossless_integer<integer_t>(arg)};
     }
 };
 
@@ -257,7 +297,7 @@ struct scalar_conversion_helper<
         if (std::holds_alternative<integer_t>(var)) {
             return convert_lossless_to_floating_point<T>(std::get<integer_t>(var));
         } else if (std::holds_alternative<real_t>(var)) {
-            return convert_lossless<T>(std::get<real_t>(var));
+            return convert_floating_point_with_range_checking<T>(std::get<real_t>(var));
         }
 
         throw wrong_type_error();
@@ -265,7 +305,7 @@ struct scalar_conversion_helper<
 
     static scalar_t to_generic(const T& arg)
     {
-        return scalar_t{convert_lossless<real_t>(arg)};
+        return scalar_t{convert_floating_point_with_range_checking<real_t>(arg)};
     }
 };
 
