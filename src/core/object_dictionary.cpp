@@ -16,6 +16,7 @@
 
 #include "object_dictionary.h"
 #include "object_visitor.h"
+#include "tick_interface.h"
 #include <client_context/client_context.h>
 #include <algorithm>
 #include <cassert>
@@ -54,9 +55,14 @@ const std::shared_ptr<client_context> object_dictionary::current_context() const
     return current_context_;
 }
 
-object_dictionary::tick_connection object_dictionary::register_for_tick(object_dictionary::tick_slot_type slot)
+void object_dictionary::register_for_tick(tick_interface* tick_target)
 {
-    return tick_signal_.connect(slot);
+    tick_targets_.push_back(tick_target);
+}
+
+void object_dictionary::unregister_for_tick(tick_interface* tick_target)
+{
+    tick_targets_.remove(tick_target);
 }
 
 object* object_dictionary::find_object(std::string_view uri, char separator)
@@ -97,7 +103,9 @@ void object_dictionary::set_current_context(client_context* client_context)
 
 void object_dictionary::tick()
 {
-    tick_signal_();
+    for (auto& elem : tick_targets_) {
+        elem->tick();
+    }
 }
 
 } // namespace decof

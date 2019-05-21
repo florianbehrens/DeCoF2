@@ -20,6 +20,7 @@
 #include "encoding_hint.h"
 #include "object_dictionary.h"
 #include "readable_parameter.h"
+#include "tick_interface.h"
 #include <boost/signals2/connection.hpp>
 #include <optional>
 #include <string>
@@ -51,17 +52,12 @@ namespace decof {
  * @tparam EncodingHint A hint for value encoding.
  */
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class external_readonly_parameter : public readable_parameter<T, EncodingHint>
+class external_readonly_parameter : public tick_interface, public readable_parameter<T, EncodingHint>
 {
   public:
     external_readonly_parameter(std::string name, node* parent, userlevel_t readlevel = Normal)
       : readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
     {
-    }
-
-    virtual ~external_readonly_parameter()
-    {
-        connection_.disconnect();
     }
 
     virtual T value() const override final
@@ -80,21 +76,36 @@ class external_readonly_parameter : public readable_parameter<T, EncodingHint>
 
     virtual boost::signals2::scoped_connection observe(value_change_slot slot) override final
     {
-        // Check for object dictionary
-        object_dictionary* obj_dict = this->get_object_dictionary();
-        if (obj_dict == nullptr)
-            return boost::signals2::scoped_connection();
+        auto od = this->get_object_dictionary();
 
-        // Connect to regular tick
-        connection_ =
-            obj_dict->register_for_tick(std::bind(&external_readonly_parameter<T, EncodingHint>::notify, this));
+        if (od == nullptr) {
+            return boost::signals2::scoped_connection();
+        }
+
+        if (observations_++ == 0) {
+            od->register_for_tick(this);
+        }
 
         // Call base class member function
         return readable_parameter<T, EncodingHint>::observe(slot);
     }
 
+    virtual void unobserve() override
+    {
+        if (--observations_ == 0) {
+            if (auto od = this->get_object_dictionary()) {
+                od->unregister_for_tick(this);
+            }
+        }
+    }
+
   private:
     virtual T external_value() const = 0;
+
+    virtual void tick() override
+    {
+        notify();
+    }
 
     /// Slot member function for regular tick.
     void notify()
@@ -106,8 +117,8 @@ class external_readonly_parameter : public readable_parameter<T, EncodingHint>
         }
     }
 
-    boost::signals2::scoped_connection connection_;
-    std::optional<T>                   last_value_;
+    std::size_t      observations_{0};
+    std::optional<T> last_value_;
 };
 
 } // namespace decof

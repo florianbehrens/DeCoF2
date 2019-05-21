@@ -18,8 +18,7 @@
 #define DECOF_OBJECT_DICTIONARY_H
 
 #include "node.h"
-#include <boost/signals2/connection.hpp>
-#include <boost/signals2/signal.hpp>
+#include <list>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -27,17 +26,20 @@
 namespace decof {
 
 class client_context;
+class tick_interface;
 
-/// @brief Object dictionary for parameter tree objects.
+/**
+ * @brief Dictionary of tree objects.
+ *
+ * @note Make sure the lifetime of the object dictionary exceeds the lifetime
+ * of all associated parameters, expecially those that are registered as tick
+ * consumers!
+ */
 class object_dictionary : public node
 {
     friend class client_context;
 
   public:
-    typedef boost::signals2::signal<void()>    tick_type;
-    typedef tick_type::slot_type               tick_slot_type;
-    typedef boost::signals2::scoped_connection tick_connection;
-
     class context_guard
     {
       public:
@@ -58,11 +60,20 @@ class object_dictionary : public node
     void                                  remove_context(std::shared_ptr<client_context> client_context);
     const std::shared_ptr<client_context> current_context() const;
 
-    /// @brief Registers a timer observer.
-    /// The connection with the timer registrar is based on @a boost::signals2.
-    /// @param slot The signal slot.
-    /// @return A @a boost::signals2 connection object.
-    tick_connection register_for_tick(tick_slot_type slot);
+    /**
+     * @brief Register a tick target at the tick source.
+     *
+     * @param tick_target The tick target object.
+     */
+    void register_for_tick(tick_interface* tick_target);
+
+    /**
+     * @brief Unregister a tick target at the tick source.
+     *
+     * @pre The tick_target must have be registered before.
+     * @param tick_target The tick target object.
+     */
+    void unregister_for_tick(tick_interface* tick_target);
 
     /**
      * @brief Find object with given URI.
@@ -85,7 +96,7 @@ class object_dictionary : public node
 
     std::list<std::shared_ptr<client_context>> client_contexts_;
     std::shared_ptr<client_context>            current_context_;
-    tick_type                                  tick_signal_;
+    std::list<tick_interface*>                 tick_targets_;
 };
 
 } // namespace decof
