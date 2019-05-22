@@ -19,7 +19,7 @@
 
 #include "encoding_hint.h"
 #include "object_dictionary.h"
-#include "readable_parameter.h"
+#include "observable_parameter.h"
 #include "tick_interface.h"
 #include <boost/signals2/connection.hpp>
 #include <optional>
@@ -52,11 +52,11 @@ namespace decof {
  * @tparam EncodingHint A hint for value encoding.
  */
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class external_readonly_parameter : public tick_interface, public readable_parameter<T, EncodingHint>
+class external_readonly_parameter : public tick_interface, public observable_parameter<T, EncodingHint>
 {
   public:
     external_readonly_parameter(std::string name, node* parent, userlevel_t readlevel = Normal)
-      : readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
+      : observable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
     {
     }
 
@@ -87,7 +87,7 @@ class external_readonly_parameter : public tick_interface, public readable_param
         }
 
         // Call base class member function
-        return readable_parameter<T, EncodingHint>::observe(slot);
+        return observable_parameter<T, EncodingHint>::observe(slot);
     }
 
     virtual void unobserve() override
@@ -112,7 +112,7 @@ class external_readonly_parameter : public tick_interface, public readable_param
     {
         T cur_value = value();
         if (!last_value_ || *last_value_ != cur_value) {
-            readable_parameter<T, EncodingHint>::emit(cur_value);
+            observable_parameter<T, EncodingHint>::emit(cur_value);
             last_value_ = cur_value;
         }
     }

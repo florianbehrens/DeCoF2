@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_READABLE_PARAMETER_H
-#define DECOF_READABLE_PARAMETER_H
+#ifndef DECOF_OBSERVABLE_PARAMETER_H
+#define DECOF_OBSERVABLE_PARAMETER_H
 
 #include "basic_parameter.h"
 #include "client_observe_interface.h"
@@ -28,12 +28,11 @@
 namespace decof {
 
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class readable_parameter : public basic_parameter<T, EncodingHint>,
-                           public typed_client_read_interface<T, EncodingHint>,
-                           public client_observe_interface
+class observable_parameter : public basic_parameter<T, EncodingHint>,
+                             public typed_client_read_interface<T, EncodingHint>,
+                             public client_observe_interface
 {
   public:
-    /// Override client_read_interface::observe.
     virtual boost::signals2::scoped_connection observe(value_change_slot slot) override
     {
         boost::signals2::scoped_connection retval = signal_.connect(slot);
@@ -41,8 +40,7 @@ class readable_parameter : public basic_parameter<T, EncodingHint>,
         return retval;
     }
 
-    /** @brief  Override client_read_interface::unobserve.
-     *
+    /**
      * @note The implementation of this function can check whether there are
      * still other client contexts connected by calling @code
      * signal().num_slots() @endcode.
@@ -69,4 +67,4 @@ class readable_parameter : public basic_parameter<T, EncodingHint>,
 
 } // namespace decof
 
-#endif // DECOF_READABLE_PARAMETER_H
+#endif // DECOF_OBSERVABLE_PARAMETER_H

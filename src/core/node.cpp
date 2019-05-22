@@ -25,7 +25,7 @@
 namespace decof {
 
 node::node(std::string name, node* parent, userlevel_t readlevel)
-  : readable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
+  : observable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
 {
 }
 

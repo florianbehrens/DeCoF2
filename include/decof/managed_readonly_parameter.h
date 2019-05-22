@@ -18,7 +18,7 @@
 #define MANAGED_READONLY_PARAMETER_H
 
 #include "encoding_hint.h"
-#include "readable_parameter.h"
+#include "observable_parameter.h"
 #include <string>
 
 /// Convenience macro for parameter declaration
@@ -46,16 +46,16 @@ namespace decof {
  * @tparam EncodingHint A hint for value encoding.
  */
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class managed_readonly_parameter : public readable_parameter<T, EncodingHint>
+class managed_readonly_parameter : public observable_parameter<T, EncodingHint>
 {
   public:
     managed_readonly_parameter(std::string name, node* parent, const T& value)
-      : readable_parameter<T, EncodingHint>(name, parent, Normal, Forbidden), value_(value)
+      : observable_parameter<T, EncodingHint>(name, parent, Normal, Forbidden), value_(value)
     {
     }
 
     managed_readonly_parameter(std::string name, node* parent, userlevel_t readlevel = Normal, const T& value = T())
-      : readable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden), value_(value)
+      : observable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden), value_(value)
     {
     }
 
@@ -79,7 +79,7 @@ class managed_readonly_parameter : public readable_parameter<T, EncodingHint>
     {
         if (value_ != value) {
             value_ = value;
-            readable_parameter<T, EncodingHint>::emit(value_);
+            observable_parameter<T, EncodingHint>::emit(value_);
         }
     }
 
@@ -90,7 +90,7 @@ class managed_readonly_parameter : public readable_parameter<T, EncodingHint>
     {
         if (value_ != value) {
             value_ = std::move(value);
-            readable_parameter<T, EncodingHint>::emit(value_);
+            observable_parameter<T, EncodingHint>::emit(value_);
         }
     }
 

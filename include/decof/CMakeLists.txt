@@ -23,7 +23,7 @@ add_custom_target(
         object.h
         object_dictionary.h
         object_visitor.h
-        readable_parameter.h
+        observable_parameter.h
         tick_interface.h
         transform_iterator.h
         typed_client_read_interface.h
