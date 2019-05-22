@@ -21,24 +21,13 @@ add_executable(
     test_helpers.h
 )
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    target_link_libraries(
-        decof2-test
-        decof2-cli-gcov
-        decof2-core-gcov
-        decof2-scgi-gcov
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-        gcov
-        pthread
-    )
-else()
-    target_link_libraries(
-        decof2-test
-        decof2-cli
-        decof2-core
-        decof2-scgi
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    )
-endif()
+target_link_libraries(
+    decof2-test
+    decof2-cli
+    decof2-core
+    decof2-scgi
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    $<IF:$<STREQUAL:${DECOF2_COMPILE_WITH_COVERAGE},ON>,gcov,>
+    $<IF:$<CXX_COMPILER_ID:GNU>,pthread,>
+)

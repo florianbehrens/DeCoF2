@@ -18,11 +18,6 @@ target_link_libraries(
     decof2-scgi
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
+    $<IF:$<STREQUAL:${DECOF2_COMPILE_WITH_COVERAGE},ON>,gcov,>
+    $<IF:$<CXX_COMPILER_ID:GNU>,pthread,>
 )
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-    target_link_libraries(
-        decof2-example
-        pthread
-    )
-endif()
