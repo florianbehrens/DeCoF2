@@ -5,9 +5,11 @@ matrix:
     - compiler: gcc
       env:
         - COMPILER=g++
+        - CMAKE_PARAMS="-DDECOF2_COMPILE_WITH_COVERAGE=ON"
     - compiler: clang
       env:
         - COMPILER=clang
+        - CMAKE_PARAMS=""
 
 dist: xenial
 
@@ -19,5 +21,5 @@ before_script:
 
 script:
   - docker build -t decof2 -f Dockerfile .
-  - BUILD_CMD="(cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDECOF2_COMPILE_WITH_COVERAGE=ON ..; make -j$(nproc) decof2-example decof2-test; test/decof2-test); coveralls --include src --include include --gcov-options '\-lp'"
+  - BUILD_CMD="(cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG ${CMAKE_PARAMS} ..; make -j$(nproc) decof2-example decof2-test; test/decof2-test); coveralls --include src --include include --gcov-options '\-lp'"
   - docker run -u `id -u`:`id -g` -v "$(pwd)":/decof2 -e TRAVIS_JOB_ID="$TRAVIS_JOB_ID" -e TRAVIS_BRANCH="$TRAVIS_BRANCH" -e CXX=${COMPILER} decof2 /bin/bash -c "cd /decof2; ${BUILD_CMD}"
