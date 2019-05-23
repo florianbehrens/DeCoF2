@@ -1,6 +1,10 @@
-dist: xenial
-
 language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+dist: xenial
 
 services:
   - docker
