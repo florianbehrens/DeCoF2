@@ -1,8 +1,13 @@
 language: cpp
 
-compiler:
-  - gcc
-  - clang
+matrix:
+  include:
+    - compiler: gcc
+      env:
+        - CXX=g++
+    - compiler: clang
+      env:
+        - CXX=clang
 
 dist: xenial
 
