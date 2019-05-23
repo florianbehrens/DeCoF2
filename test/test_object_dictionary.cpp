@@ -106,7 +106,8 @@ BOOST_FIXTURE_TEST_CASE(object_lookup_performance, fixture)
 BOOST_FIXTURE_TEST_CASE(delete_middle_node, fixture)
 {
     node1.reset();
-    node2.reset();
+    BOOST_REQUIRE(obj_dict.children().empty());
+    BOOST_REQUIRE_EQUAL(node2->parent(), nullptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_parameter_value, fixture)

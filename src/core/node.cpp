@@ -29,6 +29,13 @@ node::node(std::string name, node* parent, userlevel_t readlevel)
 {
 }
 
+node::~node()
+{
+    for (auto child : children_) {
+        child->parent_ = nullptr;
+    }
+}
+
 std::list<std::string> node::value() const
 {
     return children();

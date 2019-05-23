@@ -57,7 +57,7 @@ std::string object::fq_name() const
 
 node* object::parent() const
 {
-    return parent_.get();
+    return parent_;
 }
 
 void object::reset_parent(node* parent)

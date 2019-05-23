@@ -17,7 +17,6 @@
 #ifndef DECOF_NODE_H
 #define DECOF_NODE_H
 
-#include "automatic_ptr.h"
 #include "readable_parameter.h"
 #include "types.h"
 #include <list>
@@ -27,7 +26,7 @@
 
 namespace decof {
 
-class node : public automatic_ptr_target<node>, public readable_parameter<std::list<std::string>>
+class node : public readable_parameter<std::list<std::string>>
 {
   public:
     typedef std::list<object*>   children_t;
@@ -35,7 +34,7 @@ class node : public automatic_ptr_target<node>, public readable_parameter<std::l
 
   public:
     explicit node(std::string name, node* parent = nullptr, userlevel_t readlevel = Normal);
-    virtual ~node() = default;
+    virtual ~node();
 
     virtual std::list<std::string> value() const override;
 
