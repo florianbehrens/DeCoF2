@@ -2,25 +2,13 @@ dist: xenial
 
 language: cpp
 
-compiler:
-  - gcc
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - sourceline: ppa:mhier/libboost-latest
-    packages:
-      - g++-7 libboost1.68-dev cmake python-pip
-
-install:
-  - sudo pip install -U cpp-coveralls
+services:
+  - docker
 
 before_script:
   - mkdir build
 
 script:
-  - (cd build && CC=gcc-7 CXX=g++-7 cmake -DDECOF2_COMPILE_WITH_COVERAGE=1 .. && make -j`nproc` decof2-example decof2-test && test/decof2-test)
-
-after_success:
-  - coveralls --include src --include include --gcov-options '\-lp'
+  - docker build -t decof2 -f Dockerfile .
+  - BUILD_CMD="(cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDECOF2_COMPILE_WITH_COVERAGE=ON ..; make -j$(nproc) decof2-example decof2-test; test/decof2-test); coveralls --include src --include include --gcov-options '\-lp'"
+  - docker run -u `id -u`:`id -g` -v "$(pwd)":/decof2 -e TRAVIS_JOB_ID="$TRAVIS_JOB_ID" -e TRAVIS_BRANCH="$TRAVIS_BRANCH" decof2 /bin/bash -c "cd /decof2; ${BUILD_CMD}"
