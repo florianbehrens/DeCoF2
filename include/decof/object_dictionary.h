@@ -25,7 +25,7 @@
 namespace decof {
 
 class basic_client_context;
-class tick_interface;
+struct tick_interface;
 
 /**
  * @brief Dictionary of tree objects.

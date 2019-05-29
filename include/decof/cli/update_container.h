@@ -64,7 +64,9 @@ class update_container
     struct mapped_type
     {
       public:
-        typedef typename Map<const Key, mapped_type, std::less<Key>, std::allocator<int>>::iterator iterator;
+        using iterator =
+            typename Map<const Key, mapped_type, std::less<Key>, std::allocator<std::pair<const Key, mapped_type>>>::
+                iterator;
 
         time_point time;
         value_t    value;
