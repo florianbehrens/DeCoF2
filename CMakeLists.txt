@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(decof2)
 
-if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.55))
-    find_package(Boost 1.56 COMPONENTS system thread unit_test_framework)
+option(DECOF2_COMPILE_WITH_COVERAGE "Compile with coverage instrumentation" OFF)
 
-    if (NOT ${Boost_SYSTEM_FOUND})
-        message(FATAL_ERROR "Required dependency Boost.System not found!")
-    endif()
-
+if(NOT (Boost_FOUND AND Boost_VERSION VERSION_GREATER 1.58))
+    find_package(Boost 1.59 COMPONENTS system thread unit_test_framework)
     link_directories(${Boost_LIBRARY_DIR})
 endif()
 
@@ -25,8 +22,8 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
-# Set C++14 as language standard
-set(CMAKE_CXX_STANDARD 14)
+# Set C++17 as language standard
+set(CMAKE_CXX_STANDARD 17)
 
 # Remove Visual Studio 'checked iterators' and 'runtime security' warnings
 if(MSVC)
@@ -54,4 +51,3 @@ endif()
 if(${Boost_THREAD_FOUND})
     add_subdirectory(example)
 endif()
-

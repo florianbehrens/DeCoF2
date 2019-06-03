@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2019 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,50 +18,16 @@
 #define DECOF_READABLE_PARAMETER_H
 
 #include "basic_parameter.h"
-#include "conversion.h"
 #include "encoding_hint.h"
-#include "object_visitor.h"
 #include "typed_client_read_interface.h"
-#include <boost/signals2/connection.hpp>
 
 namespace decof {
 
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class readable_parameter : public basic_parameter<T, EncodingHint>, public typed_client_read_interface<T, EncodingHint>
 {
-  public:
-    /// Override client_read_interface::observe.
-    virtual boost::signals2::scoped_connection observe(client_read_interface::value_change_slot_t slot) override
-    {
-        boost::signals2::scoped_connection retval = signal_.connect(slot);
-        emit(this->value());
-        return retval;
-    }
-
-    /** @brief  Override client_read_interface::unobserve.
-     *
-     * @note The implementation of this function can check whether there are
-     * still other client contexts connected by calling @code
-     * signal().num_slots() @endcode.
-     */
-    virtual void unobserve() override
-    {
-    }
-
   protected:
-    // We inherit base class constructors
     using basic_parameter<T, EncodingHint>::basic_parameter;
-
-    /** @brief Emit parameter value observation signal.
-     *
-     * @param value The value to be reported to the connected slot(s).
-     */
-    void emit(const T& value)
-    {
-        signal_(this->fq_name(), conversion_helper<T, EncodingHint>::to_generic(value));
-    }
-
-    client_read_interface::value_change_signal_t signal_;
 };
 
 } // namespace decof

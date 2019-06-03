@@ -22,12 +22,12 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <chrono>
 #include <iomanip>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <variant>
 
 using boost::system::error_code;
 
@@ -75,8 +75,7 @@ std::string pubsub_context::remote_endpoint() const
 
 void pubsub_context::preload()
 {
-    auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_read_until(socket_, inbuf_, '\n', strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->read_handler(err, bytes);
     }));
@@ -130,15 +129,14 @@ void pubsub_context::preload_writing()
         std::tie(uri, value, time) = pending_updates_.pop_front();
 
         out << "(" << iso8601_time{time} << " '" << uri << " ";
-        boost::apply_visitor(encoder(out), value);
+        std::visit(encoder(out), value);
         out << ")\n";
     }
 
     if (outbuf_.size() == 0)
         return;
 
-    auto self(std::dynamic_pointer_cast<pubsub_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->write_handler(err, bytes);
     }));
@@ -155,11 +153,6 @@ void pubsub_context::close()
         return;
 
     socket_.close();
-
-    // Remove this client context from object dictionary. Because it is a
-    // shared pointer, it gets deleted after leaving function scope.
-    auto sptr = shared_from_this();
-    object_dictionary_.remove_context(sptr);
 }
 
 void pubsub_context::process_request(std::string request)

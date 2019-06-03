@@ -17,18 +17,10 @@
 #ifndef DECOF_TYPES_H
 #define DECOF_TYPES_H
 
-#include <boost/numeric/conversion/cast.hpp>
-#include <boost/variant.hpp>
-#include <cctype>
-#include <cmath>
+#include <cstddef>
 #include <deque>
-#include <limits>
-#include <ostream>
 #include <string>
-#include <tuple>
-#include <type_traits>
-
-#include "exceptions.h"
+#include <variant>
 
 namespace decof {
 
@@ -43,7 +35,7 @@ namespace decof {
  *
  * The new type behaves exactly like the original type, though.
  */
-template <typename T, size_t Id = 0>
+template <typename T, std::size_t Id = 0>
 struct tag : public T
 {
     using T::T;
@@ -136,7 +128,7 @@ using integer_t  = long long;
 using real_t     = double;
 using string_t   = tag<std::string, 0>;
 using binary_t   = tag<std::string, 1>;
-using scalar_t   = boost::variant<boolean_t, integer_t, real_t, string_t, binary_t>;
+using scalar_t   = std::variant<boolean_t, integer_t, real_t, string_t, binary_t>;
 using sequence_t = tag<std::deque<scalar_t>, 0>;
 using tuple_t    = tag<std::deque<scalar_t>, 1>;
 ///@}
@@ -144,7 +136,7 @@ using tuple_t    = tag<std::deque<scalar_t>, 1>;
 /**
  * @brief Type safe union for exchange of parameter values.
  */
-using value_t = boost::variant<scalar_t, sequence_t, tuple_t>;
+using value_t = std::variant<scalar_t, sequence_t, tuple_t>;
 
 } // namespace decof
 

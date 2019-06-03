@@ -18,10 +18,20 @@
 
 #include <decof/all.h>
 #include <decof/client_context/client_context.h>
+
+// clang-format off
+// Boost.Test requires this include order.
 #include <boost/test/unit_test.hpp>
+#include <boost/test/data/test_case.hpp>
+// clang-format on
+
+#include <chrono>
+#include <iostream>
 #include <memory>
 
 BOOST_AUTO_TEST_SUITE(object_dictionary)
+
+using boost::unit_test::data::make;
 
 struct fixture
 {
@@ -52,41 +62,52 @@ struct fixture
 
 BOOST_FIXTURE_TEST_CASE(find_root_object, fixture)
 {
-    try {
-        my_context->get_parameter("root");
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
-    }
+    my_context->get_parameter("root");
 }
 
-BOOST_FIXTURE_TEST_CASE(find_child_object, fixture)
+BOOST_FIXTURE_TEST_CASE(find_node_object, fixture)
 {
-    try {
-        my_context->get_parameter("root:node1:node2:param");
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
-    }
+    my_context->get_parameter("root:node1");
+}
+
+BOOST_FIXTURE_TEST_CASE(find_leaf_object, fixture)
+{
+    my_context->get_parameter("root:node1:node2:param");
+}
+
+BOOST_DATA_TEST_CASE_F(
+    fixture, illegal_uri, make({"", ":", "::", "root:node1:node2:", "root:node1:node2:param:foo"}), in)
+{
+    BOOST_REQUIRE_THROW(my_context->get_parameter(in), decof::invalid_parameter_error);
 }
 
 BOOST_FIXTURE_TEST_CASE(find_child_object_with_custom_separator, fixture)
 {
-    try {
-        my_context->get_parameter("root&node1&node2&param", '&');
-    } catch (std::exception& ex) {
-        BOOST_FAIL(ex.what());
-    } catch (...) {
-        BOOST_FAIL("Unknown exception occurred");
+    my_context->get_parameter("root&node1&node2&param", '&');
+}
+
+BOOST_FIXTURE_TEST_CASE(object_lookup_performance, fixture)
+{
+    auto start = std::chrono::system_clock::now();
+
+    const size_t count = 1000000;
+    for (size_t i = 0; i < count; ++i) {
+        auto obj = obj_dict.find_object("root:node1:node2:param");
     }
+
+    auto duration = std::chrono::high_resolution_clock::now() - start;
+
+    std::cout << "Looking up parameter " << count << " times took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms (~ "
+              << std::chrono::duration_cast<std::chrono::microseconds>(duration / count).count() << " µs per lookup)"
+              << std::endl;
 }
 
 BOOST_FIXTURE_TEST_CASE(delete_middle_node, fixture)
 {
     node1.reset();
-    node2.reset();
+    BOOST_REQUIRE(obj_dict.children().empty());
+    BOOST_REQUIRE_EQUAL(node2->parent(), nullptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_parameter_value, fixture)

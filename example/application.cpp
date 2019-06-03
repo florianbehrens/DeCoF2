@@ -69,7 +69,7 @@ void my_managed_readwrite_parameter::verify(const std::string& value)
 
 current_context_endpoint_parameter::value_type current_context_endpoint_parameter::external_value() const
 {
-    const std::shared_ptr<client_context> cc = get_object_dictionary()->current_context();
+    auto cc = get_object_dictionary()->current_context();
     if (cc != nullptr)
         return cc->connection_type() + "://" + cc->remote_endpoint();
 

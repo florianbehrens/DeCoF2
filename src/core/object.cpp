@@ -17,6 +17,7 @@
 #include "object.h"
 #include "node.h"
 #include "object_dictionary.h"
+#include <cassert>
 
 namespace decof {
 
@@ -56,7 +57,7 @@ std::string object::fq_name() const
 
 node* object::parent() const
 {
-    return parent_.get();
+    return parent_;
 }
 
 void object::reset_parent(node* parent)

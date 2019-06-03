@@ -15,17 +15,16 @@
  */
 
 #include "encoder.h"
-
 #include <decof/conversion.h>
 #include <decof/exceptions.h>
 #include <decof/types.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <iomanip>
 #include <map>
 #include <ostream>
+#include <variant>
 
 namespace {
 
@@ -57,7 +56,7 @@ encoder::encoder(std::ostream& out) : m_out(out)
 
 void encoder::operator()(const scalar_t& arg) const
 {
-    boost::apply_visitor(*this, arg);
+    std::visit(*this, arg);
 }
 
 void encoder::operator()(const sequence_t& arg) const
@@ -68,7 +67,7 @@ void encoder::operator()(const sequence_t& arg) const
     for (; it != std::cend(arg); ++it) {
         if (it != std::cbegin(arg))
             m_out.put(',');
-        boost::apply_visitor(*this, *it);
+        std::visit(*this, *it);
     }
 
     m_out << ']';
@@ -82,7 +81,7 @@ void encoder::operator()(const tuple_t& arg) const
     for (; it != std::cend(arg); ++it) {
         if (it != std::cbegin(arg))
             m_out.put(',');
-        boost::apply_visitor(*this, *it);
+        std::visit(*this, *it);
     }
 
     m_out << '}';

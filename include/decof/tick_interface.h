@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Florian Behrens
+ * Copyright (c) 2019 Florian Behrens
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef DECOF_CLIENT_READ_INTERFACE_H
-#define DECOF_CLIENT_READ_INTERFACE_H
-
-#include "types.h"
+#ifndef DECOF_TICK_INTERFACE_H
+#define DECOF_TICK_INTERFACE_H
 
 namespace decof {
 
-/**
- * @brief Interface for client read access to parameter value.
- */
-struct client_read_interface
+struct tick_interface
 {
-    virtual ~client_read_interface() = default;
-
-    /// Provides the value as runtime-generic type.
-    virtual value_t generic_value() const = 0;
+    virtual ~tick_interface() = default;
+    virtual void tick()       = 0;
 };
 
 } // namespace decof
 
-#endif // DECOF_CLIENT_READ_INTERFACE_H
+#endif // DECOF_TICK_INTERFACE_H

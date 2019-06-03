@@ -2,8 +2,8 @@ add_custom_target(
     decof2-core-headers
     SOURCES
         all.h
-        automatic_ptr.h
         basic_parameter.h
+        client_observe_interface.h
         client_read_interface.h
         client_write_interface.h
         conversion.h
@@ -22,7 +22,10 @@ add_custom_target(
         object.h
         object_dictionary.h
         object_visitor.h
+        observable_parameter.h
         readable_parameter.h
+        tick_interface.h
+        transform_iterator.h
         typed_client_read_interface.h
         typed_client_write_interface.h
         types.h

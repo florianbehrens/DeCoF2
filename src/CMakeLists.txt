@@ -1,5 +1,8 @@
-add_subdirectory(asio_executor)
-add_subdirectory(asio_tick)
-add_subdirectory(cli)
 add_subdirectory(core)
-add_subdirectory(scgi)
+
+if(${Boost_FOUND})
+    add_subdirectory(asio_executor)
+    add_subdirectory(asio_tick)
+    add_subdirectory(cli)
+    add_subdirectory(scgi)
+endif()

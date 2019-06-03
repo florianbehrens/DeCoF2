@@ -16,12 +16,16 @@
 
 #include "object_dictionary.h"
 #include "object_visitor.h"
+#include "tick_interface.h"
 #include <client_context/client_context.h>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <cassert>
+#include <string_view>
 
 namespace decof {
 
-object_dictionary::context_guard::context_guard(object_dictionary& od, client_context* cc) : object_dictionary_(od)
+object_dictionary::context_guard::context_guard(object_dictionary& od, basic_client_context* cc)
+  : object_dictionary_(od)
 {
     object_dictionary_.set_current_context(cc);
 }
@@ -35,61 +39,56 @@ object_dictionary::object_dictionary(const std::string& root_uri) : node(root_ur
 {
 }
 
-void object_dictionary::add_context(std::shared_ptr<client_context> client_context)
+const basic_client_context* object_dictionary::current_context() const
 {
-    client_contexts_.push_back(client_context);
-}
-
-void object_dictionary::remove_context(std::shared_ptr<client_context> client_context)
-{
-    client_contexts_.remove(client_context);
-}
-
-const std::shared_ptr<client_context> object_dictionary::current_context() const
-{
-    // FIXME
-    //    assert(current_context_ != nullptr);
     return current_context_;
 }
 
-object_dictionary::tick_connection object_dictionary::register_for_tick(object_dictionary::tick_slot_type slot)
+void object_dictionary::register_for_tick(tick_interface* tick_target)
 {
-    return tick_signal_.connect(slot);
+    tick_targets_.push_back(tick_target);
 }
 
-object* object_dictionary::find_object(const std::string& curi, char separator)
+void object_dictionary::unregister_for_tick(tick_interface* tick_target)
 {
-    std::string uri(curi);
+    tick_targets_.remove(tick_target);
+}
 
-    // Ignore leading separator character
-    if (uri.length() > 0 && uri[0] == separator)
-        uri = curi.substr(1);
-
-    if (uri == name())
-        return this;
-
-    if (boost::algorithm::starts_with(uri, name() + separator)) {
-        std::string sub_uri = uri.substr(uri.find(separator) + 1);
-        return find_child(sub_uri, separator);
+object* object_dictionary::find_object(std::string_view uri, char separator)
+{
+    if (uri.empty()) {
+        return nullptr;
     }
 
-    return nullptr;
+    if (uri[0] == separator) {
+        uri.remove_prefix(1);
+    }
+
+    auto sep_idx = uri.find(separator);
+
+    if (name() != uri.substr(0, sep_idx)) {
+        return nullptr;
+    }
+
+    if (sep_idx == std::string_view::npos) {
+        return this;
+    }
+
+    uri.remove_prefix(sep_idx + 1);
+
+    return find_descendant_object(uri, separator);
 }
 
-void object_dictionary::set_current_context(client_context* client_context)
+void object_dictionary::set_current_context(basic_client_context* client_context)
 {
-    assert(
-        (current_context_ == nullptr && client_context != nullptr) ||
-        (current_context_ != nullptr && client_context == nullptr));
-    if (client_context != nullptr)
-        current_context_ = client_context->shared_from_this();
-    else
-        current_context_.reset();
+    current_context_ = client_context;
 }
 
 void object_dictionary::tick()
 {
-    tick_signal_();
+    for (auto& elem : tick_targets_) {
+        elem->tick();
+    }
 }
 
 } // namespace decof

@@ -20,7 +20,6 @@
 #include "js_value_encoder.h"
 #include "xml_visitor.h"
 #include <decof/exceptions.h>
-#include <decof/object_dictionary.h>
 #include <decof/scgi/scgi_context.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
@@ -28,6 +27,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <ostream>
+#include <variant>
 
 using boost::system::error_code;
 
@@ -52,8 +52,7 @@ std::string scgi_context::remote_endpoint() const
 
 void scgi_context::preload()
 {
-    auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     socket_.async_read_some(boost::asio::buffer(inbuf_), strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->read_handler(err, bytes);
     }));
@@ -109,7 +108,7 @@ void scgi_context::handle_get_request()
         resp.headers["Content-Type"] = "text/plain";
 
         auto const& value = get_parameter(parser_.uri, '/');
-        boost::apply_visitor(js_value_encoder(body_oss), value);
+        std::visit(js_value_encoder(body_oss), value);
     }
 
     resp.body = std::move(body_oss.str());
@@ -204,8 +203,7 @@ void scgi_context::send_response(const response& resp)
     std::ostream out(&outbuf_);
     out << resp;
 
-    auto self(std::dynamic_pointer_cast<scgi_context>(shared_from_this()));
-
+    auto self = shared_from_this();
     boost::asio::async_write(socket_, outbuf_, strand_.wrap([self](const error_code& err, std::size_t bytes) {
         self->write_handler(err, bytes);
     }));
@@ -224,11 +222,6 @@ void scgi_context::disconnect()
     error_code ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     socket_.close(ec);
-
-    // Remove this client context from object dictionary. Because it is a
-    // shared pointer, it gets deleted after leaving function scope.
-    auto sptr = shared_from_this();
-    object_dictionary_.remove_context(sptr);
 }
 
 } // namespace scgi

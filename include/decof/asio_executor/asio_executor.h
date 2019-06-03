@@ -19,6 +19,7 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/thread/sync_queue.hpp>
 #include <type_traits>
 

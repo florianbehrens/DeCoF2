@@ -1,6 +1,7 @@
-set(
-    DECOF2_CORE_SRC
-    client_context.cpp
+add_library(
+    decof2-microcore
+    EXCLUDE_FROM_ALL
+    basic_client_context.cpp
     event.cpp
     exceptions.cpp
     handler_event.cpp
@@ -10,48 +11,24 @@ set(
     object_visitor.cpp
 )
 
-# Standard DeCoF2 core library
-add_library(
-    decof2-core
-    EXCLUDE_FROM_ALL
-    ${DECOF2_CORE_SRC}
-)
 target_include_directories(
-    decof2-core
+    decof2-microcore
     PUBLIC
         ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include/decof/
 )
-target_link_libraries(
-    decof2-core
-    ${Boost_SYSTEM_LIBRARY}
-)
 
-# DeCoF2 core library with gcov coverage information
-if(CMAKE_COMPILER_IS_GNUCXX)
+target_link_libraries(decof2-microcore ${Boost_SYSTEM_LIBRARY})
+target_compile_options(decof2-microcore PUBLIC $<IF:$<STREQUAL:${DECOF2_COMPILE_WITH_COVERAGE},ON>,-fprofile-arcs -ftest-coverage,>)
+
+if(${Boost_FOUND})
     add_library(
-        decof2-core-gcov
+        decof2-core
         EXCLUDE_FROM_ALL
-        ${DECOF2_CORE_SRC}
+        client_context.cpp
     )
-    target_include_directories(
-        decof2-core-gcov
-        PUBLIC
-            ${Boost_INCLUDE_DIR}
-            ${PROJECT_SOURCE_DIR}/include/
-        PRIVATE
-            ${PROJECT_SOURCE_DIR}/include/decof/
-    )
-    target_link_libraries(
-        decof2-core-gcov
-        ${Boost_SYSTEM_LIBRARY}
-    )
-    target_compile_options(
-        decof2-core-gcov
-        PUBLIC
-            -fprofile-arcs
-            -ftest-coverage
-    )
+
+    target_link_libraries(decof2-core decof2-microcore ${Boost_SYSTEM_LIBRARY})
 endif()

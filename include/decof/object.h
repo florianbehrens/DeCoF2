@@ -17,7 +17,6 @@
 #ifndef DECOF_OBJECT_H
 #define DECOF_OBJECT_H
 
-#include "automatic_ptr.h"
 #include "userlevel.h"
 #include <string>
 
@@ -27,11 +26,13 @@ class node;
 class object_dictionary;
 class object_visitor;
 
-/** @brief Abstract object class.
+/**
+ * @brief Abstract object class.
+ *
  * This is the base class of all objects in a DeCoF object tree. All objects
- * have in common a short (#name) and fully qualified name (#fq_name), a parent
- * (#parent, except the root object), and read (#readlevel) and write levels
- * (#writelevel). */
+ * have in common a short (name) and fully qualified name (fq_name), a parent
+ * (except the root object), and a readlevel and writelevel.
+ */
 class object
 {
     friend class node;
@@ -40,8 +41,11 @@ class object
     object(std::string name, node* parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
 
-    object(object&) = delete;
-    object& operator=(object&) = delete;
+    object(const object&) = delete;
+    object(object&&)      = delete;
+
+    object& operator=(const object&) = delete;
+    object& operator=(object&&) = delete;
 
     std::string name() const;
     void        name(std::string name);
@@ -69,10 +73,10 @@ class object
     const object_dictionary* get_object_dictionary() const;
 
   private:
-    std::string         name_;
-    automatic_ptr<node> parent_;
-    userlevel_t         readlevel_;
-    userlevel_t         writelevel_;
+    std::string name_;
+    node*       parent_{nullptr};
+    userlevel_t readlevel_;
+    userlevel_t writelevel_;
 };
 
 } // namespace decof

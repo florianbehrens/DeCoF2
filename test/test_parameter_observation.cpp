@@ -32,7 +32,7 @@ struct fixture
     {
         using decof::client_context::client_context;
 
-        void observe(const std::string& uri, decof::client_read_interface::value_change_slot_t slot)
+        void observe(const std::string& uri, decof::value_change_slot slot)
         {
             decof::client_context::observe(uri, slot);
         }

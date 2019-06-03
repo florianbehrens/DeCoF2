@@ -18,7 +18,7 @@
 #define DECOF_MANAGED_READWRITE_PARAMETER_H
 
 #include "encoding_hint.h"
-#include "readable_parameter.h"
+#include "observable_parameter.h"
 #include "typed_client_write_interface.h"
 #include <string>
 
@@ -53,12 +53,12 @@ namespace decof {
  * @tparam EncodingHint A hint for value encoding.
  */
 template <typename T, encoding_hint EncodingHint = encoding_hint::none>
-class managed_readwrite_parameter : public readable_parameter<T, EncodingHint>,
+class managed_readwrite_parameter : public observable_parameter<T, EncodingHint>,
                                     public typed_client_write_interface<T, EncodingHint>
 {
   public:
     managed_readwrite_parameter(const std::string& name, node* parent, const T& value)
-      : readable_parameter<T, EncodingHint>(name, parent, Normal, Normal), value_(value)
+      : observable_parameter<T, EncodingHint>(name, parent, Normal, Normal), value_(value)
     {
     }
 
@@ -68,7 +68,7 @@ class managed_readwrite_parameter : public readable_parameter<T, EncodingHint>,
         userlevel_t        readlevel  = Normal,
         userlevel_t        writelevel = Normal,
         const T&           value      = T())
-      : readable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel), value_(value)
+      : observable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel), value_(value)
     {
     }
 
@@ -101,7 +101,7 @@ class managed_readwrite_parameter : public readable_parameter<T, EncodingHint>,
 
         verify(value);
         value_ = value;
-        readable_parameter<T, EncodingHint>::emit(value);
+        observable_parameter<T, EncodingHint>::emit(value);
     }
 
     T value_;

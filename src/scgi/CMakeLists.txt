@@ -1,5 +1,7 @@
-set(
-    DECOF2_SCGI_SRC
+# Standard DeCoF2 SCGI library
+add_library(
+    decof2-scgi
+    EXCLUDE_FROM_ALL
     array_view.h
     bencode_string_parser.cpp
     bencode_string_parser.h
@@ -13,38 +15,11 @@ set(
     xml_visitor.h
 )
 
-# Standard DeCoF2 SCGI library
-add_library(
-    decof2-scgi
-    EXCLUDE_FROM_ALL
-    ${DECOF2_SCGI_SRC}
-)
 target_include_directories(
     decof2-scgi
     PUBLIC
         ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
 )
-target_link_libraries(
-    decof2-scgi
-    decof2-core
-)
 
-# DeCoF2 SCGI library with covergae information
-if(CMAKE_COMPILER_IS_GNUCXX)
-	add_library(
-		decof2-scgi-gcov
-		EXCLUDE_FROM_ALL
-		${DECOF2_SCGI_SRC}
-	)
-	target_include_directories(
-		decof2-scgi-gcov
-		PUBLIC
-			${Boost_INCLUDE_DIR}
-            ${PROJECT_SOURCE_DIR}/include/
-	)
-	target_link_libraries(
-		decof2-scgi-gcov
-		decof2-core-gcov
-	)
-endif()
+target_link_libraries(decof2-scgi decof2-core)

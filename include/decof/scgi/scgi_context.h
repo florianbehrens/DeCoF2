@@ -25,13 +25,14 @@
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <array>
+#include <memory>
 #include <string>
 
 namespace decof {
 
 namespace scgi {
 
-class scgi_context final : public client_context
+class scgi_context final : public client_context, public std::enable_shared_from_this<scgi_context>
 {
   public:
     using strand_t = boost::asio::io_service::strand;
@@ -49,7 +50,8 @@ class scgi_context final : public client_context
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void        preload() final;
+
+    void preload();
 
   private:
     /** @brief Callback for boost::asio read operations.

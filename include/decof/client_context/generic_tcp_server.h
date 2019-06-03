@@ -74,7 +74,6 @@ class generic_tcp_server
         if (!error) {
             // Create and preload new client context
             auto context = std::make_shared<Context>(strand_, std::move(socket_), object_dictionary_, userlevel_);
-            object_dictionary_.add_context(context);
             context->preload();
         } else
             throw std::runtime_error(std::string(__FUNCTION__) + " received error: " + error.message());

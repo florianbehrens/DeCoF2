@@ -17,6 +17,7 @@
 #include "js_value_encoder.h"
 #include "endian.h"
 #include <iomanip>
+#include <variant>
 
 namespace decof {
 
@@ -27,7 +28,7 @@ namespace {
 /**
  * @brief Visitor class for sequence element encoding.
  */
-class sequence_element_encoder : public boost::static_visitor<>
+class sequence_element_encoder
 {
   public:
     explicit sequence_element_encoder(std::ostream& out) : m_out(out)
@@ -69,20 +70,21 @@ js_value_encoder::js_value_encoder(std::ostream& out) : m_out(out)
 
 void js_value_encoder::operator()(const scalar_t& arg) const
 {
-    boost::apply_visitor(*this, arg);
+    std::visit(*this, arg);
 }
 
 void js_value_encoder::operator()(const sequence_t& arg) const
 {
     sequence_element_encoder enc(m_out);
-    for (const auto& elem : arg)
-        boost::apply_visitor(enc, elem);
+    for (const auto& elem : arg) {
+        std::visit(enc, elem);
+    }
 }
 
 void js_value_encoder::operator()(const tuple_t& arg) const
 {
     for (const auto& elem : arg) {
-        boost::apply_visitor(*this, elem);
+        std::visit(*this, elem);
         m_out << "\r\n";
     }
 }

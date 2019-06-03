@@ -25,7 +25,7 @@ namespace decof {
 
 namespace scgi {
 
-struct js_value_encoder : public boost::static_visitor<>
+struct js_value_encoder
 {
     explicit js_value_encoder(std::ostream& out);
 

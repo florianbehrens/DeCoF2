@@ -27,6 +27,7 @@
 #include <iostream>
 #include <list>
 #include <numeric>
+#include <variant>
 #include <vector>
 
 using namespace decof;
@@ -64,6 +65,18 @@ BOOST_AUTO_TEST_CASE(empty_value_t_throws)
     BOOST_REQUIRE_THROW(conversion_helper<int>::from_generic(empty), wrong_type_error);
 }
 
+BOOST_AUTO_TEST_CASE(invalid_integral_conversions)
+{
+    value_t val1{integer_t{-1}};
+    BOOST_REQUIRE_THROW(conversion_helper<unsigned int>::from_generic(val1), invalid_value_error);
+
+    auto val2 = static_cast<unsigned long long>(std::numeric_limits<long long>::max()) + 1;
+    BOOST_REQUIRE_THROW(conversion_helper<unsigned long long>::to_generic(val2), invalid_value_error);
+
+    value_t val3{integer_t{static_cast<unsigned int>(std::numeric_limits<int>::max()) + 1}};
+    BOOST_REQUIRE_THROW(conversion_helper<int>::from_generic(val3), invalid_value_error);
+}
+
 BOOST_AUTO_TEST_CASE(integral_type_convertible_to_floating_point)
 {
     const integer_t nominal = (1ll << std::numeric_limits<float>::digits) - 1;
@@ -86,18 +99,27 @@ BOOST_AUTO_TEST_CASE(floating_point_type_convertible_to_integral)
     BOOST_REQUIRE_EQUAL(conversion_helper<long long>::from_generic(val_max), nominal);
 }
 
+BOOST_AUTO_TEST_CASE(invalid_floating_point_to_integral_conversions)
+{
+    value_t val_min{static_cast<double>(std::numeric_limits<int32_t>::min()) - 1.0};
+    BOOST_REQUIRE_THROW(conversion_helper<int32_t>::from_generic(val_min), invalid_value_error);
+
+    value_t val_max{static_cast<double>(std::numeric_limits<int32_t>::max()) + 1.0};
+    BOOST_REQUIRE_THROW(conversion_helper<int32_t>::from_generic(val_max), invalid_value_error);
+}
+
 BOOST_AUTO_TEST_CASE(conversion_from_string_to_string_t)
 {
     std::string nominal = "Hello World";
 
     auto const gen = conversion_helper<std::string>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<string_t>(boost::get<scalar_t>(gen)));
+    BOOST_REQUIRE_NO_THROW(std::get<string_t>(std::get<scalar_t>(gen)));
 }
 
 BOOST_AUTO_TEST_CASE(conversion_from_const_char_ptr_to_string_t)
 {
     const char* nominal = "Hello World";
-    auto const actual = boost::get<string_t>(boost::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
+    auto const  actual  = std::get<string_t>(std::get<scalar_t>(conversion_helper<const char*>::to_generic(nominal)));
 
     BOOST_REQUIRE_EQUAL(nominal, actual);
 }
@@ -116,7 +138,7 @@ BOOST_AUTO_TEST_CASE(conversion_from_array_and_back)
 
     array_t nominal{1, 2, 3};
     auto    generic = conversion_helper<array_t>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
+    BOOST_REQUIRE_NO_THROW(std::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<array_t>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -141,7 +163,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(
 {
     T    nominal{1, 2, 3};
     auto generic = conversion_helper<T>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<sequence_t>(generic));
+    BOOST_REQUIRE_NO_THROW(std::get<sequence_t>(generic));
 
     const auto& actual = conversion_helper<T>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -153,7 +175,7 @@ BOOST_AUTO_TEST_CASE(conversion_from_array_with_binary_encoding)
 
     array_t nominal{1, 2, 3};
     auto    generic = conversion_helper<array_t, encoding_hint::binary>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
+    BOOST_REQUIRE_NO_THROW(std::get<binary_t>(std::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<array_t, encoding_hint::binary>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());
@@ -168,7 +190,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(sequence_container_to_binary_conversion, T, sequen
     std::iota(nominal.begin(), nominal.end(), 0);
 
     auto generic = conversion_helper<T, encoding_hint::binary>::to_generic(nominal);
-    BOOST_REQUIRE_NO_THROW(boost::get<binary_t>(boost::get<scalar_t>(generic)));
+    BOOST_REQUIRE_NO_THROW(std::get<binary_t>(std::get<scalar_t>(generic)));
 
     const auto& actual = conversion_helper<T, encoding_hint::binary>::from_generic(generic);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(nominal.cbegin(), nominal.cend(), actual.cbegin(), actual.cend());

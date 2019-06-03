@@ -14,8 +14,10 @@ if(MSVC)
     )
 endif()
 
-set(
-    DECOF2_CLI_SRC
+# Standard DeCoF2 CLI library
+add_library(
+    decof2-cli
+    EXCLUDE_FROM_ALL
     browse_visitor.cpp
     browse_visitor.h
     cli_context_base.cpp
@@ -40,38 +42,4 @@ set(
     update_container.cpp
 )
 
-# Standard DeCoF2 CLI library
-add_library(
-    decof2-cli
-    EXCLUDE_FROM_ALL
-    ${DECOF2_CLI_SRC}
-)
-target_include_directories(
-    decof2-cli
-    PUBLIC
-        ${Boost_INCLUDE_DIR}
-        ${PROJECT_SOURCE_DIR}/include/
-)
-target_link_libraries(
-    decof2-cli
-    decof2-core
-)
-
-# DeCoF2 CLI library with coverage information
-if(CMAKE_COMPILER_IS_GNUCXX)
-    add_library(
-        decof2-cli-gcov
-        EXCLUDE_FROM_ALL
-        ${DECOF2_CLI_SRC}
-    )
-    target_include_directories(
-        decof2-cli
-        PUBLIC
-            ${Boost_INCLUDE_DIR}
-            ${PROJECT_SOURCE_DIR}/include/
-    )
-    target_link_libraries(
-        decof2-cli-gcov
-        decof2-core-gcov
-    )
-endif()
+target_link_libraries(decof2-cli decof2-core)

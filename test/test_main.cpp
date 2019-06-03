@@ -21,8 +21,30 @@
 #include "test_helpers.h"
 #include <decof/types.h>
 #include <boost/test/unit_test.hpp>
+#include <variant>
+
+namespace {
+
+struct visitor
+{
+    template <typename T>
+    void operator()(const T& arg)
+    {
+        out << arg;
+    }
+
+    std::ostream& out;
+};
+
+} // namespace
 
 namespace decof {
+
+std::ostream& operator<<(std::ostream& out, const value_t& arg)
+{
+    std::visit(visitor{out}, arg);
+    return out;
+}
 
 std::ostream& operator<<(std::ostream& out, const sequence_t& arg)
 {
@@ -53,6 +75,12 @@ std::ostream& operator<<(std::ostream& out, const tuple_t& arg)
 
     out << '}';
 
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const scalar_t& arg)
+{
+    std::visit(visitor{out}, arg);
     return out;
 }
 

@@ -26,6 +26,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <memory>
 #include <string>
 
 namespace decof {
@@ -35,7 +36,7 @@ class object_dictionary;
 
 namespace cli {
 
-class pubsub_context : public cli_context_base
+class pubsub_context : public cli_context_base, public std::enable_shared_from_this<pubsub_context>
 {
   public:
     using strand_t = boost::asio::io_service::strand;
@@ -53,7 +54,8 @@ class pubsub_context : public cli_context_base
 
     std::string connection_type() const final;
     std::string remote_endpoint() const final;
-    void        preload() final;
+
+    void preload();
 
   private:
     /// Callback for read operations.
