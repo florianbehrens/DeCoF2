@@ -77,7 +77,7 @@ void clisrv_context::preload()
     }));
 }
 
-void clisrv_context::write_handler(const error_code& error, std::size_t bytes_transferred)
+void clisrv_context::write_handler(const error_code& error, std::size_t)
 {
     if (!error) {
         auto self = shared_from_this();
@@ -134,26 +134,13 @@ void clisrv_context::process_request(std::string request)
     if (!uri.empty() && uri[0] == '\'')
         uri.erase(0, 1);
 
-    // Prepend root node name if not present (for compatibility reasons to
-    // 'classic' DeCoF)
-    if (uri != object_dictionary_.name() && !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":")) {
-        auto new_uri = object_dictionary_.name();
-
-        if (!uri.empty()) {
-            new_uri.push_back(':');
-            new_uri.append(uri);
-        }
-
-        uri.swap(new_uri);
-    }
-
     std::ostream out(&outbuf_);
     encoder      encoder(out);
 
     try {
         // Apply special handling for the 'change-ul' command
         // (exec 'change-ul <userlevel> "<passwd>")
-        if (op == "exec" && uri == object_dictionary_.name() + ":change-ul") {
+        if (op == "exec" && uri == "change-ul") {
             int         ul = std::numeric_limits<int>::max();
             std::string password;
 
@@ -185,10 +172,11 @@ void clisrv_context::process_request(std::string request)
                     request_cb_(request_t::get, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
-                if (uri == object_dictionary_.name() + ":ul") {
+                if (uri == "ul") {
                     encoder(static_cast<integer_t>(userlevel()));
                 } else {
-                    std::visit(encoder, static_cast<const value_t>(get_parameter(uri)));
+                    const auto value = get_parameter(object_dictionary_.find_descendant_object(uri));
+                    std::visit(encoder, static_cast<const value_t>(value));
                 }
 
                 out << "\n";
@@ -196,14 +184,16 @@ void clisrv_context::process_request(std::string request)
                 if (request_cb_)
                     request_cb_(request_t::set, request, remote_endpoint());
 
-                set_parameter(uri, value);
+                const auto obj = object_dictionary_.find_descendant_object(uri);
+                set_parameter(obj, value);
 
                 out << "0\n";
             } else if ((op == "signal" || op == "exec") && !uri.empty() && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::signal, request, remote_endpoint());
 
-                signal_event(uri);
+                const auto obj = object_dictionary_.find_descendant_object(uri);
+                signal_event(obj);
 
                 out << "()\n";
             } else if ((op == "browse" || op == "param-disp") && !value_available) {

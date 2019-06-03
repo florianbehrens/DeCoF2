@@ -70,13 +70,38 @@ class basic_client_context
     virtual std::string remote_endpoint() const;
 
   protected:
-    void    set_parameter(const std::string& uri, const value_t& value, char separator = ':');
-    value_t get_parameter(const std::string& uri, char separator = ':');
+    /**
+     * @brief Sets the value of the given object if it is a writable parameter.
+     *
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Pointer to object or nullptr.
+     * @param value The new parameter value.
+     * @throws If obj does not point to a writable parameter.
+     */
+    void set_parameter(object* obj, const value_t& value);
 
-    /// Signal event.
-    /// @param uri The event URI.
-    /// @param separator Hierachy level separator charater used in URI.
-    void signal_event(const std::string& uri, char separator = ':');
+    /**
+     * @brief Gets the value of the given object if it is a readable parameter.
+     *
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Pointer to object or nullptr.
+     * @return Parameter value if obj points to a readable parameter.
+     * @throws If obj does not point to a readable parameter.
+     */
+    value_t get_parameter(const object* obj);
+
+    /**
+     * @brief Signal event.
+     *
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Pointer to object or nullptr.
+     * @param separator Hierachy level separator charater used in URI.
+     * @throws If obj does not point to an event object.
+     */
+    void signal_event(object* obj);
 
     /** @brief Traverse object tree using visitor pattern.
      * @param visitor Pointer to visitor object.

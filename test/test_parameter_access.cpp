@@ -32,12 +32,14 @@ struct fixture
 
         void get_parameter(const std::string& uri, char separator = ':')
         {
-            decof::client_context::get_parameter(uri, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            decof::client_context::get_parameter(obj);
         }
 
         void set_parameter(const std::string& uri, const value_t& value, char separator = ':')
         {
-            decof::client_context::set_parameter(uri, value, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            decof::client_context::set_parameter(obj, value);
         }
     };
 

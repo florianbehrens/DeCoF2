@@ -20,6 +20,7 @@
 #include "js_value_encoder.h"
 #include "xml_visitor.h"
 #include <decof/exceptions.h>
+#include <decof/object_dictionary.h>
 #include <decof/scgi/scgi_context.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/any.hpp>
@@ -107,7 +108,7 @@ void scgi_context::handle_get_request()
     } else {
         resp.headers["Content-Type"] = "text/plain";
 
-        auto const& value = get_parameter(parser_.uri, '/');
+        auto const& value = get_parameter(object_dictionary_.find_object(parser_.uri, '/'));
         std::visit(js_value_encoder(body_oss), value);
     }
 
@@ -188,13 +189,13 @@ void scgi_context::handle_put_request()
         throw invalid_value_error();
     }
 
-    set_parameter(parser_.uri, val, '/');
+    set_parameter(object_dictionary_.find_object(parser_.uri, '/'), val);
     send_response(response::stock_response(response::status_code::ok));
 }
 
 void scgi_context::handle_post_request()
 {
-    signal_event(parser_.uri, '/');
+    signal_event(object_dictionary_.find_object(parser_.uri, '/'));
     send_response(response::stock_response(response::status_code::ok));
 }
 
@@ -209,7 +210,7 @@ void scgi_context::send_response(const response& resp)
     }));
 }
 
-void scgi_context::write_handler(const error_code& error, std::size_t bytes_transferred)
+void scgi_context::write_handler(const error_code& error, std::size_t)
 {
     if (!error)
         preload();

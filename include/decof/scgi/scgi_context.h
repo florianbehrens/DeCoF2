@@ -79,7 +79,7 @@ class scgi_context final : public client_context, public std::enable_shared_from
     void send_response(const response& resp);
 
     /// Callback for boost::asio write operations.
-    void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
+    void write_handler(const boost::system::error_code& error, std::size_t);
 
     /// Closes the socket and delists client context from object dictionary.
     void disconnect();

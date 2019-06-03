@@ -39,20 +39,27 @@ class client_context : public basic_client_context
     virtual ~client_context() = default;
 
   protected:
-    /** @brief Observe object.
+    /**
+     * @brief Observe parameter object.
      *
-     * @param uri The object URI to be observed.
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Pointer to object or nullptr.
      * @param slot The slot to be called on object updates.
-     * @param separator The separator character.
+     * @throws If obj does not point to an observable parameter.
      */
-    void observe(const std::string& uri, value_change_slot slot, char separator = ':');
+    void observe(object* obj, value_change_slot slot);
 
-    /** @brief Terminate object observation.
+    /**
+     * @brief Terminate parameter object observation.
      *
-     * @param uri The object URI to be observed.
-     * @param separator The separator character.
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Pointer to object or nullptr.
+     * @throws If obj does not point to an observable parameter of parameter
+     * object wasn't subscribed.
      */
-    void unobserve(const std::string& uri, char separator = ':');
+    void unobserve(object* obj);
 
     /// @brief Timer tick.
     /// Call this member function regularly in order to check for value changes

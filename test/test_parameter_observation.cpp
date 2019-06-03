@@ -34,17 +34,20 @@ struct fixture
 
         void observe(const std::string& uri, decof::value_change_slot slot)
         {
-            decof::client_context::observe(uri, slot);
+            auto obj = object_dictionary_.find_object(uri);
+            decof::client_context::observe(obj, slot);
         }
 
         void unobserve(const std::string& uri)
         {
-            decof::client_context::unobserve(uri);
+            auto obj = object_dictionary_.find_object(uri);
+            decof::client_context::unobserve(obj);
         }
 
         void set_parameter(const std::string& uri, const value_t& value, char separator = ':')
         {
-            decof::client_context::set_parameter(uri, value, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            decof::client_context::set_parameter(obj, value);
         }
 
         void tick()

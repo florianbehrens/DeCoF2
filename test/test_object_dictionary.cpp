@@ -41,7 +41,8 @@ struct fixture
 
         void get_parameter(const std::string& uri, char separator = ':')
         {
-            decof::client_context::get_parameter(uri, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            decof::client_context::get_parameter(obj);
         }
     };
 

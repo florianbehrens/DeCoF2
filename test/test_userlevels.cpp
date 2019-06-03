@@ -41,22 +41,26 @@ struct fixture
 
         void get_parameter(const std::string& uri, char separator = ':')
         {
-            client_context::get_parameter(uri, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            client_context::get_parameter(obj);
         }
 
         void set_parameter(const std::string& uri, const value_t& value, char separator = ':')
         {
-            client_context::set_parameter(uri, value, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            client_context::set_parameter(obj, value);
         }
 
         void signal_event(const std::string& uri, char separator = ':')
         {
-            client_context::signal_event(uri, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            client_context::signal_event(obj);
         }
 
         void observe(const std::string& uri, value_change_slot slot, char separator = ':')
         {
-            client_context::observe(uri, slot, separator);
+            const auto obj = object_dictionary_.find_object(uri, separator);
+            client_context::observe(obj, slot);
         }
     };
 

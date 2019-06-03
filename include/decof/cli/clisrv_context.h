@@ -53,7 +53,7 @@ class clisrv_context : public cli_context_base, public std::enable_shared_from_t
 
   private:
     /// Callback for boost::asio write operations.
-    void write_handler(const boost::system::error_code& error, std::size_t bytes_transferred);
+    void write_handler(const boost::system::error_code& error, std::size_t);
 
     /** @brief Callback for boost::asio read operations.
      *

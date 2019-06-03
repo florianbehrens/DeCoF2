@@ -191,29 +191,24 @@ void pubsub_context::process_request(std::string request)
             if (uri[0] == '\'')
                 uri.erase(0, 1);
 
-            // Prepend root node name if not present (for compatibility reasons to
-            // 'classic' DeCoF)
-            std::string full_uri = uri;
-            if (uri != object_dictionary_.name() &&
-                !boost::algorithm::starts_with(uri, object_dictionary_.name() + ":"))
-                full_uri = object_dictionary_.name() + ":" + uri;
-
             if (command == "subscribe" || command == "add") {
                 if (request_cb_)
                     request_cb_(request_t::subscribe, request, remote_endpoint());
 
                 // Apply special handling for 'ul' parameter
-                if (full_uri == object_dictionary_.name() + ":ul")
-                    notify(full_uri, static_cast<decof::integer_t>(userlevel()));
-                else
+                if (uri == "ul") {
+                    notify(object_dictionary_.name() + ":ul", static_cast<decof::integer_t>(userlevel()));
+                } else {
+                    auto obj = object_dictionary_.find_descendant_object(uri);
                     observe(
-                        full_uri,
-                        std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+                        obj, std::bind(&pubsub_context::notify, this, std::placeholders::_1, std::placeholders::_2));
+                }
             } else if (command == "unsubscribe" || command == "remove") {
                 if (request_cb_)
                     request_cb_(request_t::unsubscribe, request, remote_endpoint());
 
-                unobserve(full_uri);
+                auto obj = object_dictionary_.find_descendant_object(uri);
+                unobserve(obj);
             } else
                 throw unknown_operation_error();
         }

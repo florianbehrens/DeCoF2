@@ -27,46 +27,42 @@ client_context::client_context(object_dictionary& od, userlevel_t ul) : basic_cl
 {
 }
 
-void client_context::observe(const std::string& uri, value_change_slot slot, char separator)
+void client_context::observe(object* obj, value_change_slot slot)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    auto obj = object_dictionary_.find_object(uri, separator);
-
-    if (auto observable = dynamic_cast<client_observe_interface*>(obj)) {
-        if (effective_userlevel() > obj->readlevel()) {
-            throw access_denied_error();
-        }
-
-        if (observables_.count(uri) == 0) {
-            observables_[uri] = observable->observe(slot);
-        } else {
-            if (client_read_interface* readable = dynamic_cast<client_read_interface*>(obj)) {
-                // TODO: Raise error or deliver value?
-                slot(uri, readable->generic_value());
-            }
-        }
-    } else {
+    auto observable = dynamic_cast<client_observe_interface*>(obj);
+    if (observable == nullptr)
         throw invalid_parameter_error();
+    if (effective_userlevel() > obj->readlevel())
+        throw access_denied_error();
+
+    auto uri = obj->fq_name();
+    if (observables_.count(uri) == 0) {
+        observables_[uri] = observable->observe(slot);
+    } else {
+        if (auto readable = dynamic_cast<const client_read_interface*>(obj)) {
+            // TODO: Raise error or deliver value?
+            slot(uri, readable->generic_value());
+        }
     }
 }
 
-void client_context::unobserve(const std::string& uri, char separator)
+void client_context::unobserve(object* obj)
 {
-    if (observables_.count(uri) != 0) {
-        object_dictionary::context_guard cg(object_dictionary_, this);
+    object_dictionary::context_guard cg(object_dictionary_, this);
 
-        auto obj = object_dictionary_.find_object(uri, separator);
+    auto uri = obj->fq_name();
 
-        if (auto observable = dynamic_cast<client_observe_interface*>(obj)) {
-            observables_.erase(uri);
-            observable->unobserve();
-        } else {
-            throw invalid_parameter_error();
-        }
-    } else {
+    if (observables_.count(uri) == 0)
         throw not_subscribed_error();
-    }
+
+    auto observable = dynamic_cast<client_observe_interface*>(obj);
+    if (observable == nullptr)
+        throw invalid_parameter_error();
+
+    observables_.erase(uri);
+    observable->unobserve();
 }
 
 void client_context::tick()

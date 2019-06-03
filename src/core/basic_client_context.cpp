@@ -56,31 +56,27 @@ std::string basic_client_context::remote_endpoint() const
     return std::string("undefined");
 }
 
-void basic_client_context::set_parameter(const std::string& uri, const value_t& value, char separator)
+void basic_client_context::set_parameter(object* obj, const value_t& value)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     if (userlevel_ == decof::Readonly)
         throw access_denied_error();
 
-    object*                 te    = object_dictionary_.find_object(uri, separator);
-    client_write_interface* param = dynamic_cast<client_write_interface*>(te);
-
+    auto param = dynamic_cast<client_write_interface*>(obj);
     if (param == nullptr)
         throw invalid_parameter_error();
-    if (userlevel_ > te->writelevel())
+    if (userlevel_ > obj->writelevel())
         throw access_denied_error();
 
     param->generic_value(value);
 }
 
-value_t basic_client_context::get_parameter(const std::string& uri, char separator)
+value_t basic_client_context::get_parameter(const object* obj)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
-    object*                obj   = object_dictionary_.find_object(uri, separator);
-    client_read_interface* param = dynamic_cast<client_read_interface*>(obj);
-
+    auto param = dynamic_cast<const client_read_interface*>(obj);
     if (param == nullptr)
         throw invalid_parameter_error();
     if (effective_userlevel() > obj->readlevel())
@@ -89,19 +85,17 @@ value_t basic_client_context::get_parameter(const std::string& uri, char separat
     return param->generic_value();
 }
 
-void basic_client_context::signal_event(const std::string& uri, char separator)
+void basic_client_context::signal_event(object* obj)
 {
     object_dictionary::context_guard cg(object_dictionary_, this);
 
     if (userlevel_ == decof::Readonly)
         throw access_denied_error();
 
-    object* te = object_dictionary_.find_object(uri, separator);
-    event*  ev = dynamic_cast<event*>(te);
-
+    auto ev = dynamic_cast<event*>(obj);
     if (ev == nullptr)
         throw invalid_parameter_error();
-    if (userlevel_ > te->writelevel())
+    if (userlevel_ > obj->writelevel())
         throw access_denied_error();
 
     ev->signal();
