@@ -108,7 +108,7 @@ void pubsub_context::notify(std::string uri, const value_t& value)
 {
     // Cut root node name (for compatibility reasons to 'classic' DeCoF)
     if (uri != object_dictionary_.name())
-        uri.erase(0, object_dictionary_.name().size() + 1);
+        uri.erase(0, ::strlen(object_dictionary_.name()) + 1);
 
     pending_updates_.push(uri, value);
     preload_writing();
@@ -180,7 +180,8 @@ void pubsub_context::process_request(std::string request)
                 throw access_denied_error();
 
             client_context::userlevel(static_cast<userlevel_t>(ul));
-            notify(object_dictionary_.name() + ":ul", scalar_t(static_cast<decof::integer_t>(userlevel())));
+            notify(
+                std::string(object_dictionary_.name()) + ":ul", scalar_t(static_cast<decof::integer_t>(userlevel())));
         } else {
             in >> uri;
 
@@ -197,7 +198,7 @@ void pubsub_context::process_request(std::string request)
 
                 // Apply special handling for 'ul' parameter
                 if (uri == "ul") {
-                    notify(object_dictionary_.name() + ":ul", static_cast<decof::integer_t>(userlevel()));
+                    notify(std::string(object_dictionary_.name()) + ":ul", static_cast<decof::integer_t>(userlevel()));
                 } else {
                     auto obj = object_dictionary_.find_descendant_object(uri);
                     observe(

@@ -40,9 +40,9 @@ struct my_context_t : public client_context
 {
     using client_context::client_context;
 
-    void browse(object_visitor* visitor, const std::string& root_uri = std::string())
+    void browse_object(decof::object* obj, object_visitor* visitor)
     {
-        client_context::browse(visitor, root_uri);
+        client_context::browse_object(obj, visitor);
     }
 };
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(base_functions)
 
     auto         my_context = std::make_shared<my_context_t>(obj_dict);
     test_visitor visitor;
-    my_context->browse(&visitor);
+    my_context->browse_object(&obj_dict, &visitor);
     BOOST_REQUIRE_EQUAL(visitor.counter, 12);
 }
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(tree_visitor)
 
     std::ostringstream out;
     cli::tree_visitor  visitor(out);
-    my_context->browse(&visitor);
+    my_context->browse_object(&obj_dict, &visitor);
 
     auto nominal = R"lit(root NODE
 root:event EVENT

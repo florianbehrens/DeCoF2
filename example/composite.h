@@ -24,7 +24,7 @@ class composite final : public decof::node
     friend class sum_type;
 
   public:
-    explicit composite(std::string name, node* parent = nullptr);
+    explicit composite(const char* name, node* parent = nullptr);
 
   private:
     void summand1_changing(const int& value);

@@ -31,7 +31,7 @@ class handler_event : public event
 {
   public:
     explicit handler_event(
-        std::string           name,
+        const char*           name,
         node*                 parent         = nullptr,
         std::function<void()> signal_handler = nullptr,
         userlevel_t           writelevel     = Normal);

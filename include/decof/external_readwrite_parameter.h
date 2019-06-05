@@ -20,14 +20,13 @@
 #include "encoding_hint.h"
 #include "observable_parameter.h"
 #include "typed_client_write_interface.h"
-#include <string>
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_EXTERNAL_READWRITE_PARAMETER(type_name, value_type)                        \
     struct type_name : public decof::external_readwrite_parameter<value_type>                    \
     {                                                                                            \
         type_name(                                                                               \
-            std::string        name,                                                             \
+            const char*        name,                                                             \
             decof::node*       parent,                                                           \
             decof::userlevel_t readlevel  = decof::Readonly,                                     \
             decof::userlevel_t writelevel = decof::Normal)                                       \
@@ -60,7 +59,7 @@ class external_readwrite_parameter : public observable_parameter<T, EncodingHint
 {
   public:
     external_readwrite_parameter(
-        std::string name, node* parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal)
+        const char* name, node* parent, userlevel_t readlevel = Normal, userlevel_t writelevel = Normal)
       : observable_parameter<T, EncodingHint>(name, parent, readlevel, writelevel)
     {
     }

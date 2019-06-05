@@ -36,10 +36,10 @@ class background_worker final : public decof::node, public std::enable_shared_fr
     using ptr = std::shared_ptr<background_worker>;
 
     /// Factory method.
-    static ptr create(const std::string& name, decof::node* parent = nullptr);
+    static ptr create(const char* name, decof::node* parent = nullptr);
 
   private:
-    explicit background_worker(const std::string& name, decof::node* parent = nullptr);
+    explicit background_worker(const char* name, decof::node* parent = nullptr);
     void start();
 
     decof::handler_event                    event_;

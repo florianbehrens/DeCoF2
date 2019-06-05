@@ -21,22 +21,21 @@
 #include "types.h"
 #include <list>
 #include <memory>
-#include <string>
 #include <string_view>
 
 namespace decof {
 
-class node : public readable_parameter<std::list<std::string>>
+class node : public readable_parameter<std::list<const char*>>
 {
   public:
     typedef std::list<object*>   children_t;
     typedef children_t::iterator iterator;
 
   public:
-    explicit node(std::string name, node* parent = nullptr, userlevel_t readlevel = Normal);
+    explicit node(const char* name, node* parent = nullptr, userlevel_t readlevel = Normal);
     virtual ~node();
 
-    virtual std::list<std::string> value() const override;
+    virtual std::list<const char*> value() const override;
 
     /// Visitor pattern accept method
     virtual void accept(object_visitor* visitor) override final;
@@ -75,7 +74,7 @@ class node : public readable_parameter<std::list<std::string>>
     object* find_descendant_object(std::string_view uri, char separator = ':');
 
     /// The same as value().
-    std::list<std::string> children() const;
+    std::list<const char*> children() const;
 
     /// Returns an iterator for the list of children.
     iterator begin();

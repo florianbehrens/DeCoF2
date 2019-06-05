@@ -105,7 +105,7 @@ void cout_tuple_parameter::value(const cout_tuple_parameter_type& value)
 
 struct ip_address_parameter : public external_readwrite_parameter<std::string>
 {
-    ip_address_parameter(std::string name, node* parent = nullptr)
+    ip_address_parameter(const char* name, node* parent = nullptr)
       : external_readwrite_parameter<std::string>(name, parent)
     {
     }

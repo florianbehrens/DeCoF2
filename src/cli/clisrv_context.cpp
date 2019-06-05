@@ -200,27 +200,30 @@ void clisrv_context::process_request(std::string request)
                 if (request_cb_)
                     request_cb_(request_t::browse, request, remote_endpoint());
 
-                // This command is for compatibility reasons with legacy DeCoF
-                std::string root_uri(object_dictionary_.name());
-                if (!uri.empty())
-                    root_uri = uri;
+                object* obj = &object_dictionary_;
+                if (!uri.empty()) {
+                    obj = object_dictionary_.find_descendant_object(uri);
+                }
 
                 std::ostringstream temp_ss;
                 browse_visitor     visitor(temp_ss);
-                browse(&visitor, root_uri);
+
+                browse_object(obj, &visitor);
 
                 out << temp_ss.str();
             } else if (op == "tree" && !value_available) {
                 if (request_cb_)
                     request_cb_(request_t::tree, request, remote_endpoint());
 
-                std::string root_uri(object_dictionary_.name());
-                if (!uri.empty())
-                    root_uri = uri;
+                object* obj = &object_dictionary_;
+                if (!uri.empty()) {
+                    obj = object_dictionary_.find_descendant_object(uri);
+                }
 
                 std::ostringstream temp_ss;
                 tree_visitor       visitor(temp_ss);
-                browse(&visitor, root_uri);
+
+                browse_object(obj, &visitor);
 
                 out << temp_ss.str();
             } else

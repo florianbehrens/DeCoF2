@@ -101,27 +101,15 @@ void basic_client_context::signal_event(object* obj)
     ev->signal();
 }
 
-void basic_client_context::browse(object_visitor* visitor, const std::string& root_uri)
+void basic_client_context::browse_object(object* obj, object_visitor* visitor)
 {
-    object_dictionary::context_guard cg(object_dictionary_, this);
-
-    std::string uri = root_uri;
-    if (uri.empty())
-        uri = object_dictionary_.name();
-
-    if (object* te = object_dictionary_.find_object(uri)) {
-        // Recursively iterate over all objects beginning from root URI
-        browse_object(te, visitor);
-    } else
+    if (obj == nullptr)
         throw invalid_parameter_error();
-}
 
-void basic_client_context::browse_object(object* te, object_visitor* visitor)
-{
-    te->accept(visitor);
+    obj->accept(visitor);
 
     // If node browse children
-    if (node* n = dynamic_cast<node*>(te)) {
+    if (node* n = dynamic_cast<node*>(obj)) {
         for (auto& child : *n) {
             if (effective_userlevel() <= child->readlevel())
                 browse_object(child, visitor);

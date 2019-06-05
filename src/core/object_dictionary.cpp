@@ -35,7 +35,7 @@ object_dictionary::context_guard::~context_guard()
     object_dictionary_.set_current_context(nullptr);
 }
 
-object_dictionary::object_dictionary(const std::string& root_uri) : node(root_uri, nullptr)
+object_dictionary::object_dictionary(const char* root_uri) : node(root_uri, nullptr)
 {
 }
 

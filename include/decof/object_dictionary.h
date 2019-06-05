@@ -19,7 +19,6 @@
 
 #include "node.h"
 #include <list>
-#include <string>
 #include <string_view>
 
 namespace decof {
@@ -53,7 +52,7 @@ class object_dictionary : public node
         const basic_client_context* client_context_;
     };
 
-    object_dictionary(const std::string& root_uri = "root");
+    object_dictionary(const char* root_uri = "root");
 
     const basic_client_context* current_context() const;
 

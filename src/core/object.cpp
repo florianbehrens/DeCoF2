@@ -21,7 +21,7 @@
 
 namespace decof {
 
-object::object(std::string name, node* parent, userlevel_t readlevel, userlevel_t writelevel)
+object::object(const char* name, node* parent, userlevel_t readlevel, userlevel_t writelevel)
   : name_(name), parent_(parent), readlevel_(readlevel), writelevel_(writelevel)
 {
     assert(readlevel != Readonly);
@@ -37,12 +37,12 @@ object::~object()
         parent_->remove_child(this);
 }
 
-std::string object::name() const
+const char* object::name() const
 {
     return name_;
 }
 
-void object::name(std::string name)
+void object::name(const char* name)
 {
     name_ = name;
 }

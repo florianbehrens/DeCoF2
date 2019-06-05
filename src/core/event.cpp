@@ -19,7 +19,7 @@
 
 namespace decof {
 
-event::event(std::string name, node* parent, userlevel_t writelevel) : object(name, parent, Forbidden, writelevel)
+event::event(const char* name, node* parent, userlevel_t writelevel) : object(name, parent, Forbidden, writelevel)
 {
 }
 

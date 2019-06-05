@@ -19,6 +19,7 @@
 
 #include "userlevel.h"
 #include <string>
+#include <string_view>
 
 namespace decof {
 
@@ -38,7 +39,7 @@ class object
     friend class node;
 
   public:
-    object(std::string name, node* parent, userlevel_t readlevel, userlevel_t writelevel);
+    object(const char* name, node* parent, userlevel_t readlevel, userlevel_t writelevel);
     virtual ~object();
 
     object(const object&) = delete;
@@ -47,8 +48,8 @@ class object
     object& operator=(const object&) = delete;
     object& operator=(object&&) = delete;
 
-    std::string name() const;
-    void        name(std::string name);
+    const char* name() const;
+    void        name(const char* name);
 
     std::string fq_name() const;
 
@@ -73,7 +74,7 @@ class object
     const object_dictionary* get_object_dictionary() const;
 
   private:
-    std::string name_;
+    const char* name_;
     node*       parent_{nullptr};
     userlevel_t readlevel_;
     userlevel_t writelevel_;

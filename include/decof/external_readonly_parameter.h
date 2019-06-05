@@ -23,13 +23,12 @@
 #include "tick_interface.h"
 #include <boost/signals2/connection.hpp>
 #include <optional>
-#include <string>
 
 /// Convenience macro for parameter declaration
 #define DECOF_DECLARE_EXTERNAL_READONLY_PARAMETER(type_name, value_type)                               \
     struct type_name : public decof::external_readonly_parameter<value_type>                           \
     {                                                                                                  \
-        type_name(std::string name, decof::node* parent, decof::userlevel_t readlevel = decof::Normal) \
+        type_name(const char* name, decof::node* parent, decof::userlevel_t readlevel = decof::Normal) \
           : decof::external_readonly_parameter<value_type>(name, parent, readlevel)                    \
         {                                                                                              \
         }                                                                                              \
@@ -55,7 +54,7 @@ template <typename T, encoding_hint EncodingHint = encoding_hint::none>
 class external_readonly_parameter : public tick_interface, public observable_parameter<T, EncodingHint>
 {
   public:
-    external_readonly_parameter(std::string name, node* parent, userlevel_t readlevel = Normal)
+    external_readonly_parameter(const char* name, node* parent, userlevel_t readlevel = Normal)
       : observable_parameter<T, EncodingHint>(name, parent, readlevel, Forbidden)
     {
     }

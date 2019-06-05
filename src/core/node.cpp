@@ -24,8 +24,8 @@
 
 namespace decof {
 
-node::node(std::string name, node* parent, userlevel_t readlevel)
-  : readable_parameter<std::list<std::string>>(name, parent, readlevel, Forbidden)
+node::node(const char* name, node* parent, userlevel_t readlevel)
+  : readable_parameter<std::list<const char*>>(name, parent, readlevel, Forbidden)
 {
 }
 
@@ -36,7 +36,7 @@ node::~node()
     }
 }
 
-std::list<std::string> node::value() const
+std::list<const char*> node::value() const
 {
     return children();
 }
@@ -103,9 +103,9 @@ object* node::find_descendant_object(std::string_view uri, char separator)
     return nullptr;
 }
 
-std::list<std::string> node::children() const
+std::list<const char*> node::children() const
 {
-    std::list<std::string> retval;
+    std::list<const char*> retval;
     std::transform(
         children_.cbegin(), children_.cend(), std::back_inserter(retval), [](object* obj) { return obj->name(); });
     return retval;

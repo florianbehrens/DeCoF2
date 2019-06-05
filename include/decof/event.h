@@ -32,7 +32,7 @@ namespace decof {
 class event : public object
 {
   public:
-    explicit event(std::string name, node* parent = nullptr, userlevel_t writelevel = Normal);
+    explicit event(const char* name, node* parent = nullptr, userlevel_t writelevel = Normal);
 
     /// Visitor pattern accept method
     virtual void accept(object_visitor* visitor) override final;

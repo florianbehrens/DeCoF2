@@ -104,7 +104,7 @@ void scgi_context::handle_get_request()
     if (parser_.uri == "/browse" || parser_.uri == "/browse/") {
         resp.headers["Content-Type"] = "text/xml";
         xml_visitor visitor(body_oss);
-        browse(&visitor);
+        browse_object(&object_dictionary_, &visitor);
     } else {
         resp.headers["Content-Type"] = "text/plain";
 

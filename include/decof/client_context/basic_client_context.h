@@ -103,17 +103,20 @@ class basic_client_context
      */
     void signal_event(object* obj);
 
-    /** @brief Traverse object tree using visitor pattern.
+    /**
+     * @brief Traverse object tree using visitor pattern.
+     *
+     * For convenience the obj argument is allowed to be nullptr.
+     *
+     * @param obj Root element to start browsing or nullptr.
      * @param visitor Pointer to visitor object.
-     * @param root_uri Root element to start browsing. If omitted browsing
-     * starts at root uri. */
-    void browse(object_visitor* visitor, const std::string& root_uri = std::string());
+     * @throws If obj does not point to a valid object.
+     */
+    void browse_object(object* obj, object_visitor* visitor);
 
     object_dictionary& object_dictionary_;
 
   private:
-    void browse_object(object* te, object_visitor* visitor);
-
     userlevel_t userlevel_;
 };
 

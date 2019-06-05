@@ -23,13 +23,13 @@
 #include <chrono>
 #include <thread>
 
-background_worker::ptr background_worker::create(const std::string& name, decof::node* parent)
+background_worker::ptr background_worker::create(const char* name, decof::node* parent)
 {
     background_worker::ptr self(new background_worker(name, parent));
     return self;
 }
 
-background_worker::background_worker(const std::string& name, decof::node* parent)
+background_worker::background_worker(const char* name, decof::node* parent)
   : decof::node(name, parent),
     event_("start", this, std::bind(&background_worker::start, this)),
     ready_("ready", this, false)

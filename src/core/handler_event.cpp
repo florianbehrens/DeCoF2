@@ -19,7 +19,7 @@
 namespace decof {
 
 handler_event::handler_event(
-    std::string name, node* parent, std::function<void()> signal_handler, userlevel_t writelevel)
+    const char* name, node* parent, std::function<void()> signal_handler, userlevel_t writelevel)
   : event(name, parent, writelevel), signal_handler_(signal_handler)
 {
 }
