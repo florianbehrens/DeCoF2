@@ -17,7 +17,7 @@
 #include "object_dictionary.h"
 #include "object_visitor.h"
 #include "tick_interface.h"
-#include <client_context/client_context.h>
+#include <client_context/basic_client_context.h>
 #include <algorithm>
 #include <cassert>
 #include <string_view>

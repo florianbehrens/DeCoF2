@@ -14,13 +14,11 @@ add_library(
 target_include_directories(
     decof2-microcore
     PUBLIC
-        ${Boost_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/include/
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include/decof/
 )
 
-target_link_libraries(decof2-microcore ${Boost_SYSTEM_LIBRARY})
 target_compile_options(decof2-microcore PUBLIC $<IF:$<STREQUAL:${DECOF2_COMPILE_WITH_COVERAGE},ON>,-fprofile-arcs -ftest-coverage,>)
 
 if(${Boost_FOUND})
