@@ -18,7 +18,7 @@
 
 namespace decof {
 
-runtime_error::runtime_error(int code, const std::string& what) : std::runtime_error(what), code_(code)
+runtime_error::runtime_error(int code, const char* what) : std::runtime_error(what), code_(code)
 {
 }
 

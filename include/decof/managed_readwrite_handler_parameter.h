@@ -39,14 +39,14 @@ class managed_readwrite_handler_parameter : public managed_readwrite_parameter<T
     using managed_readwrite_parameter<T, EncodingHint>::managed_readwrite_parameter;
 
     managed_readwrite_handler_parameter(
-        const std::string& name, node* parent, std::function<void(const T&)> verify_handler, const T& value)
+        const char* name, node* parent, std::function<void(const T&)> verify_handler, const T& value)
       : managed_readwrite_parameter<T, EncodingHint>(name, parent, Normal, Normal, value),
         verify_handler_(verify_handler)
     {
     }
 
     managed_readwrite_handler_parameter(
-        const std::string&            name,
+        const char*                   name,
         node*                         parent,
         std::function<void(const T&)> verify_handler,
         userlevel_t                   readlevel  = Normal,

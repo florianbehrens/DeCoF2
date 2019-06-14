@@ -39,7 +39,7 @@ enum error_codes {
 class runtime_error : public std::runtime_error
 {
   protected:
-    explicit runtime_error(int code, const std::string& what);
+    explicit runtime_error(int code, const char* what);
 
   public:
     int code();
