@@ -151,11 +151,13 @@ BOOST_AUTO_TEST_CASE(add_and_remove_child_to_node)
 
     BOOST_REQUIRE_EQUAL(node.children().size(), 1);
     BOOST_REQUIRE_EQUAL(parameter.parent(), &node);
+    BOOST_REQUIRE_EQUAL(node.find_descendant_object("parameter"), &parameter);
 
     node.remove_child(&parameter);
 
     BOOST_REQUIRE_EQUAL(node.children().size(), 0);
     BOOST_REQUIRE(parameter.parent() == nullptr);
+    BOOST_REQUIRE_EQUAL(node.find_descendant_object("parameter"), nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(set_and_reset_parent)
