@@ -22,7 +22,7 @@ runtime_error::runtime_error(int code, const char* what) : std::runtime_error(wh
 {
 }
 
-int runtime_error::code()
+int runtime_error::code() const
 {
     return code_;
 }

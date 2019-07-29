@@ -42,7 +42,7 @@ class runtime_error : public std::runtime_error
     explicit runtime_error(int code, const char* what);
 
   public:
-    int code();
+    int code() const;
 
   private:
     int code_;
