@@ -28,6 +28,9 @@ set(CMAKE_CXX_STANDARD 17)
 # Remove Visual Studio 'checked iterators' and 'runtime security' warnings
 if(MSVC)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+
+    # warning C4996: 'std::allocator<void>': warning STL4009: std::allocator<void> is deprecated in C++17
+    add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
 endif()
 
 add_custom_target(

@@ -22,9 +22,6 @@
 
 namespace decof {
 
-class node;
-class client_read_interface;
-
 namespace cli {
 
 class browse_visitor : public object_visitor

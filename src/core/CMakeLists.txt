@@ -28,5 +28,11 @@ if(${Boost_FOUND})
         client_context.cpp
     )
 
+    target_include_directories(
+        decof2-core
+        PUBLIC
+            ${Boost_INCLUDE_DIR}
+    )
+
     target_link_libraries(decof2-core decof2-microcore ${Boost_SYSTEM_LIBRARY})
 endif()
